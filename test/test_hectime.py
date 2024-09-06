@@ -169,7 +169,7 @@ def test_curtim() -> None:
     diff1 = (julian2[0] * 1440 + timeval[0]) - (julian[0] * 1440 + minute[0])
     diff2 = (
         -(
-            cast(timedelta, now.replace(tzinfo=ZoneInfo("US/Central")).utcoffset())
+            cast(timedelta, now.replace(tzinfo=tzlocal.get_localzone()).utcoffset())
         ).total_seconds()
         // 60
     )
