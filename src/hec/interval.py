@@ -7,6 +7,7 @@ Provides standard time intervals
 
 from typing import Callable
 from typing import Optional
+from typing import Union
 from typing import cast
 from hec.timespan import TimeSpan
 from hec.timespan import TimeSpanException
@@ -162,6 +163,66 @@ class Interval(TimeSpan):
             if matcher
             else [i.name for i in intervals]
         )
+
+    @staticmethod
+    def getCwms(key: Union[str, int]) -> "Interval":
+        """
+        Returns a CWMS interval with the specified name or minutes
+
+        Args:
+            key (Union[str, int]): The name or (actual or characteristic) minutes of the interval to retrieve.
+
+        Raises:
+            IntervalException: if no CWMS interval exists with the specified key
+            TypeError: If the key is not a string or integer
+
+        Returns:
+            Interval: The CWMS interval
+        """
+        intvl: Optional[Interval] = None
+        if isinstance(key, str):
+            intvl = Interval.getAnyCwms(lambda i: i.name == key)
+            if intvl is None:
+                raise IntervalException(f'No CWMS interval found with name = "{key}"')
+        elif isinstance(key, int):
+            intvl = Interval.getAnyCwms(lambda i: i.minutes == key)
+            if intvl is None:
+                raise IntervalException(f"No CWMS interval found with minutes = {key}")
+        else:
+            raise TypeError(f"Expected string or integer, got {key.__class__.__name__}")
+        return intvl
+
+    @staticmethod
+    def getDss(key: Union[str, int]) -> "Interval":
+        """
+        Returns an HEC-DSS interval with the specified name or minutes
+
+        Args:
+            key (Union[str, int]): The name or (actual or characteristic) minutes of the interval to retrieve.
+
+        Raises:
+            IntervalException: if no Dss interval exists with the specified key
+            TypeError: If the key is not a string or integer
+
+        Returns:
+            Interval: The Dss interval
+        """
+        intvl: Optional[Interval] = None
+        if isinstance(key, str):
+            intvl = Interval.getAnyDss(lambda i: i.name == key)
+            if intvl is None:
+                raise IntervalException(
+                    f'No HEC-DSS interval found with name = "{key}"'
+                )
+        elif isinstance(key, int):
+            intvl = Interval.getAnyDss(lambda i: i.minutes == key)
+            if intvl is None:
+                raise IntervalException(
+                    f"No HEC-DSS interval found with minutes = {key}"
+                )
+        else:
+            raise TypeError(f"Expected string or integer, got {key.__class__.__name__}")
+        return intvl
 
     @staticmethod
     def getAny(matcher: Callable[["Interval"], bool]) -> Optional["Interval"]:

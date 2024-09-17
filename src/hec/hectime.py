@@ -2759,7 +2759,19 @@ class HecTime:
             # ------------------------------------------ #
             # first back up to the start of the interval #
             # ------------------------------------------ #
-            if intervalMinutes == Interval.MINUTES["1Year"]:
+            if intervalMinutes == Interval.MINUTES["1Century"]:
+                values[Y] -= values[Y] % 100
+                values[M] = 1
+                values[D] = 1
+                values[H] = 0
+                values[N] = 0
+            elif intervalMinutes == Interval.MINUTES["1Decade"]:
+                values[Y] -= values[Y] % 10
+                values[M] = 1
+                values[D] = 1
+                values[H] = 0
+                values[N] = 0
+            elif intervalMinutes == Interval.MINUTES["1Year"]:
                 values[M] = 1
                 values[D] = 1
                 values[H] = 0
@@ -3724,7 +3736,31 @@ class HecTime:
                     )
                 self.set(t)
                 return self
-            if minutes == Interval.MINUTES["1Year"]:
+            if minutes == Interval.MINUTES["1Century"]:
+                # --------- #
+                # 1 century #
+                # --------- #
+                isLastDay = values[D] == maxDay(values[Y], values[M])
+                values[Y] += 100 * count
+                lastDay = maxDay(values[Y], values[M])
+                if isLastDay:
+                    values[D] = lastDay
+                else:
+                    if lastDay < values[D]:
+                        values[D] = lastDay
+            elif minutes == Interval.MINUTES["1Decade"]:
+                # -------- #
+                # 1 decade #
+                # -------- #
+                isLastDay = values[D] == maxDay(values[Y], values[M])
+                values[Y] += 10 * count
+                lastDay = maxDay(values[Y], values[M])
+                if isLastDay:
+                    values[D] = lastDay
+                else:
+                    if lastDay < values[D]:
+                        values[D] = lastDay
+            elif minutes == Interval.MINUTES["1Year"]:
                 # ------ #
                 # 1 year #
                 # ------ #

@@ -2,6 +2,7 @@
 """
 
 from hec.interval import Interval
+from hec.interval import IntervalException
 
 
 def test_get_all() -> None:
@@ -110,3 +111,49 @@ def test_get_any() -> None:
     assert i.minutes == 720
     assert i.name == "12Hour"
     assert Interval.getAnyDss(lambda i: i.name == "12Hours") is None
+
+
+def test_getCwms() -> None:
+    intvl = Interval.getCwms("1Month")
+    assert intvl.name == "1Month"
+    assert intvl.minutes == 43200
+    intvl = Interval.getCwms(720)
+    assert intvl.name == "12Hours"
+    assert intvl.minutes == 720
+    exception_raised = False
+    try:
+        intvl = Interval.getCwms("12Hour")
+    except Exception as e:
+        exception_raised = True
+        assert isinstance(e, IntervalException)
+    assert exception_raised
+    exception_raised = False
+    try:
+        intvl = Interval.getCwms(intvl)  # type: ignore
+    except Exception as e:
+        exception_raised = True
+        assert isinstance(e, TypeError)
+    assert exception_raised
+
+
+def test_getDss() -> None:
+    intvl = Interval.getDss("1Month")
+    assert intvl.name == "1Month"
+    assert intvl.minutes == 43200
+    intvl = Interval.getDss(720)
+    assert intvl.name == "12Hour"
+    assert intvl.minutes == 720
+    exception_raised = False
+    try:
+        intvl = Interval.getDss("12Hours")
+    except Exception as e:
+        exception_raised = True
+        assert isinstance(e, IntervalException)
+    assert exception_raised
+    exception_raised = False
+    try:
+        intvl = Interval.getDss(intvl)  # type: ignore
+    except Exception as e:
+        exception_raised = True
+        assert isinstance(e, TypeError)
+    assert exception_raised
