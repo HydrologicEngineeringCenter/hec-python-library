@@ -57,7 +57,7 @@ class Duration(TimeSpan):
                 no such Duration object exists
 
         Returns:
-            Duration: _description_
+            Duration: The Duration object matching the specified interval and bop setting.
         """
         if isinstance(interval, str):
             intvl = Interval.getAnyCwms(lambda i: i.name == interval)
