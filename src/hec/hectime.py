@@ -6,6 +6,12 @@ Module to provide native python compatibility for the `hec.heclib.util.HecTime` 
 Jump to [**`class HecTime`**](#HecTime)
 """
 
+import os, sys
+
+import_dir = os.path.abspath(".")
+if not import_dir in sys.path:
+    sys.path.append(import_dir)
+
 from datetime import datetime, timedelta
 from functools import total_ordering, wraps
 from typing import cast

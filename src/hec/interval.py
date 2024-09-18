@@ -1,9 +1,12 @@
-import os, sys
-
-sys.path.append(os.path.abspath("."))
 """
 Provides standard time intervals
 """
+
+import os, sys
+
+import_dir = os.path.abspath(".")
+if not import_dir in sys.path:
+    sys.path.append(import_dir)
 
 from typing import Callable
 from typing import Optional

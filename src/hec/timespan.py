@@ -1,10 +1,13 @@
-import os, sys
-
-sys.path.append(os.path.abspath("."))
 """
 Provides basic time span functionality.
 Like timedelta, but with calendar capabilities and without sub-second resolution.
 """
+
+import os, sys
+
+import_dir = os.path.abspath(".")
+if not import_dir in sys.path:
+    sys.path.append(import_dir)
 
 from datetime import timedelta
 from fractions import Fraction
@@ -18,18 +21,16 @@ import re
 __all__ = ["TimeSpanException", "TimeSpan"]
 Y, M, D, H, N, S = 0, 1, 2, 3, 4, 5
 
-"""
-modified for fractional months from https://rgxdb.com/r/MD2234J
-
-    1   negative ('-' == negative, empty == positive)
-    2   years
-    3   months (modified to allow fractional months)
-    4   days/weeks
-    5   W or D (W == weeks, D == days)
-    6   hours
-    7   minutes
-    8   seconds
-"""
+# regex modified for fractional months from https://rgxdb.com/r/MD2234J
+#
+#     1   negative ('-' == negative, empty == positive)
+#     2   years
+#     3   months (modified to allow fractional months)
+#     4   days/weeks
+#     5   W or D (W == weeks, D == days)
+#     6   hours
+#     7   minutes
+#     8   seconds
 timespan_pattern = re.compile(
     r"^(-?)P(?=\d|T\d)(?:(\d+)Y)?(?:(\d+(?:/\d+)?)M)?(?:(\d+)([DW]))?(?:T(?:(\d+)H)?(?:(\d+)M)?(?:(\d+(?:\.\d+)?)S)?)?$"
 )
