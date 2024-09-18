@@ -4,9 +4,9 @@ Provides standard time intervals
 
 import os, sys
 
-import_dir = os.path.abspath(".")
-if not import_dir in sys.path:
-    sys.path.append(import_dir)
+_import_dir = os.path.abspath(".")
+if not _import_dir in sys.path:
+    sys.path.append(_import_dir)
 
 from typing import Callable
 from typing import Optional
@@ -26,7 +26,7 @@ class IntervalException(TimeSpanException):
 
 class Interval(TimeSpan):
     """
-    Class to hold Interval information.
+    Class to hold information about time series recurrence intervals.
 
     Intervals are a restriction of the TimeSpan base class that also hold extra information.
     - **Restriction:** At most one of `years`, `months`, `days`, `hours`, and `minutes` can be non-zero, and `seconds` must be zero.

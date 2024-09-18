@@ -8,9 +8,9 @@ Jump to [**`class HecTime`**](#HecTime)
 
 import os, sys
 
-import_dir = os.path.abspath(".")
-if not import_dir in sys.path:
-    sys.path.append(import_dir)
+_import_dir = os.path.abspath(".")
+if not _import_dir in sys.path:
+    sys.path.append(_import_dir)
 
 from datetime import datetime, timedelta
 from functools import total_ordering, wraps
