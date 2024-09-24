@@ -1,8 +1,104 @@
+"""
+Module for unit definitions and conversions.
+
+Uses the [Pint unit library](https://pint.readthedocs.io) for operations.
+For any unit some or all of the following exist:
+* **Pint unit:** The Pint Unit object or a valid name or definition used to create a Pint Unit object
+* **Unit name:** The local name used to refer to the Pint unit
+* **Unit aliases:** (Optional) Aliases for the unit name
+All Pint Units may be defined in a Pint unit registry with specified names. However those
+names (but not the definitions) must adhere to Python identifier rules which elimiates many
+common unit names. Although non-identifier aliases can (sometimes) be associated with the
+unit definitions, there is no mechanism to output the units in those aliases. If a Pint Unit
+does not have a name, its definition is output in its place. For this reason,unit names and
+aliaes are maintained in dictionaries separate from the Pint library.<br>
+
+**Example 1:** Unit name is not a valid Python identifier but is the same as the Pint Unit definition
+* Unit name = `g/l`
+* Pint unit definition = `g/l`
+* Unit aliases =
+    * `gm/l`
+    * `grams per liter`
+    * `grams/liter`
+
+```
+>>> from hec import unit
+>>> g_per_l_unit = unit.get_pint_unit('g/l')
+>>> print(repr(g_per_l_unit))
+<Unit('gram / liter')>
+>>> print(g_per_l_unit)
+gram / liter
+>>> print(f"{g_per_l_unit:D}")
+gram / liter
+>>> print(f"{g_per_l_unit:~D}")
+g / l
+>>> print(f"{g_per_l_unit:C}")
+gram/liter
+>>> print(f"{g_per_l_unit:~C}")
+g/l
+>>> print(f"{g_per_l_unit:P}")
+gram/liter
+>>> print(f"{g_per_l_unit:~P}")
+g/l
+>>> print(unit.get_unit_name(g_per_l_unit))
+g/l
+>>>
+```
+
+**Example 2:** Unit name is a valid Python identifier but is not the same as the Pint Unit definition
+* Pint unit definition = `ft**3/s`
+* Unit name = `cfs`
+* Unit aliases =
+    * `CFS`
+    * `FT3/S`
+    * `FT3/SEC`
+    * `cu-ft/sec`
+    * `cuft/sec`
+    * `ft3/s`
+    * `ft3/sec`
+    * `ft^3/s`
+
+```
+>>> from hec import unit
+>>> cfs_unit = unit.get_pint_unit("CFS")
+>>> print(repr(cfs_unit))
+<Unit('foot ** 3 / second')>
+>>> print(cfs_unit)
+foot ** 3 / second
+>>> print(f"{cfs_unit:D}")
+foot ** 3 / second
+>>> print(f"{cfs_unit:~D}")
+ft ** 3 / s
+>>> print(f"{cfs_unit:C}")
+foot**3/second
+>>> print(f"{cfs_unit:~C}")
+ft**3/s
+>>> print(f"{cfs_unit:P}")
+foot³/second
+>>> print(f"{cfs_unit:~P}")
+ft³/s
+>>> print(unit.get_unit_name(cfs_unit))
+cfs
+>>>
+```
+"""
+
+__all__ = [
+    "get_unit_registry",
+    "get_unit_context",
+    "get_pint_unit",
+    "get_unit_name",
+    "get_unit_aliases",
+    "get_compatible_units",
+    "convert_units",
+]
 import copy, math, os, sys
 
-_import_dir = os.path.abspath(".")
-if not _import_dir in sys.path:
-    sys.path.append(_import_dir)
+import pint.facets
+
+import_dir = os.path.abspath(".")
+if not import_dir in sys.path:
+    sys.path.append(import_dir)
 
 from typing import Any
 from typing import Union
@@ -57,7 +153,7 @@ ctx.redefine("US_survey_foot = 1200/3937*m")  # definition of obsoluete US surve
 # ----------------------------- #
 # Pint units for each unit name #
 # ----------------------------- #
-pint_units = {
+pint_units_by_unit_name = {
     "%": "%",
     "$": "USD",
     "$/kaf": "USD_per_kacre_foot",
@@ -75,7 +171,7 @@ pint_units = {
     "C": "degC",
     "cal": "cal",
     "cfs": "ft**3/s",
-    "cfs/mi2": "ft**3/s/mi** 2",
+    "cfs/mi2": "ft**3/s/mi**2",
     "cm": "cm",
     "cm/day": "cm/d",
     "cm2": "cm**2",
@@ -197,7 +293,7 @@ pint_units = {
 # -------------------------- #
 # aliases for each unit name #
 # -------------------------- #
-unit_aliases = {
+unit_names_by_alias = {
     "$/KAF": "$/kaf",
     "1000 M2": "1000 m2",
     "1000 M3": "1000 m3",
@@ -489,11 +585,36 @@ unit_aliases = {
 # -------------------------------------------- #
 # Unit names for each Pint unit representation #
 # -------------------------------------------- #
-unit_names = {}
-for unit_name in pint_units:
+unit_names_by_pint_repr = {}
+for unit_name in pint_units_by_unit_name:
     for format in (":D", ":P", ":C", ":~D", ":~P", ":~C"):
-        pint_repr = f"f\"{{ureg('{pint_units[unit_name]}').units{format}}}\""
-        unit_names[eval(pint_repr)] = unit_name
+        pint_repr = (
+            f"f\"{{ureg('{pint_units_by_unit_name[unit_name]}').units{format}}}\""
+        )
+        unit_names_by_pint_repr[eval(pint_repr)] = unit_name
+
+
+def get_unit_registry() -> pint.registry.UnitRegistry:
+    """
+    Returns the Pint unit registry. Pint doesn't share unit information between
+    registries so this registry must be used for any modification to the Pint behavior.
+    See [Pint documentation](https://pint.readthedocs.io) for more details.
+
+    Returns:
+        pint.registry.UnitRegistry: the Pint unit registry currently in use
+    """
+    return ureg
+
+
+def get_unit_context() -> pint.facets.context.objects.Context:
+    """
+    Returns the Pint unit registry context.
+    See [Pint documentation](https://pint.readthedocs.io) for more details.
+
+    Returns:
+        pint.facets.context.objects.Context: The unit registry context
+    """
+    return ctx
 
 
 def get_pint_unit(unit: str) -> pint.Unit:
@@ -501,19 +622,19 @@ def get_pint_unit(unit: str) -> pint.Unit:
     Gets the Pint unit object for a specified unit string
 
     Args:
-            unit (str): The specified unit. May be a unit name, unit alias, or a Pint unit string
+        unit (str): The specified unit. May be a unit name, unit alias, or a Pint unit string
 
     Raises:
-            UnitException: If the specified unit is not a valid unit name, unit alias, or Pint unit string
+        UnitException: If the specified unit is not a valid unit name, unit alias, or Pint unit string
 
     Returns:
-                    str: The Pint unit object
+        pint.Unit: The Pint unit object
     """
     try:
-        unit_str = pint_units[unit]
+        unit_str = pint_units_by_unit_name[unit]
     except KeyError:
         try:
-            unit_str = pint_units[unit_aliases[unit]]
+            unit_str = pint_units_by_unit_name[unit_names_by_alias[unit]]
         except KeyError:
             unit_str = unit
     try:
@@ -528,6 +649,70 @@ def get_pint_unit(unit: str) -> pint.Unit:
         raise UnitException(f"Unknown unit: {unit}")
 
 
+def get_unit_name(pint_unit: Union[str, pint.Unit]) -> str:
+    """
+    Returns the unit name of a Pint unit (string or object)
+
+    Args:
+        pint_unit (Union[str, pint.Unit]): The Pint unit
+
+    Raises:
+        KeyError: If no unit name exists for the Pint unit
+
+    Returns:
+        str: The unit_name
+    """
+    return unit_names_by_pint_repr[str(pint_unit)]
+
+
+def get_unit_aliases(unit: Union[str, pint.Unit]) -> list[str]:
+    """
+    Returns a list of aliases for the specified unit
+
+    Args:
+        unit (Union[str, pint.Unit]): A unit name, Pint Unit definition, or Pint Unit object
+
+    Raises:
+        KeyError: if the specified unit is not an existing unit name or a Pint Unit
+            (definition or object) referenced by a unit_name
+
+    Returns:
+        list[str]: A list of aliases for the specified unit
+    """
+    if unit == "lb":
+        unit_name = "lb"
+    else:
+        try:
+            unit_name = str(unit)
+        except KeyError:
+            if isinstance(unit, pint.Unit):
+                raise
+            else:
+                unit_name = unit
+        if unit_name not in pint_units_by_unit_name:
+            raise KeyError(unit_name)
+    return [k for k in unit_names_by_alias if unit_names_by_alias[k] == unit_name]
+
+
+def get_compatible_units(unit: Union[str, pint.Unit]) -> list[str]:
+    """
+    Returns a list of units names that are convertable to/from the specified unit
+
+    Args:
+        unit (Union[str, pint.Unit]): The unit to get compatible units for
+
+    Returns:
+        list[str]: The list of compatible unit names
+    """
+    dimensionality = str(get_pint_unit(str(unit)).dimensionality)
+    compatible = [
+        u
+        for u in pint_units_by_unit_name
+        if str(get_pint_unit(u).dimensionality) == dimensionality
+    ]
+    return compatible
+
+
 def convert_units(
     to_convert: Any, from_unit: Union[pint.Unit, str], to_unit: Union[pint.Unit, str]
 ) -> Any:
@@ -536,48 +721,46 @@ def convert_units(
     it is returned unchanged.
 
     Args:
-            to_convert (Any): The object to convert. May be:
-                    * integer
-                    * float
-                    * string
-                    * Pint Quantity
-                    * list
-                    * tuple
-            from_unit (Union[pint.Unit, str]): The unit to convert from. May be:
-                    * a unit name
-                    * a unit alias
-                    * a valid Pint unit string
-                    * a Pint unit
-            to_unit (Union[pint.Unit, str]): The unit to conver to. May be:
-                    * a unit name
-                    * a unit alias
-                    * a valid Pint unit string
-                    * a Pint unit
+        to_convert (Any): The object to convert. May be:
+            * integer
+            * float
+            * string
+            * Pint Quantity
+            * list
+            * tuple
+        from_unit (Union[pint.Unit, str]): The unit to convert from. May be:
+            * a unit name
+            * a unit alias
+            * a valid Pint unit string
+            * a Pint unit
+        to_unit (Union[pint.Unit, str]): The unit to conver to. May be:
+            * a unit name
+            * a unit alias
+            * a valid Pint unit string
+            * a Pint unit
 
     Raises:
-            UnitException: If:
-                    * A string is passed for one of the units that is not:
-                            * a unit name
-                            * a unit alias
-                            * a valid Pint unit string
-                    * The object to convert is (or contains) a Pint quantity whose
-                            unit is not the same as the `from_unit`.
+        UnitException: If:
+            * A string is passed for one of the units that is not:
+                * a unit name
+                * a unit alias
+                * a valid Pint unit string
+            * The object to convert is (or contains) a Pint quantity whose
+                unit is not the same as the `from_unit`.
 
     Returns:
-            Any:
-            * If `to_convert` is an integer, a float is returned
-            * If `to_convert` is a float, a float is returned
-            * If `to_convert` is a Pint Quantity:
-                    * if `from_unit` is the same as the unit of `to_convert`, a converted Quantity is returned
-                    * if `from_unit` is not the same as the unit of `to_convert`, a `UnitException` is raised
-            * If `to_convert` is a string, a string is returned
-                    * if the string is numeric the returned string will be a string of the converted value
-                    * if the string is not numeric, it is returned unchanged
-            * If `to_convert` is a list, a list is returned with each item either converted or not as specified
-                    in the rules above
-            * If `to_convert` is a tuple, a list is returned with each item either converted or not as specified
-                    in the rules above
-            * Otherwise `to_convert` is returned unchanged
+        Any: if `to_convert` is:
+        * **integer** or **float:** a *float* is returned
+        * **Pint Quantity:**
+            * if `from_unit` is the same as the unit of `to_convert`, a converted *Pint Quantity* is returned
+            * if `from_unit` is not the same as the unit of `to_convert`, a `UnitException` is raised
+        * **string:** a *string* is returned
+            * if the string is numeric the returned string will be a string of the converted value
+            * if the string is not numeric, it is returned unchanged
+        * **list** or **tuple:**, the *same type* returned with each item either converted or not as specified
+            in the rules above
+
+        Otherwise `to_convert` is returned unchanged
 
     """
     src_unit = (
@@ -594,7 +777,7 @@ def convert_units(
             # -------------- #
             if dst_unit == src_unit:
                 return 1
-            hz = pint.Quantity(math.sqrt(to_convert * 1000), ureg.Hz) #type: ignore
+            hz = pint.Quantity(math.sqrt(to_convert * 1000), ureg.Hz)  # type: ignore
             return hz.to(dst_unit).magnitude
         elif dst_unit == ureg("B_unit"):
             # -------------- #
@@ -620,7 +803,7 @@ def convert_units(
             # -------------- #
             if dst_unit == src_unit:
                 return ureg("B_unit")
-            hz = pint.Quantity(math.sqrt(to_convert.magnitude * 1000), ureg.Hz)  #type: ignore
+            hz = pint.Quantity(math.sqrt(to_convert.magnitude * 1000), ureg.Hz)  # type: ignore
             return hz.to(dst_unit)
         elif dst_unit == ureg("B_unit"):
             # -------------- #
@@ -629,7 +812,7 @@ def convert_units(
             if dst_unit == src_unit:
                 return ureg("B_unit")
             hz = pint.Quantity(to_convert.magnitude, src_unit).to(ureg("Hz")).magnitude
-            return pint.Quantity(hz**2 / 1000.0, ureg.B_unit) #type: ignore
+            return pint.Quantity(hz**2 / 1000.0, ureg.B_unit)  # type: ignore
         else:
             return to_convert.to(dst_unit, ctx)
     elif isinstance(to_convert, str):

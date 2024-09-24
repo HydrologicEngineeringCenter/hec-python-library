@@ -31,28 +31,22 @@
             <h2>API Documentation</h2>
                 <ul class="memberlist">
             <li>
-                    <a class="class" href="#UnitException">UnitException</a>
-                            <ul class="memberlist">
-                </ul>
-
+                    <a class="function" href="#get_unit_registry">get_unit_registry</a>
             </li>
             <li>
-                    <a class="variable" href="#ureg">ureg</a>
-            </li>
-            <li>
-                    <a class="variable" href="#ctx">ctx</a>
-            </li>
-            <li>
-                    <a class="variable" href="#pint_units">pint_units</a>
-            </li>
-            <li>
-                    <a class="variable" href="#unit_aliases">unit_aliases</a>
-            </li>
-            <li>
-                    <a class="variable" href="#unit_names">unit_names</a>
+                    <a class="function" href="#get_unit_context">get_unit_context</a>
             </li>
             <li>
                     <a class="function" href="#get_pint_unit">get_pint_unit</a>
+            </li>
+            <li>
+                    <a class="function" href="#get_unit_name">get_unit_name</a>
+            </li>
+            <li>
+                    <a class="function" href="#get_unit_aliases">get_unit_aliases</a>
+            </li>
+            <li>
+                    <a class="function" href="#get_compatible_units">get_compatible_units</a>
             </li>
             <li>
                     <a class="function" href="#convert_units">convert_units</a>
@@ -73,101 +67,148 @@
                     <h1 class="modulename">
 <a href="./../hec.html">hec</a><wbr>.unit    </h1>
 
-                
+                        <div class="docstring"><p>Module for unit definitions and conversions.</p>
+
+<p>Uses the <a href="https://pint.readthedocs.io">Pint unit library</a> for operations.
+For any unit some or all of the following exist:</p>
+
+<ul>
+<li><strong>Pint unit:</strong> The Pint Unit object or a valid name or definition used to create a Pint Unit object</li>
+<li><strong>Unit name:</strong> The local name used to refer to the Pint unit</li>
+<li><strong>Unit aliases:</strong> (Optional) Aliases for the unit name
+All Pint Units may be defined in a Pint unit registry with specified names. However those
+names (but not the definitions) must adhere to Python identifier rules which elimiates many
+common unit names. Although non-identifier aliases can (sometimes) be associated with the
+unit definitions, there is no mechanism to output the units in those aliases. If a Pint Unit
+does not have a name, its definition is output in its place. For this reason,unit names and
+aliaes are maintained in dictionaries separate from the Pint library.<br></li>
+</ul>
+
+<p><strong>Example 1:</strong> Unit name is not a valid Python identifier but is the same as the Pint Unit definition</p>
+
+<ul>
+<li>Unit name = <code>g/l</code></li>
+<li>Pint unit definition = <code>g/l</code></li>
+<li>Unit aliases = 
+<ul>
+<li><code>gm/l</code></li>
+<li><code>grams per liter</code></li>
+<li><code>grams/liter</code></li>
+</ul></li>
+</ul>
+
+<pre><code>&gt;&gt;&gt; from hec import unit
+&gt;&gt;&gt; g_per_l_unit = unit.get_pint_unit('g/l')
+&gt;&gt;&gt; print(repr(g_per_l_unit))
+&lt;Unit('gram / liter')&gt;
+&gt;&gt;&gt; print(g_per_l_unit)
+gram / liter
+&gt;&gt;&gt; print(f"{g_per_l_unit:D}")
+gram / liter
+&gt;&gt;&gt; print(f"{g_per_l_unit:~D}")
+g / l
+&gt;&gt;&gt; print(f"{g_per_l_unit:C}")
+gram/liter
+&gt;&gt;&gt; print(f"{g_per_l_unit:~C}")
+g/l
+&gt;&gt;&gt; print(f"{g_per_l_unit:P}")
+gram/liter
+&gt;&gt;&gt; print(f"{g_per_l_unit:~P}")
+g/l
+&gt;&gt;&gt; print(unit.get_unit_name(g_per_l_unit))
+g/l
+&gt;&gt;&gt;
+</code></pre>
+
+<p><strong>Example 2:</strong> Unit name is a valid Python identifier but is not the same as the Pint Unit definition</p>
+
+<ul>
+<li>Pint unit definition = <code>ft**3/s</code></li>
+<li>Unit name = <code>cfs</code></li>
+<li>Unit aliases = 
+<ul>
+<li><code>CFS</code></li>
+<li><code>FT3/S</code></li>
+<li><code>FT3/SEC</code></li>
+<li><code>cu-ft/sec</code></li>
+<li><code>cuft/sec</code></li>
+<li><code>ft3/s</code></li>
+<li><code>ft3/sec</code></li>
+<li><code>ft^3/s</code></li>
+</ul></li>
+</ul>
+
+<pre><code>&gt;&gt;&gt; from hec import unit
+&gt;&gt;&gt; cfs_unit = unit.get_pint_unit("CFS")
+&gt;&gt;&gt; print(repr(cfs_unit))
+&lt;Unit('foot ** 3 / second')&gt;
+&gt;&gt;&gt; print(cfs_unit)
+foot ** 3 / second
+&gt;&gt;&gt; print(f"{cfs_unit:D}")
+foot ** 3 / second
+&gt;&gt;&gt; print(f"{cfs_unit:~D}")
+ft ** 3 / s
+&gt;&gt;&gt; print(f"{cfs_unit:C}")
+foot**3/second
+&gt;&gt;&gt; print(f"{cfs_unit:~C}")
+ft**3/s
+&gt;&gt;&gt; print(f"{cfs_unit:P}")
+foot³/second
+&gt;&gt;&gt; print(f"{cfs_unit:~P}")
+ft³/s
+&gt;&gt;&gt; print(unit.get_unit_name(cfs_unit))
+cfs
+&gt;&gt;&gt;
+</code></pre>
+</div>
+
                 
                 
                 
             </section>
-                <section id="UnitException">
-                    <div class="attr class">
+                <section id="get_unit_registry">
+                    <div class="attr function">
             
-    <span class="def">class</span>
-    <span class="name">UnitException</span><wbr>(<span class="base">builtins.Exception</span>):
+        <span class="def">def</span>
+        <span class="name">get_unit_registry</span><span class="signature pdoc-code condensed">(<span class="return-annotation">) -> <span class="n">pint</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">UnitRegistry</span>:</span></span>
 
         
     </div>
-    <a class="headerlink" href="#UnitException"></a>
+    <a class="headerlink" href="#get_unit_registry"></a>
     
-            <div class="docstring"><p>Exception specific to Unit operations</p>
+            <div class="docstring"><p>Returns the Pint unit registry. Pint doesn't share unit information between
+registries so this registry must be used for any modification to the Pint behavior.
+See <a href="https://pint.readthedocs.io">Pint documentation</a> for more details.</p>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>pint.registry.UnitRegistry: the Pint unit registry currently in use</p>
+</blockquote>
 </div>
 
 
-                            <div class="inherited">
-                                <h5>Inherited Members</h5>
-                                <dl>
-                                    <div><dt>builtins.Exception</dt>
-                                <dd id="UnitException.__init__" class="function">Exception</dd>
-
-            </div>
-            <div><dt>builtins.BaseException</dt>
-                                <dd id="UnitException.with_traceback" class="function">with_traceback</dd>
-                <dd id="UnitException.args" class="variable">args</dd>
-
-            </div>
-                                </dl>
-                            </div>
                 </section>
-                <section id="ureg">
-                    <div class="attr variable">
-            <span class="name">ureg</span>        =
-<span class="default_value">&lt;pint.registry.UnitRegistry object&gt;</span>
+                <section id="get_unit_context">
+                    <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">get_unit_context</span><span class="signature pdoc-code condensed">(<span class="return-annotation">) -> <span class="n">pint</span><span class="o">.</span><span class="n">facets</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">Context</span>:</span></span>
 
         
     </div>
-    <a class="headerlink" href="#ureg"></a>
+    <a class="headerlink" href="#get_unit_context"></a>
     
-    
+            <div class="docstring"><p>Returns the Pint unit registry context.
+See <a href="https://pint.readthedocs.io">Pint documentation</a> for more details.</p>
 
-                </section>
-                <section id="ctx">
-                    <div class="attr variable">
-            <span class="name">ctx</span>        =
-<span class="default_value">&lt;pint.facets.context.objects.Context object&gt;</span>
+<h6 id="returns">Returns:</h6>
 
-        
-    </div>
-    <a class="headerlink" href="#ctx"></a>
-    
-    
+<blockquote>
+  <p>pint.facets.context.objects.Context: The unit registry context</p>
+</blockquote>
+</div>
 
-                </section>
-                <section id="pint_units">
-                    <div class="attr variable">
-            <span class="name">pint_units</span>        =
-<input id="pint_units-view-value" class="view-value-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
-            <label class="view-value-button pdoc-button" for="pint_units-view-value"></label><span class="default_value">{&#39;%&#39;: &#39;%&#39;, &#39;$&#39;: &#39;USD&#39;, &#39;$/kaf&#39;: &#39;USD_per_kacre_foot&#39;, &#39;$/mcm&#39;: &#39;USD_per_Mcm&#39;, &#39;1/ft&#39;: &#39;1/ft&#39;, &#39;1/m&#39;: &#39;1/m&#39;, &#39;1000 m2&#39;: &#39;_1000_m2&#39;, &#39;1000 m3&#39;: &#39;_1000_m3&#39;, &#39;ac-ft&#39;: &#39;acre_foot&#39;, &#39;acre&#39;: &#39;acre&#39;, &#39;ampere&#39;: &#39;amp&#39;, &#39;B&#39;: &#39;B_unit&#39;, &#39;bar&#39;: &#39;bar&#39;, &#39;C-day&#39;: &#39;delta_degC*d&#39;, &#39;C&#39;: &#39;degC&#39;, &#39;cal&#39;: &#39;cal&#39;, &#39;cfs&#39;: &#39;ft**3/s&#39;, &#39;cfs/mi2&#39;: &#39;ft**3/s/mi** 2&#39;, &#39;cm&#39;: &#39;cm&#39;, &#39;cm/day&#39;: &#39;cm/d&#39;, &#39;cm2&#39;: &#39;cm**2&#39;, &#39;cms&#39;: &#39;m**3/s&#39;, &#39;cms/km2&#39;: &#39;m**3/s/km** 2&#39;, &#39;day&#39;: &#39;d&#39;, &#39;deg&#39;: &#39;deg&#39;, &#39;dsf&#39;: &#39;ft**3/s*d&#39;, &#39;F-day&#39;: &#39;delta_degF*d&#39;, &#39;F&#39;: &#39;degF&#39;, &#39;FNU&#39;: &#39;FNU&#39;, &#39;ft&#39;: &#39;ft&#39;, &#39;ft/hr&#39;: &#39;ft/h&#39;, &#39;ft/s&#39;: &#39;ft/s&#39;, &#39;ft2&#39;: &#39;ft**2&#39;, &#39;ft2/s&#39;: &#39;ft**2/s&#39;, &#39;ft3&#39;: &#39;ft**3&#39;, &#39;ftUS&#39;: &#39;US_survey_foot&#39;, &#39;g&#39;: &#39;g&#39;, &#39;g/l&#39;: &#39;g/l&#39;, &#39;g/m3&#39;: &#39;g/m**3&#39;, &#39;gal&#39;: &#39;gal&#39;, &#39;gm/cm3&#39;: &#39;g/cm**3&#39;, &#39;gpm&#39;: &#39;gal/min&#39;, &#39;GW&#39;: &#39;GW&#39;, &#39;GWh&#39;: &#39;GWh&#39;, &#39;ha&#39;: &#39;ha&#39;, &#39;hr&#39;: &#39;h&#39;, &#39;Hz&#39;: &#39;Hz&#39;, &#39;in-hg&#39;: &#39;inHg&#39;, &#39;in&#39;: &#39;in&#39;, &#39;in/day&#39;: &#39;in/d&#39;, &#39;in/deg-day&#39;: &#39;in/(delta_degF*d)&#39;, &#39;in/hr&#39;: &#39;in/hr&#39;, &#39;J&#39;: &#39;J&#39;, &#39;J/m2&#39;: &#39;J/m**2&#39;, &#39;JTU&#39;: &#39;JTU&#39;, &#39;K&#39;: &#39;K&#39;, &#39;k$&#39;: &#39;kUSD&#39;, &#39;kaf&#39;: &#39;kacre_foot&#39;, &#39;KAF/mon&#39;: &#39;kacre_foot/month&#39;, &#39;kcfs&#39;: &#39;kcfs&#39;, &#39;kcms&#39;: &#39;kcms&#39;, &#39;kdsf&#39;: &#39;kdsf&#39;, &#39;kg&#39;: &#39;kg&#39;, &#39;kgal&#39;: &#39;kgal&#39;, &#39;kHz&#39;: &#39;kHz&#39;, &#39;km&#39;: &#39;km&#39;, &#39;km2&#39;: &#39;km**2&#39;, &#39;km3&#39;: &#39;km**3&#39;, &#39;knot&#39;: &#39;knot&#39;, &#39;kPa&#39;: &#39;kPa&#39;, &#39;kph&#39;: &#39;kph&#39;, &#39;kW&#39;: &#39;kW&#39;, &#39;kWh&#39;: &#39;kWh&#39;, &#39;langley&#39;: &#39;langley&#39;, &#39;langley/min&#39;: &#39;langley/min&#39;, &#39;lb&#39;: &#39;lbf&#39;, &#39;lbm&#39;: &#39;lb&#39;, &#39;lbm/ft3&#39;: &#39;lb/ft**3&#39;, &#39;m&#39;: &#39;m&#39;, &#39;m/day&#39;: &#39;m/d&#39;, &#39;m/hr&#39;: &#39;m/h&#39;, &#39;m/s&#39;: &#39;mps&#39;, &#39;m2&#39;: &#39;m**2&#39;, &#39;m2/s&#39;: &#39;m**2/s&#39;, &#39;m3&#39;: &#39;m**3&#39;, &#39;mb&#39;: &#39;mbar&#39;, &#39;mcm&#39;: &#39;Mcm&#39;, &#39;mcm/mon&#39;: &#39;Mcm/month&#39;, &#39;mg&#39;: &#39;mg&#39;, &#39;mg/l&#39;: &#39;mg/l&#39;, &#39;mgal&#39;: &#39;Mgal&#39;, &#39;mgd&#39;: &#39;Mgal/d&#39;, &#39;mho&#39;: &#39;S&#39;, &#39;MHz&#39;: &#39;MHz&#39;, &#39;mi&#39;: &#39;mi&#39;, &#39;mile2&#39;: &#39;mi**2&#39;, &#39;mile3&#39;: &#39;mi**3&#39;, &#39;min&#39;: &#39;min&#39;, &#39;MJ&#39;: &#39;MJ&#39;, &#39;mm-hg&#39;: &#39;mmHg&#39;, &#39;mm&#39;: &#39;mm&#39;, &#39;mm/day&#39;: &#39;mm/d&#39;, &#39;mm/deg-day&#39;: &#39;mm/(delta_degC*d)&#39;, &#39;mm/hr&#39;: &#39;mm/h&#39;, &#39;mph&#39;: &#39;mph&#39;, &#39;MW&#39;: &#39;MW&#39;, &#39;MWh&#39;: &#39;MWh&#39;, &#39;N&#39;: &#39;N&#39;, &#39;n/a&#39;: &#39;n_a&#39;, &#39;NTU&#39;: &#39;NTU&#39;, &#39;ppm&#39;: &#39;mg/l&#39;, &#39;psi&#39;: &#39;psi&#39;, &#39;rad&#39;: &#39;rad&#39;, &#39;rev&#39;: &#39;rev&#39;, &#39;rpm&#39;: &#39;rpm&#39;, &#39;S&#39;: &#39;S&#39;, &#39;sec&#39;: &#39;s&#39;, &#39;su&#39;: &#39;_pH&#39;, &#39;ton&#39;: &#39;ton&#39;, &#39;ton/day&#39;: &#39;ton/d&#39;, &#39;tonne&#39;: &#39;tonne&#39;, &#39;tonne/day&#39;: &#39;tonne/d&#39;, &#39;TW&#39;: &#39;TW&#39;, &#39;TWh&#39;: &#39;TWh&#39;, &#39;ug&#39;: &#39;ug&#39;, &#39;ug/l&#39;: &#39;ug/l&#39;, &#39;umho&#39;: &#39;uS&#39;, &#39;umho/cm&#39;: &#39;uS/cm&#39;, &#39;unit&#39;: &#39;unit&#39;, &#39;uS&#39;: &#39;uS&#39;, &#39;volt&#39;: &#39;V&#39;, &#39;W&#39;: &#39;W&#39;, &#39;W/m2&#39;: &#39;W/m**2&#39;, &#39;Wh&#39;: &#39;Wh&#39;}</span>
-
-        
-    </div>
-    <a class="headerlink" href="#pint_units"></a>
-    
-    
-
-                </section>
-                <section id="unit_aliases">
-                    <div class="attr variable">
-            <span class="name">unit_aliases</span>        =
-<input id="unit_aliases-view-value" class="view-value-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
-            <label class="view-value-button pdoc-button" for="unit_aliases-view-value"></label><span class="default_value">{&#39;$/KAF&#39;: &#39;$/kaf&#39;, &#39;1000 M2&#39;: &#39;1000 m2&#39;, &#39;1000 M3&#39;: &#39;1000 m3&#39;, &#39;1000 ac-ft&#39;: &#39;kaf&#39;, &#39;1000 ac-ft/mon&#39;: &#39;KAF/mon&#39;, &#39;1000 cfs&#39;: &#39;kcfs&#39;, &#39;1000 cfs-day&#39;: &#39;kdsf&#39;, &#39;1000 cms&#39;: &#39;kcms&#39;, &#39;1000 cu m&#39;: &#39;1000 m3&#39;, &#39;1000 cu-ft/sec&#39;: &#39;kcfs&#39;, &#39;1000 dsf&#39;: &#39;kdsf&#39;, &#39;1000 ft3/sec&#39;: &#39;kcfs&#39;, &#39;1000 gallon&#39;: &#39;kgal&#39;, &#39;1000 gallons&#39;: &#39;kgal&#39;, &#39;1000 sfd&#39;: &#39;kdsf&#39;, &#39;1000 sq m&#39;: &#39;1000 m2&#39;, &#39;1000 sq meters&#39;: &#39;1000 m2&#39;, &#39;1000000 m3&#39;: &#39;mcm&#39;, &#39;AC-FT&#39;: &#39;ac-ft&#39;, &#39;ACFT&#39;: &#39;ac-ft&#39;, &#39;ACRE&#39;: &#39;acre&#39;, &#39;ACRES&#39;: &#39;acre&#39;, &#39;AMP&#39;: &#39;ampere&#39;, &#39;AMPERE&#39;: &#39;ampere&#39;, &#39;AMPERES&#39;: &#39;ampere&#39;, &#39;AMPS&#39;: &#39;ampere&#39;, &#39;ATM&#39;: &#39;bar&#39;, &#39;ATMOSPHERE&#39;: &#39;bar&#39;, &#39;ATMOSPHERES&#39;: &#39;bar&#39;, &#39;Amp&#39;: &#39;ampere&#39;, &#39;Ampere&#39;: &#39;ampere&#39;, &#39;Amperes&#39;: &#39;ampere&#39;, &#39;Amps&#39;: &#39;ampere&#39;, &#39;BAR&#39;: &#39;bar&#39;, &#39;BARS&#39;: &#39;bar&#39;, &#39;B_UNIT&#39;: &#39;B_unit&#39;, &#39;CELSIUS&#39;: &#39;C&#39;, &#39;CENTIGRADE&#39;: &#39;C&#39;, &#39;CFS&#39;: &#39;cfs&#39;, &#39;CMS&#39;: &#39;cms&#39;, &#39;Celsius&#39;: &#39;C&#39;, &#39;Centigrade&#39;: &#39;C&#39;, &#39;DAY&#39;: &#39;day&#39;, &#39;DAYS&#39;: &#39;day&#39;, &#39;DEG C&#39;: &#39;C&#39;, &#39;DEG F&#39;: &#39;F&#39;, &#39;DEG-C&#39;: &#39;C&#39;, &#39;DEG-F&#39;: &#39;F&#39;, &#39;DEGC-D&#39;: &#39;C-day&#39;, &#39;DEGF&#39;: &#39;F&#39;, &#39;DEGF-D&#39;: &#39;F-day&#39;, &#39;DSF&#39;: &#39;dsf&#39;, &#39;Deg-C&#39;: &#39;C&#39;, &#39;Deg-F&#39;: &#39;F&#39;, &#39;DegC&#39;: &#39;C&#39;, &#39;DegF&#39;: &#39;F&#39;, &#39;FAHRENHEIT&#39;: &#39;F&#39;, &#39;FEET&#39;: &#39;ft&#39;, &#39;FT&#39;: &#39;ft&#39;, &#39;FT/S&#39;: &#39;ft/s&#39;, &#39;FT3/S&#39;: &#39;cfs&#39;, &#39;FT3/SEC&#39;: &#39;cfs&#39;, &#39;Fahrenheit&#39;: &#39;F&#39;, &#39;Feet&#39;: &#39;ft&#39;, &#39;GAL&#39;: &#39;gal&#39;, &#39;GPM&#39;: &#39;gpm&#39;, &#39;GWH&#39;: &#39;GWh&#39;, &#39;Gal/min&#39;: &#39;gpm&#39;, &#39;HOUR&#39;: &#39;hr&#39;, &#39;HOURS&#39;: &#39;hr&#39;, &#39;HR&#39;: &#39;hr&#39;, &#39;HZ&#39;: &#39;Hz&#39;, &#39;IN&#39;: &#39;in&#39;, &#39;INCHES&#39;: &#39;in&#39;, &#39;Inch&#39;: &#39;in&#39;, &#39;JOULE&#39;: &#39;J&#39;, &#39;JOULES&#39;: &#39;J&#39;, &#39;K$&#39;: &#39;k$&#39;, &#39;KAF&#39;: &#39;kaf&#39;, &#39;KCFS&#39;: &#39;kcfs&#39;, &#39;KCMS&#39;: &#39;kcms&#39;, &#39;KDSF&#39;: &#39;kdsf&#39;, &#39;KELVIN&#39;: &#39;K&#39;, &#39;KELVINS&#39;: &#39;K&#39;, &#39;KGAL&#39;: &#39;kgal&#39;, &#39;KHZ&#39;: &#39;kHz&#39;, &#39;KHz&#39;: &#39;kHz&#39;, &#39;KSFD&#39;: &#39;kdsf&#39;, &#39;KW&#39;: &#39;kW&#39;, &#39;KWH&#39;: &#39;kWh&#39;, &#39;M/S&#39;: &#39;m/s&#39;, &#39;M2&#39;: &#39;m2&#39;, &#39;M3&#39;: &#39;m3&#39;, &#39;M3/S&#39;: &#39;cms&#39;, &#39;M3/SEC&#39;: &#39;cms&#39;, &#39;MEGAJOULE&#39;: &#39;MJ&#39;, &#39;MEGAJOULES&#39;: &#39;MJ&#39;, &#39;METER&#39;: &#39;m&#39;, &#39;METERS PER SECOND&#39;: &#39;m/s&#39;, &#39;METERS&#39;: &#39;m&#39;, &#39;METRE&#39;: &#39;m&#39;, &#39;METRES&#39;: &#39;m&#39;, &#39;MG/L&#39;: &#39;mg/l&#39;, &#39;MGAL&#39;: &#39;mgal&#39;, &#39;MGD&#39;: &#39;mgd&#39;, &#39;MHZ&#39;: &#39;MHz&#39;, &#39;MILES PER HOUR&#39;: &#39;mph&#39;, &#39;MIN&#39;: &#39;min&#39;, &#39;MINUTE&#39;: &#39;min&#39;, &#39;MINUTES&#39;: &#39;min&#39;, &#39;MM&#39;: &#39;mm&#39;, &#39;MPH&#39;: &#39;mph&#39;, &#39;MPS&#39;: &#39;m/s&#39;, &#39;MWH&#39;: &#39;MWh&#39;, &#39;Mile&#39;: &#39;mi&#39;, &#39;PERCENT&#39;: &#39;%&#39;, &#39;POUNDS&#39;: &#39;lb&#39;, &#39;SEC&#39;: &#39;sec&#39;, &#39;SECOND&#39;: &#39;sec&#39;, &#39;SECONDS&#39;: &#39;sec&#39;, &#39;SFD&#39;: &#39;dsf&#39;, &#39;SURVEY FEET&#39;: &#39;ftUS&#39;, &#39;SURVEY FOOT&#39;: &#39;ftUS&#39;, &#39;TGAL&#39;: &#39;kgal&#39;, &#39;TWH&#39;: &#39;TWh&#39;, &#39;UMHO/CM&#39;: &#39;umho/cm&#39;, &#39;UMHOS/CM&#39;: &#39;umho/cm&#39;, &#39;VOLT&#39;: &#39;volt&#39;, &#39;VOLTS&#39;: &#39;volt&#39;, &#39;Volt&#39;: &#39;volt&#39;, &#39;Volts&#39;: &#39;volt&#39;, &#39;WH&#39;: &#39;Wh&#39;, &#39;acft&#39;: &#39;ac-ft&#39;, &#39;acre-feet&#39;: &#39;ac-ft&#39;, &#39;acre-ft&#39;: &#39;ac-ft&#39;, &#39;acres&#39;: &#39;acre&#39;, &#39;amp&#39;: &#39;ampere&#39;, &#39;amperes&#39;: &#39;ampere&#39;, &#39;amps&#39;: &#39;ampere&#39;, &#39;atm&#39;: &#39;bar&#39;, &#39;atmosphere&#39;: &#39;bar&#39;, &#39;atmospheres&#39;: &#39;bar&#39;, &#39;b&#39;: &#39;B&#39;, &#39;b-unit&#39;: &#39;B&#39;, &#39;b_unit&#39;: &#39;B&#39;, &#39;bars&#39;: &#39;bar&#39;, &#39;calorie&#39;: &#39;cal&#39;, &#39;calories&#39;: &#39;cal&#39;, &#39;celsius&#39;: &#39;C&#39;, &#39;centimeter&#39;: &#39;cm&#39;, &#39;centimeters&#39;: &#39;cm&#39;, &#39;cfs-day&#39;: &#39;dsf&#39;, &#39;cu ft&#39;: &#39;ft3&#39;, &#39;cu km&#39;: &#39;km3&#39;, &#39;cu m&#39;: &#39;m3&#39;, &#39;cu meter&#39;: &#39;m3&#39;, &#39;cu meters&#39;: &#39;m3&#39;, &#39;cu mile&#39;: &#39;mile3&#39;, &#39;cu miles&#39;: &#39;mile3&#39;, &#39;cu-ft/sec&#39;: &#39;cfs&#39;, &#39;cu-meters/sec&#39;: &#39;cms&#39;, &#39;cubic feet&#39;: &#39;ft3&#39;, &#39;cubic meters&#39;: &#39;m3&#39;, &#39;cuft/sec&#39;: &#39;cfs&#39;, &#39;cusecs&#39;: &#39;cfs&#39;, &#39;cycles/s&#39;: &#39;Hz&#39;, &#39;cycles/sec&#39;: &#39;Hz&#39;, &#39;day&#39;: &#39;day&#39;, &#39;days&#39;: &#39;day&#39;, &#39;deg C&#39;: &#39;C&#39;, &#39;deg F&#39;: &#39;F&#39;, &#39;deg c&#39;: &#39;C&#39;, &#39;deg f&#39;: &#39;F&#39;, &#39;degC&#39;: &#39;C&#39;, &#39;degC-day&#39;: &#39;C-day&#39;, &#39;degF&#39;: &#39;F&#39;, &#39;degF-day&#39;: &#39;F-day&#39;, &#39;fahrenheit&#39;: &#39;F&#39;, &#39;feet&#39;: &#39;ft&#39;, &#39;fnu&#39;: &#39;FNU&#39;, &#39;foot&#39;: &#39;ft&#39;, &#39;fps&#39;: &#39;ft/s&#39;, &#39;ft/sec&#39;: &#39;ft/s&#39;, &#39;ft3/s&#39;: &#39;cfs&#39;, &#39;ft3/sec&#39;: &#39;cfs&#39;, &#39;ft^3/s&#39;: &#39;cfs&#39;, &#39;g/cm3&#39;: &#39;gm/cm3&#39;, &#39;gallon&#39;: &#39;gal&#39;, &#39;gallons per minute&#39;: &#39;gpm&#39;, &#39;gallons&#39;: &#39;gal&#39;, &#39;gm&#39;: &#39;g&#39;, &#39;gm/l&#39;: &#39;g/l&#39;, &#39;gm/m3&#39;: &#39;g/m3&#39;, &#39;grams per liter&#39;: &#39;g/l&#39;, &#39;grams/liter&#39;: &#39;g/l&#39;, &#39;hectare&#39;: &#39;ha&#39;, &#39;hectares&#39;: &#39;ha&#39;, &#39;hour&#39;: &#39;hr&#39;, &#39;hours&#39;: &#39;hr&#39;, &#39;hz&#39;: &#39;Hz&#39;, &#39;in/deg-d&#39;: &#39;in/deg-day&#39;, &#39;inch&#39;: &#39;in&#39;, &#39;inches&#39;: &#39;in&#39;, &#39;joule&#39;: &#39;J&#39;, &#39;joules&#39;: &#39;J&#39;, &#39;jtu&#39;: &#39;JTU&#39;, &#39;k&#39;: &#39;K&#39;, &#39;kN/m2&#39;: &#39;kPa&#39;, &#39;kcfs-day&#39;: &#39;kdsf&#39;, &#39;kelvin&#39;: &#39;K&#39;, &#39;kelvins&#39;: &#39;K&#39;, &#39;khz&#39;: &#39;kHz&#39;, &#39;kilometer&#39;: &#39;km&#39;, &#39;kilometers&#39;: &#39;km&#39;, &#39;knots&#39;: &#39;knot&#39;, &#39;ksecond-foot-day&#39;: &#39;kdsf&#39;, &#39;ksfd&#39;: &#39;kdsf&#39;, &#39;kt&#39;: &#39;knot&#39;, &#39;lb/ft3&#39;: &#39;lbm/ft3&#39;, &#39;lbf&#39;: &#39;lb&#39;, &#39;lbs&#39;: &#39;lb&#39;, &#39;lbs/ft3&#39;: &#39;lbm/ft3&#39;, &#39;lbs/sqin&#39;: &#39;psi&#39;, &#39;m3/s&#39;: &#39;cms&#39;, &#39;m3/sec&#39;: &#39;cms&#39;, &#39;mHz&#39;: &#39;MHz&#39;, &#39;mbar&#39;: &#39;mb&#39;, &#39;mbars&#39;: &#39;mb&#39;, &#39;megajoule&#39;: &#39;MJ&#39;, &#39;megajoules&#39;: &#39;MJ&#39;, &#39;meter&#39;: &#39;m&#39;, &#39;meters per second&#39;: &#39;m/s&#39;, &#39;meters&#39;: &#39;m&#39;, &#39;metre&#39;: &#39;m&#39;, &#39;metres&#39;: &#39;m&#39;, &#39;mg/L&#39;: &#39;mg/l&#39;, &#39;mhz&#39;: &#39;MHz&#39;, &#39;mi2&#39;: &#39;mile2&#39;, &#39;micrograms&#39;: &#39;ug&#39;, &#39;micrograms/L&#39;: &#39;ug/l&#39;, &#39;micrograms/l&#39;: &#39;ug/l&#39;, &#39;mile&#39;: &#39;mi&#39;, &#39;miles per hour&#39;: &#39;mph&#39;, &#39;miles&#39;: &#39;mi&#39;, &#39;millgrams/liter&#39;: &#39;mg/l&#39;, &#39;millibar&#39;: &#39;mb&#39;, &#39;millibars&#39;: &#39;mb&#39;, &#39;milligrams per liter&#39;: &#39;mg/l&#39;, &#39;millimeter&#39;: &#39;mm&#39;, &#39;millimeters&#39;: &#39;mm&#39;, &#39;million gallon&#39;: &#39;mgal&#39;, &#39;million gallons/day&#39;: &#39;mgd&#39;, &#39;millon gallons&#39;: &#39;mgal&#39;, &#39;minute&#39;: &#39;min&#39;, &#39;minutes&#39;: &#39;min&#39;, &#39;mm/deg-d&#39;: &#39;mm/deg-day&#39;, &#39;mps&#39;: &#39;m/s&#39;, &#39;newton&#39;: &#39;N&#39;, &#39;newtons&#39;: &#39;N&#39;, &#39;ntu&#39;: &#39;NTU&#39;, &#39;percent&#39;: &#39;%&#39;, &#39;pounds&#39;: &#39;lb&#39;, &#39;rev/min&#39;: &#39;rpm&#39;, &#39;revolutions per minute&#39;: &#39;rpm&#39;, &#39;second&#39;: &#39;sec&#39;, &#39;second-foot-day&#39;: &#39;dsf&#39;, &#39;seconds&#39;: &#39;sec&#39;, &#39;sfd&#39;: &#39;dsf&#39;, &#39;sq ft&#39;: &#39;ft2&#39;, &#39;sq km&#39;: &#39;km2&#39;, &#39;sq m&#39;: &#39;m2&#39;, &#39;sq meter&#39;: &#39;m2&#39;, &#39;sq meters&#39;: &#39;m2&#39;, &#39;sq mi&#39;: &#39;mile2&#39;, &#39;sq mile&#39;: &#39;mile2&#39;, &#39;sq miles&#39;: &#39;mile2&#39;, &#39;sq.km&#39;: &#39;km2&#39;, &#39;sqkm&#39;: &#39;km2&#39;, &#39;square feet&#39;: &#39;ft2&#39;, &#39;square meters&#39;: &#39;m2&#39;, &#39;square miles&#39;: &#39;mile2&#39;, &#39;survey feet&#39;: &#39;ftUS&#39;, &#39;survey foot&#39;: &#39;ftUS&#39;, &#39;tgal&#39;: &#39;kgal&#39;, &#39;umhos/cm&#39;: &#39;umho/cm&#39;, &#39;volts&#39;: &#39;volt&#39;}</span>
-
-        
-    </div>
-    <a class="headerlink" href="#unit_aliases"></a>
-    
-    
-
-                </section>
-                <section id="unit_names">
-                    <div class="attr variable">
-            <span class="name">unit_names</span>        =
-<input id="unit_names-view-value" class="view-value-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
-            <label class="view-value-button pdoc-button" for="unit_names-view-value"></label><span class="default_value">{&#39;percent&#39;: &#39;%&#39;, &#39;%&#39;: &#39;%&#39;, &#39;USD&#39;: &#39;$&#39;, &#39;USD_per_kacre_foot&#39;: &#39;$/kaf&#39;, &#39;USD_per_Mcm&#39;: &#39;$/mcm&#39;, &#39;1 / foot&#39;: &#39;1/ft&#39;, &#39;1/foot&#39;: &#39;1/ft&#39;, &#39;1 / ft&#39;: &#39;1/ft&#39;, &#39;1/ft&#39;: &#39;1/ft&#39;, &#39;1 / meter&#39;: &#39;1/m&#39;, &#39;1/meter&#39;: &#39;1/m&#39;, &#39;1 / m&#39;: &#39;1/m&#39;, &#39;1/m&#39;: &#39;1/m&#39;, &#39;_1000_m2&#39;: &#39;1000 m2&#39;, &#39;_1000_m3&#39;: &#39;1000 m3&#39;, &#39;acre_foot&#39;: &#39;ac-ft&#39;, &#39;acre&#39;: &#39;acre&#39;, &#39;ampere&#39;: &#39;ampere&#39;, &#39;A&#39;: &#39;ampere&#39;, &#39;B_unit&#39;: &#39;B&#39;, &#39;bar&#39;: &#39;bar&#39;, &#39;day * delta_degree_Celsius&#39;: &#39;C-day&#39;, &#39;day·delta_degree_Celsius&#39;: &#39;C-day&#39;, &#39;day*delta_degree_Celsius&#39;: &#39;C-day&#39;, &#39;d * Δ°C&#39;: &#39;C-day&#39;, &#39;d·Δ°C&#39;: &#39;C-day&#39;, &#39;d*Δ°C&#39;: &#39;C-day&#39;, &#39;degree_Celsius&#39;: &#39;C&#39;, &#39;°C&#39;: &#39;C&#39;, &#39;calorie&#39;: &#39;cal&#39;, &#39;cal&#39;: &#39;cal&#39;, &#39;foot ** 3 / second&#39;: &#39;cfs&#39;, &#39;foot³/second&#39;: &#39;cfs&#39;, &#39;foot**3/second&#39;: &#39;cfs&#39;, &#39;ft ** 3 / s&#39;: &#39;cfs&#39;, &#39;ft³/s&#39;: &#39;cfs&#39;, &#39;ft**3/s&#39;: &#39;cfs&#39;, &#39;foot ** 3 / mile ** 2 / second&#39;: &#39;cfs/mi2&#39;, &#39;foot³/mile²/second&#39;: &#39;cfs/mi2&#39;, &#39;foot**3/mile**2/second&#39;: &#39;cfs/mi2&#39;, &#39;ft ** 3 / mi ** 2 / s&#39;: &#39;cfs/mi2&#39;, &#39;ft³/mi²/s&#39;: &#39;cfs/mi2&#39;, &#39;ft**3/mi**2/s&#39;: &#39;cfs/mi2&#39;, &#39;centimeter&#39;: &#39;cm&#39;, &#39;cm&#39;: &#39;cm&#39;, &#39;centimeter / day&#39;: &#39;cm/day&#39;, &#39;centimeter/day&#39;: &#39;cm/day&#39;, &#39;cm / d&#39;: &#39;cm/day&#39;, &#39;cm/d&#39;: &#39;cm/day&#39;, &#39;centimeter ** 2&#39;: &#39;cm2&#39;, &#39;centimeter²&#39;: &#39;cm2&#39;, &#39;centimeter**2&#39;: &#39;cm2&#39;, &#39;cm ** 2&#39;: &#39;cm2&#39;, &#39;cm²&#39;: &#39;cm2&#39;, &#39;cm**2&#39;: &#39;cm2&#39;, &#39;meter ** 3 / second&#39;: &#39;cms&#39;, &#39;meter³/second&#39;: &#39;cms&#39;, &#39;meter**3/second&#39;: &#39;cms&#39;, &#39;m ** 3 / s&#39;: &#39;cms&#39;, &#39;m³/s&#39;: &#39;cms&#39;, &#39;m**3/s&#39;: &#39;cms&#39;, &#39;meter ** 3 / kilometer ** 2 / second&#39;: &#39;cms/km2&#39;, &#39;meter³/kilometer²/second&#39;: &#39;cms/km2&#39;, &#39;meter**3/kilometer**2/second&#39;: &#39;cms/km2&#39;, &#39;m ** 3 / km ** 2 / s&#39;: &#39;cms/km2&#39;, &#39;m³/km²/s&#39;: &#39;cms/km2&#39;, &#39;m**3/km**2/s&#39;: &#39;cms/km2&#39;, &#39;day&#39;: &#39;day&#39;, &#39;d&#39;: &#39;day&#39;, &#39;degree&#39;: &#39;deg&#39;, &#39;deg&#39;: &#39;deg&#39;, &#39;day * foot ** 3 / second&#39;: &#39;dsf&#39;, &#39;day·foot³/second&#39;: &#39;dsf&#39;, &#39;day*foot**3/second&#39;: &#39;dsf&#39;, &#39;d * ft ** 3 / s&#39;: &#39;dsf&#39;, &#39;d·ft³/s&#39;: &#39;dsf&#39;, &#39;d*ft**3/s&#39;: &#39;dsf&#39;, &#39;day * delta_degree_Fahrenheit&#39;: &#39;F-day&#39;, &#39;day·delta_degree_Fahrenheit&#39;: &#39;F-day&#39;, &#39;day*delta_degree_Fahrenheit&#39;: &#39;F-day&#39;, &#39;d * Δ°F&#39;: &#39;F-day&#39;, &#39;d·Δ°F&#39;: &#39;F-day&#39;, &#39;d*Δ°F&#39;: &#39;F-day&#39;, &#39;degree_Fahrenheit&#39;: &#39;F&#39;, &#39;°F&#39;: &#39;F&#39;, &#39;FNU&#39;: &#39;FNU&#39;, &#39;foot&#39;: &#39;ft&#39;, &#39;ft&#39;: &#39;ft&#39;, &#39;foot / hour&#39;: &#39;ft/hr&#39;, &#39;foot/hour&#39;: &#39;ft/hr&#39;, &#39;ft / h&#39;: &#39;ft/hr&#39;, &#39;ft/h&#39;: &#39;ft/hr&#39;, &#39;foot / second&#39;: &#39;ft/s&#39;, &#39;foot/second&#39;: &#39;ft/s&#39;, &#39;ft / s&#39;: &#39;ft/s&#39;, &#39;ft/s&#39;: &#39;ft/s&#39;, &#39;foot ** 2&#39;: &#39;ft2&#39;, &#39;foot²&#39;: &#39;ft2&#39;, &#39;foot**2&#39;: &#39;ft2&#39;, &#39;ft ** 2&#39;: &#39;ft2&#39;, &#39;ft²&#39;: &#39;ft2&#39;, &#39;ft**2&#39;: &#39;ft2&#39;, &#39;foot ** 2 / second&#39;: &#39;ft2/s&#39;, &#39;foot²/second&#39;: &#39;ft2/s&#39;, &#39;foot**2/second&#39;: &#39;ft2/s&#39;, &#39;ft ** 2 / s&#39;: &#39;ft2/s&#39;, &#39;ft²/s&#39;: &#39;ft2/s&#39;, &#39;ft**2/s&#39;: &#39;ft2/s&#39;, &#39;foot ** 3&#39;: &#39;ft3&#39;, &#39;foot³&#39;: &#39;ft3&#39;, &#39;foot**3&#39;: &#39;ft3&#39;, &#39;ft ** 3&#39;: &#39;ft3&#39;, &#39;ft³&#39;: &#39;ft3&#39;, &#39;ft**3&#39;: &#39;ft3&#39;, &#39;US_survey_foot&#39;: &#39;ftUS&#39;, &#39;gram&#39;: &#39;g&#39;, &#39;g&#39;: &#39;g&#39;, &#39;gram / liter&#39;: &#39;g/l&#39;, &#39;gram/liter&#39;: &#39;g/l&#39;, &#39;g / l&#39;: &#39;g/l&#39;, &#39;g/l&#39;: &#39;g/l&#39;, &#39;gram / meter ** 3&#39;: &#39;g/m3&#39;, &#39;gram/meter³&#39;: &#39;g/m3&#39;, &#39;gram/meter**3&#39;: &#39;g/m3&#39;, &#39;g / m ** 3&#39;: &#39;g/m3&#39;, &#39;g/m³&#39;: &#39;g/m3&#39;, &#39;g/m**3&#39;: &#39;g/m3&#39;, &#39;gallon&#39;: &#39;gal&#39;, &#39;gal&#39;: &#39;gal&#39;, &#39;gram / centimeter ** 3&#39;: &#39;gm/cm3&#39;, &#39;gram/centimeter³&#39;: &#39;gm/cm3&#39;, &#39;gram/centimeter**3&#39;: &#39;gm/cm3&#39;, &#39;g / cm ** 3&#39;: &#39;gm/cm3&#39;, &#39;g/cm³&#39;: &#39;gm/cm3&#39;, &#39;g/cm**3&#39;: &#39;gm/cm3&#39;, &#39;gallon / minute&#39;: &#39;gpm&#39;, &#39;gallon/minute&#39;: &#39;gpm&#39;, &#39;gal / min&#39;: &#39;gpm&#39;, &#39;gal/min&#39;: &#39;gpm&#39;, &#39;gigawatt&#39;: &#39;GW&#39;, &#39;GW&#39;: &#39;GW&#39;, &#39;gigawatt_hour&#39;: &#39;GWh&#39;, &#39;GWh&#39;: &#39;GWh&#39;, &#39;hectare&#39;: &#39;ha&#39;, &#39;ha&#39;: &#39;ha&#39;, &#39;hour&#39;: &#39;hr&#39;, &#39;h&#39;: &#39;hr&#39;, &#39;hertz&#39;: &#39;Hz&#39;, &#39;Hz&#39;: &#39;Hz&#39;, &#39;inch_Hg&#39;: &#39;in-hg&#39;, &#39;inHg&#39;: &#39;in-hg&#39;, &#39;inch&#39;: &#39;in&#39;, &#39;in&#39;: &#39;in&#39;, &#39;inch / day&#39;: &#39;in/day&#39;, &#39;inch/day&#39;: &#39;in/day&#39;, &#39;in / d&#39;: &#39;in/day&#39;, &#39;in/d&#39;: &#39;in/day&#39;, &#39;inch / day / delta_degree_Fahrenheit&#39;: &#39;in/deg-day&#39;, &#39;inch/day/delta_degree_Fahrenheit&#39;: &#39;in/deg-day&#39;, &#39;in / d / Δ°F&#39;: &#39;in/deg-day&#39;, &#39;in/d/Δ°F&#39;: &#39;in/deg-day&#39;, &#39;inch / hour&#39;: &#39;in/hr&#39;, &#39;inch/hour&#39;: &#39;in/hr&#39;, &#39;in / h&#39;: &#39;in/hr&#39;, &#39;in/h&#39;: &#39;in/hr&#39;, &#39;joule&#39;: &#39;J&#39;, &#39;J&#39;: &#39;J&#39;, &#39;joule / meter ** 2&#39;: &#39;J/m2&#39;, &#39;joule/meter²&#39;: &#39;J/m2&#39;, &#39;joule/meter**2&#39;: &#39;J/m2&#39;, &#39;J / m ** 2&#39;: &#39;J/m2&#39;, &#39;J/m²&#39;: &#39;J/m2&#39;, &#39;J/m**2&#39;: &#39;J/m2&#39;, &#39;JTU&#39;: &#39;JTU&#39;, &#39;kelvin&#39;: &#39;K&#39;, &#39;K&#39;: &#39;K&#39;, &#39;kiloUSD&#39;: &#39;k$&#39;, &#39;kUSD&#39;: &#39;k$&#39;, &#39;kiloacre_foot&#39;: &#39;kaf&#39;, &#39;kacre_foot&#39;: &#39;kaf&#39;, &#39;kiloacre_foot / month&#39;: &#39;KAF/mon&#39;, &#39;kiloacre_foot/month&#39;: &#39;KAF/mon&#39;, &#39;kacre_foot / month&#39;: &#39;KAF/mon&#39;, &#39;kacre_foot/month&#39;: &#39;KAF/mon&#39;, &#39;kcfs&#39;: &#39;kcfs&#39;, &#39;kcms&#39;: &#39;kcms&#39;, &#39;kdsf&#39;: &#39;kdsf&#39;, &#39;kilogram&#39;: &#39;kg&#39;, &#39;kg&#39;: &#39;kg&#39;, &#39;kilogallon&#39;: &#39;kgal&#39;, &#39;kgal&#39;: &#39;kgal&#39;, &#39;kilohertz&#39;: &#39;kHz&#39;, &#39;kHz&#39;: &#39;kHz&#39;, &#39;kilometer&#39;: &#39;km&#39;, &#39;km&#39;: &#39;km&#39;, &#39;kilometer ** 2&#39;: &#39;km2&#39;, &#39;kilometer²&#39;: &#39;km2&#39;, &#39;kilometer**2&#39;: &#39;km2&#39;, &#39;km ** 2&#39;: &#39;km2&#39;, &#39;km²&#39;: &#39;km2&#39;, &#39;km**2&#39;: &#39;km2&#39;, &#39;kilometer ** 3&#39;: &#39;km3&#39;, &#39;kilometer³&#39;: &#39;km3&#39;, &#39;kilometer**3&#39;: &#39;km3&#39;, &#39;km ** 3&#39;: &#39;km3&#39;, &#39;km³&#39;: &#39;km3&#39;, &#39;km**3&#39;: &#39;km3&#39;, &#39;knot&#39;: &#39;knot&#39;, &#39;kt&#39;: &#39;knot&#39;, &#39;kilopascal&#39;: &#39;kPa&#39;, &#39;kPa&#39;: &#39;kPa&#39;, &#39;kilometer_per_hour&#39;: &#39;kph&#39;, &#39;kph&#39;: &#39;kph&#39;, &#39;kilowatt&#39;: &#39;kW&#39;, &#39;kW&#39;: &#39;kW&#39;, &#39;kilowatt_hour&#39;: &#39;kWh&#39;, &#39;kWh&#39;: &#39;kWh&#39;, &#39;langley&#39;: &#39;langley&#39;, &#39;Ly&#39;: &#39;langley&#39;, &#39;langley / minute&#39;: &#39;langley/min&#39;, &#39;langley/minute&#39;: &#39;langley/min&#39;, &#39;Ly / min&#39;: &#39;langley/min&#39;, &#39;Ly/min&#39;: &#39;langley/min&#39;, &#39;force_pound&#39;: &#39;lb&#39;, &#39;lbf&#39;: &#39;lb&#39;, &#39;pound&#39;: &#39;lbm&#39;, &#39;lb&#39;: &#39;lbm&#39;, &#39;pound / foot ** 3&#39;: &#39;lbm/ft3&#39;, &#39;pound/foot³&#39;: &#39;lbm/ft3&#39;, &#39;pound/foot**3&#39;: &#39;lbm/ft3&#39;, &#39;lb / ft ** 3&#39;: &#39;lbm/ft3&#39;, &#39;lb/ft³&#39;: &#39;lbm/ft3&#39;, &#39;lb/ft**3&#39;: &#39;lbm/ft3&#39;, &#39;meter&#39;: &#39;m&#39;, &#39;m&#39;: &#39;m&#39;, &#39;meter / day&#39;: &#39;m/day&#39;, &#39;meter/day&#39;: &#39;m/day&#39;, &#39;m / d&#39;: &#39;m/day&#39;, &#39;m/d&#39;: &#39;m/day&#39;, &#39;meter / hour&#39;: &#39;m/hr&#39;, &#39;meter/hour&#39;: &#39;m/hr&#39;, &#39;m / h&#39;: &#39;m/hr&#39;, &#39;m/h&#39;: &#39;m/hr&#39;, &#39;meter_per_second&#39;: &#39;m/s&#39;, &#39;mps&#39;: &#39;m/s&#39;, &#39;meter ** 2&#39;: &#39;m2&#39;, &#39;meter²&#39;: &#39;m2&#39;, &#39;meter**2&#39;: &#39;m2&#39;, &#39;m ** 2&#39;: &#39;m2&#39;, &#39;m²&#39;: &#39;m2&#39;, &#39;m**2&#39;: &#39;m2&#39;, &#39;meter ** 2 / second&#39;: &#39;m2/s&#39;, &#39;meter²/second&#39;: &#39;m2/s&#39;, &#39;meter**2/second&#39;: &#39;m2/s&#39;, &#39;m ** 2 / s&#39;: &#39;m2/s&#39;, &#39;m²/s&#39;: &#39;m2/s&#39;, &#39;m**2/s&#39;: &#39;m2/s&#39;, &#39;meter ** 3&#39;: &#39;m3&#39;, &#39;meter³&#39;: &#39;m3&#39;, &#39;meter**3&#39;: &#39;m3&#39;, &#39;m ** 3&#39;: &#39;m3&#39;, &#39;m³&#39;: &#39;m3&#39;, &#39;m**3&#39;: &#39;m3&#39;, &#39;millibar&#39;: &#39;mb&#39;, &#39;mbar&#39;: &#39;mb&#39;, &#39;Mcm&#39;: &#39;mcm&#39;, &#39;Mcm / month&#39;: &#39;mcm/mon&#39;, &#39;Mcm/month&#39;: &#39;mcm/mon&#39;, &#39;milligram&#39;: &#39;mg&#39;, &#39;mg&#39;: &#39;mg&#39;, &#39;milligram / liter&#39;: &#39;ppm&#39;, &#39;milligram/liter&#39;: &#39;ppm&#39;, &#39;mg / l&#39;: &#39;ppm&#39;, &#39;mg/l&#39;: &#39;ppm&#39;, &#39;megagallon&#39;: &#39;mgal&#39;, &#39;Mgal&#39;: &#39;mgal&#39;, &#39;megagallon / day&#39;: &#39;mgd&#39;, &#39;megagallon/day&#39;: &#39;mgd&#39;, &#39;Mgal / d&#39;: &#39;mgd&#39;, &#39;Mgal/d&#39;: &#39;mgd&#39;, &#39;siemens&#39;: &#39;S&#39;, &#39;S&#39;: &#39;S&#39;, &#39;megahertz&#39;: &#39;MHz&#39;, &#39;MHz&#39;: &#39;MHz&#39;, &#39;mile&#39;: &#39;mi&#39;, &#39;mi&#39;: &#39;mi&#39;, &#39;mile ** 2&#39;: &#39;mile2&#39;, &#39;mile²&#39;: &#39;mile2&#39;, &#39;mile**2&#39;: &#39;mile2&#39;, &#39;mi ** 2&#39;: &#39;mile2&#39;, &#39;mi²&#39;: &#39;mile2&#39;, &#39;mi**2&#39;: &#39;mile2&#39;, &#39;mile ** 3&#39;: &#39;mile3&#39;, &#39;mile³&#39;: &#39;mile3&#39;, &#39;mile**3&#39;: &#39;mile3&#39;, &#39;mi ** 3&#39;: &#39;mile3&#39;, &#39;mi³&#39;: &#39;mile3&#39;, &#39;mi**3&#39;: &#39;mile3&#39;, &#39;minute&#39;: &#39;min&#39;, &#39;min&#39;: &#39;min&#39;, &#39;megajoule&#39;: &#39;MJ&#39;, &#39;MJ&#39;: &#39;MJ&#39;, &#39;millimeter_Hg&#39;: &#39;mm-hg&#39;, &#39;mmHg&#39;: &#39;mm-hg&#39;, &#39;millimeter&#39;: &#39;mm&#39;, &#39;mm&#39;: &#39;mm&#39;, &#39;millimeter / day&#39;: &#39;mm/day&#39;, &#39;millimeter/day&#39;: &#39;mm/day&#39;, &#39;mm / d&#39;: &#39;mm/day&#39;, &#39;mm/d&#39;: &#39;mm/day&#39;, &#39;millimeter / day / delta_degree_Celsius&#39;: &#39;mm/deg-day&#39;, &#39;millimeter/day/delta_degree_Celsius&#39;: &#39;mm/deg-day&#39;, &#39;mm / d / Δ°C&#39;: &#39;mm/deg-day&#39;, &#39;mm/d/Δ°C&#39;: &#39;mm/deg-day&#39;, &#39;millimeter / hour&#39;: &#39;mm/hr&#39;, &#39;millimeter/hour&#39;: &#39;mm/hr&#39;, &#39;mm / h&#39;: &#39;mm/hr&#39;, &#39;mm/h&#39;: &#39;mm/hr&#39;, &#39;mile_per_hour&#39;: &#39;mph&#39;, &#39;mph&#39;: &#39;mph&#39;, &#39;megawatt&#39;: &#39;MW&#39;, &#39;MW&#39;: &#39;MW&#39;, &#39;megawatt_hour&#39;: &#39;MWh&#39;, &#39;MWh&#39;: &#39;MWh&#39;, &#39;newton&#39;: &#39;N&#39;, &#39;N&#39;: &#39;N&#39;, &#39;n_a&#39;: &#39;n/a&#39;, &#39;NTU&#39;: &#39;NTU&#39;, &#39;pound_force_per_square_inch&#39;: &#39;psi&#39;, &#39;psi&#39;: &#39;psi&#39;, &#39;radian&#39;: &#39;rad&#39;, &#39;rad&#39;: &#39;rad&#39;, &#39;rev&#39;: &#39;rev&#39;, &#39;revolutions_per_minute&#39;: &#39;rpm&#39;, &#39;rpm&#39;: &#39;rpm&#39;, &#39;second&#39;: &#39;sec&#39;, &#39;s&#39;: &#39;sec&#39;, &#39;_pH&#39;: &#39;su&#39;, &#39;ton&#39;: &#39;ton&#39;, &#39;ton / day&#39;: &#39;ton/day&#39;, &#39;ton/day&#39;: &#39;ton/day&#39;, &#39;ton / d&#39;: &#39;ton/day&#39;, &#39;ton/d&#39;: &#39;ton/day&#39;, &#39;metric_ton&#39;: &#39;tonne&#39;, &#39;t&#39;: &#39;tonne&#39;, &#39;metric_ton / day&#39;: &#39;tonne/day&#39;, &#39;metric_ton/day&#39;: &#39;tonne/day&#39;, &#39;t / d&#39;: &#39;tonne/day&#39;, &#39;t/d&#39;: &#39;tonne/day&#39;, &#39;terawatt&#39;: &#39;TW&#39;, &#39;TW&#39;: &#39;TW&#39;, &#39;terawatt_hour&#39;: &#39;TWh&#39;, &#39;TWh&#39;: &#39;TWh&#39;, &#39;microgram&#39;: &#39;ug&#39;, &#39;µg&#39;: &#39;ug&#39;, &#39;microgram / liter&#39;: &#39;ug/l&#39;, &#39;microgram/liter&#39;: &#39;ug/l&#39;, &#39;µg / l&#39;: &#39;ug/l&#39;, &#39;µg/l&#39;: &#39;ug/l&#39;, &#39;microsiemens&#39;: &#39;uS&#39;, &#39;µS&#39;: &#39;uS&#39;, &#39;microsiemens / centimeter&#39;: &#39;umho/cm&#39;, &#39;microsiemens/centimeter&#39;: &#39;umho/cm&#39;, &#39;µS / cm&#39;: &#39;umho/cm&#39;, &#39;µS/cm&#39;: &#39;umho/cm&#39;, &#39;unit&#39;: &#39;unit&#39;, &#39;volt&#39;: &#39;volt&#39;, &#39;V&#39;: &#39;volt&#39;, &#39;watt&#39;: &#39;W&#39;, &#39;W&#39;: &#39;W&#39;, &#39;watt / meter ** 2&#39;: &#39;W/m2&#39;, &#39;watt/meter²&#39;: &#39;W/m2&#39;, &#39;watt/meter**2&#39;: &#39;W/m2&#39;, &#39;W / m ** 2&#39;: &#39;W/m2&#39;, &#39;W/m²&#39;: &#39;W/m2&#39;, &#39;W/m**2&#39;: &#39;W/m2&#39;, &#39;watt_hour&#39;: &#39;Wh&#39;, &#39;Wh&#39;: &#39;Wh&#39;}</span>
-
-        
-    </div>
-    <a class="headerlink" href="#unit_names"></a>
-    
-    
 
                 </section>
                 <section id="get_pint_unit">
@@ -197,7 +238,101 @@
 <h6 id="returns">Returns:</h6>
 
 <blockquote>
-  <p>str: The Pint unit object</p>
+  <p>pint.Unit: The Pint unit object</p>
+</blockquote>
+</div>
+
+
+                </section>
+                <section id="get_unit_name">
+                    <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">get_unit_name</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">pint_unit</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pint</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">Unit</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="nb">str</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#get_unit_name"></a>
+    
+            <div class="docstring"><p>Returns the unit name of a Pint unit (string or object)</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>pint_unit (Union[str, pint.Unit]):</strong>  The Pint unit</li>
+</ul>
+
+<h6 id="raises">Raises:</h6>
+
+<ul>
+<li><strong>KeyError:</strong>  If no unit name exists for the Pint unit</li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>str: The unit_name</p>
+</blockquote>
+</div>
+
+
+                </section>
+                <section id="get_unit_aliases">
+                    <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">get_unit_aliases</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">unit</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pint</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">Unit</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#get_unit_aliases"></a>
+    
+            <div class="docstring"><p>Returns a list of aliases for the specified unit</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>unit (Union[str, pint.Unit]):</strong>  A unit name, Pint Unit definition, or Pint Unit object</li>
+</ul>
+
+<h6 id="raises">Raises:</h6>
+
+<ul>
+<li><strong>KeyError:</strong>  if the specified unit is not an existing unit name or a Pint Unit
+(definition or object) referenced by a unit_name</li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>list[str]: A list of aliases for the specified unit</p>
+</blockquote>
+</div>
+
+
+                </section>
+                <section id="get_compatible_units">
+                    <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">get_compatible_units</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">unit</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pint</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">Unit</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#get_compatible_units"></a>
+    
+            <div class="docstring"><p>Returns a list of units names that are convertable to/from the specified unit</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>unit (Union[str, pint.Unit]):</strong>  The unit to get compatible units for</li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>list[str]: The list of compatible unit names</p>
 </blockquote>
 </div>
 
@@ -263,27 +398,25 @@ unit is not the same as the <code>from_unit</code>.</li>
 <h6 id="returns">Returns:</h6>
 
 <blockquote>
-  <p>Any:</p>
+  <p>Any: if <code>to_convert</code> is:</p>
   
   <ul>
-  <li>If <code>to_convert</code> is an integer, a float is returned</li>
-  <li>If <code>to_convert</code> is a float, a float is returned</li>
-  <li>If <code>to_convert</code> is a Pint Quantity:
+  <li><strong>integer</strong> or <strong>float:</strong> a <em>float</em> is returned</li>
+  <li><strong>Pint Quantity:</strong>
   <ul>
-  <li>if <code>from_unit</code> is the same as the unit of <code>to_convert</code>, a converted Quantity is returned</li>
-  <li>if <code>from_unit</code> is not the same as the unit of <code>to_convert</code>, a <code><a href="#UnitException">UnitException</a></code> is raised</li>
+  <li>if <code>from_unit</code> is the same as the unit of <code>to_convert</code>, a converted <em>Pint Quantity</em> is returned</li>
+  <li>if <code>from_unit</code> is not the same as the unit of <code>to_convert</code>, a <code>UnitException</code> is raised</li>
   </ul></li>
-  <li>If <code>to_convert</code> is a string, a string is returned
+  <li><strong>string:</strong> a <em>string</em> is returned
   <ul>
   <li>if the string is numeric the returned string will be a string of the converted value</li>
   <li>if the string is not numeric, it is returned unchanged</li>
   </ul></li>
-  <li>If <code>to_convert</code> is a list, a list is returned with each item either converted or not as specified
+  <li><strong>list</strong> or <strong>tuple:</strong>, the <em>same type</em> returned with each item either converted or not as specified
   in the rules above</li>
-  <li>If <code>to_convert</code> is a tuple, a list is returned with each item either converted or not as specified
-  in the rules above</li>
-  <li>Otherwise <code>to_convert</code> is returned unchanged</li>
   </ul>
+  
+  <p>Otherwise <code>to_convert</code> is returned unchanged</p>
 </blockquote>
 </div>
 
