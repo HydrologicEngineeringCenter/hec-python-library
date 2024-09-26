@@ -91,6 +91,8 @@ __all__ = [
     "get_unit_aliases",
     "get_compatible_units",
     "convert_units",
+    "UnitException",
+    "UnitQuantity",
 ]
 import copy, math, os, sys
 
@@ -100,7 +102,10 @@ import_dir = os.path.abspath(".")
 if not import_dir in sys.path:
     sys.path.append(import_dir)
 
+from functools import total_ordering
+from fractions import Fraction
 from typing import Any
+from typing import Optional
 from typing import Union
 from typing import cast
 from pint.errors import UndefinedUnitError
@@ -682,13 +687,11 @@ def get_unit_aliases(unit: Union[str, pint.Unit]) -> list[str]:
     if unit == "lb":
         unit_name = "lb"
     else:
+        unit_name_or_alias = str(unit)
         try:
-            unit_name = str(unit)
+            unit_name = unit_names_by_alias[unit_name_or_alias]
         except KeyError:
-            if isinstance(unit, pint.Unit):
-                raise
-            else:
-                unit_name = unit
+            unit_name = unit_name_or_alias
         if unit_name not in pint_units_by_unit_name:
             raise KeyError(unit_name)
     return [k for k in unit_names_by_alias if unit_names_by_alias[k] == unit_name]
@@ -841,3 +844,456 @@ def convert_units(
         # other #
         # ----- #
         return to_convert
+
+
+@total_ordering
+class UnitQuantity:
+    """
+    Class for scalar values with units.
+
+    Thinly wraps pint.UnitRegistry.Quantity, but allows non-identifier unit names to be
+    associated with quantities. Can be used with mathematical, comparison, and conversion
+    operators in conjuction with pint.UnitRegistry.Quantity objects and scalars (ints and floats).
+
+    """
+
+    _default_output_format: Optional[str] = None
+
+    @classmethod
+    def setDefaultOutputFormat(cls, format: Optional[str]) -> None:
+        """
+        Sets the default output format for new UnitQuantity objects
+
+        Args:
+            format (Optional[str]): <br>
+                * None: (default value) outputs the units as specified when the UnitQuantity object was created
+                * Other: Must be a valid [Pint format specification](https://pint.readthedocs.io/en/stable/user/formatting.html)
+        """
+        cls._default_output_format = format
+
+    def __init__(self, *args: Any):
+        """
+        Creates a UnitQuantity object
+
+        Args:
+            One argument:<br>
+                * `str`: A valid string for [Pint string parsing](https://pint.readthedocs.io/en/stable/user/defining-quantities.html)
+                * `UnitQuantity`: Another UnitQuantity object
+                * `pint.Quantity`: A Pint Quantity object
+            Two arguments:<br>
+                * args[0] (`Union[int, float, Fraction]`): The magnitude of the quantity
+                * args[1] (`Union[str, pint.Unit`): The uni of the quantity
+
+        Raises:
+            UnitException: if in valid arguments are specified
+        """
+        arg_count = len(args)
+        if arg_count == 1:
+            if isinstance(args[0], str):
+                self._quantity = ureg(args[0])
+                self._specified_unit = str(self._quantity.units)
+            elif isinstance(args[0], UnitQuantity):
+                self._quantity = args[0]._quantity
+                self._specified_unit = args[0]._specified_unit
+            elif isinstance(args[0], pint.Quantity):
+                self._quantity = args[0]
+                self._specified_unit = str(args[0].units)
+            else:
+                raise UnitException(
+                    f"Expected type of single argument to be 'UnitQuantity', 'pint.Quantity' or 'str', got '{type(args[0])}'"
+                )
+        elif arg_count == 2:
+            if isinstance(args[1], str):
+                self._quantity = ureg.Quantity(args[0], get_pint_unit(args[1]))
+            else:
+                self._quantity = ureg.Quantity(args[0], args[1])
+            self._specified_unit = str(args[1])
+        else:
+            raise UnitException(f"Expected 1..2 arguments, got {arg_count}")
+        self._output_format = UnitQuantity._default_output_format
+
+    def __repr__(self) -> str:
+        return f"UnitQuantity({self._quantity.magnitude}, '{self._specified_unit}')"
+
+    def __str__(self) -> str:
+        if self._output_format:
+            return cast(
+                str,
+                eval(
+                    'f"{self._quantity:' + self.output_format
+                    if self.output_format
+                    else "" + '}"'
+                ),
+            )
+        else:
+            return f"{self._quantity.magnitude} {self._specified_unit}"
+
+    def __bool__(self) -> bool:
+        return True if self._quantity.magnitude else False
+
+    def __int__(self) -> int:
+        return int(self._quantity.magnitude)
+
+    def __float__(self) -> float:
+        return float(self._quantity.magnitude)
+
+    def __format__(self, format: str) -> str:
+        return cast(str, eval('f"{self._quantity:' + format + '}"'))
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, UnitQuantity):
+            return cast(bool, self._quantity == other._quantity)
+        elif isinstance(other, pint.Quantity):
+            return cast(bool, self._quantity == other)
+        elif isinstance(other, (int, float)):
+            return cast(bool, self._quantity.magnitude == other)
+        return NotImplemented
+
+    def __lt__(self, other: object) -> bool:
+        if isinstance(other, UnitQuantity):
+            return cast(bool, self._quantity < other._quantity)
+        elif isinstance(other, pint.Quantity):
+            return cast(bool, self._quantity < other)
+        elif isinstance(other, (int, float)):
+            return cast(bool, self._quantity.magnitude < other)
+        return NotImplemented
+
+    def __gt__(self, other: object) -> bool:
+        if isinstance(other, UnitQuantity):
+            return cast(bool, self._quantity > other._quantity)
+        elif isinstance(other, pint.Quantity):
+            return cast(bool, self._quantity > other)
+        elif isinstance(other, (int, float)):
+            return cast(bool, self._quantity.magnitude > other)
+        return NotImplemented
+
+    def __add__(self, other: object) -> "UnitQuantity":
+        if isinstance(other, UnitQuantity):
+            q = self._quantity + other._quantity
+            return UnitQuantity(q.magnitude, q.units)
+        elif isinstance(other, pint.Quantity):
+            q = self._quantity + other
+            return UnitQuantity(q.magnitude, q.units)
+        elif isinstance(other, (int, float)):
+            return UnitQuantity(self._quantity.magnitude + other, self._specified_unit)
+        return NotImplemented
+
+    def __sub__(self, other: object) -> "UnitQuantity":
+        if isinstance(other, UnitQuantity):
+            q = self._quantity - other._quantity
+            return UnitQuantity(q.magnitude, q.units)
+        elif isinstance(other, pint.Quantity):
+            q = self._quantity - other
+            return UnitQuantity(q.magnitude, q.units)
+        elif isinstance(other, (int, float)):
+            return UnitQuantity(self._quantity.magnitude - other, self._specified_unit)
+        return NotImplemented
+
+    def __mul__(self, other: object) -> "UnitQuantity":
+        if isinstance(other, UnitQuantity):
+            q = self._quantity * other._quantity
+            return UnitQuantity(q.magnitude, q.units)
+        elif isinstance(other, pint.Quantity):
+            q = self._quantity * other
+            return UnitQuantity(q.magnitude, q.units)
+        elif isinstance(other, (int, float)):
+            return UnitQuantity(self._quantity.magnitude * other, self._specified_unit)
+        return NotImplemented
+
+    def __truediv__(self, other: object) -> "UnitQuantity":
+        if isinstance(other, UnitQuantity):
+            q = self._quantity / other._quantity
+            return UnitQuantity(q.magnitude, q.units)
+        elif isinstance(other, pint.Quantity):
+            q = self._quantity / other
+            return UnitQuantity(q.magnitude, q.units)
+        elif isinstance(other, (int, float)):
+            return UnitQuantity(self._quantity.magnitude / other, self._specified_unit)
+        return NotImplemented
+
+    def __mod__(self, other: object) -> "UnitQuantity":
+        if isinstance(other, UnitQuantity):
+            q = self._quantity % other._quantity
+            return UnitQuantity(q.magnitude, q.units)
+        elif isinstance(other, pint.Quantity):
+            q = self._quantity % other
+            return UnitQuantity(q.magnitude, q.units)
+        elif isinstance(other, (int, float)):
+            return UnitQuantity(self._quantity.magnitude % other, self._specified_unit)
+        return NotImplemented
+
+    def __floordiv__(self, other: object) -> "UnitQuantity":
+        if isinstance(other, UnitQuantity):
+            q = self._quantity // other._quantity
+            return UnitQuantity(q.magnitude, q.units)
+        elif isinstance(other, pint.Quantity):
+            q = self._quantity // other
+            return UnitQuantity(q.magnitude, q.units)
+        elif isinstance(other, (int, float)):
+            return UnitQuantity(self._quantity.magnitude // other, self._specified_unit)
+        return NotImplemented
+
+    def __pow__(self, other: object) -> "UnitQuantity":
+        if isinstance(other, (int, float)):
+            return UnitQuantity(
+                self._quantity.magnitude**other, f"({self._specified_unit})**{other}"
+            )
+        return NotImplemented
+
+    def __iadd__(self, other: object) -> "UnitQuantity":
+        if isinstance(other, UnitQuantity):
+            self._quantity += other._quantity  # type: ignore
+            return self
+        elif isinstance(other, pint.Quantity):
+            self._quantity += other  # type: ignore
+            return self
+        elif isinstance(other, (int, float)):
+            self._quantity += UnitQuantity(other, self._specified_unit)  # type: ignore
+            return self
+        return NotImplemented
+
+    def __isub__(self, other: object) -> "UnitQuantity":
+        if isinstance(other, UnitQuantity):
+            self._quantity -= other._quantity
+            return self
+        elif isinstance(other, pint.Quantity):
+            self._quantity -= other
+            return self
+        elif isinstance(other, (int, float)):
+            self._quantity -= UnitQuantity(other, self._specified_unit)
+            return self
+        return NotImplemented
+
+    def __imul__(self, other: object) -> "UnitQuantity":
+        if isinstance(other, UnitQuantity):
+            self._quantity *= other._quantity
+            return self
+        elif isinstance(other, pint.Quantity):
+            self._quantity *= other
+            return self
+        elif isinstance(other, (int, float)):
+            self._quantity *= UnitQuantity(other, self._specified_unit)
+            return self
+        return NotImplemented
+
+    def __itruediv__(self, other: object) -> "UnitQuantity":
+        if isinstance(other, UnitQuantity):
+            self._quantity /= other._quantity
+            return self
+        elif isinstance(other, pint.Quantity):
+            self._quantity /= other
+            return self
+        elif isinstance(other, (int, float)):
+            self._quantity /= UnitQuantity(other, self._specified_unit)
+            return self
+        return NotImplemented
+
+    def __imod__(self, other: object) -> "UnitQuantity":
+        if isinstance(other, UnitQuantity):
+            self._quantity %= other._quantity
+            return self
+        elif isinstance(other, pint.Quantity):
+            self._quantity %= other
+            return self
+        elif isinstance(other, (int, float)):
+            self._quantity %= UnitQuantity(other, self._specified_unit)
+            return self
+        return NotImplemented
+
+    def __ifloordiv__(self, other: object) -> "UnitQuantity":
+        if isinstance(other, UnitQuantity):
+            self._quantity //= other._quantity
+            return self
+        elif isinstance(other, pint.Quantity):
+            self._quantity //= other
+            return self
+        elif isinstance(other, (int, float)):
+            self._quantity //= UnitQuantity(other, self._specified_unit)
+            return self
+        return NotImplemented
+
+    def __ipow__(self, other: object) -> "UnitQuantity":
+        if isinstance(other, (int, float)):
+            self._specified_unit = f"({self._specified_unit})**{other}"
+            self._quantity = UnitQuantity(self._quantity.magnitude**other, self._specified_unit)  # type: ignore
+            return self
+        return NotImplemented
+
+    def __radd__(self, other: object) -> "UnitQuantity":
+        if isinstance(other, UnitQuantity):
+            q = other._quantity + self._quantity
+            return UnitQuantity(q.magnitude, q.units)
+        elif isinstance(other, pint.Quantity):
+            q = other + self._quantity
+            return UnitQuantity(q.magnitude, q.units)
+        elif isinstance(other, (int, float)):
+            return UnitQuantity(other + self._quantity.magnitude, self._specified_unit)
+        return NotImplemented
+
+    def __rsub__(self, other: object) -> "UnitQuantity":
+        if isinstance(other, UnitQuantity):
+            q = other._quantity - self._quantity
+            return UnitQuantity(q.magnitude, q.units)
+        elif isinstance(other, pint.Quantity):
+            q = other - self._quantity
+            return UnitQuantity(q.magnitude, q.units)
+        elif isinstance(other, (int, float)):
+            return UnitQuantity(other - self._quantity.magnitude, self._specified_unit)
+        return NotImplemented
+
+    def __rmul__(self, other: object) -> "UnitQuantity":
+        if isinstance(other, UnitQuantity):
+            q = other._quantity * self._quantity
+            return UnitQuantity(q.magnitude, q.units)
+        elif isinstance(other, pint.Quantity):
+            q = other * self._quantity
+            return UnitQuantity(q.magnitude, q.units)
+        elif isinstance(other, (int, float)):
+            return UnitQuantity(other * self._quantity.magnitude, self._specified_unit)
+        return NotImplemented
+
+    def __rtruediv__(self, other: object) -> "UnitQuantity":
+        if isinstance(other, UnitQuantity):
+            q = other._quantity / self._quantity
+            return UnitQuantity(q.magnitude, q.units)
+        elif isinstance(other, pint.Quantity):
+            q = other / self._quantity
+            return UnitQuantity(q.magnitude, q.units)
+        elif isinstance(other, (int, float)):
+            return UnitQuantity(other / self._quantity.magnitude, self._specified_unit)
+        return NotImplemented
+
+    def __rmod__(self, other: object) -> "UnitQuantity":
+        if isinstance(other, UnitQuantity):
+            q = other._quantity % self._quantity
+            return UnitQuantity(q.magnitude, q.units)
+        elif isinstance(other, pint.Quantity):
+            q = other % self._quantity
+            return UnitQuantity(q.magnitude, q.units)
+        elif isinstance(other, (int, float)):
+            return UnitQuantity(other % self._quantity.magnitude, self._specified_unit)
+        return NotImplemented
+
+    def __rfloordiv__(self, other: object) -> "UnitQuantity":
+        if isinstance(other, UnitQuantity):
+            q = other._quantity // self._quantity
+            return UnitQuantity(q.magnitude, q.units)
+        elif isinstance(other, pint.Quantity):
+            q = other // self._quantity
+            return UnitQuantity(q.magnitude, q.units)
+        elif isinstance(other, (int, float)):
+            return UnitQuantity(other // self._quantity.magnitude, self._specified_unit)
+        return NotImplemented
+
+    @property
+    def output_format(self) -> Optional[str]:
+        """
+        The output format used for this object if a format specifier is not used. Any format specifier used
+        will override this property.
+
+        If `None`, the unit name or alias specified when the object was creaed will be output (e.g., 10 dsf).
+        See [Pint format specification](https://pint.readthedocs.io/en/stable/user/formatting.html) for other formats.
+
+        Operations:
+            Read/Write
+        """
+        return self._output_format
+
+    @output_format.setter
+    def output_format(self, format: Optional[str]) -> None:
+        self._output_format = format
+
+    @property
+    def magnitude(self) -> Any:
+        """
+        The magnitude of the object (unitless value)
+
+        Operations:
+            Read/Only
+        """
+        return self._quantity.magnitude
+
+    @property
+    def units(self) -> pint.Unit:
+        """
+        The Pint unit of the object
+
+        Operations:
+            Read/Only
+        """
+        return self._quantity.units  # type: ignore
+
+    @property
+    def dimensionality(self) -> pint.util.UnitsContainer:
+        """
+        The dimensionality of the object
+
+        Operations:
+            Read/Only
+        """
+        return self._quantity.dimensionality
+
+    @property
+    def specified_units(self) -> str:
+        """
+        The unit specified when the object was created. May be a unit name, alias, or a pint unit definition
+
+        Operations:
+            Read/Only
+        """
+        return self._specified_unit
+
+    def to(self, unit: Union[str, pint.Unit], in_place: bool = False) -> "UnitQuantity":
+        """
+        Converts this object to a different unit
+
+        Args:
+            unit (Union[str, pint.Unit]): The unit to convert to
+            in_place (bool, optional): If True, this object is modified and returned Otherwise
+                a new object is returned. Defaults to False. Using this method with `in_place=True`
+                differs from `ito()` in that the converted object is returned.
+
+        Returns:
+            UnitQuantity: The converted object
+        """
+        if isinstance(unit, str):
+            _unit_str = unit
+            _unit = get_pint_unit(unit)
+        else:
+            _unit = unit
+            _unit_str = str(_unit)
+        if in_place:
+            self._quantity.ito(_unit, ctx)
+            self._specified_unit = _unit_str
+            return self
+        else:
+            return UnitQuantity(self._quantity.to(_unit, ctx), _unit_str)
+
+    def ito(self, unit: Union[str, pint.Unit]) -> None:
+        """
+        Converts this object to a different unit in place. Unlike `.to(..., in_place=True)`
+        no object is returned after the conversion
+
+        Args:
+            unit (Union[str, pint.Unit]): The unit ot convert to
+        """
+        self.to(unit, in_place=True)
+
+    def getUnitAliases(self) -> list[str]:
+        """
+        Returns a list of unit aliases for the specified unit of this object
+
+        Returns:
+            list[str]: The list of unit aliases for this object's specified unit
+        """
+        return get_unit_aliases(self._specified_unit)
+
+    def getCompatibleUnits(self) -> list[str]:
+        """
+        Returns a list of compatible unit unit names for the specified unit of this object.
+        Compatible units are those that have the same dimensionality.
+
+        Returns:
+            list[str]: The list of compatible unit names for this object's specified unit
+        """
+        return get_compatible_units(self._specified_unit)

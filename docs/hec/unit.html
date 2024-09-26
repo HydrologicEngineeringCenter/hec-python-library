@@ -51,6 +51,51 @@
             <li>
                     <a class="function" href="#convert_units">convert_units</a>
             </li>
+            <li>
+                    <a class="class" href="#UnitException">UnitException</a>
+                            <ul class="memberlist">
+                </ul>
+
+            </li>
+            <li>
+                    <a class="class" href="#UnitQuantity">UnitQuantity</a>
+                            <ul class="memberlist">
+                        <li>
+                                <a class="function" href="#UnitQuantity.__init__">UnitQuantity</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#UnitQuantity.setDefaultOutputFormat">setDefaultOutputFormat</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#UnitQuantity.output_format">output_format</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#UnitQuantity.magnitude">magnitude</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#UnitQuantity.units">units</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#UnitQuantity.dimensionality">dimensionality</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#UnitQuantity.specified_units">specified_units</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#UnitQuantity.to">to</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#UnitQuantity.ito">ito</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#UnitQuantity.getUnitAliases">getUnitAliases</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#UnitQuantity.getCompatibleUnits">getCompatibleUnits</a>
+                        </li>
+                </ul>
+
+            </li>
     </ul>
 
 
@@ -89,7 +134,7 @@ aliaes are maintained in dictionaries separate from the Pint library.<br></li>
 <ul>
 <li>Unit name = <code>g/l</code></li>
 <li>Pint unit definition = <code>g/l</code></li>
-<li>Unit aliases = 
+<li>Unit aliases =
 <ul>
 <li><code>gm/l</code></li>
 <li><code>grams per liter</code></li>
@@ -125,7 +170,7 @@ g/l
 <ul>
 <li>Pint unit definition = <code>ft**3/s</code></li>
 <li>Unit name = <code>cfs</code></li>
-<li>Unit aliases = 
+<li>Unit aliases =
 <ul>
 <li><code>CFS</code></li>
 <li><code>FT3/S</code></li>
@@ -405,7 +450,7 @@ unit is not the same as the <code>from_unit</code>.</li>
   <li><strong>Pint Quantity:</strong>
   <ul>
   <li>if <code>from_unit</code> is the same as the unit of <code>to_convert</code>, a converted <em>Pint Quantity</em> is returned</li>
-  <li>if <code>from_unit</code> is not the same as the unit of <code>to_convert</code>, a <code>UnitException</code> is raised</li>
+  <li>if <code>from_unit</code> is not the same as the unit of <code>to_convert</code>, a <code><a href="#UnitException">UnitException</a></code> is raised</li>
   </ul></li>
   <li><strong>string:</strong> a <em>string</em> is returned
   <ul>
@@ -421,6 +466,311 @@ unit is not the same as the <code>from_unit</code>.</li>
 </div>
 
 
+                </section>
+                <section id="UnitException">
+                    <div class="attr class">
+            
+    <span class="def">class</span>
+    <span class="name">UnitException</span><wbr>(<span class="base">builtins.Exception</span>):
+
+        
+    </div>
+    <a class="headerlink" href="#UnitException"></a>
+    
+            <div class="docstring"><p>Exception specific to Unit operations</p>
+</div>
+
+
+                            <div class="inherited">
+                                <h5>Inherited Members</h5>
+                                <dl>
+                                    <div><dt>builtins.Exception</dt>
+                                <dd id="UnitException.__init__" class="function">Exception</dd>
+
+            </div>
+            <div><dt>builtins.BaseException</dt>
+                                <dd id="UnitException.with_traceback" class="function">with_traceback</dd>
+                <dd id="UnitException.args" class="variable">args</dd>
+
+            </div>
+                                </dl>
+                            </div>
+                </section>
+                <section id="UnitQuantity">
+                    <div class="attr class">
+                    <div class="decorator">@total_ordering</div>
+
+    <span class="def">class</span>
+    <span class="name">UnitQuantity</span>:
+
+        
+    </div>
+    <a class="headerlink" href="#UnitQuantity"></a>
+    
+            <div class="docstring"><p>Class for scalar values with units.</p>
+
+<p>Thinly wraps pint.UnitRegistry.Quantity, but allows non-identifier unit names to be
+associated with quantities. Can be used with mathematical, comparison, and conversion
+operators in conjuction with pint.UnitRegistry.Quantity objects and scalars (ints and floats).</p>
+</div>
+
+
+                            <div id="UnitQuantity.__init__" class="classattr">
+                                <div class="attr function">
+            
+        <span class="name">UnitQuantity</span><span class="signature pdoc-code condensed">(<span class="param"><span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span></span>)</span>
+
+        
+    </div>
+    <a class="headerlink" href="#UnitQuantity.__init__"></a>
+    
+            <div class="docstring"><p>Creates a UnitQuantity object</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>One argument:</strong> <br>
+<ul>
+<li><code>str</code>: A valid string for <a href="https://pint.readthedocs.io/en/stable/user/defining-quantities.html">Pint string parsing</a></li>
+<li><code><a href="#UnitQuantity">UnitQuantity</a></code>: Another UnitQuantity object</li>
+<li><code>pint.Quantity</code>: A Pint Quantity object</li>
+</ul></li>
+<li><strong>Two arguments:</strong> <br>
+<ul>
+<li>args[0] (<code>Union[int, float, Fraction]</code>): The magnitude of the quantity</li>
+<li>args[1] (<code>Union[str, pint.Unit</code>): The uni of the quantity</li>
+</ul></li>
+</ul>
+
+<h6 id="raises">Raises:</h6>
+
+<ul>
+<li><strong>UnitException:</strong>  if in valid arguments are specified</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="UnitQuantity.setDefaultOutputFormat" class="classattr">
+                                <div class="attr function">
+                    <div class="decorator">@classmethod</div>
+
+        <span class="def">def</span>
+        <span class="name">setDefaultOutputFormat</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">cls</span>, </span><span class="param"><span class="nb">format</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="kc">None</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#UnitQuantity.setDefaultOutputFormat"></a>
+    
+            <div class="docstring"><p>Sets the default output format for new UnitQuantity objects</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>format (Optional[str]):</strong>  <br>
+<ul>
+<li>None: (default value) outputs the units as specified when the UnitQuantity object was created</li>
+<li>Other: Must be a valid <a href="https://pint.readthedocs.io/en/stable/user/formatting.html">Pint format specification</a></li>
+</ul></li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="UnitQuantity.output_format" class="classattr">
+                                <div class="attr variable">
+            <span class="name">output_format</span><span class="annotation">: Optional[str]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#UnitQuantity.output_format"></a>
+    
+            <div class="docstring"><p>The output format used for this object if a format specifier is not used. Any format specifier used
+will override this property.</p>
+
+<p>If <code>None</code>, the unit name or alias specified when the object was creaed will be output (e.g., 10 dsf).
+See <a href="https://pint.readthedocs.io/en/stable/user/formatting.html">Pint format specification</a> for other formats.</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read/Write</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="UnitQuantity.magnitude" class="classattr">
+                                <div class="attr variable">
+            <span class="name">magnitude</span><span class="annotation">: Any</span>
+
+        
+    </div>
+    <a class="headerlink" href="#UnitQuantity.magnitude"></a>
+    
+            <div class="docstring"><p>The magnitude of the object (unitless value)</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read/Only</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="UnitQuantity.units" class="classattr">
+                                <div class="attr variable">
+            <span class="name">units</span><span class="annotation">: pint.registry.Unit</span>
+
+        
+    </div>
+    <a class="headerlink" href="#UnitQuantity.units"></a>
+    
+            <div class="docstring"><p>The Pint unit of the object</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read/Only</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="UnitQuantity.dimensionality" class="classattr">
+                                <div class="attr variable">
+            <span class="name">dimensionality</span><span class="annotation">: pint.util.UnitsContainer</span>
+
+        
+    </div>
+    <a class="headerlink" href="#UnitQuantity.dimensionality"></a>
+    
+            <div class="docstring"><p>The dimensionality of the object</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read/Only</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="UnitQuantity.specified_units" class="classattr">
+                                <div class="attr variable">
+            <span class="name">specified_units</span><span class="annotation">: str</span>
+
+        
+    </div>
+    <a class="headerlink" href="#UnitQuantity.specified_units"></a>
+    
+            <div class="docstring"><p>The unit specified when the object was created. May be a unit name, alias, or a pint unit definition</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read/Only</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="UnitQuantity.to" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">to</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="bp">self</span>,</span><span class="param">	<span class="n">unit</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pint</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">Unit</span><span class="p">]</span>,</span><span class="param">	<span class="n">in_place</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></span><span class="return-annotation">) -> <span class="n"><a href="#UnitQuantity">UnitQuantity</a></span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#UnitQuantity.to"></a>
+    
+            <div class="docstring"><p>Converts this object to a different unit</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>unit (Union[str, pint.Unit]):</strong>  The unit to convert to</li>
+<li><strong>in_place (bool, optional):</strong>  If True, this object is modified and returned Otherwise
+a new object is returned. Defaults to False. Using this method with <code>in_place=True</code>
+differs from <code><a href="#UnitQuantity.ito">ito()</a></code> in that the converted object is returned.</li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>UnitQuantity: The converted object</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="UnitQuantity.ito" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">ito</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">unit</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pint</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">Unit</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="kc">None</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#UnitQuantity.ito"></a>
+    
+            <div class="docstring"><p>Converts this object to a different unit in place. Unlike <code>.to(..., in_place=True)</code>
+no object is returned after the conversion</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>unit (Union[str, pint.Unit]):</strong>  The unit ot convert to</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="UnitQuantity.getUnitAliases" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">getUnitAliases</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span><span class="return-annotation">) -> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#UnitQuantity.getUnitAliases"></a>
+    
+            <div class="docstring"><p>Returns a list of unit aliases for the specified unit of this object</p>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>list[str]: The list of unit aliases for this object's specified unit</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="UnitQuantity.getCompatibleUnits" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">getCompatibleUnits</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span><span class="return-annotation">) -> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#UnitQuantity.getCompatibleUnits"></a>
+    
+            <div class="docstring"><p>Returns a list of compatible unit unit names for the specified unit of this object.
+Compatible units are those that have the same dimensionality.</p>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>list[str]: The list of compatible unit names for this object's specified unit</p>
+</blockquote>
+</div>
+
+
+                            </div>
                 </section>
     </main>
 <script>

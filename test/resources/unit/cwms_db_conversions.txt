@@ -1,3 +1,31 @@
+# ---------------------------------------------------------------- #
+# Unit Conversions Performed By CWMS Database Using Following Code #
+# ---------------------------------------------------------------- #
+# set serveroutput on
+# declare
+#    converted binary_double;
+# begin
+#    dbms_output.enable(null);
+#    for rec1 in (select abstract_param_id, abstract_param_code from cwms_abstract_parameter order by 1) loop
+#       for rec2 in (select unit_id from cwms_unit where abstract_param_code = rec1.abstract_param_code order by 1) loop
+#          for rec3 in (select unit_id from cwms_unit where abstract_param_code = rec1.abstract_param_code order by 1) loop
+#             dbms_output.put(rec2.unit_id||chr(9)||rec3.unit_id||chr(9));
+#             begin
+#                converted := cwms_util.convert_units(1.0, rec2.unit_id, rec3.unit_id);
+#                dbms_output.put_line(to_number(converted));
+#             exception
+#                when others then
+#                   dbms_output.put_line('unconvertable');
+#             end;
+#          end loop;
+#       end loop;
+#    end loop;
+# end;
+# ---------------------------------------------------------------- #
+# Field 1 - Unit 1                                                 #
+# Field 2 - Unit 2                                                 #
+# Field 3 - 1 * (Unit 1) converted to Unit 2                       #
+# ---------------------------------------------------------------- #
 deg	deg	1
 deg	rad	.01745329
 deg	rev	.0027777777777777779
