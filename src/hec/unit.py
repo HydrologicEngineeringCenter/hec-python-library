@@ -109,6 +109,7 @@ from typing import Optional
 from typing import Union
 from typing import cast
 from pint.errors import UndefinedUnitError
+import cwms  # type: ignore
 import pint
 
 
@@ -717,7 +718,10 @@ def get_compatible_units(unit: Union[str, pint.Unit]) -> list[str]:
 
 
 def convert_units(
-    to_convert: Any, from_unit: Union[pint.Unit, str], to_unit: Union[pint.Unit, str]
+    to_convert: Any,
+    from_unit: Union[pint.Unit, str],
+    to_unit: Union[pint.Unit, str],
+    in_place: bool = False,
 ) -> Any:
     """
     Converts an object from one unit to another. If the object is non-convertable
@@ -731,6 +735,7 @@ def convert_units(
             * Pint Quantity
             * list
             * tuple
+            * cwms.types.Data
         from_unit (Union[pint.Unit, str]): The unit to convert from. May be:
             * a unit name
             * a unit alias
@@ -741,6 +746,9 @@ def convert_units(
             * a unit alias
             * a valid Pint unit string
             * a Pint unit
+        in_place (bool): for list and cwms.type.Data types, specifies whether to convert the object
+            in-place. Ignored for all other data types. If True, the converted object is returned.
+            If False, a converted copy is returned. Defaults to False
 
     Raises:
         UnitException: If:
@@ -830,15 +838,48 @@ def convert_units(
         # ---- #
         # list #
         # ---- #
-        converted = copy.deepcopy(to_convert)
+        converted = to_convert if in_place else copy.deepcopy(to_convert)
         for i in range(len(to_convert)):
-            converted[i] = convert_units(to_convert[i], from_unit, to_unit)
+            converted[i] = convert_units(to_convert[i], from_unit, to_unit, in_place)
         return converted
     elif isinstance(to_convert, tuple):
         # ----- #
         # tuple #
         # ----- #
         return tuple(convert_units(list(to_convert), from_unit, to_unit))
+    elif isinstance(to_convert, cwms.types.Data):
+        data_unit = get_pint_unit(to_convert.json["units"])
+        if src_unit != data_unit:
+            raise UnitException(
+                f"From unit of {from_unit} differs from data unit of {to_convert.json['units']}"
+            )
+        factor: float = convert_units(1, src_unit, dst_unit)
+        converted = to_convert if in_place else copy.deepcopy(to_convert)
+        json = converted.json  # type: ignore
+        if convert_units(10, src_unit, dst_unit) == 10 * factor:
+            json["values"] = [[v[0], v[1] * factor, v[2]] for v in json["values"]]
+        else:
+            json["values"] = [
+                [v[0], convert_units(v[1], src_unit, dst_unit), v[2]]
+                for v in json["values"]
+            ]
+        json["units"] = to_unit
+        try:
+            vdi = json["vertical-datum-info"]
+        except KeyError:
+            pass
+        else:
+            vdi["elevation"] = convert_units(vdi["elevation"], src_unit, dst_unit)
+            for i in range(len(vdi["offsets"])):
+                vdi["offsets"][i]["value"] = convert_units(
+                    vdi["offsets"][i]["value"], src_unit, dst_unit
+                )
+            vdi["unit"] = to_unit
+
+        converted.json = json  # type: ignore
+        converted._df = None  # type: ignore
+        return converted
+
     else:
         # ----- #
         # other #

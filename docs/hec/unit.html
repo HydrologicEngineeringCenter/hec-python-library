@@ -387,7 +387,7 @@ See <a href="https://pint.readthedocs.io">Pint documentation</a> for more detail
                     <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">convert_units</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">to_convert</span><span class="p">:</span> <span class="n">Any</span>,</span><span class="param">	<span class="n">from_unit</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">pint</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">Unit</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>,</span><span class="param">	<span class="n">to_unit</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">pint</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">Unit</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="n">Any</span>:</span></span>
+        <span class="name">convert_units</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">to_convert</span><span class="p">:</span> <span class="n">Any</span>,</span><span class="param">	<span class="n">from_unit</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">pint</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">Unit</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>,</span><span class="param">	<span class="n">to_unit</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">pint</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">Unit</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>,</span><span class="param">	<span class="n">in_place</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></span><span class="return-annotation">) -> <span class="n">Any</span>:</span></span>
 
         
     </div>
@@ -407,6 +407,7 @@ it is returned unchanged.</p>
 <li>Pint Quantity</li>
 <li>list</li>
 <li>tuple</li>
+<li>cwms.types.Data</li>
 </ul></li>
 <li><strong>from_unit (Union[pint.Unit, str]):</strong>  The unit to convert from. May be:
 <ul>
@@ -422,6 +423,9 @@ it is returned unchanged.</p>
 <li>a valid Pint unit string</li>
 <li>a Pint unit</li>
 </ul></li>
+<li><strong>in_place (bool):</strong>  for list and cwms.type.Data types, specifies whether to convert the object
+in-place. Ignored for all other data types. If True, the converted object is returned.
+If False, a converted copy is returned. Defaults to False</li>
 </ul>
 
 <h6 id="raises">Raises:</h6>
