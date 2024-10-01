@@ -49,6 +49,12 @@
                     <a class="function" href="#get_compatible_units">get_compatible_units</a>
             </li>
             <li>
+                    <a class="function" href="#get_unit_system">get_unit_system</a>
+            </li>
+            <li>
+                    <a class="function" href="#get_unit_names_for_unit_system">get_unit_names_for_unit_system</a>
+            </li>
+            <li>
                     <a class="function" href="#convert_units">convert_units</a>
             </li>
             <li>
@@ -378,6 +384,74 @@ See <a href="https://pint.readthedocs.io">Pint documentation</a> for more detail
 
 <blockquote>
   <p>list[str]: The list of compatible unit names</p>
+</blockquote>
+</div>
+
+
+                </section>
+                <section id="get_unit_system">
+                    <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">get_unit_system</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">unit</span><span class="p">:</span> <span class="nb">str</span></span><span class="return-annotation">) -> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#get_unit_system"></a>
+    
+            <div class="docstring"><p>Returns the unit system of a unit name or unit alias</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>unit (str):</strong>  A unit name or unit alias</li>
+</ul>
+
+<h6 id="raises">Raises:</h6>
+
+<ul>
+<li><strong>KeyError:</strong>  if the specified unit is not an existing unit name or a Pint Unit
+(definition or object) referenced by a unit_name</li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>Optional[str]: "EN" if English, "SI" if Système International, or None if both</p>
+</blockquote>
+</div>
+
+
+                </section>
+                <section id="get_unit_names_for_unit_system">
+                    <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">get_unit_names_for_unit_system</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">unit_system</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#get_unit_names_for_unit_system"></a>
+    
+            <div class="docstring"><p>Returns a list of unit names for the specified unit system</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>unit_system (Optional[str]):</strong>  "EN", "SI", or None</li>
+</ul>
+
+<h6 id="raises">Raises:</h6>
+
+<ul>
+<li><strong>KeyError:</strong>  if the specified unit system is not "EN", "SI", or None</li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>list[str]: A list of English unit names, Système International unit names,
+      or unit names used by both (if <code>unit_system</code> is None)</p>
 </blockquote>
 </div>
 

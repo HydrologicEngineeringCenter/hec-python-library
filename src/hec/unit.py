@@ -90,6 +90,8 @@ __all__ = [
     "get_unit_name",
     "get_unit_aliases",
     "get_compatible_units",
+    "get_unit_system",
+    "get_unit_names_for_unit_system",
     "convert_units",
     "UnitException",
     "UnitQuantity",
@@ -156,144 +158,163 @@ ctx.redefine("acre = 43560*ft**2")  # default is based on obsolete US survey foo
 ctx.redefine("acre_foot = 43560*ft**3")  # default is based on obsolete US survey foot
 ctx.redefine("US_survey_foot = 1200/3937*m")  # definition of obsoluete US survey foot
 
+# ------------------------------------------- #
+# Pint units + unit system for each unit name #
+# ------------------------------------------- #
+unit_info_by_unit_name = {
+    "%": ("%", None),
+    "$": ("USD", None),
+    "$/kaf": ("USD_per_kacre_foot", "EN"),
+    "$/mcm": ("USD_per_Mcm", "SI"),
+    "1/ft": ("1/ft", "EN"),
+    "1/m": ("1/m", "SI"),
+    "1000 m2": ("_1000_m2", "SI"),
+    "1000 m3": ("_1000_m3", "SI"),
+    "ac-ft": ("acre_foot", "EN"),
+    "acre": ("acre", None),
+    "ampere": ("amp", None),
+    "B": ("B_unit", None),
+    "bar": ("bar", None),
+    "C-day": ("delta_degC*d", "SI"),
+    "C": ("degC", "SI"),
+    "cal": ("cal", "EN"),
+    "cfs": ("ft**3/s", "EN"),
+    "cfs/mi2": ("ft**3/s/mi**2", "EN"),
+    "cm": ("cm", "SI"),
+    "cm/day": ("cm/d", "SI"),
+    "cm2": ("cm**2", "SI"),
+    "cms": ("m**3/s", "SI"),
+    "cms/km2": ("m**3/s/km** 2", "SI"),
+    "day": ("d", None),
+    "deg": ("deg", None),
+    "dsf": ("ft**3/s*d", "EN"),
+    "F-day": ("delta_degF*d", "EN"),
+    "F": ("degF", "EN"),
+    "FNU": ("FNU", None),
+    "ft": ("ft", "EN"),
+    "ft/hr": ("ft/h", "EN"),
+    "ft/s": ("ft/s", "EN"),
+    "ft2": ("ft**2", "EN"),
+    "ft2/s": ("ft**2/s", "EN"),
+    "ft3": ("ft**3", "EN"),
+    "ftUS": ("US_survey_foot", "EN"),
+    "g": ("g", "SI"),
+    "g/l": ("g/l", "SI"),
+    "g/m3": ("g/m**3", "SI"),
+    "gal": ("gal", "EN"),
+    "gm/cm3": ("g/cm**3", None),
+    "gpm": ("gal/min", "EN"),
+    "GW": ("GW", None),
+    "GWh": ("GWh", None),
+    "ha": ("ha", "SI"),
+    "hr": ("h", None),
+    "Hz": ("Hz", None),
+    "in-hg": ("inHg", "EN"),
+    "in": ("in", "EN"),
+    "in/day": ("in/d", "EN"),
+    "in/deg-day": ("in/(delta_degF*d)", "EN"),
+    "in/hr": ("in/hr", "EN"),
+    "J": ("J", "SI"),
+    "J/m2": ("J/m**2", "SI"),
+    "JTU": ("JTU", None),
+    "K": ("K", "SI"),
+    "k$": ("kUSD", None),
+    "kaf": ("kacre_foot", "EN"),
+    "KAF/mon": ("kacre_foot/month", "EN"),
+    "kcfs": ("kcfs", "EN"),
+    "kcms": ("kcms", "SI"),
+    "kdsf": ("kdsf", "EN"),
+    "kg": ("kg", "SI"),
+    "kgal": ("kgal", "EN"),
+    "kHz": ("kHz", None),
+    "km": ("km", "SI"),
+    "km2": ("km**2", "SI"),
+    "km3": ("km**3", "SI"),
+    "knot": ("knot", "EN"),
+    "kPa": ("kPa", "SI"),
+    "kph": ("kph", "SI"),
+    "kW": ("kW", None),
+    "kWh": ("kWh", None),
+    "langley": ("langley", None),
+    "langley/min": ("langley/min", None),
+    "lb": ("lbf", "EN"),
+    "lbm": ("lb", "EN"),
+    "lbm/ft3": ("lb/ft**3", "EN"),
+    "m": ("m", "SI"),
+    "m/day": ("m/d", "SI"),
+    "m/hr": ("m/h", "SI"),
+    "m/s": ("mps", "SI"),
+    "m2": ("m**2", "SI"),
+    "m2/s": ("m**2/s", "SI"),
+    "m3": ("m**3", "SI"),
+    "mb": ("mbar", "SI"),
+    "mcm": ("Mcm", "SI"),
+    "mcm/mon": ("Mcm/month", "SI"),
+    "mg": ("mg", "SI"),
+    "mg/l": ("mg/l", "SI"),
+    "mgal": ("Mgal", "EN"),
+    "mgd": ("Mgal/d", "EN"),
+    "mho": ("S", None),
+    "MHz": ("MHz", None),
+    "mi": ("mi", "EN"),
+    "mile2": ("mi**2", "EN"),
+    "mile3": ("mi**3", "EN"),
+    "min": ("min", None),
+    "MJ": ("MJ", "SI"),
+    "mm-hg": ("mmHg", "SI"),
+    "mm": ("mm", "SI"),
+    "mm/day": ("mm/d", "SI"),
+    "mm/deg-day": ("mm/(delta_degC*d)", "SI"),
+    "mm/hr": ("mm/h", "SI"),
+    "mph": ("mph", "EN"),
+    "MW": ("MW", None),
+    "MWh": ("MWh", None),
+    "N": ("N", "SI"),
+    "n/a": ("n_a", None),
+    "NTU": ("NTU", None),
+    "ppm": ("mg/l", None),
+    "psi": ("psi", "EN"),
+    "rad": ("rad", None),
+    "rev": ("rev", None),
+    "rpm": ("rpm", None),
+    "S": ("S", None),
+    "sec": ("s", None),
+    "su": ("_pH", None),
+    "ton": ("ton", "EN"),
+    "ton/day": ("ton/d", "EN"),
+    "tonne": ("tonne", "SI"),
+    "tonne/day": ("tonne/d", "SI"),
+    "TW": ("TW", None),
+    "TWh": ("TWh", None),
+    "ug": ("ug", "SI"),
+    "ug/l": ("ug/l", "SI"),
+    "umho": ("uS", None),
+    "umho/cm": ("uS/cm", None),
+    "unit": ("unit", None),
+    "uS": ("uS", None),
+    "volt": ("V", None),
+    "W": ("W", None),
+    "W/m2": ("W/m**2", None),
+    "Wh": ("Wh", None),
+}
+
 # ----------------------------- #
 # Pint units for each unit name #
 # ----------------------------- #
-pint_units_by_unit_name = {
-    "%": "%",
-    "$": "USD",
-    "$/kaf": "USD_per_kacre_foot",
-    "$/mcm": "USD_per_Mcm",
-    "1/ft": "1/ft",
-    "1/m": "1/m",
-    "1000 m2": "_1000_m2",
-    "1000 m3": "_1000_m3",
-    "ac-ft": "acre_foot",
-    "acre": "acre",
-    "ampere": "amp",
-    "B": "B_unit",
-    "bar": "bar",
-    "C-day": "delta_degC*d",
-    "C": "degC",
-    "cal": "cal",
-    "cfs": "ft**3/s",
-    "cfs/mi2": "ft**3/s/mi**2",
-    "cm": "cm",
-    "cm/day": "cm/d",
-    "cm2": "cm**2",
-    "cms": "m**3/s",
-    "cms/km2": "m**3/s/km** 2",
-    "day": "d",
-    "deg": "deg",
-    "dsf": "ft**3/s*d",
-    "F-day": "delta_degF*d",
-    "F": "degF",
-    "FNU": "FNU",
-    "ft": "ft",
-    "ft/hr": "ft/h",
-    "ft/s": "ft/s",
-    "ft2": "ft**2",
-    "ft2/s": "ft**2/s",
-    "ft3": "ft**3",
-    "ftUS": "US_survey_foot",
-    "g": "g",
-    "g/l": "g/l",
-    "g/m3": "g/m**3",
-    "gal": "gal",
-    "gm/cm3": "g/cm**3",
-    "gpm": "gal/min",
-    "GW": "GW",
-    "GWh": "GWh",
-    "ha": "ha",
-    "hr": "h",
-    "Hz": "Hz",
-    "in-hg": "inHg",
-    "in": "in",
-    "in/day": "in/d",
-    "in/deg-day": "in/(delta_degF*d)",
-    "in/hr": "in/hr",
-    "J": "J",
-    "J/m2": "J/m**2",
-    "JTU": "JTU",
-    "K": "K",
-    "k$": "kUSD",
-    "kaf": "kacre_foot",
-    "KAF/mon": "kacre_foot/month",
-    "kcfs": "kcfs",
-    "kcms": "kcms",
-    "kdsf": "kdsf",
-    "kg": "kg",
-    "kgal": "kgal",
-    "kHz": "kHz",
-    "km": "km",
-    "km2": "km**2",
-    "km3": "km**3",
-    "knot": "knot",
-    "kPa": "kPa",
-    "kph": "kph",
-    "kW": "kW",
-    "kWh": "kWh",
-    "langley": "langley",
-    "langley/min": "langley/min",
-    "lb": "lbf",
-    "lbm": "lb",
-    "lbm/ft3": "lb/ft**3",
-    "m": "m",
-    "m/day": "m/d",
-    "m/hr": "m/h",
-    "m/s": "mps",
-    "m2": "m**2",
-    "m2/s": "m**2/s",
-    "m3": "m**3",
-    "mb": "mbar",
-    "mcm": "Mcm",
-    "mcm/mon": "Mcm/month",
-    "mg": "mg",
-    "mg/l": "mg/l",
-    "mgal": "Mgal",
-    "mgd": "Mgal/d",
-    "mho": "S",
-    "MHz": "MHz",
-    "mi": "mi",
-    "mile2": "mi**2",
-    "mile3": "mi**3",
-    "min": "min",
-    "MJ": "MJ",
-    "mm-hg": "mmHg",
-    "mm": "mm",
-    "mm/day": "mm/d",
-    "mm/deg-day": "mm/(delta_degC*d)",
-    "mm/hr": "mm/h",
-    "mph": "mph",
-    "MW": "MW",
-    "MWh": "MWh",
-    "N": "N",
-    "n/a": "n_a",
-    "NTU": "NTU",
-    "ppm": "mg/l",
-    "psi": "psi",
-    "rad": "rad",
-    "rev": "rev",
-    "rpm": "rpm",
-    "S": "S",
-    "sec": "s",
-    "su": "_pH",
-    "ton": "ton",
-    "ton/day": "ton/d",
-    "tonne": "tonne",
-    "tonne/day": "tonne/d",
-    "TW": "TW",
-    "TWh": "TWh",
-    "ug": "ug",
-    "ug/l": "ug/l",
-    "umho": "uS",
-    "umho/cm": "uS/cm",
-    "unit": "unit",
-    "uS": "uS",
-    "volt": "V",
-    "W": "W",
-    "W/m2": "W/m**2",
-    "Wh": "Wh",
+pint_units_by_unit_name = {k: v[0] for k, v in unit_info_by_unit_name.items()}
+
+# ------------------------------ #
+# unit system for each unit name #
+# ------------------------------ #
+unit_system_by_unit_name = {k: v[1] for k, v in unit_info_by_unit_name.items()}
+# ------------------------------- #
+
+# ------------------------------- #
+# unit names for each unit system #
+# ------------------------------- #
+unit_names_by_unit_system = {
+    "EN": [u for u in unit_system_by_unit_name if unit_system_by_unit_name[u] != "SI"],
+    "SI": [u for u in unit_system_by_unit_name if unit_system_by_unit_name[u] != "EN"],
 }
 
 # -------------------------- #
@@ -715,6 +736,52 @@ def get_compatible_units(unit: Union[str, pint.Unit]) -> list[str]:
         if str(get_pint_unit(u).dimensionality) == dimensionality
     ]
     return compatible
+
+
+def get_unit_system(unit: str) -> Optional[str]:
+    """
+    Returns the unit system of a unit name or unit alias
+
+    Args:
+        unit (str): A unit name or unit alias
+
+    Raises:
+        KeyError: if the specified unit is not an existing unit name or a Pint Unit
+            (definition or object) referenced by a unit_name
+
+    Returns:
+        Optional[str]: "EN" if English, "SI" if Système International, or None if both
+    """
+    unit_name_or_alias = str(unit)
+    try:
+        unit_name = unit_names_by_alias[unit_name_or_alias]
+    except KeyError:
+        unit_name = unit_name_or_alias
+    if unit_name not in pint_units_by_unit_name:
+        raise KeyError(unit_name)
+    return unit_system_by_unit_name[unit_name]
+
+
+def get_unit_names_for_unit_system(unit_system: Optional[str]) -> list[str]:
+    """
+    Returns a list of unit names for the specified unit system
+
+    Args:
+        unit_system (Optional[str]): "EN", "SI", or None
+
+    Raises:
+        KeyError: if the specified unit system is not "EN", "SI", or None
+
+    Returns:
+        list[str]: A list of English unit names, Système International unit names,
+            or unit names used by both (if `unit_system` is None)
+    """
+    if unit_system is None:
+        return [
+            u for u in unit_system_by_unit_name if unit_system_by_unit_name[u] is None
+        ]
+    else:
+        return unit_names_by_unit_system[unit_system.upper()]
 
 
 def convert_units(
