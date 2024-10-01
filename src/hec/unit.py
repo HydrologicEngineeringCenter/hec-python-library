@@ -756,7 +756,7 @@ def convert_units(
                 * a unit name
                 * a unit alias
                 * a valid Pint unit string
-            * The object to convert is (or contains) a Pint quantity whose
+            * The object to convert is Pint quantity or cwms.types.Data object whose
                 unit is not the same as the `from_unit`.
 
     Returns:
@@ -768,8 +768,12 @@ def convert_units(
         * **string:** a *string* is returned
             * if the string is numeric the returned string will be a string of the converted value
             * if the string is not numeric, it is returned unchanged
-        * **list** or **tuple:**, the *same type* returned with each item either converted or not as specified
-            in the rules above
+        * **list:**, a *list* returned with each item either converted or not as specified
+            in the rules above. If `in_place` == `True`, the return value can be ignored if desired.
+        * **tuple:**, a *tuple* returned with each item either converted or not as specified
+            in the rules above. If in_place == True, the return value can be ignored if desired.
+        * **cwms.type.Data:**, a *cwms.type.Data* object is returned. If `in_place` == `True`, the return
+            value can be ignored if desired.
 
         Otherwise `to_convert` is returned unchanged
 

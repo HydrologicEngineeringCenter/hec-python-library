@@ -439,7 +439,7 @@ If False, a converted copy is returned. Defaults to False</li>
 <li>a unit alias</li>
 <li>a valid Pint unit string</li>
 </ul></li>
-<li>The object to convert is (or contains) a Pint quantity whose
+<li>The object to convert is Pint quantity or cwms.types.Data object whose
 unit is not the same as the <code>from_unit</code>.</li>
 </ul></li>
 </ul>
@@ -461,8 +461,12 @@ unit is not the same as the <code>from_unit</code>.</li>
   <li>if the string is numeric the returned string will be a string of the converted value</li>
   <li>if the string is not numeric, it is returned unchanged</li>
   </ul></li>
-  <li><strong>list</strong> or <strong>tuple:</strong>, the <em>same type</em> returned with each item either converted or not as specified
-  in the rules above</li>
+  <li><strong>list:</strong>, a <em>list</em> returned with each item either converted or not as specified
+  in the rules above. If <code>in_place</code> == <code>True</code>, the return value can be ignored if desired.</li>
+  <li><strong>tuple:</strong>, a <em>tuple</em> returned with each item either converted or not as specified
+  in the rules above. If in_place == True, the return value can be ignored if desired.</li>
+  <li><strong>cwms.type.Data:</strong>, a <em>cwms.type.Data</em> object is returned. If <code>in_place</code> == <code>True</code>, the return
+  value can be ignored if desired.</li>
   </ul>
   
   <p>Otherwise <code>to_convert</code> is returned unchanged</p>
