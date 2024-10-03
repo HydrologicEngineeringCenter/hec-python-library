@@ -8,4 +8,5 @@ __all__ = [
     "duration",
     "location",
     "unit",
+    "parameter",
 ]

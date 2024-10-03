@@ -299,7 +299,7 @@ See <a href="https://pint.readthedocs.io">Pint documentation</a> for more detail
                     <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">get_unit_name</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">pint_unit</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pint</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">Unit</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="nb">str</span>:</span></span>
+        <span class="name">get_unit_name</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">unit_alias_or_pint_unit</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pint</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">Unit</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="nb">str</span>:</span></span>
 
         
     </div>
@@ -310,13 +310,13 @@ See <a href="https://pint.readthedocs.io">Pint documentation</a> for more detail
 <h6 id="arguments">Arguments:</h6>
 
 <ul>
-<li><strong>pint_unit (Union[str, pint.Unit]):</strong>  The Pint unit</li>
+<li><strong>unit_alias_or_pint_unit (Union[str, pint.Unit]):</strong>  A unit alias or a Pint unit</li>
 </ul>
 
 <h6 id="raises">Raises:</h6>
 
 <ul>
-<li><strong>KeyError:</strong>  If no unit name exists for the Pint unit</li>
+<li><strong>KeyError:</strong>  If no unit name exists for the unit alias or Pint unit</li>
 </ul>
 
 <h6 id="returns">Returns:</h6>

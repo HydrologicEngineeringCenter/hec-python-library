@@ -676,20 +676,23 @@ def get_pint_unit(unit: str) -> pint.Unit:
         raise UnitException(f"Unknown unit: {unit}")
 
 
-def get_unit_name(pint_unit: Union[str, pint.Unit]) -> str:
+def get_unit_name(unit_alias_or_pint_unit: Union[str, pint.Unit]) -> str:
     """
     Returns the unit name of a Pint unit (string or object)
 
     Args:
-        pint_unit (Union[str, pint.Unit]): The Pint unit
+        unit_alias_or_pint_unit (Union[str, pint.Unit]): A unit alias or a Pint unit
 
     Raises:
-        KeyError: If no unit name exists for the Pint unit
+        KeyError: If no unit name exists for the unit alias or Pint unit
 
     Returns:
         str: The unit_name
     """
-    return unit_names_by_pint_repr[str(pint_unit)]
+    try:
+        return unit_names_by_pint_repr[str(unit_alias_or_pint_unit)]
+    except KeyError:
+        return unit_names_by_alias[str(unit_alias_or_pint_unit)]
 
 
 def get_unit_aliases(unit: Union[str, pint.Unit]) -> list[str]:
