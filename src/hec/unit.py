@@ -676,12 +676,12 @@ def get_pint_unit(unit: str) -> pint.Unit:
         raise UnitException(f"Unknown unit: {unit}")
 
 
-def get_unit_name(unit_alias_or_pint_unit: Union[str, pint.Unit]) -> str:
+def get_unit_name(name_alias_or_unit: Union[str, pint.Unit]) -> str:
     """
-    Returns the unit name of a Pint unit (string or object)
+    Returns the unit name of unit name, unit alias, or Pint unit (string or object)
 
     Args:
-        unit_alias_or_pint_unit (Union[str, pint.Unit]): A unit alias or a Pint unit
+        name_alias_or_unit (Union[str, pint.Unit]): A unit name, unit alias or a Pint unit
 
     Raises:
         KeyError: If no unit name exists for the unit alias or Pint unit
@@ -689,10 +689,13 @@ def get_unit_name(unit_alias_or_pint_unit: Union[str, pint.Unit]) -> str:
     Returns:
         str: The unit_name
     """
+    unit_str = str(name_alias_or_unit)
+    if unit_str in pint_units_by_unit_name:
+        return unit_str
     try:
-        return unit_names_by_pint_repr[str(unit_alias_or_pint_unit)]
+        return unit_names_by_pint_repr[unit_str]
     except KeyError:
-        return unit_names_by_alias[str(unit_alias_or_pint_unit)]
+        return unit_names_by_alias[unit_str]
 
 
 def get_unit_aliases(unit: Union[str, pint.Unit]) -> list[str]:
@@ -1051,6 +1054,9 @@ class UnitQuantity:
 
     def __float__(self) -> float:
         return float(self._quantity.magnitude)
+    
+    def __neg__(self) -> "UnitQuantity":
+        return UnitQuantity(-self._quantity.magnitude, self._specified_unit)
 
     def __format__(self, format: str) -> str:
         return cast(str, eval('f"{self._quantity:' + format + '}"'))
@@ -1349,7 +1355,7 @@ class UnitQuantity:
         return self._quantity.dimensionality
 
     @property
-    def specified_units(self) -> str:
+    def specified_unit(self) -> str:
         """
         The unit specified when the object was created. May be a unit name, alias, or a pint unit definition
 

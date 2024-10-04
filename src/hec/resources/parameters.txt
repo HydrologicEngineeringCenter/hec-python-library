@@ -1,0 +1,55 @@
+# Tab separated
+# 1 - BASE_PARAMETER_ID
+# 2 - LONG_NAME
+# 3 - DESCRIPTION
+# 4 - DEFAULT_EN_UNIT
+# 5 - DEFAULT_SI_UNIT
+%	Percent	Ratio expressed as hundredths	%	%
+Area	Surface Area	Area of a surface	ft2	m2
+Code	Coded Information	Numeric code symbolically representing a phenomenon	n/a	n/a
+Coeff	Coefficient	Unitless coefficient for formulas	n/a	n/a
+Conc	Concentration	Relative content of a component dissolved or dispersed in a volume of water	ppm	mg/l
+Cond	Conductivity	Ability of an aqueous solution to conduct electricity	umho/cm	umho/cm
+Count	Count	Progressive sum of items enumerated one by one or group by group.	unit	unit
+Currency	Currency	Economic value expressed as currency/money	$	$
+Current	Current	Electric current flowing past a point in a circuit	ampere	ampere
+Depth	Depth	Depth of any form of water above the ground surface	in	mm
+DepthVelocity	Depth Velocity	Depth Velocity	ft2/s	m2/s
+Dir	Direction	Map direction specified clockwise from North	deg	deg
+Dist	Distance	Distance between two points.	mi	km
+Elev	Elevation	The height of a surface above a datum which approximates sea level	ft	m
+Energy	Energy	Energy, work, or quantity of heat	MWh	MWh
+Evap	Evaporation	Liquid water lost to vapor measured as an equivalent depth of liquid water	in	mm
+EvapRate	Evaporation Rate	Rate of liquid water evaporation	in/day	mm/day
+Fish	Fish Count	Fish Count.	unit	unit
+Flow	Flow Rate	Volume rate of moving water	cfs	cms
+Freq	Frequency	The number of cycles or occurrences per time unit	Hz	Hz
+Frost	Ground Frost	Depth of frost penetration into the ground (non-permafrost)	in	cm
+Head	Head	Difference between two elevations in a column of water	ft	m
+Height	Height	The height of a surface above an arbitrary datum	ft	m
+Irrad	Irradiance	Radiant Power on a unit area of irradiated surface.	langley/min	W/m2
+Length	Length	Linear displacement associated with the larger horizontal planar measurment	ft	m
+Opening	Opening Height	Height of opening controlling passage of water	ft	m
+Power	Power	Energy rate, Radiant Flux	MW	MW
+Precip	Precipitation	Deposit on the earth of hail, mist, rain, sleet, or snow	in	mm
+Pres	Pressure	Pressure (force per unit area)	in-hg	kPa
+Probability	Probability	Expected fraction of all events for a specific event	n/a	n/a
+Rad	Irradiation	Radiant energy on a unit area of irradiated surface.	langley	J/m2
+Ratio	Ratio	Quotient of two numbers having the same units	n/a	n/a
+Rotation	Rotation	Angular displacement	deg	deg
+Speed	Speed	Rate of moving substance or object irrespective of direction	mph	kph
+SpinRate	Spin Rate	Number of revolutions made about an axis per unit of time	rpm	rpm
+Stage	Stage	The height of a water surface above a designated datum other than sea level	ft	m
+Stor	Storage	Volume of impounded water	ac-ft	m3
+Temp	Temperature	Hotness or coldness of a substance based on measuring expansion of mercury	F	C
+Thick	Thickness	Thickness of sheet of substance	in	cm
+Timing	Timing	A duration of a phenomenon	sec	sec
+Travel	Accumulated Travel	Accumulated movement of a fluid past a point	mi	km
+Turb	Turbidity	Measurement of interference to the passage of light by matter in suspension	JTU	JTU
+TurbF	Turbidity	Measurement of scattered light at an angle of 90+/-2.5 degrees to the incident light beam from a monochromatic light source (860+/-60 nm) (ISO 7027)	FNU	FNU
+TurbJ	Turbidity	Measurement of interference to the passage of light by matter in suspension	JTU	JTU
+TurbN	Turbidity	Measurement of scattered light at an angle of 90+/-30 degrees to the incident light beam from a white light source (540+/-140 nm) (EPA method 180.1)	NTU	NTU
+Volt	Voltage	Electric Potential	volt	volt
+Volume	Volume	Volume of anything other than impounded water	ft3	m3
+Width	Width	Linear displacement associated with the smaller horizontal planar measurment	ft	m
+pH	pH	Negative logarithm of hydrogen-ion concentration in a solution	su	su
