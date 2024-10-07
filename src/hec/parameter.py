@@ -90,7 +90,9 @@ class Parameter:
                     f"{name} does not contain a recognized base parameter"
                 )
         if unit_or_system:
-            Parameter.to(self, unit_or_system, in_place=True) # don't use to() method in sublcass when instantiating from subclass
+            Parameter.to(
+                self, unit_or_system, in_place=True
+            )  # don't use to() method in sublcass when instantiating from subclass
         else:
             self._unit = _parameter_info[self._base_parameter]["default_en_unit"]
 
@@ -170,9 +172,13 @@ class Parameter:
         """
         converted = self if in_place else Parameter(self.name)
         if unit_or_system.upper() == "EN":
-            converted._unit = _parameter_info[converted._base_parameter]["default_en_unit"]
+            converted._unit = _parameter_info[converted._base_parameter][
+                "default_en_unit"
+            ]
         elif unit_or_system.upper() == "SI":
-            converted._unit = _parameter_info[converted._base_parameter]["default_si_unit"]
+            converted._unit = _parameter_info[converted._base_parameter][
+                "default_si_unit"
+            ]
         else:
             unit_name = unit.get_unit_name(unit_or_system)
             if not unit_name in unit.get_compatible_units(
@@ -183,7 +189,7 @@ class Parameter:
                 )
             converted._unit = unit_name
         return converted
-    
+
     def get_compatible_units(self) -> list[str]:
         return unit.get_compatible_units(self.unit)
 
@@ -205,7 +211,7 @@ class ElevParameter(Parameter):
             self._ngvd29_offset_is_estimate: Optional[bool] = None
             self._navd88_offset_is_estimate: Optional[bool] = None
             if verticalDatumInfo:
-                if isinstance(verticalDatumInfo, dict) :
+                if isinstance(verticalDatumInfo, dict):
                     # --------------------------------------------- #
                     # dictionary as from cwms-python get_timeseries #
                     # --------------------------------------------- #
@@ -226,13 +232,28 @@ class ElevParameter(Parameter):
                             self._native_datum = _OTHER_DATUM
                         else:
                             self._native_datum = text
-                        if self._native_datum == _OTHER_DATUM:
-                            elem = root.find("local-datum-name")
-                            if elem is not None:
-                                self._native_datum = elem.text
+                    self._current_datum = self._native_datum
                     if "elevation" in verticalDatumInfo:
-                        self._elevation = UnitQuantity(verticalDatumInfo["elevation"], self._unit)
-                elif isinstance(verticalDatumInfo, str) :
+                        self._elevation = UnitQuantity(
+                            verticalDatumInfo["elevation"], self._unit
+                        )
+                    if "offsets" in verticalDatumInfo:
+                        for offset_props in verticalDatumInfo["offsets"]:
+                            if offset_props["to-datum"] == _NGVD29:
+                                self._ngvd29_offset = UnitQuantity(
+                                    offset_props["value"], self._unit_str
+                                )
+                                self._ngvd29_offset_is_estimate = offset_props[
+                                    "estimate"
+                                ]
+                            elif offset_props["to-datum"] == _NAVD88:
+                                self._navd88_offset = UnitQuantity(
+                                    offset_props["value"], self._unit_str
+                                )
+                                self._navd88_offset_is_estimate = offset_props[
+                                    "estimate"
+                                ]
+                elif isinstance(verticalDatumInfo, str):
                     # ------------------------------------- #
                     # XML string as from CWMS db or HEC-DSS #
                     # ------------------------------------- #
@@ -270,14 +291,23 @@ class ElevParameter(Parameter):
                         estimate = elem.attrib["estimate"] == "true"
                         datum_elem = elem.find("to-datum")
                         value_elem = elem.find("value")
-                        if datum_elem is not None and datum_elem.text and value_elem is not None and value_elem.text:
+                        if (
+                            datum_elem is not None
+                            and datum_elem.text
+                            and value_elem is not None
+                            and value_elem.text
+                        ):
                             datum = datum_elem.text
                             value = float(value_elem.text)
                             if datum == _NGVD29:
-                                self._ngvd29_offset = unit.UnitQuantity(value, self._unit)
+                                self._ngvd29_offset = unit.UnitQuantity(
+                                    value, self._unit
+                                )
                                 self._ngvd29_offset_is_estimate = estimate
                             elif datum == _NAVD88:
-                                self._navd88_offset = unit.UnitQuantity(value, self._unit)
+                                self._navd88_offset = unit.UnitQuantity(
+                                    value, self._unit
+                                )
                                 self._navd88_offset_is_estimate = estimate
 
         @property
@@ -290,7 +320,7 @@ class ElevParameter(Parameter):
 
         @property
         def elevation(self) -> Optional[UnitQuantity]:
-            return self._elevation
+            return round(self._elevation, 9)
 
         @property
         def native_datum(self) -> Optional[str]:
@@ -301,24 +331,26 @@ class ElevParameter(Parameter):
             return self._current_datum
 
         @property
-        def ngvd_29_offset(self) -> Optional[UnitQuantity]:
-            return self._ngvd29_offset
+        def ngvd29_offset(self) -> Optional[UnitQuantity]:
+            return round(self._ngvd29_offset, 9)
 
         @property
-        def navd_88_offset(self) -> Optional[UnitQuantity]:
-            return self._navd88_offset
+        def navd88_offset(self) -> Optional[UnitQuantity]:
+            return round(self._navd88_offset, 9)
 
         @property
-        def ngvd_29_offset_is_estimate(self) -> Optional[bool]:
+        def ngvd29_offset_is_estimate(self) -> Optional[bool]:
             return self._ngvd29_offset_is_estimate
 
         @property
-        def navd_88_offset_is_estimate(self) -> Optional[bool]:
+        def navd88_offset_is_estimate(self) -> Optional[bool]:
             return self._navd88_offset_is_estimate
 
         def clone(self) -> "ElevParameter.VerticalDatumInfo":
             other = ElevParameter.VerticalDatumInfo("")
             other._elevation = self._elevation
+            other._unit = unit.get_pint_unit(self._unit_str)
+            other._unit_str = self._unit_str
             other._native_datum = self._native_datum
             other._current_datum = self._current_datum
             other._ngvd29_offset = self._ngvd29_offset
@@ -328,39 +360,65 @@ class ElevParameter(Parameter):
             return other
 
         def __str__(self) -> str:
+            if self._current_datum != self._native_datum:
+                return str(self.to(self._native_datum))
             buf = StringIO()
             buf.write(f'<vertical-datum-info unit="{self._unit_str}">')
             if self._native_datum in (_NGVD29, _NAVD88, _OTHER_DATUM):
-                buf.write(f"\n  <native-datum>{self._native_datum}</native-datum>")
+                buf.write(f"\n  <native-datum>{self.native_datum}</native-datum>")
             else:
                 buf.write(f"\n  <native-datum>OTHER</native-datum>")
                 buf.write(
-                    f"\n  <local-datum-name>{self._native_datum}</local-datum-name>"
+                    f"\n  <local-datum-name>{self.native_datum}</local-datum-name>"
                 )
             if self._elevation is not None:
-                buf.write(f"\n  <elevation>{self._elevation.magnitude}</elevation>")
+                buf.write(f"\n  <elevation>{self.elevation.magnitude}</elevation>")
             if self._ngvd29_offset is not None:
                 buf.write(
                     f'\n  <offset estimate="{"true" if self._ngvd29_offset_is_estimate else "false"}">'
                 )
                 buf.write("\n    <to-datum>NGVD-29</to-datum>")
-                buf.write(
-                    f"\n    <value>{self._ngvd29_offset.magnitude}</value>"
-                )
+                buf.write(f"\n    <value>{self.ngvd29_offset.magnitude}</value>")
                 buf.write("\n  </offset>")
             if self._navd88_offset is not None:
                 buf.write(
                     f'\n  <offset estimate="{"true" if self._navd88_offset_is_estimate else "false"}">'
                 )
                 buf.write("\n    <to-datum>NAVD-88</to-datum>")
-                buf.write(
-                    f"\n    <value>{self._navd88_offset.magnitude}</value>"
-                )
+                buf.write(f"\n    <value>{self.navd88_offset.magnitude}</value>")
                 buf.write("\n  </offset>")
             buf.write("\n</vertical-datum-info>")
             s = buf.getvalue()
             buf.close()
             return s
+
+        def to_dict(self) -> dict[str, Any]:
+            d = {}
+            if self.native_datum:
+                d["native-datum"] = self.native_datum
+            if self._elevation:
+                d["elevation"] = self.elevation.magnitude
+            if self.unit_str:
+                d["unit"] = self.unit_str
+            if self.ngvd29_offset or self.ngvd29_offset_offset:
+                d["offsets"] = []
+                if self.ngvd29_offset:
+                    d["offsets"].append(
+                        {
+                            "to-datum": _NGVD29,
+                            "estimate": self.ngvd29_offset_is_estimate,
+                            "value": self.ngvd29_offset.magnitude,
+                        }
+                    )
+                if self.navd88_offset:
+                    d["offsets"].append(
+                        {
+                            "to-datum": _NAVD88,
+                            "estimate": self.navd88_offset_is_estimate,
+                            "value": self.navd88_offset.magnitude,
+                        }
+                    )
+            return d
 
         def get_datum(self, datum_str: str) -> str:
             if _ngvd29_pattern.match(datum_str):
@@ -369,16 +427,17 @@ class ElevParameter(Parameter):
                 return _NAVD88
             elif (
                 _other_datum_pattern.match(datum_str)
-                or self._native_datum and (datum_str.upper() == self._native_datum.upper())
+                or self._native_datum
+                and (datum_str.upper() == self._native_datum.upper())
             ):
-                if not self.native_datum or not self._native_datum in (_NGVD29, _NAVD88):
+                if not self.native_datum:
                     raise ElevParameter.VerticalDatumException(
-                        f"Invalid vertical datum:{datum_str}"
+                        f"Invalid vertical datum: {datum_str}"
                     )
                 return self._native_datum
             else:
                 raise ElevParameter.VerticalDatumException(
-                    f"Invalid vertical datum:{datum_str}"
+                    f"Invalid vertical datum: {datum_str}"
                 )
 
         def get_offset_to(self, target_datum: str) -> Optional[UnitQuantity]:
@@ -389,21 +448,33 @@ class ElevParameter(Parameter):
                 if self.current_datum == _NAVD88:
                     if self._ngvd29_offset is None or self._navd88_offset is None:
                         return None
-                    return self._ngvd29_offset - self._navd88_offset
+                    return (self._ngvd29_offset - self._navd88_offset).to(
+                        self._unit_str
+                    )
                 else:
                     return self._ngvd29_offset
             elif target_datum == _NAVD88:
                 if self.current_datum == _NGVD29:
                     if self._ngvd29_offset is None or self._navd88_offset is None:
                         return None
-                    return self._navd88_offset - self._ngvd29_offset
+                    return (self._navd88_offset - self._ngvd29_offset).to(
+                        self._unit_str
+                    )
                 else:
                     return self._navd88_offset
             else:
                 if self.current_datum == _NGVD29:
-                    return -self._ngvd29_offset if self._ngvd29_offset is not None else None
+                    return (
+                        -self._ngvd29_offset
+                        if self._ngvd29_offset is not None
+                        else None
+                    )
                 elif self.current_datum == _NAVD88:
-                    return -self._navd88_offset if self._navd88_offset is not None else None
+                    return (
+                        -self._navd88_offset
+                        if self._navd88_offset is not None
+                        else None
+                    )
                 else:
                     raise ElevParameter.VerticalDatumException(
                         f"Cannot determine offset to {target_datum}"
@@ -415,7 +486,10 @@ class ElevParameter(Parameter):
             converted = self if in_place else self.clone()
             if isinstance(unit_or_datum, Unit) or not (
                 _all_datums_pattern.match(unit_or_datum)
-                or (self._native_datum and unit_or_datum.upper() == self._native_datum.upper())
+                or (
+                    self._native_datum
+                    and unit_or_datum.upper() == self._native_datum.upper()
+                )
             ):
                 # ---------------------- #
                 # convert to target unit #
@@ -442,17 +516,13 @@ class ElevParameter(Parameter):
                     offset = offset.to(self._unit_str)
                     if converted._elevation:
                         converted._elevation += offset
-                    if converted._ngvd29_offset:
-                        converted._ngvd29_offset += offset
-                    if converted._navd88_offset:
-                        converted._navd88_offset += offset
                 converted._current_datum = target_datum
             return converted
 
     def __init__(
         self,
         name: str,
-        verticalDatumInfo: str,
+        verticalDatumInfo: Union[str, dict[str, Any]],
     ):
         _verticalDatumInfo = ElevParameter.VerticalDatumInfo(verticalDatumInfo)
         super().__init__(name, _verticalDatumInfo.unit_str)
@@ -463,7 +533,7 @@ class ElevParameter(Parameter):
 
     def __repr__(self) -> str:
         return f"ElevParameter('{self.name}', <vertical-datum-info>)"
-    
+
     def __str__(self) -> str:
         return f"{self.name} (<vertical-datum-info>)"
 
@@ -474,6 +544,16 @@ class ElevParameter(Parameter):
     @property
     def vertical_datum_info(self) -> Optional[VerticalDatumInfo]:
         return self._vertical_datum_info
+
+    @property
+    def vertical_datum_info_xml(self) -> Optional[str]:
+        return str(self._vertical_datum_info) if self._vertical_datum_info else None
+
+    @property
+    def vertical_datum_info_dict(self) -> Optional[dict[str, Any]]:
+        return (
+            self._vertical_datum_info.to_dict() if self._vertical_datum_info else None
+        )
 
     @property
     def elevation(self) -> Optional[UnitQuantity]:
@@ -488,20 +568,20 @@ class ElevParameter(Parameter):
         return self._vertical_datum_info.current_datum
 
     @property
-    def ngvd_29_offset(self) -> Optional[UnitQuantity]:
-        return self._vertical_datum_info.ngvd_29_offset
+    def ngvd29_offset(self) -> Optional[UnitQuantity]:
+        return self._vertical_datum_info.ngvd29_offset
 
     @property
-    def navd_88_offset(self) -> Optional[UnitQuantity]:
-        return self._vertical_datum_info.navd_88_offset
+    def navd88_offset(self) -> Optional[UnitQuantity]:
+        return self._vertical_datum_info.navd88_offset
 
     @property
-    def ngvd_29_offset_is_estimate(self) -> Optional[bool]:
-        return self._vertical_datum_info.ngvd_29_offset_is_estimate
+    def ngvd29_offset_is_estimate(self) -> Optional[bool]:
+        return self._vertical_datum_info.ngvd29_offset_is_estimate
 
     @property
-    def navd_88_offset_is_estimate(self) -> Optional[bool]:
-        return self._vertical_datum_info.navd_88_offset_is_estimate
+    def navd88_offset_is_estimate(self) -> Optional[bool]:
+        return self._vertical_datum_info.navd88_offset_is_estimate
 
     def get_offset_to(self, target_datum: str) -> Optional[UnitQuantity]:
         return self.vertical_datum_info.get_offset_to(target_datum)
@@ -509,26 +589,12 @@ class ElevParameter(Parameter):
     def to(
         self, unit_or_datum: Union[str, Unit], in_place: bool = False
     ) -> "ElevParameter":
-        converted = self if in_place else self.clone()
-        converted._vertical_datum_info.to(unit_or_datum, in_place=True)
-        converted._unit = converted.vertical_datum_info.unit_str
-        return converted
-
-xml = """
-        <vertical-datum-info unit="ft">
-        <native-datum>OTHER</native-datum>
-        <local-datum-name>Pensacola</local-datum-name>
-        <elevation>757</elevation>
-        <offset estimate="true">
-            <to-datum>NAVD-88</to-datum>
-            <value>1.457</value>
-        </offset>
-        <offset estimate="false">
-            <to-datum>NGVD-29</to-datum>
-            <value>1.07</value>
-        </offset>
-        </vertical-datum-info>
-        """
-p = ElevParameter("Elev", xml)
-p2 = p.to("NAVD-88")
-print(p2.current_datum)
+        try:
+            converted = self if in_place else self.clone()
+            converted._vertical_datum_info.to(unit_or_datum, in_place=True)
+            converted._unit = converted.vertical_datum_info.unit_str
+            return converted
+        except:
+            raise ParameterException(
+                f"Invalid unit for base parameter Elev or or invalid vertical datum: {unit_or_datum}"
+            )

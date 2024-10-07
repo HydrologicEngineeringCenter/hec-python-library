@@ -1054,9 +1054,14 @@ class UnitQuantity:
 
     def __float__(self) -> float:
         return float(self._quantity.magnitude)
-    
+
     def __neg__(self) -> "UnitQuantity":
         return UnitQuantity(-self._quantity.magnitude, self._specified_unit)
+
+    def __round__(self, ndigits) -> "UnitQuantity":
+        return UnitQuantity(
+            round(self._quantity.magnitude, ndigits), self._specified_unit
+        )
 
     def __format__(self, format: str) -> str:
         return cast(str, eval('f"{self._quantity:' + format + '}"'))
