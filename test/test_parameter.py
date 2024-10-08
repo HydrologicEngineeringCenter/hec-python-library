@@ -17,7 +17,7 @@ def test_parameter() -> None:
     assert p.basename == "FLOW"
     assert p.subname == "IN"
     assert p.base_parameter == "Flow"
-    assert p.unit == "kcfs"
+    assert p.unit_name == "kcfs"
 
     assert p.get_compatible_units() == [
         "cfs",
@@ -51,7 +51,7 @@ def test_parameter() -> None:
     assert p.basename == "FLOW"
     assert p.subname == "IN"
     assert p.base_parameter == "Flow"
-    assert p.unit == "kcfs"
+    assert p.unit_name == "kcfs"
 
     p.to("SI", in_place=True)
     assert repr(p) == "Parameter('FLOW-IN', 'cms')"
@@ -60,7 +60,7 @@ def test_parameter() -> None:
     assert p.basename == "FLOW"
     assert p.subname == "IN"
     assert p.base_parameter == "Flow"
-    assert p.unit == "cms"
+    assert p.unit_name == "cms"
 
 
 def test_elev_parameter_with_xml() -> None:
@@ -87,7 +87,7 @@ def test_elev_parameter_with_xml() -> None:
     assert p.basename == "Elev"
     assert p.subname is None
     assert p.base_parameter == "Elev"
-    assert p.unit == "ft"
+    assert p.unit_name == "ft"
     assert p.elevation == UQ(757, "ft")
     assert p.native_datum == "Pensacola"
     assert p.current_datum == "Pensacola"
@@ -105,7 +105,7 @@ def test_elev_parameter_with_xml() -> None:
     assert p2.basename == "Elev"
     assert p2.subname is None
     assert p2.base_parameter == "Elev"
-    assert p2.unit == "ft"
+    assert p2.unit_name == "ft"
     assert p2.elevation == UQ(757, "ft") + p.get_offset_to("navd-88")
     assert p2.native_datum == "Pensacola"
     assert p2.current_datum == "NAVD-88"
@@ -122,7 +122,7 @@ def test_elev_parameter_with_xml() -> None:
     assert p.basename == "Elev"
     assert p.subname is None
     assert p.base_parameter == "Elev"
-    assert p.unit == "ft"
+    assert p.unit_name == "ft"
     assert p.elevation == UQ(757, "ft")
     assert p.native_datum == "Pensacola"
     assert p.current_datum == "Pensacola"
@@ -134,61 +134,61 @@ def test_elev_parameter_with_xml() -> None:
     assert p.get_offset_to("navd-88") == UQ(1.457, "ft")
 
     p.to("m", in_place=True)
-    assert p.unit == "m"
-    assert p.elevation == round(UQ(757 * 0.3048, "m"), 9)
+    assert p.unit_name == "m"
+    assert p.elevation == UQ(757 * 0.3048, "m").round(9)
     assert p.native_datum == "Pensacola"
     assert p.current_datum == "Pensacola"
-    assert p.elevation == round(UQ(757 * 0.3048, "m"), 9)
-    assert p.ngvd29_offset == round(UQ(1.07 * 0.3048, "m"), 9)
+    assert p.elevation == UQ(757 * 0.3048, "m").round(9)
+    assert p.ngvd29_offset == UQ(1.07 * 0.3048, "m").round(9)
     assert p.ngvd29_offset_is_estimate == False
-    assert p.navd88_offset == round(UQ(1.457 * 0.3048, "m"), 9)
+    assert p.navd88_offset == UQ(1.457 * 0.3048, "m").round(9)
     assert p.navd88_offset_is_estimate == True
-    assert p.get_offset_to("ngvd-29") == round(UQ(1.07 * 0.3048, "m"), 9)
-    assert p.get_offset_to("navd-88") == round(UQ(1.457 * 0.3048, "m"), 9)
+    assert p.get_offset_to("ngvd-29") == UQ(1.07 * 0.3048, "m").round(9)
+    assert p.get_offset_to("navd-88") == UQ(1.457 * 0.3048, "m").round(9)
 
     p.to("NAVD88", in_place=True)
-    assert p.unit == "m"
+    assert p.unit_name == "m"
     assert p.current_datum == "NAVD-88"
-    assert p.elevation == round(UQ(758.457 * 0.3048, "m"), 9)
-    assert p.ngvd29_offset == round(UQ(1.07 * 0.3048, "m"), 9)
+    assert p.elevation == UQ(758.457 * 0.3048, "m").round(9)
+    assert p.ngvd29_offset == UQ(1.07 * 0.3048, "m").round(9)
     assert p.ngvd29_offset_is_estimate == False
-    assert p.navd88_offset == round(UQ(1.457 * 0.3048, "m"), 9)
+    assert p.navd88_offset == UQ(1.457 * 0.3048, "m").round(9)
     assert p.navd88_offset_is_estimate == True
-    assert p.get_offset_to("ngvd-29") == round(UQ(-0.387 * 0.3048, "m"), 9)
+    assert p.get_offset_to("ngvd-29") == UQ(-0.387 * 0.3048, "m").round(9)
     assert p.get_offset_to("navd-88") is None
 
     p.to("ft", in_place=True)
-    assert p.unit == "ft"
+    assert p.unit_name == "ft"
     assert p.current_datum == "NAVD-88"
-    assert p.elevation == round(UQ(758.457, "ft"), 9)
-    assert p.ngvd29_offset == round(UQ(1.07, "ft"), 9)
+    assert p.elevation == UQ(758.457, "ft").round(9)
+    assert p.ngvd29_offset == UQ(1.07, "ft").round(9)
     assert p.ngvd29_offset_is_estimate == False
-    assert p.navd88_offset == round(UQ(1.457, "ft"), 9)
+    assert p.navd88_offset == UQ(1.457, "ft").round(9)
     assert p.navd88_offset_is_estimate == True
-    assert p.get_offset_to("ngvd-29") == round(UQ(-0.387, "ft"), 9)
+    assert p.get_offset_to("ngvd-29") == UQ(-0.387, "ft").round(9)
     assert p.get_offset_to("navd-88") is None
 
     p.to("ngvd-29", in_place=True)
-    assert p.unit == "ft"
+    assert p.unit_name == "ft"
     assert p.current_datum == "NGVD-29"
-    assert p.elevation == round(UQ(758.07, "ft"), 9)
-    assert p.ngvd29_offset == round(UQ(1.07, "ft"), 9)
+    assert p.elevation == UQ(758.07, "ft").round(9)
+    assert p.ngvd29_offset == UQ(1.07, "ft").round(9)
     assert p.ngvd29_offset_is_estimate == False
-    assert p.navd88_offset == round(UQ(1.457, "ft"), 9)
+    assert p.navd88_offset == UQ(1.457, "ft").round(9)
     assert p.navd88_offset_is_estimate == True
     assert p.get_offset_to("ngvd-29") is None
-    assert p.get_offset_to("navd-88") == round(UQ(0.387, "ft"), 9)
+    assert p.get_offset_to("navd-88") == UQ(0.387, "ft").round(9)
 
     p.to("local", in_place=True)
-    assert p.unit == "ft"
+    assert p.unit_name == "ft"
     assert p.current_datum == "Pensacola"
-    assert p.elevation == round(UQ(757, "ft"), 9)
-    assert p.ngvd29_offset == round(UQ(1.07, "ft"), 9)
+    assert p.elevation == UQ(757, "ft").round(9)
+    assert p.ngvd29_offset == UQ(1.07, "ft").round(9)
     assert p.ngvd29_offset_is_estimate == False
-    assert p.navd88_offset == round(UQ(1.457, "ft"), 9)
+    assert p.navd88_offset == UQ(1.457, "ft").round(9)
     assert p.navd88_offset_is_estimate == True
-    assert p.get_offset_to("ngvd-29") == round(UQ(1.07, "ft"), 9)
-    assert p.get_offset_to("navd-88") == round(UQ(1.457, "ft"), 9)
+    assert p.get_offset_to("ngvd-29") == UQ(1.07, "ft").round(9)
+    assert p.get_offset_to("navd-88") == UQ(1.457, "ft").round(9)
 
     with pytest.raises(ParameterException) as excinfo:
         p.to("Bad-Datum")
@@ -219,7 +219,7 @@ def test_elev_parameter_with_dict() -> None:
     assert p.basename == "Elev"
     assert p.subname is None
     assert p.base_parameter == "Elev"
-    assert p.unit == "ft"
+    assert p.unit_name == "ft"
     assert p.elevation == UQ(757, "ft")
     assert p.native_datum == "OTHER"
     assert p.current_datum == "OTHER"
@@ -237,7 +237,7 @@ def test_elev_parameter_with_dict() -> None:
     assert p2.basename == "Elev"
     assert p2.subname is None
     assert p2.base_parameter == "Elev"
-    assert p2.unit == "ft"
+    assert p2.unit_name == "ft"
     assert p2.elevation == UQ(757, "ft") + p.get_offset_to("navd-88")
     assert p2.native_datum == "OTHER"
     assert p2.current_datum == "NAVD-88"
@@ -254,7 +254,7 @@ def test_elev_parameter_with_dict() -> None:
     assert p.basename == "Elev"
     assert p.subname is None
     assert p.base_parameter == "Elev"
-    assert p.unit == "ft"
+    assert p.unit_name == "ft"
     assert p.elevation == UQ(757, "ft")
     assert p.native_datum == "OTHER"
     assert p.current_datum == "OTHER"
@@ -266,62 +266,61 @@ def test_elev_parameter_with_dict() -> None:
     assert p.get_offset_to("navd-88") == UQ(1.457, "ft")
 
     p.to("m", in_place=True)
-    assert p.unit == "m"
-    assert p.elevation == round(UQ(757 * 0.3048, "m"), 9)
+    assert p.unit_name == "m"
+    assert p.elevation == UQ(757 * 0.3048, "m").round(9)
     assert p.native_datum == "OTHER"
     assert p.current_datum == "OTHER"
-    assert p.elevation == round(UQ(757 * 0.3048, "m"), 9)
-    assert p.ngvd29_offset == round(UQ(1.07 * 0.3048, "m"), 9)
+    assert p.elevation == UQ(757 * 0.3048, "m").round(9)
+    assert p.ngvd29_offset == UQ(1.07 * 0.3048, "m").round(9)
     assert p.ngvd29_offset_is_estimate == False
-    assert p.navd88_offset == round(UQ(1.457 * 0.3048, "m"), 9)
+    assert p.navd88_offset == UQ(1.457 * 0.3048, "m").round(9)
     assert p.navd88_offset_is_estimate == True
-    assert p.get_offset_to("ngvd-29") == round(UQ(1.07 * 0.3048, "m"), 9)
-    assert p.get_offset_to("navd-88") == round(UQ(1.457 * 0.3048, "m"), 9)
+    assert p.get_offset_to("ngvd-29") == UQ(1.07 * 0.3048, "m").round(9)
+    assert p.get_offset_to("navd-88") == UQ(1.457 * 0.3048, "m").round(9)
 
     p.to("NAVD88", in_place=True)
-    assert p.unit == "m"
+    assert p.unit_name == "m"
     assert p.current_datum == "NAVD-88"
-    assert p.elevation == round(UQ(758.457 * 0.3048, "m"), 9)
-    assert p.ngvd29_offset == round(UQ(1.07 * 0.3048, "m"), 9)
+    assert p.elevation == UQ(758.457 * 0.3048, "m").round(9)
+    assert p.ngvd29_offset == UQ(1.07 * 0.3048, "m").round(9)
     assert p.ngvd29_offset_is_estimate == False
-    assert p.navd88_offset == round(UQ(1.457 * 0.3048, "m"), 9)
-    assert p.get_offset_to("ngvd-29") == round(UQ(-0.387 * 0.3048, "m"), 9)
-    assert p.get_offset_to("ngvd-29").specified_unit == "m"
+    assert p.navd88_offset == UQ(1.457 * 0.3048, "m").round(9)
+    assert p.get_offset_to("ngvd-29") == UQ(-0.387 * 0.3048, "m").round(9)
     assert p.get_offset_to("navd-88") is None
 
     p.to("ft", in_place=True)
-    assert p.unit == "ft"
+    assert p.unit_name == "ft"
     assert p.current_datum == "NAVD-88"
-    assert p.elevation == round(UQ(758.457, "ft"), 9)
-    assert p.ngvd29_offset == round(UQ(1.07, "ft"), 9)
+    assert p.elevation == UQ(758.457, "ft").round(9)
+    assert p.ngvd29_offset == UQ(1.07, "ft").round(9)
     assert p.ngvd29_offset_is_estimate == False
-    assert p.navd88_offset == round(UQ(1.457, "ft"), 9)
+    assert p.navd88_offset == UQ(1.457, "ft").round(9)
     assert p.navd88_offset_is_estimate == True
-    assert p.get_offset_to("ngvd-29") == round(UQ(-0.387, "ft"), 9)
+    assert p.get_offset_to("ngvd-29") == UQ(-0.387, "ft").round(9)
     assert p.get_offset_to("navd-88") is None
 
     p.to("ngvd-29", in_place=True)
-    assert p.unit == "ft"
+    assert p.unit_name == "ft"
     assert p.current_datum == "NGVD-29"
-    assert p.elevation == round(UQ(758.07, "ft"), 9)
-    assert p.ngvd29_offset == round(UQ(1.07, "ft"), 9)
+    assert p.elevation == UQ(758.07, "ft").round(9)
+    assert p.ngvd29_offset == UQ(1.07, "ft").round(9)
     assert p.ngvd29_offset.specified_unit == "ft"
     assert p.ngvd29_offset_is_estimate == False
-    assert p.navd88_offset == round(UQ(1.457, "ft"), 9)
+    assert p.navd88_offset == UQ(1.457, "ft").round(9)
     assert p.navd88_offset_is_estimate == True
     assert p.get_offset_to("ngvd-29") is None
-    assert p.get_offset_to("navd-88") == round(UQ(0.387, "ft"), 9)
+    assert p.get_offset_to("navd-88") == UQ(0.387, "ft").round(9)
 
     p.to("local", in_place=True)
-    assert p.unit == "ft"
+    assert p.unit_name == "ft"
     assert p.current_datum == "OTHER"
-    assert p.elevation == round(UQ(757, "ft"), 9)
-    assert p.ngvd29_offset == round(UQ(1.07, "ft"), 9)
+    assert p.elevation == UQ(757, "ft").round(9)
+    assert p.ngvd29_offset == UQ(1.07, "ft").round(9)
     assert p.ngvd29_offset_is_estimate == False
-    assert p.navd88_offset == round(UQ(1.457, "ft"), 9)
+    assert p.navd88_offset == UQ(1.457, "ft").round(9)
     assert p.navd88_offset_is_estimate == True
-    assert p.get_offset_to("ngvd-29") == round(UQ(1.07, "ft"), 9)
-    assert p.get_offset_to("navd-88") == round(UQ(1.457, "ft"), 9)
+    assert p.get_offset_to("ngvd-29") == UQ(1.07, "ft").round(9)
+    assert p.get_offset_to("navd-88") == UQ(1.457, "ft").round(9)
 
     with pytest.raises(ParameterException) as excinfo:
         p.to("Bad-Datum")

@@ -85,7 +85,10 @@
                                 <a class="variable" href="#UnitQuantity.dimensionality">dimensionality</a>
                         </li>
                         <li>
-                                <a class="variable" href="#UnitQuantity.specified_units">specified_units</a>
+                                <a class="variable" href="#UnitQuantity.specified_unit">specified_unit</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#UnitQuantity.round">round</a>
                         </li>
                         <li>
                                 <a class="function" href="#UnitQuantity.to">to</a>
@@ -299,18 +302,18 @@ See <a href="https://pint.readthedocs.io">Pint documentation</a> for more detail
                     <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">get_unit_name</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">unit_alias_or_pint_unit</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pint</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">Unit</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="nb">str</span>:</span></span>
+        <span class="name">get_unit_name</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">name_alias_or_unit</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pint</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">Unit</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="nb">str</span>:</span></span>
 
         
     </div>
     <a class="headerlink" href="#get_unit_name"></a>
     
-            <div class="docstring"><p>Returns the unit name of a Pint unit (string or object)</p>
+            <div class="docstring"><p>Returns the unit name of unit name, unit alias, or Pint unit (string or object)</p>
 
 <h6 id="arguments">Arguments:</h6>
 
 <ul>
-<li><strong>unit_alias_or_pint_unit (Union[str, pint.Unit]):</strong>  A unit alias or a Pint unit</li>
+<li><strong>name_alias_or_unit (Union[str, pint.Unit]):</strong>  A unit name, unit alias or a Pint unit</li>
 </ul>
 
 <h6 id="raises">Raises:</h6>
@@ -739,13 +742,13 @@ See <a href="https://pint.readthedocs.io/en/stable/user/formatting.html">Pint fo
 
 
                             </div>
-                            <div id="UnitQuantity.specified_units" class="classattr">
+                            <div id="UnitQuantity.specified_unit" class="classattr">
                                 <div class="attr variable">
-            <span class="name">specified_units</span><span class="annotation">: str</span>
+            <span class="name">specified_unit</span><span class="annotation">: str</span>
 
         
     </div>
-    <a class="headerlink" href="#UnitQuantity.specified_units"></a>
+    <a class="headerlink" href="#UnitQuantity.specified_unit"></a>
     
             <div class="docstring"><p>The unit specified when the object was created. May be a unit name, alias, or a pint unit definition</p>
 
@@ -753,6 +756,33 @@ See <a href="https://pint.readthedocs.io/en/stable/user/formatting.html">Pint fo
 
 <blockquote>
   <p>Read/Only</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="UnitQuantity.round" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">round</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">places</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span></span><span class="return-annotation">) -> <span class="n"><a href="#UnitQuantity">UnitQuantity</a></span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#UnitQuantity.round"></a>
+    
+            <div class="docstring"><p>Returns a copy of this object with the magnitude rounded to the specified number of decimal places</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>places (int):</strong>  The number of decimal places to round to. Default is 0.</li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>UnitQuantity: The rounded object</p>
 </blockquote>
 </div>
 

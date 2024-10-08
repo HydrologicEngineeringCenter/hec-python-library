@@ -11,6 +11,7 @@ if not _import_dir in sys.path:
 from typing import Any
 from typing import Optional
 from typing import Union
+from typing import cast
 from hec import unit
 from hec.unit import UnitQuantity
 from pint import Unit
@@ -75,7 +76,8 @@ class Parameter:
         """
         self._name: str
         self._base_parameter: str
-        self._unit: str
+        self._unit_name: str
+        self._unit: Unit
         basename = name.split("-", 1)[0]
         if basename in _parameter_info:
             self._base_parameter = basename
@@ -94,13 +96,13 @@ class Parameter:
                 self, unit_or_system, in_place=True
             )  # don't use to() method in sublcass when instantiating from subclass
         else:
-            self._unit = _parameter_info[self._base_parameter]["default_en_unit"]
+            self._unit_name = _parameter_info[self._base_parameter]["default_en_unit"]
 
     def __repr__(self) -> str:
-        return f"Parameter('{self._name}', '{self._unit}')"
+        return f"Parameter('{self._name}', '{self._unit_name}')"
 
     def __str__(self) -> str:
-        return f"{self._name} ({self._unit})"
+        return f"{self._name} ({self._unit_name})"
 
     @property
     def name(self) -> str:
@@ -145,7 +147,17 @@ class Parameter:
         return self._base_parameter
 
     @property
-    def unit(self) -> str:
+    def unit_name(self) -> str:
+        """
+        The unit name assigned to the parameter
+
+        Operations:
+            Read Only
+        """
+        return self._unit_name
+
+    @property
+    def unit(self) -> Unit:
         """
         The unit assigned to the parameter
 
@@ -172,11 +184,11 @@ class Parameter:
         """
         converted = self if in_place else Parameter(self.name)
         if unit_or_system.upper() == "EN":
-            converted._unit = _parameter_info[converted._base_parameter][
+            converted._unit_name = _parameter_info[converted._base_parameter][
                 "default_en_unit"
             ]
         elif unit_or_system.upper() == "SI":
-            converted._unit = _parameter_info[converted._base_parameter][
+            converted._unit_name = _parameter_info[converted._base_parameter][
                 "default_si_unit"
             ]
         else:
@@ -187,21 +199,53 @@ class Parameter:
                 raise ParameterException(
                     f"{unit_or_system} is not a vaild unit for base parameter {self._base_parameter}"
                 )
-            converted._unit = unit_name
+            converted._unit_name = unit_name
+        converted._unit = unit.get_pint_unit(converted._unit_name)
         return converted
 
     def get_compatible_units(self) -> list[str]:
-        return unit.get_compatible_units(self.unit)
+        """
+        Returns the list of unit names compatible with this parameter's unit
+
+        Returns:
+            list[str]: The list of compatible unit names
+        """
+        return unit.get_compatible_units(self.unit_name)
 
 
 class ElevParameter(Parameter):
+    """
+    Holds info (name and vertical datum information) for an elevation parameter
+    """
 
     class VerticalDatumException(ParameterException):
+        """
+        Exception specific to vertical datum operations
+        """
+
         pass
 
-    class VerticalDatumInfo:
+    class _VerticalDatumInfo:
+        """
+        Holds vertical datum information and provides datum operations
+        """
+
         def __init__(self, verticalDatumInfo: Union[str, dict[str, Any]]):
-            self._unit_str: str
+            """
+            Initializes a VerticalDatumInfo object.<br>
+            * Use str(*object*) to retrieve an xml representation
+            * Use *object*.to_dict() to retireve a dictionary representation
+
+            Args:
+                verticalDatumInfo (Union[str, dict[str, Any]]): An xml string or a dictionary:
+                    * `str`: An xml vertical datum string as returned by the CWMS database or HEC-DSS for elevations.
+                    * `dict`: The value of the "vertical-datum-info" key in the dictionary returned by the `.json`
+                        attribute of a timeseires retrieved by cwms-python.
+
+            Raises:
+                ElevParameter.VerticalDatumException: If no unit is present in the vertical datum info
+            """
+            self._unit_name: str
             self._unit: Unit
             self._elevation: Optional[UnitQuantity] = None
             self._native_datum: Optional[str] = None
@@ -216,8 +260,8 @@ class ElevParameter(Parameter):
                     # dictionary as from cwms-python get_timeseries #
                     # --------------------------------------------- #
                     if "unit" in verticalDatumInfo:
-                        self._unit_str = verticalDatumInfo["unit"]
-                        self._unit = unit.get_pint_unit(self._unit_str)
+                        self._unit_name = verticalDatumInfo["unit"]
+                        self._unit = unit.get_pint_unit(self._unit_name)
                     else:
                         raise ElevParameter.VerticalDatumException(
                             f"No unit in dictionary"
@@ -241,14 +285,14 @@ class ElevParameter(Parameter):
                         for offset_props in verticalDatumInfo["offsets"]:
                             if offset_props["to-datum"] == _NGVD29:
                                 self._ngvd29_offset = UnitQuantity(
-                                    offset_props["value"], self._unit_str
+                                    offset_props["value"], self._unit_name
                                 )
                                 self._ngvd29_offset_is_estimate = offset_props[
                                     "estimate"
                                 ]
                             elif offset_props["to-datum"] == _NAVD88:
                                 self._navd88_offset = UnitQuantity(
-                                    offset_props["value"], self._unit_str
+                                    offset_props["value"], self._unit_name
                                 )
                                 self._navd88_offset_is_estimate = offset_props[
                                     "estimate"
@@ -263,8 +307,8 @@ class ElevParameter(Parameter):
                             f"Expected root element of <vertical-datum-info>, got <{root.tag}>"
                         )
                     if "unit" in root.attrib:
-                        self._unit_str = root.attrib["unit"]
-                        self._unit = unit.get_pint_unit(self._unit_str)
+                        self._unit_name = root.attrib["unit"]
+                        self._unit = unit.get_pint_unit(self._unit_name)
                     else:
                         raise ElevParameter.VerticalDatumException(
                             f"No unit attribute on root element"
@@ -311,46 +355,112 @@ class ElevParameter(Parameter):
                                 self._navd88_offset_is_estimate = estimate
 
         @property
-        def unit_str(self) -> str:
-            return self._unit_str
+        def unit_name(self) -> str:
+            """
+            The unit name assigned to the parameter
+
+            Operations:
+                Read Only
+            """
+            return self._unit_name
 
         @property
         def unit(self) -> Unit:
+            """
+            The unit assigned to the parameter
+
+            Operations:
+                Read Only
+            """
             return self._unit
 
         @property
         def elevation(self) -> Optional[UnitQuantity]:
-            return round(self._elevation, 9)
+            """
+            The elevation in the current vertical datum and unit
+
+            Operations:
+                Read Only
+            """
+            return self._elevation.round(9) if self._elevation else None
 
         @property
         def native_datum(self) -> Optional[str]:
+            """
+            The native vertical datum
+
+            Operations:
+                Read Only
+            """
             return self._native_datum
 
         @property
         def current_datum(self) -> Optional[str]:
+            """
+            The current vertical datum
+
+            Operations:
+                Read Only
+            """
             return self._current_datum
 
         @property
         def ngvd29_offset(self) -> Optional[UnitQuantity]:
-            return round(self._ngvd29_offset, 9)
+            """
+            The offset from the native vertical datum to NGVD-29 in the current unit, or `None` if<br>
+            * the native vertical datum is NGVD-29
+            * the native vertical datum is not NGVD-29, but the object does not have such an offset
+
+            Operations:
+                Read Only
+            """
+            return self._ngvd29_offset.round(9) if self._ngvd29_offset else None
 
         @property
         def navd88_offset(self) -> Optional[UnitQuantity]:
-            return round(self._navd88_offset, 9)
+            """
+            The offset from the native vertical datum to NAVD-88 in the current unit, or `None` if<br>
+            * the native vertical datum is NAVD-88
+            * the native vertical datum is not NAVD-88, but the object does not have such an offset
+
+            Operations:
+                Read Only
+            """
+            return self._navd88_offset.round(9) if self._navd88_offset else None
 
         @property
         def ngvd29_offset_is_estimate(self) -> Optional[bool]:
+            """
+            Whether the offset from the native vertical datum to NGVD-29 is an estimate (e.g, VERTCON)
+            or `None` if the native vertical datum is NGVD-29 or the object does not have such and offset
+
+            Operations:
+                Read Only
+            """
             return self._ngvd29_offset_is_estimate
 
         @property
         def navd88_offset_is_estimate(self) -> Optional[bool]:
+            """
+            Whether the offset from the native vertical datum to NAVD-88 is an estimate (e.g, VERTCON)
+            or `None` if the native vertical datum is NAVD-88 or the object does not have such and offset
+
+            Operations:
+                Read Only
+            """
             return self._navd88_offset_is_estimate
 
-        def clone(self) -> "ElevParameter.VerticalDatumInfo":
-            other = ElevParameter.VerticalDatumInfo("")
+        def clone(self) -> "ElevParameter._VerticalDatumInfo":
+            """
+            Returns a copy of this opject
+
+            Returns:
+                ElevParameter.VerticalDatumInfo: The copy
+            """
+            other = ElevParameter._VerticalDatumInfo("")
             other._elevation = self._elevation
-            other._unit = unit.get_pint_unit(self._unit_str)
-            other._unit_str = self._unit_str
+            other._unit = unit.get_pint_unit(self._unit_name)
+            other._unit_name = self._unit_name
             other._native_datum = self._native_datum
             other._current_datum = self._current_datum
             other._ngvd29_offset = self._ngvd29_offset
@@ -360,27 +470,32 @@ class ElevParameter(Parameter):
             return other
 
         def __str__(self) -> str:
-            if self._current_datum != self._native_datum:
-                return str(self.to(self._native_datum))
+            if (
+                self.current_datum
+                and self.native_datum
+                and self.current_datum != self.native_datum
+            ):
+                return str(cast(str, self.to(self.native_datum)))
             buf = StringIO()
-            buf.write(f'<vertical-datum-info unit="{self._unit_str}">')
-            if self._native_datum in (_NGVD29, _NAVD88, _OTHER_DATUM):
-                buf.write(f"\n  <native-datum>{self.native_datum}</native-datum>")
-            else:
-                buf.write(f"\n  <native-datum>OTHER</native-datum>")
-                buf.write(
-                    f"\n  <local-datum-name>{self.native_datum}</local-datum-name>"
-                )
-            if self._elevation is not None:
+            buf.write(f'<vertical-datum-info unit="{self._unit_name}">')
+            if self.native_datum:
+                if self._native_datum in (_NGVD29, _NAVD88, _OTHER_DATUM):
+                    buf.write(f"\n  <native-datum>{self.native_datum}</native-datum>")
+                else:
+                    buf.write(f"\n  <native-datum>OTHER</native-datum>")
+                    buf.write(
+                        f"\n  <local-datum-name>{self.native_datum}</local-datum-name>"
+                    )
+            if self.elevation is not None:
                 buf.write(f"\n  <elevation>{self.elevation.magnitude}</elevation>")
-            if self._ngvd29_offset is not None:
+            if self.ngvd29_offset is not None:
                 buf.write(
                     f'\n  <offset estimate="{"true" if self._ngvd29_offset_is_estimate else "false"}">'
                 )
                 buf.write("\n    <to-datum>NGVD-29</to-datum>")
                 buf.write(f"\n    <value>{self.ngvd29_offset.magnitude}</value>")
                 buf.write("\n  </offset>")
-            if self._navd88_offset is not None:
+            if self.navd88_offset is not None:
                 buf.write(
                     f'\n  <offset estimate="{"true" if self._navd88_offset_is_estimate else "false"}">'
                 )
@@ -393,16 +508,22 @@ class ElevParameter(Parameter):
             return s
 
         def to_dict(self) -> dict[str, Any]:
-            d = {}
+            """
+            Retrieves a dictionary representation of this object
+
+            Returns:
+                dict[str, Any]: _description_
+            """
+            d: dict[str, Any] = {}
             if self.native_datum:
                 d["native-datum"] = self.native_datum
-            if self._elevation:
+            if self.elevation is not None:
                 d["elevation"] = self.elevation.magnitude
-            if self.unit_str:
-                d["unit"] = self.unit_str
-            if self.ngvd29_offset or self.ngvd29_offset_offset:
+            if self.unit_name:
+                d["unit"] = self.unit_name
+            if self.ngvd29_offset is not None or self.navd88_offset is not None:
                 d["offsets"] = []
-                if self.ngvd29_offset:
+                if self.ngvd29_offset is not None:
                     d["offsets"].append(
                         {
                             "to-datum": _NGVD29,
@@ -410,7 +531,7 @@ class ElevParameter(Parameter):
                             "value": self.ngvd29_offset.magnitude,
                         }
                     )
-                if self.navd88_offset:
+                if self.navd88_offset is not None:
                     d["offsets"].append(
                         {
                             "to-datum": _NAVD88,
@@ -420,7 +541,24 @@ class ElevParameter(Parameter):
                     )
             return d
 
-        def get_datum(self, datum_str: str) -> str:
+        def normalize_datum_name(self, datum_str: str) -> str:
+            """
+            Returns a normalized version of the specified datum
+
+            Args:
+                datum_str (str): The datum to normalize. Valid inputs are:
+                    * "NGVD-29", "NAVD-88", "OTHER", or "LOCAL" in any case with the "-" deleted or replaced by any character
+                    * The actual local datum name in any case
+
+            Raises:
+                ElevParameter.VerticalDatumException:
+                    * *Objects with local datum**: If the normalized datum is not one of "NGVD-29",
+                        "NAVD-88", "OTHER", "LOCAL" or the actual local datum name.
+                    * *Objects without local datum**: If the normalized datum is not one of "NGVD-29",
+                         or "NAVD-88".
+            Returns:
+                str: _description_
+            """
             if _ngvd29_pattern.match(datum_str):
                 return _NGVD29
             elif _navd88_pattern.match(datum_str):
@@ -434,14 +572,28 @@ class ElevParameter(Parameter):
                     raise ElevParameter.VerticalDatumException(
                         f"Invalid vertical datum: {datum_str}"
                     )
-                return self._native_datum
+                return self.native_datum
             else:
                 raise ElevParameter.VerticalDatumException(
                     f"Invalid vertical datum: {datum_str}"
                 )
 
         def get_offset_to(self, target_datum: str) -> Optional[UnitQuantity]:
-            target_datum = self.get_datum(target_datum)
+            """
+            Returns the offset from the current vertical datum to the specified target datum in the current unit.
+
+            Args:
+                target_datum (str): The target datum
+
+            Raises:
+                ElevParameter.VerticalDatumException: If the target datum is invalid or the
+                    object does not specify an offset to the target datum
+
+            Returns:
+                Optional[UnitQuantity]: The offset from the current datum to the target datum
+                    or `None` if the current and target datums are the same.
+            """
+            target_datum = self.normalize_datum_name(target_datum)
             if target_datum == self._current_datum:
                 return None
             if target_datum == _NGVD29:
@@ -449,7 +601,7 @@ class ElevParameter(Parameter):
                     if self._ngvd29_offset is None or self._navd88_offset is None:
                         return None
                     return (self._ngvd29_offset - self._navd88_offset).to(
-                        self._unit_str
+                        self._unit_name
                     )
                 else:
                     return self._ngvd29_offset
@@ -458,7 +610,7 @@ class ElevParameter(Parameter):
                     if self._ngvd29_offset is None or self._navd88_offset is None:
                         return None
                     return (self._navd88_offset - self._ngvd29_offset).to(
-                        self._unit_str
+                        self._unit_name
                     )
                 else:
                     return self._navd88_offset
@@ -482,53 +634,91 @@ class ElevParameter(Parameter):
 
         def to(
             self, unit_or_datum: Union[str, Unit], in_place: bool = False
-        ) -> "ElevParameter.VerticalDatumInfo":
+        ) -> "ElevParameter._VerticalDatumInfo":
+            """
+            Converts either this object or a copy of it to the specified unit or vertical datum and returns it
+
+            Args:
+                unit_or_datum (Union[str, Unit]): The unit or vertical datum to convert to
+                in_place (bool, optional): If `True`, this object is converted and returned, otherwise a copy is
+                    converted and returned. Defaults to False.
+
+            Returns:
+                ElevParameter.VerticalDatumInfo: _description_
+            """
             converted = self if in_place else self.clone()
-            if isinstance(unit_or_datum, Unit) or not (
-                _all_datums_pattern.match(unit_or_datum)
-                or (
-                    self._native_datum
-                    and unit_or_datum.upper() == self._native_datum.upper()
-                )
-            ):
-                # ---------------------- #
-                # convert to target unit #
-                # ---------------------- #
-                if isinstance(unit_or_datum, Unit):
-                    converted._unit = unit_or_datum
-                    converted._unit_str = str(unit)
-                else:
-                    converted._unit_str = unit_or_datum
-                    converted._unit = unit.get_pint_unit(converted._unit_str)
-                if converted._elevation:
-                    converted._elevation.ito(converted._unit_str)
-                if converted._ngvd29_offset:
-                    converted._ngvd29_offset.ito(converted._unit_str)
-                if converted._navd88_offset:
-                    converted._navd88_offset.ito(converted._unit_str)
-            else:
-                # ----------------------- #
-                # convert to target datum #
-                # ----------------------- #
-                target_datum = self.get_datum(unit_or_datum)
-                offset = converted.get_offset_to(target_datum)
-                if offset:
-                    offset = offset.to(self._unit_str)
+            try:
+                if isinstance(unit_or_datum, Unit) or not (
+                    _all_datums_pattern.match(unit_or_datum)
+                    or (
+                        self._native_datum
+                        and unit_or_datum.upper() == self._native_datum.upper()
+                    )
+                    or unit_or_datum.upper() in ("EN", "SI")
+                ):
+                    # ---------------------- #
+                    # convert to target unit #
+                    # ---------------------- #
+                    if isinstance(unit_or_datum, Unit):
+                        converted._unit_name = unit.get_unit_name(unit_or_datum)
+                        converted._unit = unit_or_datum
+                    else:
+                        converted._unit_name = unit.get_unit_name(unit_or_datum)
+                        converted._unit = unit.get_pint_unit(converted._unit_name)
                     if converted._elevation:
-                        converted._elevation += offset
-                converted._current_datum = target_datum
-            return converted
+                        converted._elevation.ito(converted._unit_name)
+                    if converted._ngvd29_offset:
+                        converted._ngvd29_offset.ito(converted._unit_name)
+                    if converted._navd88_offset:
+                        converted._navd88_offset.ito(converted._unit_name)
+                else:
+                    # ----------------------- #
+                    # convert to target datum #
+                    # ----------------------- #
+                    target_datum = self.normalize_datum_name(unit_or_datum)
+                    offset = converted.get_offset_to(target_datum)
+                    if offset:
+                        offset = offset.to(self._unit_name)
+                        if converted._elevation:
+                            converted._elevation += offset
+                    converted._current_datum = target_datum
+                return converted
+            except:
+                raise ElevParameter.VerticalDatumException(
+                    f"Invalid unit or datum: {unit_or_datum}"
+                )
 
     def __init__(
         self,
         name: str,
         verticalDatumInfo: Union[str, dict[str, Any]],
     ):
-        _verticalDatumInfo = ElevParameter.VerticalDatumInfo(verticalDatumInfo)
-        super().__init__(name, _verticalDatumInfo.unit_str)
+        """
+        Initializes the ElevParameter object
+
+        Args:
+            name (str): The full parameter name
+            verticalDatumInfo (Union[str, dict[str, Any]]): The vertical datum info as an xml string or dictionary
+
+        Raises:
+            ElevParameter.VerticalDatumException: If `vertical datum` info is invalid
+            ParameterException: If the base parameter is not 'Elev'
+        """
+        _verticalDatumInfo = ElevParameter._VerticalDatumInfo(verticalDatumInfo)
+        super().__init__(name, _verticalDatumInfo.unit_name)
+        if self.base_parameter != "Elev":
+            raise ParameterException(
+                f"Cannot instantiate an ElevParameter object with base parameter of {self.base_parameter}"
+            )
         self._vertical_datum_info = _verticalDatumInfo
 
     def clone(self) -> "ElevParameter":
+        """
+        Returns a copy of this object
+
+        Returns:
+            ElevParameter: The copy
+        """
         return ElevParameter(self._name, str(self._vertical_datum_info))
 
     def __repr__(self) -> str:
@@ -538,63 +728,187 @@ class ElevParameter(Parameter):
         return f"{self.name} (<vertical-datum-info>)"
 
     @property
-    def unit(self) -> str:
-        return self._vertical_datum_info._unit_str
+    def unit_name(self) -> str:
+        """
+        The unit name of this object
+
+        Operations:
+            Read Only
+        """
+        return self._vertical_datum_info.unit_name
 
     @property
-    def vertical_datum_info(self) -> Optional[VerticalDatumInfo]:
+    def unit(self) -> Unit:
+        """
+        The unit of this object
+
+        Operations:
+            Read Only
+        """
+        return self._vertical_datum_info.unit
+
+    @property
+    def vertical_datum_info(self) -> _VerticalDatumInfo:
+        """
+        The VerticalDatumInfo object of this parameter
+
+        Operations:
+            Read Only
+        """
         return self._vertical_datum_info
 
     @property
-    def vertical_datum_info_xml(self) -> Optional[str]:
-        return str(self._vertical_datum_info) if self._vertical_datum_info else None
+    def vertical_datum_info_xml(self) -> str:
+        """
+        The VerticalDatumInfo object of this parameter as an xml string
+
+        Operations:
+            Read Only
+        """
+        return str(self.vertical_datum_info)
 
     @property
-    def vertical_datum_info_dict(self) -> Optional[dict[str, Any]]:
-        return (
-            self._vertical_datum_info.to_dict() if self._vertical_datum_info else None
-        )
+    def vertical_datum_info_dict(self) -> dict[str, Any]:
+        """
+        The VerticalDatumInfo object of this parameter as a dictionary
+
+        Operations:
+            Read Only
+        """
+        return self.vertical_datum_info.to_dict()
 
     @property
     def elevation(self) -> Optional[UnitQuantity]:
-        return self._vertical_datum_info.elevation
+        """
+        The elevation of this object in the current datum and unit
+
+        Operations:
+            Read Only
+        """
+        return self.vertical_datum_info.elevation
 
     @property
     def native_datum(self) -> Optional[str]:
-        return self._vertical_datum_info.native_datum
+        """
+        The native datum of this object
+
+        Operations:
+            Read Only
+        """
+        return self.vertical_datum_info.native_datum
 
     @property
     def current_datum(self) -> Optional[str]:
-        return self._vertical_datum_info.current_datum
+        """
+        The current datum of this object
+
+        Operations:
+            Read Only
+        """
+        return self.vertical_datum_info.current_datum
 
     @property
     def ngvd29_offset(self) -> Optional[UnitQuantity]:
-        return self._vertical_datum_info.ngvd29_offset
+        """
+        The offset from the native datum of this object to NGVD-29, in the current unit, or `None` if<br>
+            * the native vertical datum is NGVD-29
+            * the native vertical datum is not NGVD-29, but the object does not have such an offset
+
+        Operations:
+            Read Only
+        """
+        return self.vertical_datum_info.ngvd29_offset
 
     @property
     def navd88_offset(self) -> Optional[UnitQuantity]:
-        return self._vertical_datum_info.navd88_offset
+        """
+        The offset from the native datum of this object to NGVD-29, in the current unit, or `None` if<br>
+            * the native vertical datum is NGVD-29
+            * the native vertical datum is not NGVD-29, but the object does not have such an offset
+
+        Operations:
+            Read Only
+        """
+        return self.vertical_datum_info.navd88_offset
 
     @property
     def ngvd29_offset_is_estimate(self) -> Optional[bool]:
+        """
+        Whether the offset from the native vertical datum to NGVD-29 is an estimate (e.g, VERTCON)
+        or `None` if the native vertical datum is NGVD-29 or the object does not have such and offset
+
+        Operations:
+            Read Only
+        """
         return self._vertical_datum_info.ngvd29_offset_is_estimate
 
     @property
     def navd88_offset_is_estimate(self) -> Optional[bool]:
+        """
+        Whether the offset from the native vertical datum to NGVD-29 is an estimate (e.g, VERTCON)
+        or `None` if the native vertical datum is NGVD-29 or the object does not have such and offset
+
+        Operations:
+            Read Only
+        """
         return self._vertical_datum_info.navd88_offset_is_estimate
 
     def get_offset_to(self, target_datum: str) -> Optional[UnitQuantity]:
+        """
+        Returns the offset from the current vertical datum to the specified target datum in the current unit.
+
+        Args:
+            target_datum (str): The target datum
+
+        Raises:
+            ElevParameter.VerticalDatumException: If the target datum is invalid or the
+                object does not specify an offset to the target datum
+
+        Returns:
+            Optional[UnitQuantity]: The offset from the current datum to the target datum
+                or `None` if the current and target datums are the same.
+        """
         return self.vertical_datum_info.get_offset_to(target_datum)
 
     def to(
-        self, unit_or_datum: Union[str, Unit], in_place: bool = False
+        self, unit_or_system_or_datum: Union[str, Unit], in_place: bool = False
     ) -> "ElevParameter":
+        """
+        Converts either this object or a copy of it to the specified unit or vertical datum and returns it
+
+        Args:
+            unit_or_system_or_datum (Union[str, Unit]): The unit, unit_system, or vertical datum to convert to.
+                If unit system ("EN" or "SI"), the default Elev unit for that system is used.
+            in_place (bool, optional): If `True`, this object is converted and returned, otherwise a copy is
+                converted and returned. Defaults to False.
+
+        Returns:
+            ElevParameter.VerticalDatumInfo: _description_
+        """
         try:
             converted = self if in_place else self.clone()
-            converted._vertical_datum_info.to(unit_or_datum, in_place=True)
-            converted._unit = converted.vertical_datum_info.unit_str
+            if isinstance(
+                unit_or_system_or_datum, str
+            ) and unit_or_system_or_datum.upper() in ("EN", "SI"):
+                if unit_or_system_or_datum.upper() == "EN":
+                    converted._unit_name = _parameter_info[converted.base_parameter][
+                        "default_en_unit"
+                    ]
+                else:
+                    converted._unit_name = _parameter_info[converted.base_parameter][
+                        "default_si_unit"
+                    ]
+                converted._unit_name = unit.get_unit_name(converted._unit_name)
+                converted._vertical_datum_info.to(converted._unit_name, in_place=True)
+                converted._unit = converted.vertical_datum_info.unit
+            else:
+                converted._vertical_datum_info.to(
+                    unit_or_system_or_datum, in_place=True
+                )
+                converted._unit_name = converted.vertical_datum_info.unit_name
+                converted._unit = converted.vertical_datum_info.unit
             return converted
         except:
             raise ParameterException(
-                f"Invalid unit for base parameter Elev or or invalid vertical datum: {unit_or_datum}"
+                f"Invalid unit for base parameter Elev or or invalid vertical datum: {unit_or_system_or_datum}"
             )

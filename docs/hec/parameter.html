@@ -55,10 +55,76 @@
                                 <a class="variable" href="#Parameter.base_parameter">base_parameter</a>
                         </li>
                         <li>
+                                <a class="variable" href="#Parameter.unit_name">unit_name</a>
+                        </li>
+                        <li>
                                 <a class="variable" href="#Parameter.unit">unit</a>
                         </li>
                         <li>
-                                <a class="function" href="#Parameter.set_unit_or_system">set_unit_or_system</a>
+                                <a class="function" href="#Parameter.to">to</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Parameter.get_compatible_units">get_compatible_units</a>
+                        </li>
+                </ul>
+
+            </li>
+            <li>
+                    <a class="class" href="#ElevParameter">ElevParameter</a>
+                            <ul class="memberlist">
+                        <li>
+                                <a class="function" href="#ElevParameter.__init__">ElevParameter</a>
+                        </li>
+                        <li>
+                                <a class="class" href="#ElevParameter.VerticalDatumException">ElevParameter.VerticalDatumException</a>
+                                        <ul class="memberlist">
+                            </ul>
+
+                        </li>
+                        <li>
+                                <a class="function" href="#ElevParameter.clone">clone</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#ElevParameter.unit_name">unit_name</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#ElevParameter.unit">unit</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#ElevParameter.vertical_datum_info">vertical_datum_info</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#ElevParameter.vertical_datum_info_xml">vertical_datum_info_xml</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#ElevParameter.vertical_datum_info_dict">vertical_datum_info_dict</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#ElevParameter.elevation">elevation</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#ElevParameter.native_datum">native_datum</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#ElevParameter.current_datum">current_datum</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#ElevParameter.ngvd29_offset">ngvd29_offset</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#ElevParameter.navd88_offset">navd88_offset</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#ElevParameter.ngvd29_offset_is_estimate">ngvd29_offset_is_estimate</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#ElevParameter.navd88_offset_is_estimate">navd88_offset_is_estimate</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#ElevParameter.get_offset_to">get_offset_to</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#ElevParameter.to">to</a>
                         </li>
                 </ul>
 
@@ -132,7 +198,7 @@
                             <div id="Parameter.__init__" class="classattr">
                                 <div class="attr function">
             
-        <span class="name">Parameter</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">name</span><span class="p">:</span> <span class="nb">str</span>, </span><span class="param"><span class="n">unit_or_system</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span></span>)</span>
+        <span class="name">Parameter</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">name</span><span class="p">:</span> <span class="nb">str</span>, </span><span class="param"><span class="n">unit_or_system</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></span>)</span>
 
         
     </div>
@@ -240,9 +306,28 @@ parameter was created using a parameter alias</p>
 
 
                             </div>
+                            <div id="Parameter.unit_name" class="classattr">
+                                <div class="attr variable">
+            <span class="name">unit_name</span><span class="annotation">: str</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Parameter.unit_name"></a>
+    
+            <div class="docstring"><p>The unit name assigned to the parameter</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read Only</p>
+</blockquote>
+</div>
+
+
+                            </div>
                             <div id="Parameter.unit" class="classattr">
                                 <div class="attr variable">
-            <span class="name">unit</span><span class="annotation">: str</span>
+            <span class="name">unit</span><span class="annotation">: pint.registry.Unit</span>
 
         
     </div>
@@ -259,17 +344,17 @@ parameter was created using a parameter alias</p>
 
 
                             </div>
-                            <div id="Parameter.set_unit_or_system" class="classattr">
+                            <div id="Parameter.to" class="classattr">
                                 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">set_unit_or_system</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">unit_or_system</span><span class="p">:</span> <span class="nb">str</span></span><span class="return-annotation">) -> <span class="kc">None</span>:</span></span>
+        <span class="name">to</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="bp">self</span>,</span><span class="param">	<span class="n">unit_or_system</span><span class="p">:</span> <span class="nb">str</span>,</span><span class="param">	<span class="n">in_place</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></span><span class="return-annotation">) -> <span class="n"><a href="#Parameter">Parameter</a></span>:</span></span>
 
         
     </div>
-    <a class="headerlink" href="#Parameter.set_unit_or_system"></a>
+    <a class="headerlink" href="#Parameter.to"></a>
     
-            <div class="docstring"><p>Assigns a unit to this parameter</p>
+            <div class="docstring"><p>Assigns a unit to this parameter or a copy of this parameter</p>
 
 <h6 id="arguments">Arguments:</h6>
 
@@ -287,9 +372,441 @@ parameter was created using a parameter alias</p>
 <ul>
 <li><strong>ParameterException:</strong>  If the specified unit is not valid for the parameter</li>
 </ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>Parameter: The converted object (self if in_place == True, otherwise a converted copy)</p>
+</blockquote>
 </div>
 
 
+                            </div>
+                            <div id="Parameter.get_compatible_units" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">get_compatible_units</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span><span class="return-annotation">) -> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#Parameter.get_compatible_units"></a>
+    
+            <div class="docstring"><p>Returns the list of unit names compatible with this parameter's unit</p>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>list[str]: The list of compatible unit names</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                </section>
+                <section id="ElevParameter">
+                    <div class="attr class">
+            
+    <span class="def">class</span>
+    <span class="name">ElevParameter</span><wbr>(<span class="base"><a href="#Parameter">Parameter</a></span>):
+
+        
+    </div>
+    <a class="headerlink" href="#ElevParameter"></a>
+    
+            <div class="docstring"><p>Holds info (name and vertical datum information) for an elevation parameter</p>
+</div>
+
+
+                            <div id="ElevParameter.__init__" class="classattr">
+                                <div class="attr function">
+            
+        <span class="name">ElevParameter</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">name</span><span class="p">:</span> <span class="nb">str</span>, </span><span class="param"><span class="n">verticalDatumInfo</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span></span>)</span>
+
+        
+    </div>
+    <a class="headerlink" href="#ElevParameter.__init__"></a>
+    
+            <div class="docstring"><p>Initializes the ElevParameter object</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>name (str):</strong>  The full parameter name</li>
+<li><strong>verticalDatumInfo (Union[str, dict[str, Any]]):</strong>  The vertical datum info as an xml string or dictionary</li>
+</ul>
+
+<h6 id="raises">Raises:</h6>
+
+<ul>
+<li><strong><a href="#ElevParameter.VerticalDatumException">ElevParameter.VerticalDatumException</a>:</strong>  If <code>vertical datum</code> info is invalid</li>
+<li><strong>ParameterException:</strong>  If the base parameter is not 'Elev'</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="ElevParameter.clone" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">clone</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span><span class="return-annotation">) -> <span class="n"><a href="#ElevParameter">ElevParameter</a></span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#ElevParameter.clone"></a>
+    
+            <div class="docstring"><p>Returns a copy of this object</p>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>ElevParameter: The copy</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="ElevParameter.unit_name" class="classattr">
+                                <div class="attr variable">
+            <span class="name">unit_name</span><span class="annotation">: str</span>
+
+        
+    </div>
+    <a class="headerlink" href="#ElevParameter.unit_name"></a>
+    
+            <div class="docstring"><p>The unit name of this object</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read Only</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="ElevParameter.unit" class="classattr">
+                                <div class="attr variable">
+            <span class="name">unit</span><span class="annotation">: pint.registry.Unit</span>
+
+        
+    </div>
+    <a class="headerlink" href="#ElevParameter.unit"></a>
+    
+            <div class="docstring"><p>The unit of this object</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read Only</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="ElevParameter.vertical_datum_info" class="classattr">
+                                <div class="attr variable">
+            <span class="name">vertical_datum_info</span><span class="annotation">: hec.parameter.ElevParameter._VerticalDatumInfo</span>
+
+        
+    </div>
+    <a class="headerlink" href="#ElevParameter.vertical_datum_info"></a>
+    
+            <div class="docstring"><p>The VerticalDatumInfo object of this parameter</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read Only</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="ElevParameter.vertical_datum_info_xml" class="classattr">
+                                <div class="attr variable">
+            <span class="name">vertical_datum_info_xml</span><span class="annotation">: str</span>
+
+        
+    </div>
+    <a class="headerlink" href="#ElevParameter.vertical_datum_info_xml"></a>
+    
+            <div class="docstring"><p>The VerticalDatumInfo object of this parameter as an xml string</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read Only</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="ElevParameter.vertical_datum_info_dict" class="classattr">
+                                <div class="attr variable">
+            <span class="name">vertical_datum_info_dict</span><span class="annotation">: dict[str, typing.Any]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#ElevParameter.vertical_datum_info_dict"></a>
+    
+            <div class="docstring"><p>The VerticalDatumInfo object of this parameter as a dictionary</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read Only</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="ElevParameter.elevation" class="classattr">
+                                <div class="attr variable">
+            <span class="name">elevation</span><span class="annotation">: Optional[<a href="unit.html#UnitQuantity">hec.unit.UnitQuantity</a>]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#ElevParameter.elevation"></a>
+    
+            <div class="docstring"><p>The elevation of this object in the current datum and unit</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read Only</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="ElevParameter.native_datum" class="classattr">
+                                <div class="attr variable">
+            <span class="name">native_datum</span><span class="annotation">: Optional[str]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#ElevParameter.native_datum"></a>
+    
+            <div class="docstring"><p>The native datum of this object</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read Only</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="ElevParameter.current_datum" class="classattr">
+                                <div class="attr variable">
+            <span class="name">current_datum</span><span class="annotation">: Optional[str]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#ElevParameter.current_datum"></a>
+    
+            <div class="docstring"><p>The current datum of this object</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read Only</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="ElevParameter.ngvd29_offset" class="classattr">
+                                <div class="attr variable">
+            <span class="name">ngvd29_offset</span><span class="annotation">: Optional[<a href="unit.html#UnitQuantity">hec.unit.UnitQuantity</a>]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#ElevParameter.ngvd29_offset"></a>
+    
+            <div class="docstring"><p>The offset from the native datum of this object to NGVD-29, in the current unit, or <code>None</code> if<br>
+    * the native vertical datum is NGVD-29
+    * the native vertical datum is not NGVD-29, but the object does not have such an offset</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read Only</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="ElevParameter.navd88_offset" class="classattr">
+                                <div class="attr variable">
+            <span class="name">navd88_offset</span><span class="annotation">: Optional[<a href="unit.html#UnitQuantity">hec.unit.UnitQuantity</a>]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#ElevParameter.navd88_offset"></a>
+    
+            <div class="docstring"><p>The offset from the native datum of this object to NGVD-29, in the current unit, or <code>None</code> if<br>
+    * the native vertical datum is NGVD-29
+    * the native vertical datum is not NGVD-29, but the object does not have such an offset</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read Only</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="ElevParameter.ngvd29_offset_is_estimate" class="classattr">
+                                <div class="attr variable">
+            <span class="name">ngvd29_offset_is_estimate</span><span class="annotation">: Optional[bool]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#ElevParameter.ngvd29_offset_is_estimate"></a>
+    
+            <div class="docstring"><p>Whether the offset from the native vertical datum to NGVD-29 is an estimate (e.g, VERTCON)
+or <code>None</code> if the native vertical datum is NGVD-29 or the object does not have such and offset</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read Only</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="ElevParameter.navd88_offset_is_estimate" class="classattr">
+                                <div class="attr variable">
+            <span class="name">navd88_offset_is_estimate</span><span class="annotation">: Optional[bool]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#ElevParameter.navd88_offset_is_estimate"></a>
+    
+            <div class="docstring"><p>Whether the offset from the native vertical datum to NGVD-29 is an estimate (e.g, VERTCON)
+or <code>None</code> if the native vertical datum is NGVD-29 or the object does not have such and offset</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read Only</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="ElevParameter.get_offset_to" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">get_offset_to</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">target_datum</span><span class="p">:</span> <span class="nb">str</span></span><span class="return-annotation">) -> <span class="n">Optional</span><span class="p">[</span><span class="n"><a href="unit.html#UnitQuantity">hec.unit.UnitQuantity</a></span><span class="p">]</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#ElevParameter.get_offset_to"></a>
+    
+            <div class="docstring"><p>Returns the offset from the current vertical datum to the specified target datum in the current unit.</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>target_datum (str):</strong>  The target datum</li>
+</ul>
+
+<h6 id="raises">Raises:</h6>
+
+<ul>
+<li><strong><a href="#ElevParameter.VerticalDatumException">ElevParameter.VerticalDatumException</a>:</strong>  If the target datum is invalid or the
+object does not specify an offset to the target datum</li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>Optional[UnitQuantity]: The offset from the current datum to the target datum
+      or <code>None</code> if the current and target datums are the same.</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="ElevParameter.to" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">to</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="bp">self</span>,</span><span class="param">	<span class="n">unit_or_system_or_datum</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pint</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">Unit</span><span class="p">]</span>,</span><span class="param">	<span class="n">in_place</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></span><span class="return-annotation">) -> <span class="n"><a href="#ElevParameter">ElevParameter</a></span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#ElevParameter.to"></a>
+    
+            <div class="docstring"><p>Converts either this object or a copy of it to the specified unit or vertical datum and returns it</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>unit_or_system_or_datum (Union[str, Unit]):</strong>  The unit, unit_system, or vertical datum to convert to.
+If unit system ("EN" or "SI"), the default Elev unit for that system is used.</li>
+<li><strong>in_place (bool, optional):</strong>  If <code>True</code>, this object is converted and returned, otherwise a copy is
+converted and returned. Defaults to False.</li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>ElevParameter.VerticalDatumInfo: _description_</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div class="inherited">
+                                <h5>Inherited Members</h5>
+                                <dl>
+                                    <div><dt><a href="#Parameter">Parameter</a></dt>
+                                <dd id="ElevParameter.name" class="variable"><a href="#Parameter.name">name</a></dd>
+                <dd id="ElevParameter.basename" class="variable"><a href="#Parameter.basename">basename</a></dd>
+                <dd id="ElevParameter.subname" class="variable"><a href="#Parameter.subname">subname</a></dd>
+                <dd id="ElevParameter.base_parameter" class="variable"><a href="#Parameter.base_parameter">base_parameter</a></dd>
+                <dd id="ElevParameter.get_compatible_units" class="function"><a href="#Parameter.get_compatible_units">get_compatible_units</a></dd>
+
+            </div>
+                                </dl>
+                            </div>
+                </section>
+                <section id="ElevParameter.VerticalDatumException">
+                    <div class="attr class">
+            
+    <span class="def">class</span>
+    <span class="name">ElevParameter.VerticalDatumException</span><wbr>(<span class="base"><a href="#ParameterException">ParameterException</a></span>):
+
+        
+    </div>
+    <a class="headerlink" href="#ElevParameter.VerticalDatumException"></a>
+    
+            <div class="docstring"><p>Exception specific to vertical datum operations</p>
+</div>
+
+
+                            <div class="inherited">
+                                <h5>Inherited Members</h5>
+                                <dl>
+                                    <div><dt>builtins.Exception</dt>
+                                <dd id="ElevParameter.VerticalDatumException.__init__" class="function">Exception</dd>
+
+            </div>
+            <div><dt>builtins.BaseException</dt>
+                                <dd id="ElevParameter.VerticalDatumException.with_traceback" class="function">with_traceback</dd>
+                <dd id="ElevParameter.VerticalDatumException.args" class="variable">args</dd>
+
+            </div>
+                                </dl>
                             </div>
                 </section>
     </main>

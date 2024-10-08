@@ -1058,13 +1058,11 @@ class UnitQuantity:
     def __neg__(self) -> "UnitQuantity":
         return UnitQuantity(-self._quantity.magnitude, self._specified_unit)
 
-    def __round__(self, ndigits) -> "UnitQuantity":
-        return UnitQuantity(
-            round(self._quantity.magnitude, ndigits), self._specified_unit
-        )
-
     def __format__(self, format: str) -> str:
-        return cast(str, eval('f"{self._quantity:' + format + '}"'))
+        if format:
+            return cast(str, eval('f"{self._quantity:' + format + '}"'))
+        else:
+            return f"{self._quantity.magnitude} {self._specified_unit}"
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, UnitQuantity):
@@ -1368,6 +1366,20 @@ class UnitQuantity:
             Read/Only
         """
         return self._specified_unit
+
+    def round(self, places: int = 0) -> "UnitQuantity":
+        """
+        Returns a copy of this object with the magnitude rounded to the specified number of decimal places
+
+        Args:
+            places (int): The number of decimal places to round to. Default is 0.
+
+        Returns:
+            UnitQuantity: The rounded object
+        """
+        return UnitQuantity(
+            round(self._quantity.magnitude, places), self._specified_unit
+        )
 
     def to(self, unit: Union[str, pint.Unit], in_place: bool = False) -> "UnitQuantity":
         """
