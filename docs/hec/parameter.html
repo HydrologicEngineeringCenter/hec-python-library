@@ -129,6 +129,42 @@
                 </ul>
 
             </li>
+            <li>
+                    <a class="class" href="#ParameterTypeException">ParameterTypeException</a>
+                            <ul class="memberlist">
+                </ul>
+
+            </li>
+            <li>
+                    <a class="class" href="#ParameterType">ParameterType</a>
+                            <ul class="memberlist">
+                        <li>
+                                <a class="function" href="#ParameterType.__init__">ParameterType</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#ParameterType.setDefaultContext">setDefaultContext</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#ParameterType.context">context</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#ParameterType.name">name</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#ParameterType.setContext">setContext</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#ParameterType.getRawName">getRawName</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#ParameterType.getCwmsName">getCwmsName</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#ParameterType.getDssName">getDssName</a>
+                        </li>
+                </ul>
+
+            </li>
     </ul>
 
 
@@ -146,6 +182,14 @@
 <a href="./../hec.html">hec</a><wbr>.parameter    </h1>
 
                         <div class="docstring"><p>Provides parameer info</p>
+
+<p>Comprises the classes:</p>
+
+<ul>
+<li><a href="#Parameter">Parameter</a></li>
+<li><a href="#ElevParameter">ElevParameter</a></li>
+<li><a href="#ParameterType">ParameterType</a></li>
+</ul>
 </div>
 
                 
@@ -807,6 +851,261 @@ converted and returned. Defaults to False.</li>
 
             </div>
                                 </dl>
+                            </div>
+                </section>
+                <section id="ParameterTypeException">
+                    <div class="attr class">
+            
+    <span class="def">class</span>
+    <span class="name">ParameterTypeException</span><wbr>(<span class="base">builtins.Exception</span>):
+
+        
+    </div>
+    <a class="headerlink" href="#ParameterTypeException"></a>
+    
+            <div class="docstring"><p>Exception specific to ParameterType operations</p>
+</div>
+
+
+                            <div class="inherited">
+                                <h5>Inherited Members</h5>
+                                <dl>
+                                    <div><dt>builtins.Exception</dt>
+                                <dd id="ParameterTypeException.__init__" class="function">Exception</dd>
+
+            </div>
+            <div><dt>builtins.BaseException</dt>
+                                <dd id="ParameterTypeException.with_traceback" class="function">with_traceback</dd>
+                <dd id="ParameterTypeException.args" class="variable">args</dd>
+
+            </div>
+                                </dl>
+                            </div>
+                </section>
+                <section id="ParameterType">
+                    <div class="attr class">
+            
+    <span class="def">class</span>
+    <span class="name">ParameterType</span>:
+
+        
+    </div>
+    <a class="headerlink" href="#ParameterType"></a>
+    
+            <div class="docstring"><p>Holds info about parameter types.</p>
+
+<p>Parameter types have 3 separate contexts, RAW, CWMS, and DSS. There's not much use for the RAW context
+except for providing a bridge between the CWMS and DSS contexts. Users would normally work in either
+the CWMS or DSS context.</p>
+
+<p>The contexts of already-instantiated objects can also be set.</p>
+
+<p>Parameter type names in the different contexts are:</p>
+
+<table>
+<tr><th>RAW</th><th>CWMS</th><th>DSS</th></tr>
+<tr><td>Total</td><td>Total</td><td>PER-CUM</td></tr>
+<tr><td>Maximum</td><td>Max</td><td>PER-MAX</td></tr>
+<tr><td>Minimum</td><td>Min</td><td>PER-MIN</td></tr>
+<tr><td>Constant</td><td>Const</td><td>CONST</td></tr>
+<tr><td>Average</td><td>Ave</td><td>PER-AVER</td></tr>
+<tr><td rowspan="2">Instantaneous</td><td rowspan="2">Inst</td><td>INST-CUM (for Precip or Count)</td></tr><tr><td>INST-VAL (for others)</td></tr>
+</table>
+</div>
+
+
+                            <div id="ParameterType.__init__" class="classattr">
+                                <div class="attr function">
+            
+        <span class="name">ParameterType</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">param_type</span><span class="p">:</span> <span class="nb">str</span></span>)</span>
+
+        
+    </div>
+    <a class="headerlink" href="#ParameterType.__init__"></a>
+    
+            <div class="docstring"><p>Initializes a ParameterType object</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>param_type (str):</strong>  The name of the parameter type</li>
+</ul>
+
+<h6 id="raises">Raises:</h6>
+
+<ul>
+<li><strong>ParameterTypeException:</strong>  If <code>param_type</code> is not one of the values listed in the table above (context-insensitive)</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="ParameterType.setDefaultContext" class="classattr">
+                                <div class="attr function">
+                    <div class="decorator">@classmethod</div>
+
+        <span class="def">def</span>
+        <span class="name">setDefaultContext</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">cls</span>, </span><span class="param"><span class="n">context</span><span class="p">:</span> <span class="nb">str</span></span><span class="return-annotation">) -> <span class="kc">None</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#ParameterType.setDefaultContext"></a>
+    
+            <div class="docstring"><p>Sets the default context for new ParameterType objects</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>context (str):</strong>  The default context (RAW, CWMS, or DSS)</li>
+</ul>
+
+<h6 id="raises">Raises:</h6>
+
+<ul>
+<li><strong>ParameterTypeException:</strong>  If an invalid context is specified</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="ParameterType.context" class="classattr">
+                                <div class="attr variable">
+            <span class="name">context</span><span class="annotation">: str</span>
+
+        
+    </div>
+    <a class="headerlink" href="#ParameterType.context"></a>
+    
+            <div class="docstring"><p>The context of this object</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read Only</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="ParameterType.name" class="classattr">
+                                <div class="attr variable">
+            <span class="name">name</span><span class="annotation">: str</span>
+
+        
+    </div>
+    <a class="headerlink" href="#ParameterType.name"></a>
+    
+            <div class="docstring"><p>The context-specific name of the object</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read Only</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="ParameterType.setContext" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">setContext</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">context</span><span class="p">:</span> <span class="nb">str</span></span><span class="return-annotation">) -> <span class="kc">None</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#ParameterType.setContext"></a>
+    
+            <div class="docstring"><p>Sets the context for this object</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>context (str):</strong>  The context - must be one of RAW, CWMS, or DSS</li>
+</ul>
+
+<h6 id="raises">Raises:</h6>
+
+<ul>
+<li><strong>ParameterTypeException:</strong>  If the specified context isn't one of the valid values</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="ParameterType.getRawName" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">getRawName</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span><span class="return-annotation">) -> <span class="nb">str</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#ParameterType.getRawName"></a>
+    
+            <div class="docstring"><p>Returns the name of the parameter time for the RAW context</p>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>str: The RAW context name</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="ParameterType.getCwmsName" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">getCwmsName</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span><span class="return-annotation">) -> <span class="nb">str</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#ParameterType.getCwmsName"></a>
+    
+            <div class="docstring"><p>Returns the name of the parameter time for the CWMS context</p>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>str: The CWMS context name</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="ParameterType.getDssName" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">getDssName</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">is_precip</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></span><span class="return-annotation">) -> <span class="nb">str</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#ParameterType.getDssName"></a>
+    
+            <div class="docstring"><p>Returns the name of the parameter time for the DSS context</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>is_precip (bool, optional):</strong>  Whether the parameter type is for a precipitation parameter.
+This matters only for the <code>Instantaneous</code> parameter type (CWMS=<code>Inst</code>). Defaults to False.
+<ul>
+<li><code>False</code>: <code>INST-CUM</code></li>
+<li><code>True</code> : <code>INST-VAL</code></li>
+</ul></li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>str: The DSS context name</p>
+</blockquote>
+</div>
+
+
                             </div>
                 </section>
     </main>

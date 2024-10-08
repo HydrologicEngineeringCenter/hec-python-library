@@ -1,5 +1,10 @@
 """
 Provides parameer info
+
+Comprises the classes:
+* [Parameter](#Parameter)
+* [ElevParameter](#ElevParameter)
+* [ParameterType](#ParameterType)
 """
 
 import os, sys
@@ -43,6 +48,37 @@ with open(os.path.join(os.path.dirname(__file__), "resources", "parameters.txt")
 _base_parameters = {}
 for base_parameter in _parameter_info:
     _base_parameters[base_parameter.upper()] = base_parameter
+
+_parameter_type_info: dict[str, Any] = {
+    #    Type             CWMS       HEC-DSS
+    #    --------------   ---------- -----------------------
+    "Total": ("Total", "PER-CUM"),
+    "Maximum": ("Max", "PER-MAX"),
+    "Minimum": ("Min", "PER-MIN"),
+    "Constant": ("Const", "CONST"),
+    "Average": ("Ave", "PER-AVER"),
+    "Instantaneous": ("Inst", ("INST-VAL", "INST-CUM")),  # (Other, Precip/Count)
+    #   "Cumulative"    : ("Cum",    "INST-CUM"),             # Precip/Count, Duration = 0
+    #   "Incremental"   : ("Inc",    "PER-CUM"),              # Precip/Count, Duration > 0
+    #   "Median"        : ("Median", "MEDIAN")
+}
+_cwms_parameter_types: dict[str, Union[str, tuple[str, str]]] = {}
+_dss_parameter_types: dict[str, str] = {}
+_parameter_types: dict[str, str] = {}
+for param_type in _parameter_type_info:
+    cwms, dss = _parameter_type_info[param_type]
+    _parameter_types[param_type] = param_type
+    _parameter_types[cwms] = param_type
+    _dss_parameter_types[param_type] = dss
+    _dss_parameter_types[cwms] = dss
+    _cwms_parameter_types[param_type] = cwms
+    if isinstance(dss, tuple):
+        for item in dss:
+            _parameter_types[item] = param_type
+            _cwms_parameter_types[item] = cwms
+    else:
+        _parameter_types[dss] = param_type
+        _cwms_parameter_types[dss] = cwms
 
 
 class ParameterException(Exception):
@@ -912,3 +948,161 @@ class ElevParameter(Parameter):
             raise ParameterException(
                 f"Invalid unit for base parameter Elev or or invalid vertical datum: {unit_or_system_or_datum}"
             )
+
+
+class ParameterTypeException(Exception):
+    """
+    Exception specific to ParameterType operations
+    """
+
+    pass
+
+
+class ParameterType:
+    """
+    Holds info about parameter types.
+
+    Parameter types have 3 separate contexts, RAW, CWMS, and DSS. There's not much use for the RAW context
+    except for providing a bridge between the CWMS and DSS contexts. Users would normally work in either
+    the CWMS or DSS context.
+
+    The contexts of already-instantiated objects can also be set.
+
+    Parameter type names in the different contexts are:
+    <table>
+    <tr><th>RAW</th><th>CWMS</th><th>DSS</th></tr>
+    <tr><td>Total</td><td>Total</td><td>PER-CUM</td></tr>
+    <tr><td>Maximum</td><td>Max</td><td>PER-MAX</td></tr>
+    <tr><td>Minimum</td><td>Min</td><td>PER-MIN</td></tr>
+    <tr><td>Constant</td><td>Const</td><td>CONST</td></tr>
+    <tr><td>Average</td><td>Ave</td><td>PER-AVER</td></tr>
+    <tr><td rowspan="2">Instantaneous</td><td rowspan="2">Inst</td><td>INST-CUM (for Precip or Count)</td></tr><tr><td>INST-VAL (for others)</td></tr>
+    </table>
+    """
+
+    _defaultContext: str = "RAW"
+
+    @classmethod
+    def setDefaultContext(cls, context: str) -> None:
+        """
+        Sets the default context for new ParameterType objects
+
+        Args:
+            context (str): The default context (RAW, CWMS, or DSS)
+
+        Raises:
+            ParameterTypeException: If an invalid context is specified
+        """
+        ctx = context.upper()
+        if ctx in ("RAW", "CWMS", "DSS"):
+            cls._defaultContext = ctx
+        else:
+            raise ParameterTypeException(
+                f"Invalid context: {ctx}. Must be one of RAW, CWMS, or DSS"
+            )
+
+    def __init__(self, param_type: str):
+        """
+        Initializes a ParameterType object
+
+        Args:
+            param_type (str): The name of the parameter type
+
+        Raises:
+            ParameterTypeException: If `param_type` is not one of the values listed in the table above (context-insensitive)
+        """
+        self._context = ParameterType._defaultContext
+        self._name: str
+        ptype = param_type.upper()
+        for key in _parameter_types:
+            if key.upper() == ptype:
+                self._name = _parameter_types[key]
+                break
+        else:
+            raise ParameterTypeException(f"{param_type} is not a valid parameter type")
+
+    @property
+    def context(self) -> str:
+        """
+        The context of this object
+
+        Operations:
+            Read Only
+        """
+        return self._context
+
+    @property
+    def name(self) -> str:
+        """
+        The context-specific name of the object
+
+        Operations:
+            Read Only
+        """
+        if self.context == "RAW":
+            return self._name
+        elif self.context == "CWMS":
+            return cast(str, _cwms_parameter_types[self._name])
+        elif self.context == "DSS":
+            dss_type = _dss_parameter_types[self._name]
+            if isinstance(dss_type, tuple):
+                return dss_type[0]
+            else:
+                return dss_type
+        else:
+            raise ParameterTypeException(f"Invalid context: {self._context}")
+
+    def setContext(self, context: str) -> None:
+        """
+        Sets the context for this object
+
+        Args:
+            context (str): The context - must be one of RAW, CWMS, or DSS
+
+        Raises:
+            ParameterTypeException: If the specified context isn't one of the valid values
+        """
+        ctx = context.upper()
+        if ctx in ("RAW", "CWMS", "DSS"):
+            self._context = ctx
+        else:
+            raise ParameterTypeException(
+                f"Invalid context: {ctx}. Must be one of RAW, CWMS, or DSS"
+            )
+
+    def getRawName(self) -> str:
+        """
+        Returns the name of the parameter time for the RAW context
+
+        Returns:
+            str: The RAW context name
+        """
+        return self._name
+
+    def getCwmsName(self) -> str:
+        """
+        Returns the name of the parameter time for the CWMS context
+
+        Returns:
+            str: The CWMS context name
+        """
+        return cast(str, _cwms_parameter_types[self._name])
+
+    def getDssName(self, is_precip: bool = False) -> str:
+        """
+        Returns the name of the parameter time for the DSS context
+
+        Args:
+            is_precip (bool, optional): Whether the parameter type is for a precipitation parameter.
+                This matters only for the `Instantaneous` parameter type (CWMS=`Inst`). Defaults to False.
+                * `False`: `INST-CUM`
+                * `True` : `INST-VAL`
+
+        Returns:
+            str: The DSS context name
+        """
+        dss_type = _dss_parameter_types[self._name]
+        if isinstance(dss_type, tuple):
+            return dss_type[int(is_precip)]
+        else:
+            return dss_type

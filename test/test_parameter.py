@@ -4,7 +4,9 @@ Module for testing hec.parameter module
 
 from hec.parameter import Parameter
 from hec.parameter import ElevParameter
+from hec.parameter import ParameterType
 from hec.parameter import ParameterException
+from hec.parameter import ParameterTypeException
 from hec.unit import UnitQuantity as UQ
 import pytest
 
@@ -331,3 +333,116 @@ def test_elev_parameter_with_dict() -> None:
     del props["office"]
     del props["location"]
     assert p.vertical_datum_info_dict == props
+
+
+def test_parameter_type_raw() -> None:
+    ParameterType.setDefaultContext("RAW")
+    ptype = ParameterType("total")
+    assert ptype.name == "Total"
+    assert ptype.getRawName() == "Total"
+    assert ptype.getCwmsName() == "Total"
+    assert ptype.getDssName() == "PER-CUM"
+    ptype = ParameterType("maximum")
+    assert ptype.name == "Maximum"
+    assert ptype.getRawName() == "Maximum"
+    assert ptype.getCwmsName() == "Max"
+    assert ptype.getDssName() == "PER-MAX"
+    ptype = ParameterType("minimum")
+    assert ptype.name == "Minimum"
+    assert ptype.getRawName() == "Minimum"
+    assert ptype.getCwmsName() == "Min"
+    assert ptype.getDssName() == "PER-MIN"
+    ptype = ParameterType("constant")
+    assert ptype.name == "Constant"
+    assert ptype.getRawName() == "Constant"
+    assert ptype.getCwmsName() == "Const"
+    assert ptype.getDssName() == "CONST"
+    ptype = ParameterType("average")
+    assert ptype.name == "Average"
+    assert ptype.getRawName() == "Average"
+    assert ptype.getCwmsName() == "Ave"
+    assert ptype.getDssName() == "PER-AVER"
+    ptype = ParameterType("instantaneous")
+    assert ptype.name == "Instantaneous"
+    assert ptype.getRawName() == "Instantaneous"
+    assert ptype.getCwmsName() == "Inst"
+    assert ptype.getDssName() == "INST-VAL"
+    assert ptype.getDssName(True) == "INST-CUM"
+
+
+def test_parameter_type_cwms() -> None:
+    ParameterType.setDefaultContext("CWMS")
+    ptype = ParameterType("total")
+    assert ptype.name == "Total"
+    assert ptype.getRawName() == "Total"
+    assert ptype.getCwmsName() == "Total"
+    assert ptype.getDssName() == "PER-CUM"
+    ptype = ParameterType("max")
+    assert ptype.name == "Max"
+    assert ptype.getRawName() == "Maximum"
+    assert ptype.getCwmsName() == "Max"
+    assert ptype.getDssName() == "PER-MAX"
+    ptype = ParameterType("min")
+    assert ptype.name == "Min"
+    assert ptype.getRawName() == "Minimum"
+    assert ptype.getCwmsName() == "Min"
+    assert ptype.getDssName() == "PER-MIN"
+    ptype = ParameterType("const")
+    assert ptype.name == "Const"
+    assert ptype.getRawName() == "Constant"
+    assert ptype.getCwmsName() == "Const"
+    assert ptype.getDssName() == "CONST"
+    ptype = ParameterType("ave")
+    assert ptype.name == "Ave"
+    assert ptype.getRawName() == "Average"
+    assert ptype.getCwmsName() == "Ave"
+    assert ptype.getDssName() == "PER-AVER"
+    ptype = ParameterType("inst")
+    assert ptype.name == "Inst"
+    assert ptype.getRawName() == "Instantaneous"
+    assert ptype.getCwmsName() == "Inst"
+    assert ptype.getDssName() == "INST-VAL"
+    assert ptype.getDssName(True) == "INST-CUM"
+
+
+def test_parameter_type_dss() -> None:
+    ParameterType.setDefaultContext("DSS")
+    ptype = ParameterType("PER-CUM")
+    assert ptype.name == "PER-CUM"
+    assert ptype.getRawName() == "Total"
+    assert ptype.getCwmsName() == "Total"
+    assert ptype.getDssName() == "PER-CUM"
+    ptype = ParameterType("PER-MAX")
+    assert ptype.name == "PER-MAX"
+    assert ptype.getRawName() == "Maximum"
+    assert ptype.getCwmsName() == "Max"
+    assert ptype.getDssName() == "PER-MAX"
+    ptype = ParameterType("PER-MIN")
+    assert ptype.name == "PER-MIN"
+    assert ptype.getRawName() == "Minimum"
+    assert ptype.getCwmsName() == "Min"
+    assert ptype.getDssName() == "PER-MIN"
+    ptype = ParameterType("CONST")
+    assert ptype.name == "CONST"
+    assert ptype.getRawName() == "Constant"
+    assert ptype.getCwmsName() == "Const"
+    assert ptype.getDssName() == "CONST"
+    ptype = ParameterType("PER-AVER")
+    assert ptype.name == "PER-AVER"
+    assert ptype.getRawName() == "Average"
+    assert ptype.getCwmsName() == "Ave"
+    assert ptype.getDssName() == "PER-AVER"
+    ptype = ParameterType("INST-VAL")
+    assert ptype.name == "INST-VAL"
+    assert ptype.getRawName() == "Instantaneous"
+    assert ptype.getCwmsName() == "Inst"
+    assert ptype.getDssName() == "INST-VAL"
+    assert ptype.getDssName(True) == "INST-CUM"
+
+
+def test_parameter_type_bad_context() -> None:
+    with pytest.raises(ParameterTypeException) as excinfo:
+        ParameterType.setDefaultContext("JUNK")
+    assert (
+        str(excinfo.value) == "Invalid context: JUNK. Must be one of RAW, CWMS, or DSS"
+    )
