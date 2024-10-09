@@ -1,6 +1,6 @@
 @echo off
 setlocal
-set PYTHONPATH=%~dp0\src
+set PYTHONPATH=%~dp0\src;%~dp0\test
 if "%1" == "" (set SLOW_TEST_COVERAGE=1) else (set SLOW_TEST_COVERAGE=%1)
 :--------------------------------------------------------------:
 : Warning - 100% coverage can take over 30 minutes to complete :

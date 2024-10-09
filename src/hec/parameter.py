@@ -1,5 +1,5 @@
 """
-Provides parameer info
+Provides parameter info and operations
 
 Comprises the classes:
 * [Parameter](#Parameter)

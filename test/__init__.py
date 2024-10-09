@@ -6,5 +6,6 @@ __all__ = [
     "test_timespan",
     "test_interval",
     "test_duration",
-    "test_unit",
+    "test_unit" "test_parameter",
+    "test_quality",
 ]

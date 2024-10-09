@@ -2,22 +2,9 @@ from pint.errors import DimensionalityError
 from hec import unit
 import cwms  # type: ignore
 import os, pytest
+from shared import dataset_from_file
 
-scriptdir: str = os.path.dirname(__file__)
 ureg = unit.get_unit_registry()
-
-
-# --------------------------- #
-# build a dataset from a file #
-# --------------------------- #
-def dataset_from_file(filename: str) -> list[list[str]]:
-    dataset: list[list[str]] = []
-    with open(os.path.join(scriptdir, filename)) as f:
-        for line in f.readlines():
-            if not line or line.startswith("#"):
-                continue
-            dataset.append(list(line.strip().split("\t")))
-    return dataset
 
 
 # --------------------- #
