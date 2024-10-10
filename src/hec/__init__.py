@@ -1,4 +1,4 @@
-"""Package to provide native Python compatibility with HEC Java classes
+"""Package to provide native Python equivalent to HEC Java classes.
 """
 
 __all__ = [
