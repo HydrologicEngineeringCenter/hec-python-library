@@ -2,6 +2,7 @@
 """
 
 __all__ = [
+    "shared",
     "test_hectime",
     "test_timespan",
     "test_interval",

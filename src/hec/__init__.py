@@ -9,4 +9,5 @@ __all__ = [
     "location",
     "unit",
     "parameter",
+    "quality",
 ]
