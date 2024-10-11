@@ -2,7 +2,7 @@ from pint.errors import DimensionalityError
 from hec import unit
 import cwms  # type: ignore
 import os, pytest
-from shared import dataset_from_file
+from test.shared import dataset_from_file
 
 ureg = unit.get_unit_registry()
 
@@ -28,6 +28,9 @@ def test_db_conversions(from_unit: str, to_unit: str, _expected: str) -> None:
         ).magnitude == pytest.approx(expected)
 
 
+# ----------------------------------- #
+# test unit conversion on time series #
+# ----------------------------------- #
 def test_convert_timeseries() -> None:
     elevData = cwms.types.Data(
         {

@@ -1,32 +1,27 @@
-from shared import dataset_from_file
+from test.shared import dataset_from_file
 from hec import quality
+from hec.quality import Quality
 import pytest
 
 
-# Tab-separated fields
-# 1: QUALITY_CODE   (0..2204083441)
-# 2: SCREENED_ID    shift =  0, bits =  1 (0=UNSCREENED, 1=SCREENED)
-# 3: VALIDITY_ID    shift =  1, bits =  4 (0=UNKNOWN, 1=OKAY, 2=MISSING, 4=QUESTIONABLE, 8=REJECTED)
-# 4: RANGE_ID       shift =  5, bits =  2 (0=NO_RANGE, 1=RANGE_1, 2=RANGE_2, 3=RANGE_3)
-# 5: CHANGED_ID     shift =  7, bits =  1 (0=ORIGINAL, 1=MODIFIED)
-# 6: REPL_CAUSE_ID  shift =  8, bits =  3 (0=NONE, 1=AUTOMATIC, 2=MANUAL, 3=RESTORED)
-# 7: REPL_METHOD_ID shift = 11, bits =  4 (0=NONE, 1=LIN_INTERP, 2=EXPLICIT, 3=MISSING, 4=GRAPHICAL)
-# 8: TEST_FAILED_ID shift = 15, bits = 11 (0=NONE, [1=ABSOLUTE_VALUE, 2=CONSTANT_VALUE, 4=RATE_OF_CHANGE, 8=RELATIVE_VALUE, 16=DURATION_VALUE, 32=NEG_INCREMENT, 128=SKIP_LIST, 512=USER_DEFINED, 1024=DISTRIBUTION])
-# 9: PROTECTION_ID  shift = 31, bits =  1 (0=UNPROTECTED, 1=PROTECTED)
-
-
-# --------------------- #
-# test unit conversions #
-# --------------------- #
+# ------------------------------------------------ #
+# test quality operations                          #
+#                                                  #
+# runs routine 348,161 times, each with 9 or 10    #
+# assertions, skip with pytest -m "not slow"       #
+# or set SLOW_TEST_COVERAGE env var to < 100 to    #
+# run a random subset of the specified percentage  #
+# ------------------------------------------------ #
+@pytest.mark.slow
 @pytest.mark.parametrize(
-    "qual, screened, validity, range, changed, repl_cause, repl_method, test_failed, protection",
+    "qual, screened, validity, value_range, changed, repl_cause, repl_method, test_failed, protection",
     dataset_from_file("resources/quality/cwms_db_quality_codes.txt", slow=True),
 )
-def test_analyze_quality_codes(
+def test_cwms_db_compatibility(
     qual: str,
     screened: str,
     validity: str,
-    range: str,
+    value_range: str,
     changed: str,
     repl_cause: str,
     repl_method: str,
@@ -34,12 +29,88 @@ def test_analyze_quality_codes(
     protection: str,
 ) -> None:
     quality_code = int(qual)
-    messages = quality.get_code_messages(quality_code)
+    messages = quality.get_code_ids(quality_code)
     assert messages[0] == screened
     assert messages[1] == validity
-    assert messages[2] == range
+    assert messages[2] == value_range
     assert messages[3] == changed
     assert messages[4] == repl_cause
     assert messages[5] == repl_method
     assert messages[6] == test_failed
     assert messages[7] == protection
+
+    q = Quality(
+        [
+            screened,
+            validity,
+            value_range,
+            changed,
+            repl_cause,
+            repl_method,
+            test_failed,
+            protection,
+        ]
+    )
+    assert q.unsigned == quality_code
+    if q.signed != q.unsigned:
+        assert Quality(q.signed).unsigned == quality_code
+
+
+def test_misc() -> None:
+    q = Quality()
+    assert q.code == 0
+    assert q.screened_id == "UNSCREENED"
+    assert q.validity_id == "UNKNOWN"
+    assert q.range_id == "NO_RANGE"
+    assert q.changed_id == "ORIGINAL"
+    assert q.repl_cause_id == "NONE"
+    assert q.repl_method_id == "NONE"
+    assert q.test_failed_id == "NONE"
+    assert q.protection_id == "UNPROTECTED"
+
+    q.screened_id = "screened"
+    q.validity_id = "questionable"
+    q.range_id = "range_3"
+    q.changed_id = "modified"
+    q.repl_cause_id = "automatic"
+    q.repl_method_id = "lin_interp"
+    q.test_failed_id = "distribution user_defined"
+    q.protection_id = "protected"
+
+    assert q.screened_id == "SCREENED"
+    assert q.validity_id == "QUESTIONABLE"
+    assert q.range_id == "RANGE_3"
+    assert q.changed_id == "MODIFIED"
+    assert q.repl_cause_id == "AUTOMATIC"
+    assert q.repl_method_id == "LIN_INTERP"
+    assert q.test_failed_id == "USER_DEFINED+DISTRIBUTION"
+    assert q.protection_id == "PROTECTED"
+
+    q.addTestFailed("RATE_OF_CHANGE")
+    assert q.test_failed_id == "RATE_OF_CHANGE+USER_DEFINED+DISTRIBUTION"
+
+    q.removeTestFailed("USER_DEFINED")
+    assert q.test_failed_id == "RATE_OF_CHANGE+DISTRIBUTION"
+
+    q = (
+        Quality()
+        .setScreened("screened")
+        .setValidity("questionable")
+        .setRange("range_3")
+        .setChanged("modified")
+        .setReplCause("automatic")
+        .setReplMethod("lin_interp")
+        .setTestFailed("distribution user_defined")
+        .setProtection("protected")
+        .addTestFailed("rate_of_change")
+        .removeTestFailed("user_defined")
+    )
+
+    assert q.screened_id == "SCREENED"
+    assert q.validity_id == "QUESTIONABLE"
+    assert q.range_id == "RANGE_3"
+    assert q.changed_id == "MODIFIED"
+    assert q.repl_cause_id == "AUTOMATIC"
+    assert q.repl_method_id == "LIN_INTERP"
+    assert q.test_failed_id == "RATE_OF_CHANGE+DISTRIBUTION"
+    assert q.protection_id == "PROTECTED"

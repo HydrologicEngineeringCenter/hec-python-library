@@ -10,8 +10,11 @@ from datetime import timedelta
 from typing import Any
 from typing import cast
 from zoneinfo import ZoneInfo
-import os, pytest, random, time, tzlocal
-from shared import dataset_from_file
+import os, pytest, time, tzlocal
+from test.shared import dataset_from_file
+from test.shared import scriptdir
+from test.shared import slow_test_coverage
+from test.shared import random_subset
 
 
 Y, M, D, H, N, S = range(6)
