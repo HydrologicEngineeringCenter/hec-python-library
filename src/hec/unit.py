@@ -1172,7 +1172,7 @@ class UnitQuantity:
             self._quantity += other  # type: ignore
             return self
         elif isinstance(other, (int, float)):
-            self._quantity += UnitQuantity(other, self._specified_unit)  # type: ignore
+            self._quantity._magnitude += other
             return self
         return NotImplemented
 
@@ -1336,6 +1336,16 @@ class UnitQuantity:
             Read/Only
         """
         return self._quantity.magnitude
+
+    @property
+    def isnan(self) -> bool:
+        """
+        Whether the magnitude of the objed is NaN
+
+        Operations:
+            Read/Only
+        """
+        return math.isnan(self._quantity.magnitude)
 
     @property
     def units(self) -> pint.Unit:
