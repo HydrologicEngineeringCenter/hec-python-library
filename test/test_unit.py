@@ -1,8 +1,18 @@
-from pint.errors import DimensionalityError
-from hec import unit
-import cwms  # type: ignore
-import os, pytest
+import os
+import warnings
 from test.shared import dataset_from_file
+
+import pytest
+from pint.errors import DimensionalityError
+
+from hec import unit
+
+try:
+    import cwms  # type: ignore
+
+    cwms_imported = True
+except ImportError:
+    cwms_imported = False
 
 ureg = unit.get_unit_registry()
 
@@ -32,52 +42,64 @@ def test_db_conversions(from_unit: str, to_unit: str, _expected: str) -> None:
 # test unit conversion on time series #
 # ----------------------------------- #
 def test_convert_timeseries() -> None:
-    elevData = cwms.types.Data(
-        {
-            "begin": "2024-10-01T12:54:22+0000[Z]",
-            "end": "2024-10-01T18:54:22+0000[UTC]",
-            "interval": "PT0S",
-            "interval-offset": 0,
-            "name": "KEYS.Elev.Inst.1Hour.0.Ccp-Rev",
-            "office-id": "SWT",
-            "page": "MTcyNzc4NzYwMDAwMHx8Nnx8NTAwMDAw",
-            "page-size": 500000,
-            "time-zone": "US/Central",
-            "total": 6,
-            "units": "m",
-            "value-columns": [
-                {"name": "date-time", "ordinal": 1, "datatype": "java.sql.Timestamp"},
-                {"name": "value", "ordinal": 2, "datatype": "java.lang.Double"},
-                {"name": "quality-code", "ordinal": 3, "datatype": "int"},
-            ],
-            "values": [
-                [1727787600000, 219.465144, 0],
-                [1727791200000, 219.465144, 0],
-                [1727794800000, 219.465144, 0],
-                [1727798400000, 219.465144, 0],
-                [1727802000000, 219.462096, 0],
-                [1727805600000, 219.462096, 0],
-            ],
-            "vertical-datum-info": {
-                "office": "SWT",
-                "unit": "m",
-                "location": "KEYS",
-                "native-datum": "NGVD-29",
-                "elevation": 187.522,
-                "offsets": [{"estimate": True, "to-datum": "NAVD-88", "value": 0.1105}],
-            },
-        }
-    )
-    unit.convert_units(elevData, "m", "ft", in_place=True)
-    assert elevData.json["units"] == "ft"
-    for i in range(0, 4):
-        assert elevData.json["values"][i][1] == pytest.approx(720.03)
-    for i in range(4, 6):
-        assert elevData.json["values"][i][1] == pytest.approx(720.02)
-    assert elevData.json["vertical-datum-info"]["unit"] == "ft"
-    assert elevData.json["vertical-datum-info"]["offsets"][0]["value"] == pytest.approx(
-        0.1105 / 0.3048
-    )
+    if cwms_imported:
+        elevData = cwms.cwms_types.Data(
+            {
+                "begin": "2024-10-01T12:54:22+0000[Z]",
+                "end": "2024-10-01T18:54:22+0000[UTC]",
+                "interval": "PT0S",
+                "interval-offset": 0,
+                "name": "KEYS.Elev.Inst.1Hour.0.Ccp-Rev",
+                "office-id": "SWT",
+                "page": "MTcyNzc4NzYwMDAwMHx8Nnx8NTAwMDAw",
+                "page-size": 500000,
+                "time-zone": "US/Central",
+                "total": 6,
+                "units": "m",
+                "value-columns": [
+                    {
+                        "name": "date-time",
+                        "ordinal": 1,
+                        "datatype": "java.sql.Timestamp",
+                    },
+                    {"name": "value", "ordinal": 2, "datatype": "java.lang.Double"},
+                    {"name": "quality-code", "ordinal": 3, "datatype": "int"},
+                ],
+                "values": [
+                    [1727787600000, 219.465144, 0],
+                    [1727791200000, 219.465144, 0],
+                    [1727794800000, 219.465144, 0],
+                    [1727798400000, 219.465144, 0],
+                    [1727802000000, 219.462096, 0],
+                    [1727805600000, 219.462096, 0],
+                ],
+                "vertical-datum-info": {
+                    "office": "SWT",
+                    "unit": "m",
+                    "location": "KEYS",
+                    "native-datum": "NGVD-29",
+                    "elevation": 187.522,
+                    "offsets": [
+                        {"estimate": True, "to-datum": "NAVD-88", "value": 0.1105}
+                    ],
+                },
+            }
+        )
+        unit.convert_units(elevData, "m", "ft", in_place=True)
+        assert elevData.json["units"] == "ft"
+        for i in range(0, 4):
+            assert elevData.json["values"][i][1] == pytest.approx(720.03)
+        for i in range(4, 6):
+            assert elevData.json["values"][i][1] == pytest.approx(720.02)
+        assert elevData.json["vertical-datum-info"]["unit"] == "ft"
+        assert elevData.json["vertical-datum-info"]["offsets"][0][
+            "value"
+        ] == pytest.approx(0.1105 / 0.3048)
+    else:
+        warnings.warn(
+            f"Cannot run test test_convert_timeseries() because cwms module is not installed",
+            UserWarning,
+        )
 
 
 # ----------------- #

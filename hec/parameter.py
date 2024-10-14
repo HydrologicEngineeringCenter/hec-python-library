@@ -7,22 +7,22 @@ Comprises the classes:
 * [ParameterType](#ParameterType)
 """
 
-import os, sys
+import os
+import sys
 
 _import_dir = os.path.abspath(".")
 if not _import_dir in sys.path:
     sys.path.append(_import_dir)
 
-from typing import Any
-from typing import Optional
-from typing import Union
-from typing import cast
+import re
+import xml.etree.ElementTree as ET
+from io import StringIO
+from typing import Any, List, Optional, Union, cast
+
+from pint import Unit
+
 from hec import unit
 from hec.unit import UnitQuantity
-from pint import Unit
-from io import StringIO
-import xml.etree.ElementTree as ET
-import re
 
 _NGVD29 = "NGVD-29"
 _NAVD88 = "NAVD-88"
@@ -34,7 +34,13 @@ _other_datum_pattern = re.compile("^(local|other)$", re.I)
 _all_datums_pattern = re.compile("^(ngvd.?29|navd.?88|local|other)$", re.I)
 
 _parameter_info = {}
-with open(os.path.join(os.path.dirname(__file__), "resources", "parameters.txt")) as f:
+_compatible_parameters_set: dict[str, set[str]] = {}
+_accumulation_parameters = set()
+_integration_parameters = {}
+_differentiation_parameters = {}
+with open(
+    os.path.join(os.path.dirname(__file__), "resources", "base_parameters.tsv")
+) as f:
     for line in [
         line for line in f.read().strip().split("\n") if not line.startswith("#")
     ]:
@@ -45,6 +51,24 @@ with open(os.path.join(os.path.dirname(__file__), "resources", "parameters.txt")
             "default_en_unit": parts[3],
             "default_si_unit": parts[4],
         }
+        if eval(parts[5]):
+            _accumulation_parameters.add(parts[0])
+        if len(parts) > 6:
+            if parts[6] and parts[6].strip():
+                _integration_parameters[parts[0]] = parts[6]
+            if len(parts) > 7 and parts[7].strip():
+                _differentiation_parameters[parts[0]] = {
+                    "base_parameter": parts[7],
+                    "EN": eval(parts[8]),
+                    "SI": eval(parts[9]),
+                }
+        for u in unit.get_compatible_units(parts[3]):
+            _compatible_parameters_set.setdefault(u, set()).add(parts[0])
+
+_compatible_parameters: dict[str, list[str]] = {}
+for u in _compatible_parameters_set:
+    _compatible_parameters[u] = sorted(_compatible_parameters_set[u])
+
 _base_parameters = {}
 for base_parameter in _parameter_info:
     _base_parameters[base_parameter.upper()] = base_parameter
@@ -81,6 +105,20 @@ for param_type in _parameter_type_info:
         _cwms_parameter_types[dss] = cwms
 
 
+def get_compatible_parameters(unitspec: Union[str, Unit]) -> list[str]:
+    """
+    Returns a list of base parameter names that are compatible with the specified unit
+
+    Args:
+        unit Union[str, Unit]): The unit to get the compatible parameters for
+
+    Returns:
+        list[str]: The list of compatible base parameter names
+    """
+    u = str(unitspec)
+    return _compatible_parameters[u] if u in _compatible_parameters else []
+
+
 class ParameterException(Exception):
     """
     Exception specific to Parameter operations
@@ -93,6 +131,107 @@ class Parameter:
     """
     Holds info (name and unit) for a parameter
     """
+
+    @staticmethod
+    def base_parameters(context: str = "CWMS") -> List[str]:
+        """
+        Returns a list of valid base parameter names for the specified context
+
+        Args:
+            context (str): The context for the base parameter names. Currently only "CWMS" is supported. Defaults to "CWMS"
+
+        Raises:
+            ParameterException: If an invalid context is specified
+
+        Returns:
+            List[str]: A sorted list of valid base parameter names for the context
+        """
+        if context == "CWMS":
+            return sorted(list(_parameter_info.keys()))
+        raise ParameterException(
+            f"No such context exists for base parameter names: '{context}'"
+        )
+
+    @staticmethod
+    def accumulatable_base_parameters(context: str = "CWMS") -> List[str]:
+        """
+        Returns a list of base parameter names that can be accumulated over time for the specified context
+
+        Args:
+            context (str): The context for the base parameter names. Currently only "CWMS" is supported. Defaults to "CWMS"
+
+        Raises:
+            ParameterException: If an invalid context is specified
+
+        Returns:
+            List[str]: A sorted list of names of base parameter that can be integrated over time for the context
+        """
+        if context == "CWMS":
+            return sorted(list(_accumulation_parameters))
+        raise ParameterException(
+            f"No such context exists for base parameter names: '{context}'"
+        )
+
+    @staticmethod
+    def integrable_base_parameters(context: str = "CWMS") -> List[str]:
+        """
+        Returns a list of base parameter names that can be integrated over time for the specified context
+
+        Args:
+            context (str): The context for the base parameter names. Currently only "CWMS" is supported. Defaults to "CWMS"
+
+        Raises:
+            ParameterException: If an invalid context is specified
+
+        Returns:
+            List[str]: A sorted list of names of base parameter that can be integrated over time for the context
+        """
+        if context == "CWMS":
+            return sorted(list(_integration_parameters.keys()))
+        raise ParameterException(
+            f"No such context exists for base parameter names: '{context}'"
+        )
+
+    @staticmethod
+    def differentiable_base_parameters(context: str = "CWMS") -> List[str]:
+        """
+        Returns a list of base parameter names that can be differentiated with respect to time for the specified context
+
+        Args:
+            context (str): The context for the base parameter names. Currently only "CWMS" is supported. Defaults to "CWMS"
+
+        Raises:
+            ParameterException: If an invalid context is specified
+
+        Returns:
+            List[str]: A sorted list of names of base parameter that can be differentiated with respect to time for the context
+        """
+        if context == "CWMS":
+            return sorted(list(_differentiation_parameters.keys()))
+        raise ParameterException(
+            f"No such context exists for base parameter names: '{context}'"
+        )
+
+    @staticmethod
+    def differentiation_info(
+        base_parameter: str, context: str = "CWMS"
+    ) -> dict[str, Any]:
+        """
+        Returns differentiation information for a base parameter name
+
+        Args:
+            base_parameter (str): The base parameter to get the information for.
+            context (str): The context for the base parameter names. Currently only "CWMS" is supported. Defaults to "CWMS"
+
+        Returns:
+            dict: A dictionary with the following content:
+            {
+                "base_parameter": <base_parameter_name of differentiated time series>,
+                "EN" : <floating point factor for converting original parameter unit/second to the differentiated parameter unit>,
+                "SI" : <floating point factor for convertiig original parameter unit/second to the differentiated parameter unit>,
+            }
+        """
+        return _differentiation_parameters[base_parameter]
 
     def __init__(self, name: str, unit_or_system: Optional[str] = None):
         """
@@ -133,6 +272,7 @@ class Parameter:
             )  # don't use to() method in sublcass when instantiating from subclass
         else:
             self._unit_name = _parameter_info[self._base_parameter]["default_en_unit"]
+            self._unit = unit.get_pint_unit(self._unit_name)
 
     def __repr__(self) -> str:
         return f"Parameter('{self._name}', '{self._unit_name}')"
@@ -211,6 +351,8 @@ class Parameter:
                 * If `EN`, the default English unit for the base parameter will be assigned
                 * if `SI`,  the default Système International unit for the base parameter will be assigned
                 * Otherwise the specified unit will be assigned
+            in_place (bool, optional): Specifies whether to modify and return this object (True)
+                or a copy of this object (False). Defaults to False.
 
         Raises:
             ParameterException: If the specified unit is not valid for the parameter
@@ -238,6 +380,26 @@ class Parameter:
             converted._unit_name = unit_name
         converted._unit = unit.get_pint_unit(converted._unit_name)
         return converted
+
+    def ito(self, unit_or_system: str) -> "Parameter":
+        """
+        Assigns a unit to this parameter.
+
+        Identical to calling [.to(unit_or_system, in_place=True)](#Parameter.to)
+
+        Args:
+            unit_or_system (str):<br>
+                * If `EN`, the default English unit for the base parameter will be assigned
+                * if `SI`,  the default Système International unit for the base parameter will be assigned
+                * Otherwise the specified unit will be assigned
+
+        Raises:
+            ParameterException: If the specified unit is not valid for the parameter
+
+        Returns:
+            Parameter: The converted object
+        """
+        return self.to(unit_or_system, in_place=True)
 
     def get_compatible_units(self) -> list[str]:
         """
@@ -680,7 +842,7 @@ class ElevParameter(Parameter):
                     converted and returned. Defaults to False.
 
             Returns:
-                ElevParameter.VerticalDatumInfo: _description_
+                ElevParameter.VerticalDatumInfo: The converted object - whether this object or a copy of this object
             """
             converted = self if in_place else self.clone()
             try:
@@ -701,11 +863,11 @@ class ElevParameter(Parameter):
                     else:
                         converted._unit_name = unit.get_unit_name(unit_or_datum)
                         converted._unit = unit.get_pint_unit(converted._unit_name)
-                    if converted._elevation:
+                    if converted._elevation is not None:
                         converted._elevation.ito(converted._unit_name)
-                    if converted._ngvd29_offset:
+                    if converted._ngvd29_offset is not None:
                         converted._ngvd29_offset.ito(converted._unit_name)
-                    if converted._navd88_offset:
+                    if converted._navd88_offset is not None:
                         converted._navd88_offset.ito(converted._unit_name)
                 else:
                     # ----------------------- #
@@ -723,6 +885,21 @@ class ElevParameter(Parameter):
                 raise ElevParameter.VerticalDatumException(
                     f"Invalid unit or datum: {unit_or_datum}"
                 )
+
+        def ito(
+            self, unit_or_datum: Union[str, Unit]
+        ) -> "ElevParameter._VerticalDatumInfo":
+            """
+            Converts this object to the specified unit or vertical datum and returns it.
+
+            Identical to calling [].to(unit_or_datum, in_place=True)](#ElevParameter._VerticalDatumInfo.to)
+
+            Args:
+                unit_or_datum (Union[str, Unit]): The unit or vertical datum to convert to
+            Returns:
+                ElevParameter.VerticalDatumInfo: The converted object
+            """
+            return self.to(unit_or_datum, in_place=True)
 
     def __init__(
         self,
@@ -919,7 +1096,7 @@ class ElevParameter(Parameter):
                 converted and returned. Defaults to False.
 
         Returns:
-            ElevParameter.VerticalDatumInfo: _description_
+            ElevParameter: The converted object, whether this object of a copy of it
         """
         try:
             converted = self if in_place else self.clone()
@@ -948,6 +1125,21 @@ class ElevParameter(Parameter):
             raise ParameterException(
                 f"Invalid unit for base parameter Elev or or invalid vertical datum: {unit_or_system_or_datum}"
             )
+
+    def ito(self, unit_or_system_or_datum: Union[str, Unit]) -> "ElevParameter":
+        """
+        Converts this object to the specified unit or vertical datum and returns it.
+
+        Identical to calling [.to(unit_or_system_or_datum, in_place=True](#ElevParameter.to)
+
+        Args:
+            unit_or_system_or_datum (Union[str, Unit]): The unit, unit_system, or vertical datum to convert to.
+                If unit system ("EN" or "SI"), the default Elev unit for that system is used.
+
+        Returns:
+            ElevParameter: The converted object, whether this object of a copy of it
+        """
+        return self.to(unit_or_system_or_datum, in_place=True)
 
 
 class ParameterTypeException(Exception):
@@ -982,6 +1174,41 @@ class ParameterType:
 
     _defaultContext: str = "RAW"
 
+    @staticmethod
+    def parameterTypeNames(context: str) -> List[str]:
+        """
+        Returns a list of valid parameter type names for the context.
+
+        Args:
+            context (str): The context for the parameter type names. Currently only "RAW", "CWMS", "DSS", and "ALL" are supported.
+            If "RAW", the parameter types for all contexts are returned
+
+        Raises:
+            ParameterTypeException: If an invlid context is specified
+
+        Returns:
+            List[str]: A sorted list of valid parameter type names for the context
+        """
+        if context == "ALL":
+            paramTypes = []
+            for ctx in "RAW", "CWMS", "DSS":
+                paramTypes += ParameterType.parameterTypeNames(ctx)
+            return sorted(paramTypes)
+        if context == "RAW":
+            return sorted(_parameter_type_info.keys())
+        if context == "CWMS":
+            return sorted([v[0] for v in _parameter_type_info.values()])
+        if context == "DSS":
+            return sorted(
+                [
+                    v[1] if isinstance(v[1], str) else ", ".join(v[1])
+                    for v in _parameter_type_info.values()
+                ]
+            )
+        raise ParameterTypeException(
+            f"No such context exists for parameter type names: '{context}'"
+        )
+
     @classmethod
     def setDefaultContext(cls, context: str) -> None:
         """
@@ -1001,7 +1228,7 @@ class ParameterType:
                 f"Invalid context: {ctx}. Must be one of RAW, CWMS, or DSS"
             )
 
-    def __init__(self, param_type: str):
+    def __init__(self, param_type: str, context: Optional[str] = None):
         """
         Initializes a ParameterType object
 
@@ -1020,6 +1247,8 @@ class ParameterType:
                 break
         else:
             raise ParameterTypeException(f"{param_type} is not a valid parameter type")
+        if context is not None:
+            self.setContext(context)
 
     @property
     def context(self) -> str:

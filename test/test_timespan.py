@@ -1,11 +1,12 @@
 """Module for testing hec.timespan module
 """
 
-from fractions import Fraction
-from hec.timespan import TimeSpan
-from datetime import timedelta
-from typing import Optional
 import traceback
+from datetime import timedelta
+from fractions import Fraction
+from typing import Optional
+
+from hec.timespan import TimeSpan
 
 
 def test_creation() -> None:
@@ -224,8 +225,9 @@ def test_add_subtract() -> None:
     dt: Optional[timedelta]
     try:
         # should raise excetption since years and months are set
-        dt = timedelta(days=3, hours=4, minutes=5, seconds=6) + TimeSpan(
-            [10, 10, 10, 10, 10, 10]
+        dt = (
+            timedelta(days=3, hours=4, minutes=5, seconds=6)
+            + TimeSpan([10, 10, 10, 10, 10, 10]).timedelta()
         )
     except:
         dt = None
@@ -239,8 +241,9 @@ def test_add_subtract() -> None:
         dt = None
     assert dt is None
     try:
-        dt = timedelta(days=3, hours=4, minutes=5, seconds=6) + TimeSpan(
-            [0, 0, 10, 10, 10, 10]
+        dt = (
+            timedelta(days=3, hours=4, minutes=5, seconds=6)
+            + TimeSpan([0, 0, 10, 10, 10, 10]).timedelta()
         )
     except:
         dt = None

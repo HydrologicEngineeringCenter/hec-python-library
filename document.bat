@@ -1,1 +1,1 @@
-pdoc -o docs -d google --no-show-source src\hec
+pdoc -o docs -d google --no-show-source hec

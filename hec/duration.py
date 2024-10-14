@@ -2,16 +2,18 @@
 Provides standard time durations
 """
 
-import os, sys
+import os
+import sys
 
 _import_dir = os.path.abspath(".")
 if not _import_dir in sys.path:
     sys.path.append(_import_dir)
 
-from typing import Union
-from hec.timespan import TimeSpan
-from hec.timespan import TimeSpanException
+from datetime import timedelta
+from typing import Union, cast
+
 from hec.interval import Interval
+from hec.timespan import TimeSpan, TimeSpanException
 
 
 class DurationException(TimeSpanException):
@@ -82,11 +84,106 @@ class Duration(TimeSpan):
         except KeyError:
             raise DurationException(f"No such duration: {intvl}, bop={bop}")
 
-    def __init__(self, interval: Interval, bop: bool = False):
+    def __init__(self, interval: Union[Interval, str], bop: bool = False):
         """Initializer used by module"""
-        super().__init__(str(interval))
-        self._interval = interval
+        if isinstance(interval, str):
+            intvl = Interval.getAny(lambda i: i.name == interval)
+            if intvl is None:
+                raise DurationException(f"Cannot find Interval with name '{interval}'")
+        else:
+            intvl = interval
+        super().__init__(str(intvl))
+        self._interval = intvl
         self._bop = bop
+
+    def __add__(self, other: object) -> "Duration":
+        if isinstance(other, (TimeSpan, timedelta)):
+            minutes = (self.total_seconds() + other.total_seconds()) // 60
+            return Duration.forInterval(
+                cast(
+                    Interval,
+                    Interval.getAny(
+                        lambda i: i.minutes == minutes and i.is_regular, True
+                    ),
+                ),
+                self.isBop,
+            )
+        else:
+            return NotImplemented
+
+    def __iadd__(self, other: object) -> "Interval":
+        raise NotImplementedError("Cannot modify an existing Duration object")
+
+    def __radd__(self, other: timedelta) -> Union[TimeSpan, timedelta]:
+        if isinstance(other, TimeSpan):
+            return TimeSpan(seconds=other.total_seconds() + self.total_seconds())
+        elif isinstance(other, timedelta):
+            return timedelta(seconds=other.total_seconds() + self.total_seconds())
+        else:
+            return NotImplemented
+
+    def __sub__(self, other: object) -> "Duration":
+        if isinstance(other, (TimeSpan, timedelta)):
+            minutes = (self.total_seconds() - other.total_seconds()) // 60
+            return Duration.forInterval(
+                cast(
+                    Interval,
+                    Interval.getAny(
+                        lambda i: i.minutes == minutes and i.is_regular, True
+                    ),
+                ),
+                self.isBop,
+            )
+        else:
+            return NotImplemented
+
+    def __isub__(self, other: object) -> "Duration":
+        raise NotImplementedError("Cannot modify an existing Duration object")
+
+    def __rsub__(self, other: object) -> Union[TimeSpan, timedelta]:
+        if isinstance(other, TimeSpan):
+            return TimeSpan(seconds=other.total_seconds() - self.total_seconds())
+        elif isinstance(other, timedelta):
+            return timedelta(seconds=other.total_seconds() - self.total_seconds())
+        return NotImplemented
+
+    def __mul__(self, other: object) -> "Duration":
+        if isinstance(other, (int, float)):
+            minutes = int((self.total_seconds() * other) // 60)
+            return Duration.forInterval(
+                cast(
+                    Interval,
+                    Interval.getAny(
+                        lambda i: i.minutes == minutes and i.is_regular, True
+                    ),
+                ),
+                self.isBop,
+            )
+        else:
+            return NotImplemented
+
+    def __imul__(self, other: object) -> "Duration":
+        raise NotImplementedError("Cannot modify an existing Duration object")
+
+    def __rmul__(self, other: object) -> "TimeSpan":
+        if isinstance(other, (int, float)):
+            minutes = int((self.total_seconds() * other) // 60)
+            return Duration.forInterval(
+                cast(
+                    Interval,
+                    Interval.getAny(
+                        lambda i: i.minutes == minutes and i.is_regular, True
+                    ),
+                ),
+                self.isBop,
+            )
+        else:
+            return NotImplemented
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, Duration):
+            return self.name == other.name
+        return False
 
     def __repr__(self) -> str:
         if self.minutes == 0:
@@ -148,7 +245,9 @@ class Duration(TimeSpan):
 _DURATIONS = {}
 for _d in [
     Duration(intvl, bop)
-    for intvl in Interval.getAllCwms(lambda i: i.name != "Irr")
+    for intvl in Interval.getAllCwms(
+        lambda i: i.name != "Irr" and not i.name.startswith("~")
+    )
     for bop in (False, True)
 ]:
     _DURATIONS[str(_d)] = _d

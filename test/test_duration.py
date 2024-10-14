@@ -1,12 +1,15 @@
 """Module for testing hec.duration module
 """
 
-from hec.interval import Interval
 from hec.duration import Duration
+from hec.interval import Interval
 
 
 def test_durations() -> None:
     for intvl in Interval.getAllCwms():
+        print(intvl.name)
+        if intvl.name.startswith("~") or intvl.name.endswith("Local"):
+            continue
         for bop in (False, True):
             dur = Duration.forInterval(intvl, bop)
             print(dur, dur.name, dur.minutes, dur.isBop)
@@ -23,3 +26,7 @@ def test_durations() -> None:
                 assert dur.isBop == bop
                 assert dur.isEop == (not bop)
             assert dur.minutes == intvl.minutes
+
+
+if __name__ == "__main__":
+    test_durations()

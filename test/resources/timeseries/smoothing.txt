@@ -1,0 +1,52 @@
+# Col  0 : Original values
+# Col  1 : forwardMovingAverage(3, False, False)
+# Col  2 : centeredMovingAverage(3, False, False)
+# Col  3 : olympicSmoothing(3, False, False) 
+# Col  4 : forwardMovingAverage(3, False, True)
+# Col  5 : centeredMovingAverage(3, False, True)
+# Col  6 : olympicSmoothing(3, False, True) 
+# Col  7 : forwardMovingAverage(3, True, False)
+# Col  8 : centeredMovingAverage(3, True, False)
+# Col  9 : olympicSmoothing(3, True, False) 
+# Col 10 : forwardMovingAverage(3, True, True)
+# Col 11 : centeredMovingAverage(3, True, True)
+# Col 12 : olympicSmoothing(3, True, True)
+# Col 13 : forwardMovingAverage(5, False, False)
+# Col 14 : centeredMovingAverage(5, False, False) 
+# Col 15 : olympicSmoothing(5, False, False)
+# Col 16 : forwardMovingAverage(5, False, True)
+# Col 17 : centeredMovingAverage(5, False, True) 
+# Col 18 : olympicSmoothing(5, False, True)
+# Col 19 : forwardMovingAverage(5, True, False)
+# Col 20 : centeredMovingAverage(5, True, False) 
+# Col 21 : olympicSmoothing(5, True, False) 
+# Col 22 : forwardMovingAverage(5, True, True)
+# Col 23 : centeredMovingAverage(5, True, True) 
+# Col 24 : olympicSmoothing(5, True, True) 
+[
+#           0         1         2         3         4       5         6         7         8         9        10        11        12        13        14        15        16        17        18        19        20        21        22        23        24
+    [  1000.0, math.nan, math.nan, math.nan, math.nan, 1007.5, math.nan, math.nan, math.nan, math.nan, math.nan,   1007.5, math.nan, math.nan, math.nan, math.nan, math.nan,   1015.0,   1015.0, math.nan, math.nan, math.nan, math.nan,   1015.0,   1015.0,],
+    [  1015.0, math.nan,   1015.0,   1015.0,   1007.5, 1015.0,   1015.0, math.nan,   1015.0,   1015.0,   1007.5,   1015.0,   1015.0, math.nan, math.nan, math.nan,   1007.5,   1022.5,   1022.5, math.nan, math.nan, math.nan,   1007.5,   1022.5,   1022.5,],
+    [  1030.0,   1015.0,   1030.0,   1030.0,   1015.0, 1030.0,   1030.0,   1015.0,   1030.0,   1030.0,   1015.0,   1030.0,   1030.0, math.nan,   1030.0,   1030.0,   1015.0,   1030.0,   1030.0, math.nan,   1030.0,   1030.0,   1015.0,   1030.0,   1030.0,],
+    [  1045.0,   1030.0,   1045.0,   1045.0,   1030.0, 1045.0,   1045.0,   1030.0,   1045.0,   1045.0,   1030.0,   1045.0,   1045.0, math.nan,   1037.5,   1037.5,   1022.5,   1037.5,   1037.5, math.nan, math.nan, math.nan,   1022.5, math.nan, math.nan,],
+    [  1060.0,   1045.0,   1052.5, math.nan,   1045.0, 1052.5, math.nan,   1045.0, math.nan, math.nan,   1045.0, math.nan, math.nan,   1030.0,  1056.25,   1052.5,   1030.0,  1056.25,   1052.5,   1030.0, math.nan, math.nan,   1030.0, math.nan, math.nan,],
+    [math.nan,   1052.5,   1075.0, math.nan,   1052.5, 1075.0, math.nan, math.nan, math.nan, math.nan, math.nan, math.nan, math.nan,   1037.5,  1071.25,   1075.0,   1037.5,  1071.25,   1075.0, math.nan, math.nan, math.nan, math.nan, math.nan, math.nan,],
+    [  1090.0,   1075.0,   1090.0, math.nan,   1075.0, 1090.0, math.nan, math.nan, math.nan, math.nan, math.nan, math.nan, math.nan,  1056.25,   1090.0,   1090.0,  1056.25,   1090.0,   1090.0, math.nan, math.nan, math.nan, math.nan, math.nan, math.nan,],
+    [  1090.0,   1090.0,   1100.0,   1090.0,   1090.0, 1100.0,   1090.0, math.nan,   1100.0,   1090.0, math.nan,   1100.0,   1090.0,  1071.25,  1108.75,   1105.0,  1071.25,  1108.75,   1105.0, math.nan, math.nan, math.nan, math.nan, math.nan, math.nan,],
+    [  1120.0,   1100.0,   1115.0,   1120.0,   1100.0, 1115.0,   1120.0,   1100.0,   1115.0,   1120.0,   1100.0,   1115.0,   1120.0,   1090.0,  1108.75,   1105.0,   1090.0,  1108.75,   1105.0, math.nan, math.nan, math.nan, math.nan, math.nan, math.nan,],
+    [  1135.0,   1115.0,   1127.5, math.nan,   1115.0, 1127.5, math.nan,   1115.0, math.nan, math.nan,   1115.0, math.nan, math.nan,  1108.75,   1127.5,   1127.5,  1108.75,   1127.5,   1127.5, math.nan, math.nan, math.nan, math.nan, math.nan, math.nan,],
+    [math.nan,   1127.5,   1150.0, math.nan,   1127.5, 1150.0, math.nan, math.nan, math.nan, math.nan, math.nan, math.nan, math.nan,  1108.75,   1150.0,   1150.0,  1108.75,   1150.0,   1150.0, math.nan, math.nan, math.nan, math.nan, math.nan, math.nan,],
+    [  1165.0,   1150.0,   1172.5, math.nan,   1150.0, 1172.5, math.nan, math.nan, math.nan, math.nan, math.nan, math.nan, math.nan,   1127.5,  1168.75,   1172.5,   1127.5,  1168.75,   1172.5, math.nan, math.nan, math.nan, math.nan, math.nan, math.nan,],
+    [  1180.0,   1172.5,   1180.0,   1180.0,   1172.5, 1180.0,   1180.0, math.nan,   1180.0,   1180.0, math.nan,   1180.0,   1180.0,   1150.0,   1187.5,   1187.5,   1150.0,   1187.5,   1187.5, math.nan, math.nan, math.nan, math.nan, math.nan, math.nan,],
+    [  1195.0,   1180.0,   1195.0,   1195.0,   1180.0, 1195.0,   1195.0,   1180.0,   1195.0,   1195.0,   1180.0,   1195.0,   1195.0,  1168.75,   1195.0,   1195.0,  1168.75,   1195.0,   1195.0, math.nan,   1195.0,   1195.0, math.nan,   1195.0,   1195.0,],
+    [  1210.0,   1195.0,   1210.0,   1210.0,   1195.0, 1210.0,   1210.0,   1195.0,   1210.0,   1210.0,   1195.0,   1210.0,   1210.0,   1187.5,   1210.0,   1210.0,   1187.5,   1210.0,   1210.0, math.nan,   1210.0,   1210.0, math.nan,   1210.0,   1210.0,],
+    [  1225.0,   1210.0,   1225.0,   1225.0,   1210.0, 1225.0,   1225.0,   1210.0,   1225.0,   1225.0,   1210.0,   1225.0,   1225.0,   1195.0,   1222.0,   1225.0,   1195.0,   1222.0,   1225.0,   1195.0,   1222.0,   1225.0,   1195.0,   1222.0,   1225.0,],
+    [  1240.0,   1225.0,   1235.0,   1240.0,   1225.0, 1235.0,   1240.0,   1225.0,   1235.0,   1240.0,   1225.0,   1235.0,   1240.0,   1210.0,   1237.0,   1235.0,   1210.0,   1237.0,   1235.0,   1210.0,   1237.0,   1235.0,   1210.0,   1237.0,   1235.0,],
+    [  1240.0,   1235.0,   1250.0,   1240.0,   1235.0, 1250.0,   1240.0,   1235.0,   1250.0,   1240.0,   1235.0,   1250.0,   1240.0,   1222.0,  1243.75,   1240.0,   1222.0,  1243.75,   1240.0,   1222.0, math.nan, math.nan,   1222.0, math.nan, math.nan,],
+    [  1270.0,   1250.0,   1255.0, math.nan,   1250.0, 1255.0, math.nan,   1250.0, math.nan, math.nan,   1250.0, math.nan, math.nan,   1237.0,   1262.5,   1255.0,   1237.0,   1262.5,   1255.0,   1237.0, math.nan, math.nan,   1237.0, math.nan, math.nan,],
+    [math.nan,   1255.0,   1285.0, math.nan,   1255.0, 1285.0, math.nan, math.nan, math.nan, math.nan, math.nan, math.nan, math.nan,  1243.75,  1281.25,   1285.0,  1243.75,  1281.25,   1285.0, math.nan, math.nan, math.nan, math.nan, math.nan, math.nan,],
+    [  1300.0,   1285.0,   1307.5, math.nan,   1285.0, 1307.5, math.nan, math.nan, math.nan, math.nan, math.nan, math.nan, math.nan,   1262.5,  1303.75,   1307.5,   1262.5,  1303.75,   1307.5, math.nan, math.nan, math.nan, math.nan, math.nan, math.nan,],
+    [  1315.0,   1307.5,   1315.0,   1315.0,   1307.5, 1315.0,   1315.0, math.nan,   1315.0,   1315.0, math.nan,   1315.0,   1315.0,  1281.25,   1322.5,   1322.5,  1281.25,   1322.5,   1322.5, math.nan, math.nan, math.nan, math.nan, math.nan, math.nan,],
+    [  1330.0,   1315.0,   1330.0,   1330.0,   1315.0, 1330.0,   1330.0,   1315.0,   1330.0,   1330.0,   1315.0,   1330.0,   1330.0,  1303.75, math.nan, math.nan,  1303.75,   1322.5,   1322.5, math.nan, math.nan, math.nan, math.nan,   1322.5,   1322.5,],
+    [  1345.0,   1330.0, math.nan, math.nan,   1330.0, 1337.5, math.nan,   1330.0, math.nan, math.nan,   1330.0,   1337.5, math.nan,   1322.5, math.nan, math.nan,   1322.5,   1330.0,   1330.0, math.nan, math.nan, math.nan, math.nan,   1330.0,   1330.0,]
+]

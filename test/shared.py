@@ -1,5 +1,6 @@
+import os
+import random
 from typing import Any
-import os, random
 
 scriptdir: str = os.path.dirname(__file__)
 slow_test_coverage: int = int(os.getenv("SLOW_TEST_COVERAGE", "100"))
