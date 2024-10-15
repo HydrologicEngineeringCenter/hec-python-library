@@ -113,8 +113,40 @@ class TimeSeriesValue:
 
 
 class TimeSeries:
+    """
+    Holds time series and provides time series operations
+    """
 
-    def __init__(self, value: Any):
+    def __init__(self, init_from: Any):
+        """
+        Initializes a new TimeSeries object
+
+        Args:
+            init_from (Any): The object to initialize from.
+                * **str**: A CWMS time series identifier or HEC-DSS time series pathname.
+                    * If CWMS
+                        * The following components are set from the identifier:
+                            * location (may be in the format &lt;*office*&gt;/&lt;*location*&gt; to set office)
+                            * parameter
+                            * parameter type
+                            * interval
+                            * duration
+                            * version
+                        * The following components are not set:
+                            * watershed
+                    * If HEC-DSS
+                        * The following components are set from the pathname:
+                            * A => watershed
+                            * B => location
+                            * C => parameter
+                            * E => interval
+                            * F => version
+                        * The following compents are not set:
+                            * parameter type
+                            * duration
+                    * The parameter unit is set to the default English unit
+                    * No vertical datum information is set for elevation parameter
+        """
         self._context: str
         self._watershed: Optional[str] = None
         self._location: Location
@@ -125,11 +157,17 @@ class TimeSeries:
         self._version: Optional[str] = None
         self._data: Optional[pd.DataFrame] = None
 
-        if isinstance(value, str):
-            self.name = value
+        if isinstance(init_from, str):
+            self.name = init_from
 
     @property
     def name(self) -> str:
+        """
+        The CWMS time series identifier or HEC-DSS pathname
+
+        Operations:
+            Read/Write
+        """
         parts = []
         if self._context == _CWMS:
             parts.append(str(self._location))
@@ -176,7 +214,7 @@ class TimeSeries:
                     self.version = parts[F]
                 else:
                     raise TimeSeriesException(
-                        "Expected valid CWMS TSID or DSS TS Pathname"
+                        "Expected valid CWMS time series identifier or HEC-DSS time series pathname"
                     )
             if not self._location:
                 raise TimeSeriesException("Location must be specified")
@@ -198,52 +236,100 @@ class TimeSeries:
 
     @property
     def watershed(self) -> Optional[str]:
+        """
+        The watershed (DSS A pathname part)
+
+        Operations:
+            Read Only
+        """
         return self._watershed
 
     @watershed.setter
     def watershed(self, value: str) -> None:
-        if isinstance(value, str):
-            self._watershed = value
-        else:
-            raise TypeError
+        self._watershed = value
 
     @property
     def location(self) -> Location:
+        """
+        The location object (used in HEC-DSS B pathname part)
+
+        Operations:
+            Read Only
+        """
         return self._location
 
     @property
     def parameter(self) -> Parameter:
+        """
+        The parameter object (used in HEC-DSS C pathname part)
+
+        Operations:
+            Read Only
+        """
         return self._parameter
 
     @property
     def parameter_type(self) -> Optional[ParameterType]:
+        """
+        The parameter type object
+
+        Operations:
+            Read Only
+        """
         return self._parameter_type
 
     @property
     def interval(self) -> Interval:
+        """
+        The interval object (used in HEC-DSS E pathname part)
+
+        Operations:
+            Read Only
+        """
         return self._interval
 
     @property
     def duration(self) -> Optional[Duration]:
+        """
+        The duration object
+
+        Operations:
+            Read Only
+        """
         return self._duration
 
     @property
     def version(self) -> Optional[str]:
+        """
+        The version (HEC-DSS F pathname part)
+
+        Operations:
+            Read/Write
+        """
         return self._version
 
     @version.setter
     def version(self, value: str) -> None:
-        if isinstance(value, str):
-            self._version = value
-        else:
-            raise TypeError
+        self._version = value
 
     @property
     def unit(self) -> str:
+        """
+        The parameter unit object
+
+        Operations:
+            Read Only
+        """
         return self._parameter.unit_name
 
     @property
     def vertical_datum_info(self) -> Optional[ElevParameter._VerticalDatumInfo]:
+        """
+        The vertical datum info object or None if not set
+
+        Operations:
+            Read Only
+        """
         if isinstance(self._parameter, ElevParameter):
             return self._parameter.vertical_datum_info
         else:
@@ -251,6 +337,12 @@ class TimeSeries:
 
     @property
     def vertical_datum_info_xml(self) -> Optional[str]:
+        """
+        The vertical datum info as an XML string or None if not set
+
+        Operations:
+            Read Only
+        """
         if (
             isinstance(self._parameter, ElevParameter)
             and self._parameter.vertical_datum_info
@@ -261,6 +353,12 @@ class TimeSeries:
 
     @property
     def vertical_datum_info_dict(self) -> Optional[dict[str, Any]]:
+        """
+        The vertical datum info as a dictionary or None if not set
+
+        Operations:
+            Read Only
+        """
         if (
             isinstance(self._parameter, ElevParameter)
             and self._parameter.vertical_datum_info
@@ -270,9 +368,17 @@ class TimeSeries:
             return None
 
     def setLocation(self, value: Union[Location, str]) -> None:
+        """
+        Sets the location for the time series
+
+        Args:
+            value (Union[Location, str]):
+                * Location: The Location object to use
+                * str: The location name (may be in the format &lt;*office*&gt;/&lt;*location*&gt; to set office)
+        """
         if isinstance(value, Location):
             self._location = value
-        elif isinstance(value, str):
+        else:
             if self._context == _CWMS:
                 try:
                     office, location = value.split("/")
@@ -283,42 +389,74 @@ class TimeSeries:
                 self._location = Location(value)
             else:
                 raise TimeSeriesException(f"Invalid context: {self._context}")
-        else:
-            raise TypeError
 
     def setParameter(self, value: Union[Parameter, str]) -> None:
+        """
+        Sets the parameter for the time series
+
+        Args:
+            value (Union[Parameter, str]):
+                * Parameter: The Parameter object to use
+                * str: The parameter name - the unit will be set to the default English unit
+        """
         if isinstance(value, Parameter):
             self._parameter = value
-        elif isinstance(value, str):
-            self._parameter = Parameter(value, "EN")
         else:
-            raise TypeError
+            self._parameter = Parameter(value, "EN")
 
     def setParameterType(self, value: Union[ParameterType, str]) -> None:
+        """
+        Sets the parameter type for the time series
+
+        Args:
+            value (Union[ParameterType, str]):
+                * ParameterType: The ParameterType object to use
+                * str: The parameter type name
+        """
         if isinstance(value, ParameterType):
             self._parameter_type = value
-        elif isinstance(value, str):
-            self._parameter_type = ParameterType(value)
         else:
-            raise TypeError
+            self._parameter_type = ParameterType(value)
 
-    def setInterval(self, value: Union[Interval, str]) -> None:
+    def setInterval(self, value: Union[Interval, str, int]) -> None:
+        """
+        Sets the interval for the time series
+
+        Args:
+            value (Union[Interval, str]):
+                * Interval: The Interval object to use
+                * str: The interval name
+                * int: The (actual or characteristic) number of minutes for the interval
+        """
         if isinstance(value, Interval):
             self._interval = value
-        elif isinstance(value, str):
-            self._interval = Interval.getCwms(value)
         else:
-            raise TypeError
+            self._interval = Interval.getCwms(value)
 
-    def setDuration(self, value: Union[Duration, str]) -> None:
+    def setDuration(self, value: Union[Duration, str, int]) -> None:
+        """
+        Sets the Duration for the time series
+
+        Args:
+            value (Union[Duration, str]):
+                * Interval: The Duration object to use
+                * str: The duration name
+                * int: The (actual or characteristic) number of minutes for the duration
+        """
         if isinstance(value, Duration):
             self._duration = value
-        elif isinstance(value, str):
-            self._duration = Duration.forInterval(value)
         else:
-            raise TypeError
+            self._duration = Duration.forInterval(value)
 
     def setUnit(self, value: Union[Unit, str]) -> None:
+        """
+        Sets the parameter unit for the time series
+
+        Args:
+            value (Union[Unit, str]):
+                * ParameterType: The Unit object to use
+                * str: The unit name
+        """
         if isinstance(value, Unit):
             if self._parameter.unit.dimensionality != Unit.dimensionality:
                 raise TimeSeriesException(
@@ -328,19 +466,25 @@ class TimeSeries:
             self._parameter._unit_name = eval(
                 f"f'{{{value}:{UnitQuantity._default_output_format}}}'"
             )
-        elif isinstance(value, str):
+        else:
             self._parameter.to(value, in_place=True)
         if self._data:
             raise TimeSeriesException("Cannot yet change units of data")
 
-    def setVerticalDatumInfo(
-        self, value: Union[ElevParameter._VerticalDatumInfo, dict[str, Any], str]
-    ) -> None:
+    def setVerticalDatumInfo(self, value: Union[str, dict[str, Any]]) -> None:
+        """
+        Sets the vertical datum info for the time series
+
+        Args:
+            value (Union[str, dict[str, Any]]):
+                * str: the vertical datum info as an XML string
+                * dict: the vertical datum info as a dictionary
+
+        Raises:
+            TimeSeriesException: If the base parameter is not "Elev"
+        """
         if self._parameter.base_parameter == "Elev":
-            if isinstance(value, ElevParameter._VerticalDatumInfo):
-                self._parameter = ElevParameter(self._parameter.name, value.to_dict())
-            else:
-                self._parameter = ElevParameter(self._parameter.name, value)
+            self._parameter = ElevParameter(self._parameter.name, value)
         else:
             raise TimeSeriesException(
                 f"Cannot set vertical datum on {self._parameter.name} time series"

@@ -54,6 +54,72 @@
                 </ul>
 
             </li>
+            <li>
+                    <a class="class" href="#TimeSeries">TimeSeries</a>
+                            <ul class="memberlist">
+                        <li>
+                                <a class="function" href="#TimeSeries.__init__">TimeSeries</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#TimeSeries.name">name</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#TimeSeries.watershed">watershed</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#TimeSeries.location">location</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#TimeSeries.parameter">parameter</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#TimeSeries.parameter_type">parameter_type</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#TimeSeries.interval">interval</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#TimeSeries.duration">duration</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#TimeSeries.version">version</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#TimeSeries.unit">unit</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#TimeSeries.vertical_datum_info">vertical_datum_info</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#TimeSeries.vertical_datum_info_xml">vertical_datum_info_xml</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#TimeSeries.vertical_datum_info_dict">vertical_datum_info_dict</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#TimeSeries.setLocation">setLocation</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#TimeSeries.setParameter">setParameter</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#TimeSeries.setParameterType">setParameterType</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#TimeSeries.setInterval">setInterval</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#TimeSeries.setDuration">setDuration</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#TimeSeries.setUnit">setUnit</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#TimeSeries.setVerticalDatumInfo">setVerticalDatumInfo</a>
+                        </li>
+                </ul>
+
+            </li>
     </ul>
 
 
@@ -195,6 +261,484 @@
 <blockquote>
   <p>Read-Write</p>
 </blockquote>
+</div>
+
+
+                            </div>
+                </section>
+                <section id="TimeSeries">
+                    <div class="attr class">
+            
+    <span class="def">class</span>
+    <span class="name">TimeSeries</span>:
+
+        
+    </div>
+    <a class="headerlink" href="#TimeSeries"></a>
+    
+            <div class="docstring"><p>Holds time series and provides time series operations</p>
+</div>
+
+
+                            <div id="TimeSeries.__init__" class="classattr">
+                                <div class="attr function">
+            
+        <span class="name">TimeSeries</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">init_from</span><span class="p">:</span> <span class="n">Any</span></span>)</span>
+
+        
+    </div>
+    <a class="headerlink" href="#TimeSeries.__init__"></a>
+    
+            <div class="docstring"><p>Initializes a new TimeSeries object</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>init_from (Any):</strong>  The object to initialize from.
+<ul>
+<li><strong>str</strong>: A CWMS time series identifier or HEC-DSS time series pathname.
+<ul>
+<li>If CWMS
+<ul>
+<li>The following components are set from the identifier:
+<ul>
+<li>location (may be in the format &lt;<em>office</em>&gt;/&lt;<em>location</em>&gt; to set office)</li>
+<li>parameter</li>
+<li>parameter type</li>
+<li>interval</li>
+<li>duration</li>
+<li>version</li>
+</ul></li>
+<li>The following components are not set:
+<ul>
+<li>watershed</li>
+</ul></li>
+</ul></li>
+<li>If HEC-DSS
+<ul>
+<li>The following components are set from the pathname:
+<ul>
+<li>A =&gt; watershed</li>
+<li>B =&gt; location</li>
+<li>C =&gt; parameter</li>
+<li>E =&gt; interval</li>
+<li>F =&gt; version</li>
+</ul></li>
+<li>The following compents are not set:
+<ul>
+<li>parameter type</li>
+<li>duration</li>
+</ul></li>
+</ul></li>
+<li>The parameter unit is set to the default English unit</li>
+<li>No vertical datum information is set for elevation parameter</li>
+</ul></li>
+</ul></li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="TimeSeries.name" class="classattr">
+                                <div class="attr variable">
+            <span class="name">name</span><span class="annotation">: str</span>
+
+        
+    </div>
+    <a class="headerlink" href="#TimeSeries.name"></a>
+    
+            <div class="docstring"><p>The CWMS time series identifier or HEC-DSS pathname</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read/Write</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="TimeSeries.watershed" class="classattr">
+                                <div class="attr variable">
+            <span class="name">watershed</span><span class="annotation">: Optional[str]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#TimeSeries.watershed"></a>
+    
+            <div class="docstring"><p>The watershed (DSS A pathname part)</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read Only</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="TimeSeries.location" class="classattr">
+                                <div class="attr variable">
+            <span class="name">location</span><span class="annotation">: <a href="location.html#Location">hec.location.Location</a></span>
+
+        
+    </div>
+    <a class="headerlink" href="#TimeSeries.location"></a>
+    
+            <div class="docstring"><p>The location object (used in HEC-DSS B pathname part)</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read Only</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="TimeSeries.parameter" class="classattr">
+                                <div class="attr variable">
+            <span class="name">parameter</span><span class="annotation">: <a href="parameter.html#Parameter">hec.parameter.Parameter</a></span>
+
+        
+    </div>
+    <a class="headerlink" href="#TimeSeries.parameter"></a>
+    
+            <div class="docstring"><p>The parameter object (used in HEC-DSS C pathname part)</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read Only</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="TimeSeries.parameter_type" class="classattr">
+                                <div class="attr variable">
+            <span class="name">parameter_type</span><span class="annotation">: Optional[<a href="parameter.html#ParameterType">hec.parameter.ParameterType</a>]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#TimeSeries.parameter_type"></a>
+    
+            <div class="docstring"><p>The parameter type object</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read Only</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="TimeSeries.interval" class="classattr">
+                                <div class="attr variable">
+            <span class="name">interval</span><span class="annotation">: <a href="interval.html#Interval">hec.interval.Interval</a></span>
+
+        
+    </div>
+    <a class="headerlink" href="#TimeSeries.interval"></a>
+    
+            <div class="docstring"><p>The interval object (used in HEC-DSS E pathname part)</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read Only</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="TimeSeries.duration" class="classattr">
+                                <div class="attr variable">
+            <span class="name">duration</span><span class="annotation">: Optional[<a href="duration.html#Duration">hec.duration.Duration</a>]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#TimeSeries.duration"></a>
+    
+            <div class="docstring"><p>The duration object</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read Only</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="TimeSeries.version" class="classattr">
+                                <div class="attr variable">
+            <span class="name">version</span><span class="annotation">: Optional[str]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#TimeSeries.version"></a>
+    
+            <div class="docstring"><p>The version (HEC-DSS F pathname part)</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read/Write</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="TimeSeries.unit" class="classattr">
+                                <div class="attr variable">
+            <span class="name">unit</span><span class="annotation">: str</span>
+
+        
+    </div>
+    <a class="headerlink" href="#TimeSeries.unit"></a>
+    
+            <div class="docstring"><p>The parameter unit object</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read Only</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="TimeSeries.vertical_datum_info" class="classattr">
+                                <div class="attr variable">
+            <span class="name">vertical_datum_info</span><span class="annotation">: Optional[hec.parameter.ElevParameter._VerticalDatumInfo]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#TimeSeries.vertical_datum_info"></a>
+    
+            <div class="docstring"><p>The vertical datum info object or None if not set</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read Only</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="TimeSeries.vertical_datum_info_xml" class="classattr">
+                                <div class="attr variable">
+            <span class="name">vertical_datum_info_xml</span><span class="annotation">: Optional[str]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#TimeSeries.vertical_datum_info_xml"></a>
+    
+            <div class="docstring"><p>The vertical datum info as an XML string or None if not set</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read Only</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="TimeSeries.vertical_datum_info_dict" class="classattr">
+                                <div class="attr variable">
+            <span class="name">vertical_datum_info_dict</span><span class="annotation">: Optional[dict[str, Any]]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#TimeSeries.vertical_datum_info_dict"></a>
+    
+            <div class="docstring"><p>The vertical datum info as a dictionary or None if not set</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read Only</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="TimeSeries.setLocation" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">setLocation</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n"><a href="location.html#Location">hec.location.Location</a></span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="kc">None</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#TimeSeries.setLocation"></a>
+    
+            <div class="docstring"><p>Sets the location for the time series</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>value (Union[Location, str]):</strong>  * Location: The Location object to use
+<ul>
+<li>str: The location name (may be in the format &lt;<em>office</em>&gt;/&lt;<em>location</em>&gt; to set office)</li>
+</ul></li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="TimeSeries.setParameter" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">setParameter</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n"><a href="parameter.html#Parameter">hec.parameter.Parameter</a></span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="kc">None</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#TimeSeries.setParameter"></a>
+    
+            <div class="docstring"><p>Sets the parameter for the time series</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>value (Union[Parameter, str]):</strong>  * Parameter: The Parameter object to use
+<ul>
+<li>str: The parameter name - the unit will be set to the default English unit</li>
+</ul></li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="TimeSeries.setParameterType" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">setParameterType</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n"><a href="parameter.html#ParameterType">hec.parameter.ParameterType</a></span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="kc">None</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#TimeSeries.setParameterType"></a>
+    
+            <div class="docstring"><p>Sets the parameter type for the time series</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>value (Union[ParameterType, str]):</strong>  * ParameterType: The ParameterType object to use
+<ul>
+<li>str: The parameter type name</li>
+</ul></li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="TimeSeries.setInterval" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">setInterval</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n"><a href="interval.html#Interval">hec.interval.Interval</a></span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="kc">None</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#TimeSeries.setInterval"></a>
+    
+            <div class="docstring"><p>Sets the interval for the time series</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>value (Union[Interval, str]):</strong>  * Interval: The Interval object to use
+<ul>
+<li>str: The interval name</li>
+<li>int: The (actual or characteristic) number of minutes for the interval</li>
+</ul></li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="TimeSeries.setDuration" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">setDuration</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n"><a href="duration.html#Duration">hec.duration.Duration</a></span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="kc">None</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#TimeSeries.setDuration"></a>
+    
+            <div class="docstring"><p>Sets the Duration for the time series</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>value (Union[Duration, str]):</strong>  * Interval: The Duration object to use
+<ul>
+<li>str: The duration name</li>
+<li>int: The (actual or characteristic) number of minutes for the duration</li>
+</ul></li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="TimeSeries.setUnit" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">setUnit</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">pint</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">Unit</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="kc">None</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#TimeSeries.setUnit"></a>
+    
+            <div class="docstring"><p>Sets the parameter unit for the time series</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>value (Union[Unit, str]):</strong>  * ParameterType: The Unit object to use
+<ul>
+<li>str: The unit name</li>
+</ul></li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="TimeSeries.setVerticalDatumInfo" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">setVerticalDatumInfo</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span></span><span class="return-annotation">) -> <span class="kc">None</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#TimeSeries.setVerticalDatumInfo"></a>
+    
+            <div class="docstring"><p>Sets the vertical datum info for the time series</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>value (Union[str, dict[str, Any]]):</strong>  * str: the vertical datum info as an XML string
+<ul>
+<li>dict: the vertical datum info as a dictionary</li>
+</ul></li>
+</ul>
+
+<h6 id="raises">Raises:</h6>
+
+<ul>
+<li><strong>TimeSeriesException:</strong>  If the base parameter is not "Elev"</li>
+</ul>
 </div>
 
 
