@@ -184,7 +184,7 @@ class Interval(TimeSpan):
         """
         intvl: Optional[Interval] = None
         if isinstance(key, str):
-            intvl = Interval.getAnyCwms(lambda i: i.name == key)
+            intvl = Interval.getAnyCwms(lambda i: i.name == key.title())
             if intvl is None:
                 raise IntervalException(f'No CWMS interval found with name = "{key}"')
         elif isinstance(key, int):
@@ -212,7 +212,7 @@ class Interval(TimeSpan):
         """
         intvl: Optional[Interval] = None
         if isinstance(key, str):
-            intvl = Interval.getAnyDss(lambda i: i.name == key)
+            intvl = Interval.getAnyDss(lambda i: i.name == key.title())
             if intvl is None:
                 raise IntervalException(
                     f'No HEC-DSS interval found with name = "{key}"'
