@@ -12,7 +12,7 @@ _import_dir = os.path.abspath(".")
 if not _import_dir in sys.path:
     sys.path.append(_import_dir)
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from functools import total_ordering, wraps
 from typing import cast
 from typing import Any
@@ -1552,7 +1552,7 @@ def normalizeTimeVals(values: list[int]) -> None:
         d = maxDay(values[Y], values[M])
 
 
-def parseDateTimeStr(dateTimeStr: str) -> list[int]:
+def parseDateTimeStr(dateTimeStr: str, include_tz: bool = False) -> list[int]:
     """
     Parse date/time strings of various formats into time values (`[year, month, day, hour, minute, second]`).
 
@@ -1563,6 +1563,8 @@ def parseDateTimeStr(dateTimeStr: str) -> list[int]:
 
     Args:
         dateTimeStr (str): The date/time string
+        include_tz (bool): Whether to include the time zone portion if dateTimeStr is in ISO-8601 format.
+        If  `True`, the list returned will be `[year, month, day, hour, minute, second, tz]`. Defaults to False
 
     Raises:
         HecTimeException: if dateTimeStr cannot be parsed into at least year, month, and day
@@ -1595,7 +1597,7 @@ def parseDateTimeStr(dateTimeStr: str) -> list[int]:
         # 10 = tz string
         # 11 = tz hour
         # 13 = tz minute
-        r"(-?\d{4,})-(\d{2})-(\d{2})(T(\d{2})(:(\d{2})(:(\d{2}))?)?)?(Z|([+-]?\d{2})(:(\d{2}))?)?"
+        r"(-?\d{4,})-(\d{2})-(\d{2})([T ](\d{2})(:(\d{2})(:(\d{2}))?)?)?(Z|([+-]?\d{2})(:(\d{2}))?)?"
     )
 
     matcher = iso8601Pattern.match(dateTimeStr)
@@ -1605,6 +1607,8 @@ def parseDateTimeStr(dateTimeStr: str) -> list[int]:
             for v in [matcher.group(i) for i in (1, 2, 3, 5, 7, 9)]
         ]
         # TODO - Handle time zone
+        if include_tz:
+            return [y, m, d, h, n, s, matcher.group(10)]
         return [y, m, d, h, n, s]
 
     # ---------------------- #
@@ -2102,7 +2106,7 @@ class HecTime:
                 self.set(args[0])
             elif isinstance(args[0], str):
                 # initialize from a datetime string
-                self.set(parseDateTimeStr(args[0]))
+                self.set(args[0])
             else:
                 raise HecTimeException(
                     f"Invalid initializer: {args[0].__class__.__name__} {args[0]}"
@@ -4062,7 +4066,16 @@ class HecTime:
             elif isinstance(args[0], str):
                 # set from a datetime string
                 try:
-                    self.set(parseDateTimeStr(args[0]))
+                    timevals = parseDateTimeStr(args[0], include_tz=True)
+                    self.set(timevals[:6])
+                    if timevals[6]:
+                        tzstr = timevals[6]
+                        hours = int(tzstr.split(":")[0])
+                        minutes = int(tzstr.split(":")[1])
+                        offset = timedelta(minutes=hours * 60 + minutes)
+                        tz = timezone(offset)
+                        dt = datetime.now().replace(tzinfo=tz)
+                        self.atTimeZone(dt)
                 except:
                     self.value = UNDEFINED_TIME
             elif isinstance(args[0], datetime):

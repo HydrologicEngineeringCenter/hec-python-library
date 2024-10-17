@@ -8,6 +8,7 @@ _import_dir = os.path.abspath(".")
 if not _import_dir in sys.path:
     sys.path.append(_import_dir)
 
+import hec.hectime
 from hec.location import Location
 from hec.parameter import Parameter
 from hec.parameter import ElevParameter
@@ -25,8 +26,9 @@ from typing import Union
 from datetime import datetime
 from datetime import timedelta
 from pint import Unit
+from copy import deepcopy
 import pandas as pd
-import traceback
+import cwms.types
 
 _CWMS = "CWMS"
 _DSS = "DSS"
@@ -117,6 +119,16 @@ class TimeSeries:
     Holds time series and provides time series operations
     """
 
+    slice_stop_exclusive: bool = True
+
+    @classmethod
+    def setSliceStopExclusive(cls, state: bool = True) -> None:
+        cls.slice_stop_exclusive = state
+
+    @classmethod
+    def setSliceStopInclusive(cls, state: bool = True) -> None:
+        cls.slice_stop_exclusive = not state
+
     def __init__(self, init_from: Any):
         """
         Initializes a new TimeSeries object
@@ -146,7 +158,9 @@ class TimeSeries:
                             * duration
                     * The parameter unit is set to the default English unit
                     * No vertical datum information is set for elevation parameter
+                * **dict**: A CWMS time series as returned from CDA using cwms.get_timeseries
         """
+        self._slice_stop_exclusive = TimeSeries.slice_stop_exclusive
         self._context: str
         self._watershed: Optional[str] = None
         self._location: Location
@@ -159,6 +173,93 @@ class TimeSeries:
 
         if isinstance(init_from, str):
             self.name = init_from
+        elif isinstance(init_from, cwms.types.Data):
+            self._context = _CWMS
+            props = init_from.json
+            df = init_from.df
+            self.name = props["name"]
+            self.location.office = props["office-id"]
+            if self.parameter.base_parameter == "Elev":
+                self.setParameter(
+                    ElevParameter(self.parameter.name, props["vertical-datum-info"])
+                )
+                self.location.elevation = self.parameter.elevation.magnitude
+                self.location.elevation_unit = self.parameter.elevation.specified_unit
+                self.location.vertical_datum = self.parameter.native_datum
+            else:
+                self.setParameter(Parameter(self.parameter.name, props["units"]))
+            if df is not None and len(df):
+                self._data = init_from.df.copy(deep=True)
+                self._data.columns = ["time", "value", "quality"]
+                self._data.set_index("time", inplace=True)
+        else:
+            raise TypeError(type(init_from))
+
+    def __repr__(self) -> str:
+        return f"<TimeSeries({self.name}) unit={self.parameter._unit_name} {len(self)} values>"
+
+    def __str__(self) -> str:
+        return f"{self.name} {len(self)} vlaues in {self.parameter.unit_name}"
+
+    def __len__(self) -> int:
+        return 0 if self._data is None else len(self._data)
+
+    def __getitem__(self, key) -> "TimeSeries":
+        other = self.clone(include_data=False)
+        if isinstance(key, slice):
+            start, stop, step = key.start, key.stop, key.step
+            if isinstance(start, int) or isinstance(stop, int):
+                times = self.times
+                if isinstance(start, int):
+                    start = str(times[start])
+                if isinstance(stop, int):
+                    stop = str(times[stop])
+            if stop is not None:
+                if self._slice_stop_exclusive:
+                    if isinstance(stop, (datetime, HecTime)):
+                        stop = stop - timedelta(seconds=1)
+                    else:
+                        t = HecTime(hec.hectime.SECOND_GRANULARITY)
+                        t.set(stop)
+                        stop = str(t - timedelta(seconds=1))
+            print(f"start = {start}")
+            print(f"stop  = {stop}")
+            print(f"step  = {step}")
+            other._data = self._data.loc[start:stop:step]
+        elif isinstance(key, int):
+            keystr = str(self.times[key])
+            other._data = self._data.loc[keystr]
+        elif isinstance(key, (datetime, HecTime)):
+            other._data = self._data.loc[str(HecTime(key)).replace("T", " ")]
+        else:
+            other._data = self._data.loc[key]
+        return other
+
+    def _indexVal(self, offset: int) -> str:
+        return str(self.times[offset])
+
+    @property
+    def slice_stop_exclusive(self) -> bool:
+        """
+        Whether the `stop` portion of `[start:stop]` slicing is exclusive for this object.
+        * If `True`, the slicing TimeSeries objects follows Python rules, where `stop`
+            specifies the lowest index not included.
+        * If `False`, the slicing of TimeSeries objects follows pandas.DataFrame rules,
+            where `stop` specifies the highest index included.
+
+        The default value is determined by the class state, which defaults to `True`, but
+        can be set by calling [setSliceStartExclusive()](#TimeSeries.setSliceStartExclusive) or
+        [setSliceStartInclusive()](#TimeSeries.setSliceStartInclusive) before creating a
+        TimeSeires object
+
+        Operations:
+            Read/Write
+        """
+        return self._slice_stop_exclusive
+
+    @slice_stop_exclusive.setter
+    def slice_stop_exclusive(self, state: bool) -> None:
+        self._slice_stop_exclusive = state
 
     @property
     def name(self) -> str:
@@ -367,6 +468,54 @@ class TimeSeries:
         else:
             return None
 
+    @property
+    def data(self) -> Optional[pd.DataFrame]:
+        """
+        The data (times, values, qualities) as a DataFrame or None if not set
+
+        Operations:
+            Read Only
+        """
+        return self._data
+
+    @property
+    def times(self) -> list[Any]:
+        """
+        The times as a DataFrame or None if not set
+
+        Operations:
+            Read Only
+        """
+        def f(item) :
+            ht = HecTime()
+            ht.set(item)
+            ht.midnight_as_2400 = False
+            return str(ht).replace("T", " ")
+
+        return (
+            [] if self._data is None else list(map(f, self._data.index.tolist()))
+        )
+
+    @property
+    def values(self) -> list[float]:
+        """
+        The values as a DataFrame or None if not set
+
+        Operations:
+            Read Only
+        """
+        return [] if self._data is None else self._data["value"].tolist()
+
+    @property
+    def qualities(self) -> list[int]:
+        """
+        The qualities as a DataFrame or None if not set
+
+        Operations:
+            Read Only
+        """
+        return [] if self._data is None else self._data["quality"].tolist()
+
     def setLocation(self, value: Union[Location, str]) -> None:
         """
         Sets the location for the time series
@@ -489,3 +638,80 @@ class TimeSeries:
             raise TimeSeriesException(
                 f"Cannot set vertical datum on {self._parameter.name} time series"
             )
+
+    def clone(self, include_data: bool = True) -> "TimeSeries":
+        """
+        Creates a copy of this object, with or without data
+
+        Args:
+            include_data (bool, optional): Specifies whether to include the data in the copy. Defaults to True.
+
+        Returns:
+            TimeSeries: The copy of this object
+        """
+        other = TimeSeries(self.name)
+        other._location = deepcopy(self._location)
+        other._parameter = deepcopy(self._parameter)
+        other._parameter_type = deepcopy(self._parameter_type)
+        other._interval = deepcopy(self._interval)
+        other._duration = deepcopy(self._duration)
+        other._version = self._version
+        if include_data:
+            other._data = self._data.copy(deep=True)
+        return other
+
+    def setValue(self, time: Union[HecTime, datetime, str, int], value: float) -> None:
+        key: str
+        if isinstance(time, HecTime):
+            key = str(time).replace("T", " ")
+        elif isinstance(time, datetime):
+            key = str(HecTime(time)).replace("T", " ")
+        elif isinstance(time, str):
+            key = time
+        elif isinstance(time, int):
+            key = self._indexVal(time)
+        else:
+            raise TypeError(
+                f"Expected HecTime, datetime, str, or int - got {type(time)}"
+            )
+        self._data.loc[key, "value"] = value
+
+    def setQuality(
+        self, time: Union[HecTime, datetime, str, int], quality: Union[Quality, int]
+    ) -> None:
+        key: str
+        if isinstance(time, HecTime):
+            key = str(time).replace("T", " ")
+        elif isinstance(time, datetime):
+            key = str(HecTime(time)).replace("T", " ")
+        elif isinstance(time, str):
+            key = time
+        elif isinstance(time, int):
+            key = self._indexVal(time)
+        else:
+            raise TypeError(
+                f"Expected HecTime, datetime, str, or int - got {type(time)}"
+            )
+        self._data.loc[key, "quality"] = Quality(quality).code
+
+    def setValueQuality(
+        self,
+        time: Union[HecTime, datetime, str, int],
+        value: float,
+        quality: Union[Quality, int],
+    ) -> None:
+        key: str
+        if isinstance(time, HecTime):
+            key = str(time).replace("T", " ")
+        elif isinstance(time, datetime):
+            key = str(HecTime(time)).replace("T", " ")
+        elif isinstance(time, str):
+            key = time
+        elif isinstance(time, int):
+            key = self._indexVal(time)
+        else:
+            raise TypeError(
+                f"Expected HecTime, datetime, str, or int - got {type(time)}"
+            )
+        self._data.loc[key, "value"] = value
+        self._data.loc[key, "quality"] = Quality(quality).code
