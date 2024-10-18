@@ -2,36 +2,33 @@
 Provides time series types and operations
 """
 
-import os, sys
+import os
+import sys
 
 _import_dir = os.path.abspath(".")
 if not _import_dir in sys.path:
     sys.path.append(_import_dir)
 
+import warnings
+from copy import deepcopy
+from datetime import datetime, timedelta
+from typing import Any, Optional, Union, cast
+from zoneinfo import ZoneInfo
+
+import cwms.types  # type: ignore
+import pandas as pd
+import tzlocal
+from pint import Unit
+
 import hec.hectime
-from hec.location import Location
-from hec.parameter import Parameter
-from hec.parameter import ElevParameter
-from hec.parameter import ParameterType
-from hec.interval import Interval
+import hec.unit
 from hec.duration import Duration
 from hec.hectime import HecTime
-from hec.unit import UnitQuantity
+from hec.interval import Interval
+from hec.location import Location
+from hec.parameter import ElevParameter, Parameter, ParameterType
 from hec.quality import Quality
-import hec.unit
-from typing import cast
-from typing import Any
-from typing import Optional
-from typing import Union
-from datetime import datetime
-from datetime import timedelta
-from zoneinfo import ZoneInfo
-from pint import Unit
-from copy import deepcopy
-import pandas as pd
-import cwms.types  # type: ignore
-import warnings
-import tzlocal
+from hec.unit import UnitQuantity
 
 _CWMS = "CWMS"
 _DSS = "DSS"

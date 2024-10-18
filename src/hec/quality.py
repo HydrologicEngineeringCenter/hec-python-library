@@ -42,7 +42,9 @@ Provides quality code info and operations
 ```
 """
 
-import os, re, sys
+import os
+import re
+import sys
 
 _import_dir = os.path.abspath(".")
 if not _import_dir in sys.path:
@@ -55,8 +57,7 @@ class QualityException(Exception):
     pass
 
 
-from typing import Any
-from typing import Union
+from typing import Any, Union
 
 _NORMAL_QUALITY_MASK = 0b1000_0011_0101_1111_1111_1111_1111_1111
 

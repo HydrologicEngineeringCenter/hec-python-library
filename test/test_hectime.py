@@ -1,21 +1,20 @@
 """Module for testing hec.hectime module
 """
 
+import os
+import time
+from datetime import datetime, timedelta
+from test.shared import dataset_from_file, random_subset, scriptdir, slow_test_coverage
+from typing import Any, cast
+from zoneinfo import ZoneInfo
+
+import pytest
+import tzlocal
+
 from hec import hectime
 from hec.hectime import HecTime
-from hec.timespan import TimeSpan
 from hec.interval import Interval
-from datetime import datetime
-from datetime import timedelta
-from typing import Any
-from typing import cast
-from zoneinfo import ZoneInfo
-import os, pytest, time, tzlocal
-from test.shared import dataset_from_file
-from test.shared import scriptdir
-from test.shared import slow_test_coverage
-from test.shared import random_subset
-
+from hec.timespan import TimeSpan
 
 Y, M, D, H, N, S = range(6)
 

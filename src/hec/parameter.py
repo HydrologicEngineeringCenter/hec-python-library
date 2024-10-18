@@ -7,22 +7,22 @@ Comprises the classes:
 * [ParameterType](#ParameterType)
 """
 
-import os, sys
+import os
+import sys
 
 _import_dir = os.path.abspath(".")
 if not _import_dir in sys.path:
     sys.path.append(_import_dir)
 
-from typing import Any
-from typing import Optional
-from typing import Union
-from typing import cast
+import re
+import xml.etree.ElementTree as ET
+from io import StringIO
+from typing import Any, Optional, Union, cast
+
+from pint import Unit
+
 from hec import unit
 from hec.unit import UnitQuantity
-from pint import Unit
-from io import StringIO
-import xml.etree.ElementTree as ET
-import re
 
 _NGVD29 = "NGVD-29"
 _NAVD88 = "NAVD-88"

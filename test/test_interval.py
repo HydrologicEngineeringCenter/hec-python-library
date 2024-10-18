@@ -1,8 +1,7 @@
 """Module for testing hec.interval module
 """
 
-from hec.interval import Interval
-from hec.interval import IntervalException
+from hec.interval import Interval, IntervalException
 
 
 def test_get_all() -> None:

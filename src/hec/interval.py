@@ -2,18 +2,16 @@
 Provides standard time intervals
 """
 
-import os, sys
+import os
+import sys
 
 _import_dir = os.path.abspath(".")
 if not _import_dir in sys.path:
     sys.path.append(_import_dir)
 
-from typing import Callable
-from typing import Optional
-from typing import Union
-from typing import cast
-from hec.timespan import TimeSpan
-from hec.timespan import TimeSpanException
+from typing import Callable, Optional, Union, cast
+
+from hec.timespan import TimeSpan, TimeSpanException
 
 
 class IntervalException(TimeSpanException):

@@ -1,11 +1,11 @@
-from hec.timeseries import TimeSeries
-from hec.timeseries import TimeSeriesValue
-from hec.hectime import HecTime
-from hec.unit import UnitQuantity as UQ
-from hec.quality import Quality as Qual
-from hec.duration import Duration
 from datetime import timedelta
 from typing import cast
+
+from hec.duration import Duration
+from hec.hectime import HecTime
+from hec.quality import Quality as Qual
+from hec.timeseries import TimeSeries, TimeSeriesValue
+from hec.unit import UnitQuantity as UQ
 
 
 def test_time_series_value() -> None:

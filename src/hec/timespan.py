@@ -3,20 +3,18 @@ Provides basic time span functionality.
 Like timedelta, but with calendar capabilities and without sub-second resolution.
 """
 
-import os, sys
+import os
+import sys
 
 _import_dir = os.path.abspath(".")
 if not _import_dir in sys.path:
     sys.path.append(_import_dir)
 
+import re
 from datetime import timedelta
 from fractions import Fraction
 from functools import total_ordering
-from typing import Any
-from typing import cast
-from typing import Optional
-from typing import Union
-import re
+from typing import Any, Optional, Union, cast
 
 __all__ = ["TimeSpanException", "TimeSpan"]
 Y, M, D, H, N, S = 0, 1, 2, 3, 4, 5

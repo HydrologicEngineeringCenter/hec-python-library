@@ -1,8 +1,11 @@
-from pint.errors import DimensionalityError
-from hec import unit
-import cwms  # type: ignore
-import os, pytest
+import os
 from test.shared import dataset_from_file
+
+import cwms  # type: ignore
+import pytest
+from pint.errors import DimensionalityError
+
+from hec import unit
 
 ureg = unit.get_unit_registry()
 

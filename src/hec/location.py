@@ -2,16 +2,15 @@
 Provides location info
 """
 
-import os, sys
+import os
+import sys
 
 _import_dir = os.path.abspath(".")
 if not _import_dir in sys.path:
     sys.path.append(_import_dir)
 
-from typing import Any
-from typing import Optional
-from typing import cast
 import warnings
+from typing import Any, Optional, cast
 
 warnings.filterwarnings("always", category=UserWarning)
 

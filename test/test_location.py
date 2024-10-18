@@ -1,14 +1,16 @@
 """Module for testing hec.location module
 """
 
-import os, sys
+import os
+import sys
 
 _import_dir = os.path.abspath(".")
 if not _import_dir in sys.path:
     sys.path.append(_import_dir)
 
-from hec.location import Location
 import pytest
+
+from hec.location import Location
 
 
 def test_without_name() -> None:

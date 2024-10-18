@@ -2,13 +2,16 @@
 Module for testing hec.parameter module
 """
 
-from hec.parameter import Parameter
-from hec.parameter import ElevParameter
-from hec.parameter import ParameterType
-from hec.parameter import ParameterException
-from hec.parameter import ParameterTypeException
-from hec.unit import UnitQuantity as UQ
 import pytest
+
+from hec.parameter import (
+    ElevParameter,
+    Parameter,
+    ParameterException,
+    ParameterType,
+    ParameterTypeException,
+)
+from hec.unit import UnitQuantity as UQ
 
 
 def test_parameter() -> None:

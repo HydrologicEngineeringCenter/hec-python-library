@@ -2,16 +2,17 @@
 Provides standard time durations
 """
 
-import os, sys
+import os
+import sys
 
 _import_dir = os.path.abspath(".")
 if not _import_dir in sys.path:
     sys.path.append(_import_dir)
 
 from typing import Union
-from hec.timespan import TimeSpan
-from hec.timespan import TimeSpanException
+
 from hec.interval import Interval
+from hec.timespan import TimeSpan, TimeSpanException
 
 
 class DurationException(TimeSpanException):

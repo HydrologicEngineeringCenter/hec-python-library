@@ -6,24 +6,27 @@ Module to provide native python compatibility for the `hec.heclib.util.HecTime` 
 Jump to [**`class HecTime`**](#HecTime)
 """
 
-import os, sys
+import os
+import sys
 
 _import_dir = os.path.abspath(".")
 if not _import_dir in sys.path:
     sys.path.append(_import_dir)
 
+import math
+import re
+import warnings
+import zoneinfo
 from datetime import datetime, timedelta, timezone
-from functools import total_ordering, wraps
-from typing import cast
-from typing import Any
-from typing import Callable
-from typing import Optional
-from typing import Union
-from zoneinfo import ZoneInfo
-from hec.timespan import TimeSpan
-from hec.interval import Interval
 from fractions import Fraction
-import math, re, tzlocal, warnings, zoneinfo
+from functools import total_ordering, wraps
+from typing import Any, Callable, Optional, Union, cast
+from zoneinfo import ZoneInfo
+
+import tzlocal
+
+from hec.interval import Interval
+from hec.timespan import TimeSpan
 
 __all__ = [
     "UNDEFINED_TIME",

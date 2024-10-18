@@ -1,8 +1,8 @@
 """Module for testing hec.duration module
 """
 
-from hec.interval import Interval
 from hec.duration import Duration
+from hec.interval import Interval
 
 
 def test_durations() -> None:

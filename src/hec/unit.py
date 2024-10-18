@@ -96,7 +96,10 @@ __all__ = [
     "UnitException",
     "UnitQuantity",
 ]
-import copy, math, os, sys
+import copy
+import math
+import os
+import sys
 
 import pint.facets
 
@@ -104,15 +107,13 @@ import_dir = os.path.abspath(".")
 if not import_dir in sys.path:
     sys.path.append(import_dir)
 
-from functools import total_ordering
 from fractions import Fraction
-from typing import Any
-from typing import Optional
-from typing import Union
-from typing import cast
-from pint.errors import UndefinedUnitError
+from functools import total_ordering
+from typing import Any, Optional, Union, cast
+
 import cwms  # type: ignore
 import pint
+from pint.errors import UndefinedUnitError
 
 
 class UnitException(Exception):

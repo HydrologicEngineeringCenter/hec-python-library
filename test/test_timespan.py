@@ -1,11 +1,12 @@
 """Module for testing hec.timespan module
 """
 
-from fractions import Fraction
-from hec.timespan import TimeSpan
-from datetime import timedelta
-from typing import Optional
 import traceback
+from datetime import timedelta
+from fractions import Fraction
+from typing import Optional
+
+from hec.timespan import TimeSpan
 
 
 def test_creation() -> None:
