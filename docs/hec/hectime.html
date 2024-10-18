@@ -256,6 +256,9 @@
                                 <a class="function" href="#HecTime.astimezone">astimezone</a>
                         </li>
                         <li>
+                                <a class="function" href="#HecTime.asTimeZone">asTimeZone</a>
+                        </li>
+                        <li>
                                 <a class="function" href="#HecTime.cleanTime">cleanTime</a>
                         </li>
                         <li>
@@ -1723,13 +1726,13 @@ actual or characteristic number of minutes (or equivalent days) of a standard In
                     <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">parseDateTimeStr</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">dateTimeStr</span><span class="p">:</span> <span class="nb">str</span></span><span class="return-annotation">) -> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>:</span></span>
+        <span class="name">parseDateTimeStr</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">dateTimeStr</span><span class="p">:</span> <span class="nb">str</span>,</span><span class="param">	<span class="n">include_tz</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></span><span class="return-annotation">) -> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">typing</span><span class="o">.</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>:</span></span>
 
         
     </div>
     <a class="headerlink" href="#parseDateTimeStr"></a>
     
-            <div class="docstring"><p>Parse date/time strings of various formats into time values (<code>[year, month, day, hour, minute, second]</code>).</p>
+            <div class="docstring"><p>Parse date/time strings of various formats into time values (<code>[year, month, day, hour, minute, second]</code> and an optional time zone string).</p>
 
 <p>The string must contain at least year, month, day. Missing seconds, (minutes, seconds), or (hours, minutes, seconds)
 are set to zero.</p>
@@ -1740,6 +1743,8 @@ are set to zero.</p>
 
 <ul>
 <li><strong>dateTimeStr (str):</strong>  The date/time string</li>
+<li><strong>include_tz (bool):</strong>  Whether to include the time zone portion if dateTimeStr is in ISO-8601 format.</li>
+<li>If  <code>True</code>, the tuple returned will include the time zone string. Defaults to False</li>
 </ul>
 
 <h6 id="raises">Raises:</h6>
@@ -1751,7 +1756,9 @@ are set to zero.</p>
 <h6 id="returns">Returns:</h6>
 
 <blockquote>
-  <p>list[int]: The time values as parsed from the date/time string.</p>
+  <p>tuple[list[int], Optional[str]]:
+      *Position 0: The time values as parsed from the date/time string: <code>[year, month, day, hour, minute, second]</code>
+      *Position 1: The time zone string if <code>include_tz == True</code> and <code>dateTimeStr</code> has a time zone portion, otherwise None</p>
 </blockquote>
 
 <h6 id="see-also">See Also:</h6>
@@ -2784,6 +2791,21 @@ attached. Defaults to 1.
         
     </div>
     <a class="headerlink" href="#HecTime.astimezone"></a>
+    
+            <div class="docstring"><p>See <code><a href="#HecTime.asTimeZone">asTimeZone</a></code></p>
+</div>
+
+
+                            </div>
+                            <div id="HecTime.asTimeZone" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">asTimeZone</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="bp">self</span>,</span><span class="param">	<span class="n">timeZone</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n"><a href="#HecTime">HecTime</a></span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">,</span> <span class="n">zoneinfo</span><span class="o">.</span><span class="n">ZoneInfo</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>,</span><span class="param">	<span class="n">onTzNotSet</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span></span><span class="return-annotation">) -> <span class="n"><a href="#HecTime">HecTime</a></span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#HecTime.asTimeZone"></a>
     
             <div class="docstring"><p>Returns a copy of this object at the spcified time zone</p>
 

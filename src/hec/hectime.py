@@ -455,7 +455,7 @@ def datjul(dateStr: str, julian: list[int]) -> None:
     Raises:
         HecTimeException: if the date string cannot be successfully parsed
     """
-    values = parseDateTimeStr(dateStr)
+    values = parseDateTimeStr(dateStr)[0]
     julian[0] = yearMonthDayToJulian(values[Y], values[M], values[D], False)
 
 
@@ -472,7 +472,7 @@ def datymd(dateStr: str, ymd: list[int]) -> int:
     """
     status = 0
     try:
-        values = parseDateTimeStr(dateStr)
+        values = parseDateTimeStr(dateStr)[0]
         ymd[Y] = values[Y]
         ymd[M] = values[M]
         ymd[D] = values[D]
@@ -762,12 +762,12 @@ def getTimeWindow(
             start, end = f"{parts[0]} {parts[1]}", parts[2]
     else:
         try:
-            timevals_start = parseDateTimeStr(f"{parts[0]} {parts[1]}")
-            tiemvals_end = parseDateTimeStr(parts[2])
+            timevals_start = parseDateTimeStr(f"{parts[0]} {parts[1]}")[0]
+            tiemvals_end = parseDateTimeStr(parts[2])[0]
         except:
             try:
-                tiemvals_start = parseDateTimeStr(parts[0])
-                timevals_end = parseDateTimeStr(f"{parts[1]} {parts[2]}")
+                tiemvals_start = parseDateTimeStr(parts[0])[0]
+                timevals_end = parseDateTimeStr(f"{parts[1]} {parts[2]}")[0]
             except:
                 status = -1
     if status == 0:
@@ -1552,9 +1552,11 @@ def normalizeTimeVals(values: list[int]) -> None:
         d = maxDay(values[Y], values[M])
 
 
-def parseDateTimeStr(dateTimeStr: str, include_tz: bool = False) -> list[int]:
+def parseDateTimeStr(
+    dateTimeStr: str, include_tz: bool = False
+) -> tuple[list[int], Optional[str]]:
     """
-    Parse date/time strings of various formats into time values (`[year, month, day, hour, minute, second]`).
+    Parse date/time strings of various formats into time values (`[year, month, day, hour, minute, second]` and an optional time zone string).
 
     The string must contain at least year, month, day. Missing seconds, (minutes, seconds), or (hours, minutes, seconds)
     are set to zero.
@@ -1564,13 +1566,15 @@ def parseDateTimeStr(dateTimeStr: str, include_tz: bool = False) -> list[int]:
     Args:
         dateTimeStr (str): The date/time string
         include_tz (bool): Whether to include the time zone portion if dateTimeStr is in ISO-8601 format.
-        If  `True`, the list returned will be `[year, month, day, hour, minute, second, tz]`. Defaults to False
+        If  `True`, the tuple returned will include the time zone string. Defaults to False
 
     Raises:
         HecTimeException: if dateTimeStr cannot be parsed into at least year, month, and day
 
     Returns:
-        list[int]: The time values as parsed from the date/time string.
+        tuple[list[int], Optional[str]]:
+            *Position 0: The time values as parsed from the date/time string: `[year, month, day, hour, minute, second]`
+            *Position 1: The time zone string if `include_tz == True` and `dateTimeStr` has a time zone portion, otherwise None
 
     See Also:
         [**`HecTime.strptime()`**](#HecTime.strptime)
@@ -1600,6 +1604,7 @@ def parseDateTimeStr(dateTimeStr: str, include_tz: bool = False) -> list[int]:
         r"(-?\d{4,})-(\d{2})-(\d{2})([T ](\d{2})(:(\d{2})(:(\d{2}))?)?)?(Z|([+-]?\d{2})(:(\d{2}))?)?"
     )
 
+    tzstr = None
     matcher = iso8601Pattern.match(dateTimeStr)
     if matcher and len(matcher.group(0)) == len(dateTimeStr):
         y, m, d, h, n, s = [
@@ -1608,8 +1613,9 @@ def parseDateTimeStr(dateTimeStr: str, include_tz: bool = False) -> list[int]:
         ]
         # TODO - Handle time zone
         if include_tz:
-            return [y, m, d, h, n, s, matcher.group(10)]
-        return [y, m, d, h, n, s]
+            tzstr = matcher.group(10)
+            return [y, m, d, h, n, s], tzstr
+        return [y, m, d, h, n, s], None
 
     # ---------------------- #
     # handle generic pattern #
@@ -1693,7 +1699,7 @@ def parseDateTimeStr(dateTimeStr: str, include_tz: bool = False) -> list[int]:
     s = intParts[5]
     if not 0 <= s <= 59:
         raise Exception
-    return [y, m, d, h, n, s]
+    return [y, m, d, h, n, s], tzstr
 
 
 def previousMonth(y: int, m: int) -> tuple[int, int]:
@@ -2910,6 +2916,14 @@ class HecTime:
         self, timeZone: Union["HecTime", datetime, ZoneInfo, str], onTzNotSet: int = 1
     ) -> "HecTime":
         """
+        See `asTimeZone`
+        """
+        return self.asTimeZone(timeZone)
+
+    def asTimeZone(
+        self, timeZone: Union["HecTime", datetime, ZoneInfo, str], onTzNotSet: int = 1
+    ) -> "HecTime":
+        """
         Returns a copy of this object at the spcified time zone
 
         Args:
@@ -4066,10 +4080,9 @@ class HecTime:
             elif isinstance(args[0], str):
                 # set from a datetime string
                 try:
-                    timevals = parseDateTimeStr(args[0], include_tz=True)
-                    self.set(timevals[:6])
-                    if timevals[6]:
-                        tzstr = timevals[6]
+                    timevals, tzstr = parseDateTimeStr(args[0], include_tz=True)
+                    self.set(timevals)
+                    if tzstr:
                         hours = int(tzstr.split(":")[0])
                         minutes = int(tzstr.split(":")[1])
                         offset = timedelta(minutes=hours * 60 + minutes)
@@ -4127,7 +4140,7 @@ class HecTime:
             int: `0` on success or `-1` on failure
         """
         try:
-            values = parseDateTimeStr(dateStr)[:3] = [0, 0, 0]
+            values = parseDateTimeStr(dateStr)[0][:3] = [0, 0, 0]
             if self.defined:
                 values = values[:3] + cast(list[int], self.values)[3:]
             self.values = values
@@ -4245,10 +4258,10 @@ class HecTime:
         """
         if self.defined:
             try:
-                parsedVals = parseDateTimeStr(timeStr)
+                parsedVals = parseDateTimeStr(timeStr)[0]
             except:
                 try:
-                    parsedVals = parseDateTimeStr(f"01Jan2000 {timeStr}")
+                    parsedVals = parseDateTimeStr(f"01Jan2000 {timeStr}")[0]
                 except:
                     return -1
             values = cast(list[int], self.values)[:3] + parsedVals[3:]

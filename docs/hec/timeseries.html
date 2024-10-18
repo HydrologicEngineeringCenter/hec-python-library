@@ -61,6 +61,21 @@
                                 <a class="function" href="#TimeSeries.__init__">TimeSeries</a>
                         </li>
                         <li>
+                                <a class="function" href="#TimeSeries.formatTimeForIndex">formatTimeForIndex</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#TimeSeries.setSliceStopExclusive">setSliceStopExclusive</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#TimeSeries.setSliceStopInclusive">setSliceStopInclusive</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#TimeSeries.indexOf">indexOf</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#TimeSeries.slice_stop_exclusive">slice_stop_exclusive</a>
+                        </li>
+                        <li>
                                 <a class="variable" href="#TimeSeries.name">name</a>
                         </li>
                         <li>
@@ -85,6 +100,9 @@
                                 <a class="variable" href="#TimeSeries.version">version</a>
                         </li>
                         <li>
+                                <a class="variable" href="#TimeSeries.time_zone">time_zone</a>
+                        </li>
+                        <li>
                                 <a class="variable" href="#TimeSeries.unit">unit</a>
                         </li>
                         <li>
@@ -95,6 +113,18 @@
                         </li>
                         <li>
                                 <a class="variable" href="#TimeSeries.vertical_datum_info_dict">vertical_datum_info_dict</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#TimeSeries.data">data</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#TimeSeries.times">times</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#TimeSeries.values">values</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#TimeSeries.qualities">qualities</a>
                         </li>
                         <li>
                                 <a class="function" href="#TimeSeries.setLocation">setLocation</a>
@@ -116,6 +146,24 @@
                         </li>
                         <li>
                                 <a class="function" href="#TimeSeries.setVerticalDatumInfo">setVerticalDatumInfo</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#TimeSeries.clone">clone</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#TimeSeries.setValue">setValue</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#TimeSeries.setQuality">setQuality</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#TimeSeries.setValueQuality">setValueQuality</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#TimeSeries.atTimeZone">atTimeZone</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#TimeSeries.asTimeZone">asTimeZone</a>
                         </li>
                 </ul>
 
@@ -276,7 +324,73 @@
     </div>
     <a class="headerlink" href="#TimeSeries"></a>
     
-            <div class="docstring"><p>Holds time series and provides time series operations</p>
+            <div class="docstring"><p>Holds time series and provides time series operations.</p>
+
+<h3 id="structure">Structure</h3>
+
+<p>TimeSeries objects contain the following properties</p>
+
+<ul>
+<li><code><a href="#TimeSeries.watershed">watershed</a></code> (Optional): A string that holds the the DSS A pathname part. Unused in CWMS contexts.</li>
+<li><code><a href="#TimeSeries.location">location</a></code> (Required): A <a href="./location.html#Location">Location</a> object. Its <code><a href="#TimeSeries.name">name</a></code> property is used
+for the CWMS location identifier or DSS B pathname part.</li>
+<li><code><a href="#TimeSeries.parameter">parameter</a></code> (Required): A <a href="./parameter.html#Parameter">Parameter</a> object. May be an <a href="./parameter.html#ElevParameter">ElevParameter</a>
+if the base parameter is "Elev", but only if there is vertical datum info. Its <code><a href="#TimeSeries.name">name</a></code> property is
+used for the CWMS parameter identifier or DSS C pathname part.</li>
+<li><code><a href="#TimeSeries.parameter_type">parameter_type</a></code> (Optional): A <a href="./parameter.html#ParameterType">ParameterType</a> object. Its <code><a href="#TimeSeries.name">name</a></code>
+property is used for the CWMS parameter type identifier or DSS data type</li>
+<li><code><a href="#TimeSeries.interval">interval</a></code> (Required): An <a href="./interval.html#Interval">Interval</a> object. Its <code><a href="#TimeSeries.name">name</a></code> property is used
+for the CWMS interval identier or DSS E pathname poart</li>
+<li><code><a href="#TimeSeries.duration">duration</a></code> (Optional): A <a href="./duration.html#Durationg">Duration</a> object. Its <code><a href="#TimeSeries.name">name</a></code> property is used
+for the CWMS duration identifier. Unused in DSS contexts.</li>
+<li><code><a href="#TimeSeries.version">version</a></code> (Optional): A string that holds the CWMS version identifier or DSS F pathname part.</li>
+<li><code><a href="#TimeSeries.data">data</a></code> (Optiona): A pandas.DataFrame object containing the time series data. The DataFrame has a DateTime index,
+a float column named "value" and a integer column named "quality"</li>
+</ul>
+
+<h3 id="other-properties">Other properties</h3>
+
+<ul>
+<li><code><a href="#TimeSeries.name">name</a></code>: The name used to initalize the object. Will be a valid CWMS time series identifier or DSS time series pathname.</li>
+<li><code><a href="#TimeSeries.unit">unit</a></code>: The unit of the parameter. Also available as the <code>unit_name</code> property of the <code><a href="#TimeSeries.parameter">parameter</a></code> proerty.</li>
+<li><code><a href="#TimeSeries.time_zone">time_zone</a></code>: The time zone of the data or None if not set</li>
+<li><code><a href="#TimeSeries.vertical_datum_info_xml">vertical_datum_info_xml</a></code>: The vertical datum info as an XML string</li>
+<li><code><a href="#TimeSeries.vertical_datum_info_dict">vertical_datum_info_dict</a></code>: The vertical datum info as a dictionary</li>
+<li><code><a href="#TimeSeries.times">times</a></code>: The times of the data values as a list of strings</li>
+<li><code><a href="#TimeSeries.values">values</a></code>: The data values as a list of floats</li>
+<li><code><a href="#TimeSeries.qualities">qualities</a></code>: The quality codes of the data values as a list of integers</li>
+<li><code><a href="#TimeSeries.slice_stop_exclusive">slice_stop_exclusive</a></code>: Controls slicing behavior</li>
+</ul>
+
+<h3 id="indexing-and-slicing">Indexing and slicing</h3>
+
+<p>In addition to operations available on the <code><a href="#TimeSeries.data">data</a></code> DataFrame, TimeSeries objects may also be indexed by
+individual indexes or slices.</p>
+
+<p>The result of an index or slice operation is a copy TimeSeries object with the data as indicated in
+the index or slice.</p>
+
+<p>Indexes (single, as well as start and stop values for slices) may be one of:</p>
+
+<ul>
+<li>HecTime object</li>
+<li>datetime object</li>
+<li>String - must be in the format yyyy&#8209;mm&#8209;dd&nbsp;hh:mm:ss([+|&#8209;]hh:mm). The time zone portion is required
+if the data times have the time zone specified</li>
+<li>Integer (index into the list of data times using normal python indexing)</li>
+</ul>
+
+<p>Slice steps are supported and must be a positive integer value (times must always increase)</p>
+
+<p>By default, slicing follows python behavior where the stop value is exclusive (not included in the returned data).
+To use DataFrame behavior where the stop value is inclusive (returned in the data):</p>
+
+<ul>
+<li>call <code><a href="#TimeSeries.setSliceStopInclusive">TimeSeries.setSliceStopInclusive()</a></code> before creating any TimeSeries objects</li>
+<li>set the <code><a href="#TimeSeries.slice_stop_exclusive">slice_stop_exclusive</a></code> property to False on existing TimeSeries objects.</li>
+</ul>
+
+<p>Note that slicing of the <code><a href="#TimeSeries.data">data</a></code> object will always use DataFrame behavior.</p>
 </div>
 
 
@@ -333,8 +447,149 @@
 <li>The parameter unit is set to the default English unit</li>
 <li>No vertical datum information is set for elevation parameter</li>
 </ul></li>
+<li><strong>cwms.types.Data</strong>: A CWMS time series as returned from CDA using <code>cwms.get_timeseries()</code></li>
 </ul></li>
 </ul>
+</div>
+
+
+                            </div>
+                            <div id="TimeSeries.formatTimeForIndex" class="classattr">
+                                <div class="attr function">
+                    <div class="decorator">@staticmethod</div>
+
+        <span class="def">def</span>
+        <span class="name">formatTimeForIndex</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">item</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n"><a href="hectime.html#HecTime">hec.hectime.HecTime</a></span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="nb">str</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#TimeSeries.formatTimeForIndex"></a>
+    
+    
+
+                            </div>
+                            <div id="TimeSeries.setSliceStopExclusive" class="classattr">
+                                <div class="attr function">
+                    <div class="decorator">@classmethod</div>
+
+        <span class="def">def</span>
+        <span class="name">setSliceStopExclusive</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">cls</span>, </span><span class="param"><span class="n">state</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span></span><span class="return-annotation">) -> <span class="kc">None</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#TimeSeries.setSliceStopExclusive"></a>
+    
+            <div class="docstring"><p>Set the default slicing behavior of new TimeSeries objects</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>state (bool, optional):</strong>  Defaults to True.
+<ul>
+<li><code>True</code>: python behavior (stop value is excluded)</li>
+<li><code>False</code>: DataFrame behavior (stop value is included)</li>
+</ul></li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="TimeSeries.setSliceStopInclusive" class="classattr">
+                                <div class="attr function">
+                    <div class="decorator">@classmethod</div>
+
+        <span class="def">def</span>
+        <span class="name">setSliceStopInclusive</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">cls</span>, </span><span class="param"><span class="n">state</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span></span><span class="return-annotation">) -> <span class="kc">None</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#TimeSeries.setSliceStopInclusive"></a>
+    
+            <div class="docstring"><p>Set the default slicing behavior of new TimeSeries objects</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>state (bool, optional):</strong>  Defaults to True.
+<ul>
+<li><code>True</code>: DataFrame behavior (stop value is included)</li>
+<li><code>False</code>: python behavior (stop value is excluded)</li>
+</ul></li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="TimeSeries.indexOf" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">indexOf</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="bp">self</span>,</span><span class="param">	<span class="n">item_to_index</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n"><a href="hectime.html#HecTime">hec.hectime.HecTime</a></span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="nb">str</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#TimeSeries.indexOf"></a>
+    
+            <div class="docstring"><p>Retrieves the data index of a specified object</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>item_to_index (Union[HecTime, datetime, int, str]):</strong>  The object to retrieve the index of.
+<ul>
+<li><strong>HecTime</strong>: an HecTime object</li>
+<li><strong>datetime</strong>:  a datetime object</li>
+<li><strong>int</strong>: a normal python index</li>
+<li><strong>str</strong>: a date-time string</li>
+</ul></li>
+</ul>
+
+<h6 id="raises">Raises:</h6>
+
+<ul>
+<li><strong>TypeError:</strong>  If <code>item_to_index</code> is not one of the expected types</li>
+<li><strong>IndexError:</strong>  * <strong>int</strong>: If the integer is out of range of the number of times
+<ul>
+<li><strong>Others</strong>: If no index item matches the input object</li>
+</ul></li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>str: The actual index item that for the specified object</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="TimeSeries.slice_stop_exclusive" class="classattr">
+                                <div class="attr variable">
+            <span class="name">slice_stop_exclusive</span><span class="annotation">: bool</span>
+
+        
+    </div>
+    <a class="headerlink" href="#TimeSeries.slice_stop_exclusive"></a>
+    
+            <div class="docstring"><p>Whether the <code>stop</code> portion of <code>[start:stop]</code> slicing is exclusive for this object.</p>
+
+<ul>
+<li>If <code>True</code>, the slicing TimeSeries objects follows Python rules, where <code>stop</code>
+specifies the lowest index not included.</li>
+<li>If <code>False</code>, the slicing of TimeSeries objects follows pandas.DataFrame rules,
+where <code>stop</code> specifies the highest index included.</li>
+</ul>
+
+<p>The default value is determined by the class state, which defaults to <code>True</code>, but
+can be set by calling <a href="#TimeSeries.setSliceStartExclusive">setSliceStartExclusive()</a> or
+<a href="#TimeSeries.setSliceStartInclusive">setSliceStartInclusive()</a> before creating a
+TimeSeries object</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read/Write</p>
+</blockquote>
 </div>
 
 
@@ -491,6 +746,25 @@
 
 
                             </div>
+                            <div id="TimeSeries.time_zone" class="classattr">
+                                <div class="attr variable">
+            <span class="name">time_zone</span><span class="annotation">: Optional[str]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#TimeSeries.time_zone"></a>
+    
+            <div class="docstring"><p>The time zone of the data</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read Only</p>
+</blockquote>
+</div>
+
+
+                            </div>
                             <div id="TimeSeries.unit" class="classattr">
                                 <div class="attr variable">
             <span class="name">unit</span><span class="annotation">: str</span>
@@ -567,11 +841,89 @@
 
 
                             </div>
+                            <div id="TimeSeries.data" class="classattr">
+                                <div class="attr variable">
+            <span class="name">data</span><span class="annotation">: Optional[pandas.core.frame.DataFrame]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#TimeSeries.data"></a>
+    
+            <div class="docstring"><p>The data as a DataFrame or None if not set. Note this exposes the interal DataFrame object to
+allow direct modification. For uses that should not modify this TimeSeries object, the DataFrame
+should be copied using its <code>copy()</code> method prior to modification (e.g., <code>df = ts.data.copy()</code>)</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read Only</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="TimeSeries.times" class="classattr">
+                                <div class="attr variable">
+            <span class="name">times</span><span class="annotation">: list[str]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#TimeSeries.times"></a>
+    
+            <div class="docstring"><p>The times as a list of strings (empty if there is no data). Items are formatted as yyyy&#8209;mm&#8209;dd&nbsp;hh:mm:ss([+|&#8209;]hh:mm)</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read Only</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="TimeSeries.values" class="classattr">
+                                <div class="attr variable">
+            <span class="name">values</span><span class="annotation">: list[float]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#TimeSeries.values"></a>
+    
+            <div class="docstring"><p>The values as a list of floats (empty if there is no data)</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read Only</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="TimeSeries.qualities" class="classattr">
+                                <div class="attr variable">
+            <span class="name">qualities</span><span class="annotation">: list[int]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#TimeSeries.qualities"></a>
+    
+            <div class="docstring"><p>The qualities as a list of integers (empty if there is no data)</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read Only</p>
+</blockquote>
+</div>
+
+
+                            </div>
                             <div id="TimeSeries.setLocation" class="classattr">
                                 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">setLocation</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n"><a href="location.html#Location">hec.location.Location</a></span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="kc">None</span>:</span></span>
+        <span class="name">setLocation</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="bp">self</span>,</span><span class="param">	<span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n"><a href="location.html#Location">hec.location.Location</a></span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="n"><a href="#TimeSeries">TimeSeries</a></span>:</span></span>
 
         
     </div>
@@ -587,6 +939,12 @@
 <li>str: The location name (may be in the format &lt;<em>office</em>&gt;/&lt;<em>location</em>&gt; to set office)</li>
 </ul></li>
 </ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>TimeSeries: The modified object</p>
+</blockquote>
 </div>
 
 
@@ -595,7 +953,7 @@
                                 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">setParameter</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n"><a href="parameter.html#Parameter">hec.parameter.Parameter</a></span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="kc">None</span>:</span></span>
+        <span class="name">setParameter</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="bp">self</span>,</span><span class="param">	<span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n"><a href="parameter.html#Parameter">hec.parameter.Parameter</a></span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="n"><a href="#TimeSeries">TimeSeries</a></span>:</span></span>
 
         
     </div>
@@ -611,6 +969,12 @@
 <li>str: The parameter name - the unit will be set to the default English unit</li>
 </ul></li>
 </ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>TimeSeries: The modified object</p>
+</blockquote>
 </div>
 
 
@@ -619,7 +983,7 @@
                                 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">setParameterType</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n"><a href="parameter.html#ParameterType">hec.parameter.ParameterType</a></span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="kc">None</span>:</span></span>
+        <span class="name">setParameterType</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="bp">self</span>,</span><span class="param">	<span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n"><a href="parameter.html#ParameterType">hec.parameter.ParameterType</a></span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="n"><a href="#TimeSeries">TimeSeries</a></span>:</span></span>
 
         
     </div>
@@ -635,6 +999,12 @@
 <li>str: The parameter type name</li>
 </ul></li>
 </ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>TimeSeries: The modified object</p>
+</blockquote>
 </div>
 
 
@@ -643,7 +1013,7 @@
                                 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">setInterval</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n"><a href="interval.html#Interval">hec.interval.Interval</a></span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="kc">None</span>:</span></span>
+        <span class="name">setInterval</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="bp">self</span>,</span><span class="param">	<span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n"><a href="interval.html#Interval">hec.interval.Interval</a></span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="n"><a href="#TimeSeries">TimeSeries</a></span>:</span></span>
 
         
     </div>
@@ -660,6 +1030,12 @@
 <li>int: The (actual or characteristic) number of minutes for the interval</li>
 </ul></li>
 </ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>TimeSeries: The modified object</p>
+</blockquote>
 </div>
 
 
@@ -668,7 +1044,7 @@
                                 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">setDuration</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n"><a href="duration.html#Duration">hec.duration.Duration</a></span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="kc">None</span>:</span></span>
+        <span class="name">setDuration</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="bp">self</span>,</span><span class="param">	<span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n"><a href="duration.html#Duration">hec.duration.Duration</a></span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="n"><a href="#TimeSeries">TimeSeries</a></span>:</span></span>
 
         
     </div>
@@ -685,6 +1061,12 @@
 <li>int: The (actual or characteristic) number of minutes for the duration</li>
 </ul></li>
 </ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>TimeSeries: The modified object</p>
+</blockquote>
 </div>
 
 
@@ -693,7 +1075,7 @@
                                 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">setUnit</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">pint</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">Unit</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="kc">None</span>:</span></span>
+        <span class="name">setUnit</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">pint</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">Unit</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="n"><a href="#TimeSeries">TimeSeries</a></span>:</span></span>
 
         
     </div>
@@ -709,6 +1091,12 @@
 <li>str: The unit name</li>
 </ul></li>
 </ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>TimeSeries: The modified object</p>
+</blockquote>
 </div>
 
 
@@ -717,7 +1105,7 @@
                                 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">setVerticalDatumInfo</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span></span><span class="return-annotation">) -> <span class="kc">None</span>:</span></span>
+        <span class="name">setVerticalDatumInfo</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span></span><span class="return-annotation">) -> <span class="n"><a href="#TimeSeries">TimeSeries</a></span>:</span></span>
 
         
     </div>
@@ -739,6 +1127,215 @@
 <ul>
 <li><strong>TimeSeriesException:</strong>  If the base parameter is not "Elev"</li>
 </ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>TimeSeries: The modified object</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="TimeSeries.clone" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">clone</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">include_data</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span></span><span class="return-annotation">) -> <span class="n"><a href="#TimeSeries">TimeSeries</a></span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#TimeSeries.clone"></a>
+    
+            <div class="docstring"><p>Creates a copy of this object, with or without data</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>include_data (bool, optional):</strong>  Specifies whether to include the data in the copy. Defaults to True.</li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>TimeSeries: The copy of this object</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="TimeSeries.setValue" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">setValue</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="bp">self</span>,</span><span class="param">	<span class="n">time</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n"><a href="hectime.html#HecTime">hec.hectime.HecTime</a></span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">slice</span><span class="p">]</span>,</span><span class="param">	<span class="n">value</span><span class="p">:</span> <span class="nb">float</span></span><span class="return-annotation">) -> <span class="n"><a href="#TimeSeries">TimeSeries</a></span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#TimeSeries.setValue"></a>
+    
+            <div class="docstring"><p>Set the value at one or more indexes</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>time (Union[HecTime, datetime, str, int, slice]):</strong>  The index or indexes if a slice</li>
+<li><strong>value (float):</strong>  The value to set</li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>TimeSeries: The modified object</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="TimeSeries.setQuality" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">setQuality</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="bp">self</span>,</span><span class="param">	<span class="n">time</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n"><a href="hectime.html#HecTime">hec.hectime.HecTime</a></span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">slice</span><span class="p">]</span>,</span><span class="param">	<span class="n">quality</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n"><a href="quality.html#Quality">hec.quality.Quality</a></span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="n"><a href="#TimeSeries">TimeSeries</a></span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#TimeSeries.setQuality"></a>
+    
+            <div class="docstring"><p>Set the quality at one or more indexes</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>time (Union[HecTime, datetime, str, int, slice]):</strong>  The index or indexes if a slice</li>
+<li><strong>quality (Union[Quality, int]):</strong>  The quality to set</li>
+</ul>
+
+<h6 id="raises">Raises:</h6>
+
+<ul>
+<li><strong>TimeSeiresException:</strong>  If the object has no data</li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>TimeSeries: The modified object</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="TimeSeries.setValueQuality" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">setValueQuality</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="bp">self</span>,</span><span class="param">	<span class="n">time</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n"><a href="hectime.html#HecTime">hec.hectime.HecTime</a></span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">slice</span><span class="p">]</span>,</span><span class="param">	<span class="n">value</span><span class="p">:</span> <span class="nb">float</span>,</span><span class="param">	<span class="n">quality</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n"><a href="quality.html#Quality">hec.quality.Quality</a></span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="n"><a href="#TimeSeries">TimeSeries</a></span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#TimeSeries.setValueQuality"></a>
+    
+            <div class="docstring"><p>Set the value and quality at one or more indexes</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>time (Union[HecTime, datetime, str, int, slice]):</strong>  The index or indexes if a slice</li>
+<li><strong>value (float):</strong>  The value to set</li>
+<li><strong>quality (Union[Quality, int]):</strong>  The quality to set</li>
+</ul>
+
+<h6 id="raises">Raises:</h6>
+
+<ul>
+<li><strong>TimeSeiresException:</strong>  If the object has no data</li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>TimeSeries: The modified object</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="TimeSeries.atTimeZone" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">atTimeZone</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="bp">self</span>,</span><span class="param">	<span class="n">timeZone</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n"><a href="hectime.html#HecTime">hec.hectime.HecTime</a></span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">,</span> <span class="n">zoneinfo</span><span class="o">.</span><span class="n">ZoneInfo</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="n">NoneType</span><span class="p">]</span>,</span><span class="param">	<span class="n">onAlreadytSet</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span></span><span class="return-annotation">) -> <span class="n"><a href="#TimeSeries">TimeSeries</a></span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#TimeSeries.atTimeZone"></a>
+    
+            <div class="docstring"><p>Attaches the specified time zone to this object. Does not change the actual times</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>timeZone (Optional[Union["HecTime", datetime, ZoneInfo, str]]):</strong>  The time zone to attach or
+object containing that time zone.
+<ul>
+<li>Use <code>"local"</code> to specify the system time zone.</li>
+<li>Use <code>None</code> to remove time zone information</li>
+</ul></li>
+<li><strong>onAlreadytSet (int):</strong>  Specifies action to take if a different time zone is already
+attached. Defaults to 1.
+<ul>
+<li><code>0</code>: Quietly attach the new time zone</li>
+<li><code>1</code>: (default) Issue a warning about attaching a different time zone</li>
+<li><code>2</code>: Raises an exception</li>
+</ul></li>
+</ul>
+
+<h6 id="raises">Raises:</h6>
+
+<ul>
+<li><strong>TimeSeriesException:</strong>  if a different time zone is already attached and <code>onAlreadySet</code> == 2</li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>TimeSeries: The modified object</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="TimeSeries.asTimeZone" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">asTimeZone</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="bp">self</span>,</span><span class="param">	<span class="n">timeZone</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n"><a href="hectime.html#HecTime">hec.hectime.HecTime</a></span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">,</span> <span class="n">zoneinfo</span><span class="o">.</span><span class="n">ZoneInfo</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>,</span><span class="param">	<span class="n">onTzNotSet</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span></span><span class="return-annotation">) -> <span class="n"><a href="#TimeSeries">TimeSeries</a></span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#TimeSeries.asTimeZone"></a>
+    
+            <div class="docstring"><p>Returns a copy of this object at the spcified time zone</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>timeZone (Union[HecTime, datetime, ZoneInfo, str]):</strong>  The target time zone or object containg the target time zone.
+Use <code>"local"</code> to specify the system time zone.</li>
+<li><strong>onTzNotSet (int, optional):</strong>  Specifies behavior if this object has no time zone attached. Defaults to 1.
+<ul>
+<li><code>0</code>: Quietly behave as if this object had the local time zone attached.</li>
+<li><code>1</code>: (default) Same as <code>0</code>, but issue a warning.</li>
+<li><code>2</code>: Raise an exception preventing objectes with out time zones attached from using this method.</li>
+</ul></li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>TimeSeries: A copy of this object at the specified time zone</p>
+</blockquote>
 </div>
 
 
