@@ -2082,15 +2082,15 @@ class HecTime:
             HecTimeException: if invalid parameters are specified
         """
         # ----------------------------------------------------------- #
-        # NOTE __timevals ALWAYS has midnight as 0000 if not None     #
+        # NOTE _timevals ALWAYS has midnight as 0000 if not None      #
         # It is converted to midnight as 2400 out output as necessary #
         # ----------------------------------------------------------- #
-        self.__value: Optional[int] = UNDEFINED_TIME
-        self.__granularity: int = MINUTE_GRANULARITY
-        self.__values: Optional[list[int]] = None
-        self.__midnight_as_2400: bool = True
-        self.__default_date_style = 2
-        self.__tz = None
+        self._value: Optional[int] = UNDEFINED_TIME
+        self._granularity: int = MINUTE_GRANULARITY
+        self._values: Optional[list[int]] = None
+        self._midnight_as_2400: bool = True
+        self._default_date_style = 2
+        self._tz = None
 
         if len(args) == 0:
             # -------------- #
@@ -2359,8 +2359,8 @@ class HecTime:
             granularityStr = "HOUR_GRANULARITY"
         else:
             granularityStr = "DAY_GRANULARITY"
-        if self.__tz:
-            tzStr = f'.atTimeZone("{str(self.__tz)}")'
+        if self._tz:
+            tzStr = f'.atTimeZone("{str(self._tz)}")'
         else:
             tzStr = ""
         if not self.defined:
@@ -2374,11 +2374,11 @@ class HecTime:
     def __eq__(self, other: object) -> bool:
         if isinstance(other, HecTime):
             vals1 = (
-                self.astimezone("UTC").values if self.__tz is not None else self.values
+                self.astimezone("UTC").values if self._tz is not None else self.values
             )
             vals2 = (
                 other.astimezone("UTC").values
-                if other.__tz is not None
+                if other._tz is not None
                 else other.values
             )
             return vals1 == vals2
@@ -2505,7 +2505,7 @@ class HecTime:
         Operations:
             Read Only
         """
-        return self.__tz
+        return self._tz
 
     @property
     def granularity(self) -> int:
@@ -2518,7 +2518,7 @@ class HecTime:
         Returns:
             int: The granularity
         """
-        return self.__granularity
+        return self._granularity
 
     @granularity.setter
     def granularity(self, value: int) -> None:
@@ -2528,15 +2528,15 @@ class HecTime:
             value += 10
         if not isValidGranularity(value):
             raise HecTimeException(f"Invalid time granularity: {value}")
-        self.__granularity = value
+        self._granularity = value
         if values:
             try:
                 self.set(values)
             except:
-                self.__value = UNDEFINED_TIME
-                self.__values = None
-        if self.__granularity == DAY_GRANULARITY:
-            self.__tz = None
+                self._value = UNDEFINED_TIME
+                self._values = None
+        if self._granularity == DAY_GRANULARITY:
+            self._tz = None
 
     @property
     def defined(self) -> bool:
@@ -2557,11 +2557,11 @@ class HecTime:
         Operations:
             Read/Write
         """
-        if self.__value is None:
-            self.__value = getTimeInt(
-                cast(list[int], self.__values), self.__granularity
+        if self._value is None:
+            self._value = getTimeInt(
+                cast(list[int], self._values), self._granularity
             )
-        return self.__value
+        return self._value
 
     @value.setter
     def value(self, value: int) -> None:
@@ -2570,11 +2570,11 @@ class HecTime:
             <= value
             <= cast(int, EXTENTS[self.granularity][DATE_INTEGER][MAX_EXTENT])
         ):
-            self.__value = value
-            self.__values = None
+            self._value = value
+            self._values = None
         else:
-            self.__value = UNDEFINED_TIME
-            self.__values = None
+            self._value = UNDEFINED_TIME
+            self._values = None
 
     @property
     def values(self) -> Optional[list[int]]:
@@ -2587,13 +2587,13 @@ class HecTime:
         Operations:
             Read/Write
         """
-        if self.__values is None:
+        if self._values is None:
             if not self.defined:
                 return None
-            self.__values = getTimeVals(cast(int, self.__value), self.__granularity)
-            if self.__values[:3] == [4, 12, 31]:
-                self.__values[D] = 30
-        return to2400(self.__values) if self.__midnight_as_2400 else self.__values[:]
+            self._values = getTimeVals(cast(int, self._value), self._granularity)
+            if self._values[:3] == [4, 12, 31]:
+                self._values[D] = 30
+        return to2400(self._values) if self._midnight_as_2400 else self._values[:]
 
     @values.setter
     def values(self, values: Union[tuple[int, ...], list[int]]) -> None:
@@ -2606,13 +2606,13 @@ class HecTime:
         if self.granularity > HOUR_GRANULARITY:
             values[H] = 0
         if isValidTime(values, self.granularity):
-            self.__values = values
-            self.__value = None
+            self._values = values
+            self._value = None
             if self.granularity == DAY_GRANULARITY and any(values[3:]):
                 self.value += 1
         else:
-            self.__value = UNDEFINED_TIME
-            self.__values = None
+            self._value = UNDEFINED_TIME
+            self._values = None
 
     @property
     def midnight_as_2400(self) -> bool:
@@ -2623,11 +2623,11 @@ class HecTime:
         Operations:
             Read/Write
         """
-        return self.__midnight_as_2400
+        return self._midnight_as_2400
 
     @midnight_as_2400.setter
     def midnight_as_2400(self, state: bool) -> None:
-        self.__midnight_as_2400 = state
+        self._midnight_as_2400 = state
 
     @property
     def default_date_style(self) -> int:
@@ -2638,11 +2638,11 @@ class HecTime:
         Operations:
             Read/Write
         """
-        return self.__default_date_style
+        return self._default_date_style
 
     @default_date_style.setter
     def default_date_style(self, style: int) -> None:
-        self.__default_date_style = style
+        self._default_date_style = style
 
     @property
     def date_str(self) -> str:
@@ -2887,7 +2887,7 @@ class HecTime:
             HecTime: The updated object
         """
         if isinstance(timeZone, HecTime):
-            tz = timeZone.__tz
+            tz = timeZone._tz
         elif isinstance(timeZone, datetime):
             tz = timeZone.tzinfo
         elif isinstance(timeZone, (ZoneInfo, type(None))):
@@ -2898,12 +2898,12 @@ class HecTime:
                 if timeZone.lower() == "local"
                 else ZoneInfo(timeZone)
             )
-        if self.__tz:
-            if tz == self.__tz:
+        if self._tz:
+            if tz == self._tz:
                 return self
             if tz is not None:
                 if onAlreadytSet > 0:
-                    message = f"{self} already has a time zone set to {self.__tz} when setting to {tz}"
+                    message = f"{self} already has a time zone set to {self._tz} when setting to {tz}"
                     if onAlreadytSet > 1:
                         raise HecTimeException(message)
                     else:
@@ -2911,8 +2911,8 @@ class HecTime:
                             message + ". Use onAlreadySet=0 to prevent this message.",
                             UserWarning,
                         )
-        if self.__granularity != DAY_GRANULARITY:
-            self.__tz = tz
+        if self._granularity != DAY_GRANULARITY:
+            self._tz = tz
         return self
 
     def astimezone(
@@ -2941,7 +2941,7 @@ class HecTime:
             HecTime: A copy of this object at the specified time zone
         """
         if isinstance(timeZone, HecTime):
-            tz = timeZone.__tz
+            tz = timeZone._tz
         elif isinstance(timeZone, datetime):
             tz = timeZone.tzinfo
         elif isinstance(timeZone, ZoneInfo):
@@ -2955,7 +2955,7 @@ class HecTime:
 
         t = HecTime(self)
         if t.granularity != DAY_GRANULARITY:
-            if not self.__tz:
+            if not self._tz:
                 if onTzNotSet > 0:
                     if onTzNotSet > 1:
                         raise HecTimeException(
@@ -2969,7 +2969,7 @@ class HecTime:
             if t.defined:
                 t.set(cast(datetime, self.datetime()).astimezone(tz))
             else:
-                t.__tz = tz
+                t._tz = tz
         return t
 
     @NoOpWarning
@@ -3193,7 +3193,7 @@ class HecTime:
             return ""
         dateStr = ""
         if style is None:
-            style = self.__default_date_style
+            style = self._default_date_style
         style = normalizeDateStyle(style)
         y, m, d = cast(list[int], self.values)[:3]
         year: str
@@ -3257,9 +3257,9 @@ class HecTime:
         dateTimeStr = ""
         if self.defined:
             dateTimeStr += self.date(style)
-        if self.__granularity < DAY_GRANULARITY:
+        if self._granularity < DAY_GRANULARITY:
             timeStr = self.time()
-            if self.__granularity > SECOND_GRANULARITY:
+            if self._granularity > SECOND_GRANULARITY:
                 timeStr = timeStr[:5]
             dateTimeStr += f", {timeStr}" if dateTimeStr else timeStr
         return dateTimeStr
@@ -3280,8 +3280,8 @@ class HecTime:
                     f"Time values {self.values} are not in datetime range"
                 )
             y, m, d, h, n, s = to0000(values)
-            if self.__tz:
-                dt = datetime(y, m, d, h, n, s, tzinfo=self.__tz)
+            if self._tz:
+                dt = datetime(y, m, d, h, n, s, tzinfo=self._tz)
             else:
                 dt = datetime(y, m, d, h, n, s)
             return dt
@@ -3366,7 +3366,7 @@ class HecTime:
             DeprecationWarning,
             stacklevel=2,
         )
-        return self.__default_date_style
+        return self._default_date_style
 
     def getIntervalOffset(self, interval: int) -> Optional[int]:
         """
@@ -3471,11 +3471,11 @@ class HecTime:
             timestr = self.date(-13)
             tv = cast(list[int], self.values)
             timestr += f"T{tv[H]:02d}:{tv[N]:02d}:{tv[S]:02d}"
-            if self.__tz is not None:
+            if self._tz is not None:
                 utc_offset = cast(datetime, self.datetime()).utcoffset()
                 if utc_offset is None:
                     raise HecTimeException(
-                        f"Could not determine UTC offset for time zone {self.__tz}"
+                        f"Could not determine UTC offset for time zone {self._tz}"
                     )
                 offsetMinutes = int(utc_offset.total_seconds() / 60)
                 timestr += f"{int(offsetMinutes/60):+03d}:{offsetMinutes % 60:02d}"
@@ -4076,7 +4076,7 @@ class HecTime:
             # ------------ #
             if isinstance(args[0], int):
                 # set from a time integer
-                if isValidTime(args[0], self.__granularity):
+                if isValidTime(args[0], self._granularity):
                     self.value = args[0]
                 else:
                     self.value = UNDEFINED_TIME
@@ -4105,17 +4105,17 @@ class HecTime:
                     args[0].minute,
                     args[0].second,
                 ]
-                self.__tz = dt.tzinfo
+                self._tz = dt.tzinfo
             elif isinstance(args[0], (list, tuple)):
                 # initialize from a list or tuple of integers
                 self.values = list(args[0])
             elif isinstance(args[0], HecTime):
                 # initialize from another HecTime object
-                self.__value = args[0].value
-                self.__values = args[0].values
-                self.__granularity = args[0].granularity
-                self.__midnight_as_2400 = args[0].midnight_as_2400
-                self.__tz = args[0].__tz
+                self._value = args[0].value
+                self._values = args[0].values
+                self._granularity = args[0].granularity
+                self._midnight_as_2400 = args[0].midnight_as_2400
+                self._tz = args[0]._tz
         elif len(args) == 2:
             if isinstance(args[0], str) and isinstance(args[1], str):
                 self.set(args[0] + " " + args[1])
@@ -4166,7 +4166,7 @@ class HecTime:
             DeprecationWarning,
             stacklevel=2,
         )
-        self.__default_date_style = style
+        self._default_date_style = style
 
     def setJulian(
         self,

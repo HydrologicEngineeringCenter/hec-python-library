@@ -196,6 +196,13 @@ class TimeSpan:
             return TimeSpan(vals)
         else:
             return NotImplemented
+        
+    def __mul__(self, other: object) -> "TimeSpan":
+        if isinstance(other, int):
+            values = list(map(lambda v: v * other, self.values))
+            return TimeSpan(values)
+        else:
+            return NotImplemented
 
     def __sub__(self, other: object) -> "TimeSpan":
         if isinstance(other, TimeSpan):
@@ -217,6 +224,13 @@ class TimeSpan:
 
     def __rsub__(self, other: timedelta) -> timedelta:
         return timedelta(seconds=other.total_seconds() - self.total_seconds())
+        
+    def __rmul__(self, other: object) -> "TimeSpan":
+        if isinstance(other, int):
+            values = list(map(lambda v: v * other, self.values))
+            return TimeSpan(values)
+        else:
+            return NotImplemented
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, TimeSpan):

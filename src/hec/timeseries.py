@@ -29,6 +29,7 @@ from hec.location import Location
 from hec.parameter import ElevParameter, Parameter, ParameterType
 from hec.quality import Quality
 from hec.unit import UnitQuantity
+from hec.timespan import TimeSpan
 
 _CWMS = "CWMS"
 _DSS = "DSS"
@@ -173,13 +174,6 @@ class TimeSeries:
 
     _default_slice_stop_exclusive: bool = True
 
-    @staticmethod
-    def formatTimeForIndex(item: Union[HecTime, datetime, str]) -> str:
-        ht = HecTime()
-        ht.set(item)
-        ht.midnight_as_2400 = False
-        return str(ht).replace("T", " ")
-
     @classmethod
     def setSliceStopExclusive(cls, state: bool = True) -> None:
         """
@@ -246,6 +240,7 @@ class TimeSeries:
         self._version: Optional[str] = None
         self._timezone: Optional[str] = None
         self._data: Optional[pd.DataFrame] = None
+        self._midnight_as_2400: bool = False
 
         if isinstance(init_from, str):
             self.name = init_from
@@ -317,6 +312,189 @@ class TimeSeries:
             other._data = cast(pd.DataFrame, self._data.loc[self.indexOf(key)])
         return other
 
+    def __add__(self, amount: Union["TimeSeries", float, int]) -> "TimeSeries":
+        if isinstance(amount, (float, int)):
+            other = self.clone()
+            other._data["value"] += amount
+            return other
+        else:
+            return NotImplemented
+
+    def __iadd__(self, amount: Union["TimeSeries", float, int]) -> "TimeSeries":
+        if isinstance(amount, (float, int)):
+            self._data["value"] += amount
+            return self
+        else:
+            return NotImplemented
+
+    def __sub__(self, amount: Union["TimeSeries", float, int]) -> "TimeSeries":
+        if isinstance(amount, (float, int)):
+            other = self.clone()
+            other._data["value"] -= amount
+            return other
+        else:
+            return NotImplemented
+
+    def __isub__(self, amount: Union["TimeSeries", float, int]) -> "TimeSeries":
+        if isinstance(amount, (float, int)):
+            self._data["value"] -= amount
+            return self
+        else:
+            return NotImplemented
+
+    def __mul__(self, amount: Union["TimeSeries", float, int]) -> "TimeSeries":
+        if isinstance(amount, (float, int)):
+            other = self.clone()
+            other._data["value"] *= amount
+            return other
+        else:
+            return NotImplemented
+
+    def __imul__(self, amount: Union["TimeSeries", float, int]) -> "TimeSeries":
+        if isinstance(amount, (float, int)):
+            self._data["value"] *= amount
+            return self
+        else:
+            return NotImplemented
+
+    def __truediv__(self, amount: Union["TimeSeries", float, int]) -> "TimeSeries":
+        if isinstance(amount, (float, int)):
+            other = self.clone()
+            other._data["value"] /= amount
+            return other
+        else:
+            return NotImplemented
+
+    def __itruediv__(self, amount: Union["TimeSeries", float, int]) -> "TimeSeries":
+        if isinstance(amount, (float, int)):
+            self._data["value"] /= amount
+            return self
+        else:
+            return NotImplemented
+
+    def __intdiv__(self, amount: Union["TimeSeries", float, int]) -> "TimeSeries":
+        if isinstance(amount, (float, int)):
+            other = self.clone()
+            other._data["value"] //= amount
+            return other
+        else:
+            return NotImplemented
+
+    def __iintdiv__(self, amount: Union["TimeSeries", float, int]) -> "TimeSeries":
+        if isinstance(amount, (float, int)):
+            self._data["value"] //= amount
+            return self
+        else:
+            return NotImplemented
+
+    def __mod__(self, amount: Union["TimeSeries", float, int]) -> "TimeSeries":
+        if isinstance(amount, (float, int)):
+            other = self.clone()
+            other._data["value"] %= amount
+            return other
+        else:
+            return NotImplemented
+
+    def __imod__(self, amount: Union["TimeSeries", float, int]) -> "TimeSeries":
+        if isinstance(amount, (float, int)):
+            self._data["value"] %= amount
+            return self
+        else:
+            return NotImplemented
+
+    def trunc(self, amount: Union[TimeSpan, timedelta, int]) -> "TimeSeries":
+        if isinstance(amount, (float, int)):
+            other = self.clone()
+            other._data["value"] -= other._data["value"] % amount
+            return other
+        else:
+            return NotImplemented
+
+    def itrunc(self, amount: Union[TimeSpan, timedelta, int]) -> "TimeSeries":
+        if isinstance(amount, (float, int)):
+            self._data["value"] -= self._data["value"] % amount
+            return self
+        else:
+            return NotImplemented
+
+    def __lshift__(self, amount: Union[TimeSpan, timedelta, int]) -> "TimeSeries":
+        other: TimeSeries = self.clone()
+        amount: TimeSpan
+        if isinstance(amount,(TimeSpan)):
+            offset = amount
+        elif isinstance(amount, timedelta):
+            offset = TimeSpan(amount)
+        elif isinstance(amount, int):
+            if self._interval.isIrregular:
+                raise TimeSeriesException("Cannot shift an irregular interval time series by an integer value")
+            offset = amount * self._interval
+        times = list(map(HecTime, self.times))
+        for i in range(len(times)):
+            times[i].midnight_as_2400 = False
+            times[i] -= offset
+            times[i] = times[i].datetime()
+        other._data.index = pd.DatetimeIndex(times)
+        other._data.index.name = "time"
+        return other
+
+    def __ilshift__(self, amount: Union[TimeSpan, timedelta, int]) -> "TimeSeries":
+        amount: TimeSpan
+        if isinstance(amount,(TimeSpan)):
+            offset = amount
+        elif isinstance(amount, timedelta):
+            offset = TimeSpan(amount)
+        elif isinstance(amount, int):
+            if self._interval.isIrregular:
+                raise TimeSeriesException("Cannot shift an irregular interval time series by an integer value")
+            offset = amount * self._interval
+        times = list(map(HecTime, self.times))
+        for i in range(len(times)):
+            times[i].midnight_as_2400 = False
+            times[i] -= offset
+            times[i] = times[i].datetime()
+        self._data.index = pd.DatetimeIndex(times)
+        self._data.index.name = "time"
+        return self
+
+    def __rshift__(self, amount: Union[TimeSpan, timedelta, int]) -> "TimeSeries":
+        other: TimeSeries = self.clone()
+        amount: TimeSpan
+        if isinstance(amount,(TimeSpan)):
+            offset = amount
+        elif isinstance(amount, timedelta):
+            offset = TimeSpan(amount)
+        elif isinstance(amount, int):
+            if self._interval.isIrregular:
+                raise TimeSeriesException("Cannot shift an irregular interval time series by an integer value")
+            offset = amount * self._interval
+        times = list(map(HecTime, self.times))
+        for i in range(len(times)):
+            times[i].midnight_as_2400 = False
+            times[i] += offset
+            times[i] = times[i].datetime()
+        other._data.index = pd.DatetimeIndex(times)
+        other._data.index.name = "time"
+        return other
+
+    def __irshift__(self, amount: Union[TimeSpan, timedelta, int]) -> "TimeSeries":
+        amount: TimeSpan
+        if isinstance(amount,(TimeSpan)):
+            offset = amount
+        elif isinstance(amount, timedelta):
+            offset = TimeSpan(amount)
+        elif isinstance(amount, int):
+            if self._interval.isIrregular:
+                raise TimeSeriesException("Cannot shift an irregular interval time series by an integer value")
+            offset = amount * self._interval
+        times = list(map(HecTime, self.times))
+        for i in range(len(times)):
+            times[i].midnight_as_2400 = False
+            times[i] += offset
+            times[i] = times[i].datetime()
+        self._data.index = pd.DatetimeIndex(times)
+        self._data.index.name = "time"
+        return self
+        
     def indexOf(self, item_to_index: Union[HecTime, datetime, int, str]) -> str:
         """
         Retrieves the data index of a specified object
@@ -340,18 +518,11 @@ class TimeSeries:
         times = self.times
         idx = None
         try:
-            if isinstance(item_to_index, HecTime):
+            if isinstance(item_to_index, (HecTime, datetime, str)):
                 ht = HecTime(item_to_index)
                 ht.midnight_as_2400 = False
                 key = str(ht).replace("T", " ")
                 idx = times.index(key)
-            elif isinstance(item_to_index, datetime):
-                ht = HecTime(item_to_index)
-                ht.midnight_as_2400 = False
-                key = str(ht).replace("T", " ")
-                idx = times.index(key)
-            elif isinstance(item_to_index, str):
-                idx = times.index(item_to_index)
             elif isinstance(item_to_index, int):
                 idx = item_to_index
             else:
@@ -628,7 +799,7 @@ class TimeSeries:
         return (
             []
             if self._data is None
-            else list(map(TimeSeries.formatTimeForIndex, self._data.index.tolist()))
+            else list(map(self.formatTimeForIndex, self._data.index.tolist()))
         )
 
     @property
@@ -650,6 +821,21 @@ class TimeSeries:
             Read Only
         """
         return [] if self._data is None else self._data["quality"].tolist()
+
+    @property
+    def midnight_as_2400(self) -> bool:
+        """
+        The object's current setting of whether to show midnight as hour 24 (default) or not.
+
+
+        Operations:
+            Read/Write
+        """
+        return self._midnight_as_2400
+
+    @midnight_as_2400.setter
+    def midnight_as_2400(self, state: bool) -> None:
+        self._midnight_as_2400 = state
 
     def setLocation(self, value: Union[Location, str]) -> "TimeSeries":
         """
@@ -677,6 +863,22 @@ class TimeSeries:
             else:
                 raise TimeSeriesException(f"Invalid context: {self._context}")
         return self
+
+    def formatTimeForIndex(self, item: Union[HecTime, datetime, str]) -> str:
+        """
+        Formats a time item for indexing into the times of this object. The formatting depends on
+        the setting of this object's [`mindnight_as_2400`](#TimeSeries.midnight_as_2400) property
+
+        Args:
+            item (Union[HecTime, datetime, str]): The time item to format.
+
+        Returns:
+            str: The formatted string with the midnight setting of this object
+        """
+        ht = HecTime()
+        ht.set(item)
+        ht.midnight_as_2400 = self.midnight_as_2400
+        return str(ht).replace("T", " ")
 
     def setParameter(self, value: Union[Parameter, str]) -> "TimeSeries":
         """
