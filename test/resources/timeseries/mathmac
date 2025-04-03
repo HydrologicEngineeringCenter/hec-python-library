@@ -1,0 +1,58 @@
+BOOTSTRAP
+!run driver
+
+macro driver
+op dssmath_test
+ti 01feb2025 0100 03feb2025 2400
+get ts=//DSSMATH/VOLUME/01FEB2025/1HOUR/BASE_1HOUR_0/
+co base=tsnap(ts,1h,0min,5min,5min)
+ta base
+!run types base 1Hour 1Hour 0min 0
+!run types base 1Hour 6Hour 0min 0
+get ts=//DSSMATH/VOLUME/01FEB2025/1HOUR/BASE_1HOUR_10/
+co base=tsnap(ts,1h,10min,5min,5min)
+ta base
+!run types base 1Hour 1Hour 0min 10
+!run types base 1Hour 6Hour 0min 10
+get ts=//DSSMATH/VOLUME/01FEB2025/6HOUR/BASE_6HOUR_0/
+co base=tsnap(ts,6h,0min,5min,5min)
+ta base
+!run types base 6Hour 1Hour 0min 0
+!run types base 6Hour 6Hour 0min 0
+get ts=//DSSMATH/VOLUME/01FEB2025/6HOUR/BASE_6HOUR_15/
+co base=tsnap(ts,6h,15min,5min,5min)
+ta base
+!run types base 6Hour 1Hour 0min 15
+!run types base 6Hour 6Hour 0min 15
+fi
+endmacro
+
+macro types $ts $src_intvl $intvl $comp_off $data_off
+sd $ts type=INST-VAL
+put.a $ts=c=VOLUME_INST_VAL e=$src_intvl f=BASE_$src_intvl_$data_off
+!run comp_all $ts VOLUME_INST_VAL $src_intvl $intvl $comp_off $data_off
+sd $ts type=INST-CUM
+put.a $ts=c=VOLUME_INST_CUM e=$src_intvl f=BASE_$src_intvl_$data_off
+!run comp_all $ts VOLUME_INST_CUM $src_intvl $intvl $comp_off $data_off
+sd $ts type=PER-AVER
+put.a $ts=c=VOLUME_PER_AVER e=$src_intvl f=BASE_$src_intvl_$data_off
+!run comp_all $ts VOLUME_PER_AVER $src_intvl $intvl $comp_off $data_off
+sd $ts type=PER-CUM
+put.a $ts=c=VOLUME_PER_CUM e=$src_intvl f=BASE_$src_intvl_$data_off
+!run comp_all $ts VOLUME_PER_CUM $src_intvl $intvl $comp_off $data_off
+endmacro
+
+macro comp_all $ts $param $src_intvl $intvl $comp_off $data_off
+!run comp_one int $ts $param $src_intvl $intvl $comp_off $data_off
+!run comp_one max $ts $param $src_intvl $intvl $comp_off $data_off
+!run comp_one min $ts $param $src_intvl $intvl $comp_off $data_off
+!run comp_one ave $ts $param $src_intvl $intvl $comp_off $data_off
+!run comp_one acc $ts $param $src_intvl $intvl $comp_off $data_off
+!run comp_one num $ts $param $src_intvl $intvl $comp_off $data_off
+!run comp_one itg $ts $param $src_intvl $intvl $comp_off $data_off
+endmacro
+
+macro comp_one $func $ts $param $src_intvl $intvl $comp_off $data_off
+co $func=ttsr($ts,$intvl,$comp_off,$func,50%,default)
+put.a $func=c=$param e=$intvl f=$func_$src_intvl_$data_off
+endmacro

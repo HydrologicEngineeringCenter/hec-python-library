@@ -1,4 +1,5 @@
-"""Package to provide native Python equivalent to HEC Java classes.
+"""
+Package to provide native Python equivalent to HEC Java classes.
 """
 
 __all__ = [
@@ -10,4 +11,6 @@ __all__ = [
     "unit",
     "parameter",
     "quality",
+    "timeseries",
+    "const",
 ]

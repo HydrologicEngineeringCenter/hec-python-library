@@ -1,0 +1,182 @@
+from hec.heclib.dss import HecDss
+from hec.heclib.util import Heclib, HecTime, HecTimeArray
+from hec.hecmath import TimeSeriesMath
+from hec.io import TimeSeriesContainer
+from hec.script import Constants
+import os, traceback
+
+UNDEFINED = Constants.UNDEFINED
+pathname = "//Loc/Flow//6Hour/Test/"
+
+all_settings = {
+    "small_interval_aligned": {
+        "start_time": "01Feb2025, 01:00",
+        "interval": 60,
+        "number_values": 48,
+        "value_step": 1,
+        "transform_interval": "1H",
+        "fpart": "BASE_1HOUR_0"
+    },
+    "small_interval_nonaligned": {
+        "start_time": "01Feb2025, 01:10",
+        "interval": 60,
+        "number_values": 48,
+        "value_step": 1,
+        "transform_interval": "1H",
+        "fpart": "BASE_1HOUR_10"
+    },
+    "large_interval_aligned": {
+        "start_time": "01Feb2025, 06:00",
+        "interval": 360,
+        "number_values": 5,
+        "value_step": 6,
+        "transform_interval": "6H",
+        "fpart": "BASE_6HOUR_0"
+    },
+    "large_interval_nonaligned": {
+        "start_time": "01Feb2025, 06:15",
+        "interval": 360,
+        "number_values": 5,
+        "value_step": 6,
+        "transform_interval": "6H",
+        "fpart": "BASE_6HOUR_15"
+    },
+    "small_to_large_aligned": {
+        "start_time": "01Feb2025, 01:00",
+        "interval": 60,
+        "number_values": 48,
+        "value_step": 1,
+        "transform_interval": "6H",
+        "fpart": "BASE_1HOUR_0"
+    },
+    "small_to_large_nonaligned": {
+        "start_time": "01Feb2025, 01:10",
+        "interval": 60,
+        "number_values": 48,
+        "value_step": 1,
+        "transform_interval": "6H",
+        "fpart": "BASE_1HOUR_10"
+    },
+    "large_to_small_aligned": {
+        "start_time": "01Feb2025, 06:00",
+        "interval": 360,
+        "number_values": 5,
+        "value_step": 6,
+        "transform_interval": "1H",
+        "fpart": "BASE_6HOUR_0"
+    },
+    "large_to_small_nonaligned": {
+        "start_time": "01Feb2025, 06:15",
+        "interval": 360,
+        "number_values": 5,
+        "value_step": 6,
+        "transform_interval": "1H",
+        "fpart": "BASE_6HOUR_15"
+    },
+}
+
+dssfile1 = r"U:\Devl\git\hec-python-library\test\resources\timeseries\jython_test.dss"
+dssfile2 = r"U:\Devl\git\hec-python-library\test\resources\timeseries\DSSMATH_test.dss"
+Heclib.zset("MLVL", "", 0)
+# if os.path.exists(dssfile1):
+    # os.remove(dssfile1)
+dss1 = HecDss.open(dssfile1)
+
+for key in all_settings:
+    # print("KEY = {}".format(key))
+    settings = all_settings[key]
+    parameter = "VOLUME"
+    t = HecTime()
+    t.set(settings["start_time"])
+    tsc = TimeSeriesContainer()
+    tsc.location = "HECMATH"
+    tsc.interval = settings["interval"]
+    tsc.units = "ft3"
+    tsc.numberValues = settings["number_values"]
+    tsc.setTimes(HecTimeArray([t.value() + i * tsc.interval for i in range(tsc.numberValues)]))
+    tsc.setValues([100. + settings["value_step"] * i for i in range(tsc.numberValues)])
+
+    for dataType in ("INST-VAL", "INST-CUM", "PER-AVER", "PER-CUM"):
+        tsc.type = dataType
+        tsc.parameter = "{}_{}".format(parameter, dataType.replace("-", "_"))
+        tsc.version = settings["fpart"]
+        tsc.fullName = "//{}/{}//{}/{}/".format(
+            tsc.location,
+            tsc.parameter,
+            "1Hour" if tsc.interval == 60 else "6Hour",
+            tsc.version
+            
+        )
+        dss1.put(tsc)
+        for func in "INT", "MAX", "MIN", "AVE", "ACC", "ITG", "NUM":
+            try:
+                tsm = TimeSeriesMath(tsc).transformTimeSeries(settings["transform_interval"], "0M", func)
+                if func == "ITG":
+                    tsm = tsm.multiply(60)
+                tsc2 = tsm.getData()
+                tsc2.version = tsc2.version.replace("BASE", func)
+                tsc2.fullName = tsc2.fullName.replace("BASE", func)
+                # print("\t\t{}".format(tsc2.fullName))
+                dss1.put(tsc2)
+            except:
+                pass
+
+pathnames1 = set(map(lambda s: s.replace("HECMATH", "MATH"), dss1.getPathnameList()))
+dss2 = HecDss.open(dssfile2)
+pathnames2 = set(map(lambda s: s.replace("DSSMATH", "MATH"), dss2.getPathnameList()))
+only_in_1 = sorted(pathnames1 - pathnames2)
+only_in_2 = sorted(pathnames2 - pathnames1)
+in_both = sorted(pathnames1 & pathnames2)
+
+print("Pathnames only in file 1 ({}):\n\t{}".format(dssfile1, "\n\t".join(only_in_1)))
+print("Pathnames only in file 2 ({}):\n\t{}".format(dssfile2, "\n\t".join(only_in_2)))
+print("Pathnames in both:")
+same_count = different_count = 0
+for pn in in_both:
+    times = None
+    print("\t{}".format(pn))
+    tsc1 = dss1.get(pn.replace("MATH", "HECMATH"))
+    tsc2 = dss2.get(pn.replace("MATH", "DSSMATH"))
+    number_different = 0
+    if (tsc1.numberValues != tsc2.numberValues):
+        print("\t\tfile 1: {}.values\n\t\tfile 2: {} values".format(tsc1.numberValues, tsc2.numberValues))
+    common_count = min(tsc1.numberValues, tsc2.numberValues)
+    for i in range(common_count):
+        if "{:.4E}".format(tsc2.values[i]) != "{:.4E}".format(tsc1.values[i]):
+            number_different += 1
+            if not times:
+                times = tsc1.getTimes()
+            time = times.getTimeInDataTimeZone(i)
+            print("\t\t{}\t{}\t{}\t{}".format(
+                i,
+                time.dateAndTime(-13),
+                "<missing>" if tsc1.values[i] == UNDEFINED else "{:.3f}".format(tsc1.values[i]).rjust(9),
+                "<missing>" if tsc2.values[i] == UNDEFINED else "{:.3f}".format(tsc2.values[i]).rjust(9)))
+    if (tsc1.numberValues > tsc2.numberValues):
+        i = tsc1.numberValues - 1
+        time = tsc1.getTimes().getTimeInDataTimeZone(i)
+        print("\t\t{}\t{}\t{}\t{}".format(
+            i,
+            time.dateAndTime(-13),
+            "<missing>" if tsc1.values[i] == UNDEFINED else "{:.3f}".format(tsc1.values[i]).rjust(9),
+            "<missing>"))
+    if (tsc1.numberValues < tsc2.numberValues):
+        i = tsc2.numberValues - 1
+        time = tsc2.getTimes().getTimeInDataTimeZone(i)
+        print("\t\t{}\t{}\t{}\t{}".format(
+            i,
+            time.dateAndTime(-13),
+            "<missing>",
+            "<missing>" if tsc2.values[i] == UNDEFINED else "{:.3f}".format(tsc2.values[i]).rjust(9)))
+    if number_different > 0:
+        print("\t\t{} of {} values differ".format(number_different, common_count))
+    if number_different == 0 and tsc1.numberValues == tsc2.numberValues:
+        same_count += 1
+    else:
+        different_count += 1
+
+print("{:3d} pathnames same".format(same_count))
+print("{:3d} pathnames differ".format(different_count))
+
+
+

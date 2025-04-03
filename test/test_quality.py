@@ -1,7 +1,9 @@
 from test.shared import dataset_from_file
+
+import pytest
+
 from hec import quality
 from hec.quality import Quality
-import pytest
 
 
 # ------------------------------------------------ #

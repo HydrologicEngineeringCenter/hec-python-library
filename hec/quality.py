@@ -42,7 +42,9 @@ Provides quality code info and operations
 ```
 """
 
-import os, re, sys
+import os
+import re
+import sys
 
 _import_dir = os.path.abspath(".")
 if not _import_dir in sys.path:
@@ -55,8 +57,7 @@ class QualityException(Exception):
     pass
 
 
-from typing import Any
-from typing import Union
+from typing import Any, Union
 
 _NORMAL_QUALITY_MASK = 0b1000_0011_0101_1111_1111_1111_1111_1111
 
@@ -300,7 +301,7 @@ def test_failed_id(code: int) -> str:
             <tr><td>32</td><td>NEG_INCREMENT</td></tr>
             <tr><td>128</td><td>SKIP_LIST</td></tr>
             <tr><td>512</td><td>USER_DEFINED</td></tr>
-            <tr><td>1024</td><td>DISTRIBUTSION</td></tr>
+            <tr><td>1024</td><td>DISTRIBUTION</td></tr>
             </table>
     """
     failed = []
@@ -741,7 +742,7 @@ class Quality:
                     * test failed identifier (may be multiple identifiers concatenated with `+` character)
                     * protected identifier
         """
-        self._code: int
+        self._code: int = 0
         self._screened: int
         self._validity: int
         self._value_range: int
@@ -754,7 +755,7 @@ class Quality:
         if isinstance(init_from, int):
             self._code = normalize_quality_code(init_from)
         elif isinstance(init_from, Quality):
-            self._code = init_from.code
+            self._code = init_from._code
         elif isinstance(init_from, str):
             s = init_from.upper()
             if "UNSCREENED".startswith(s) and not "UNKNOWN".startswith(s):
@@ -900,7 +901,7 @@ class Quality:
             _test_failed,
             _protection,
         ) = get_code_ids(self._code)
-        return f"{_protection} {_screened} {_validity} {_range} {_changed} {_repl_cause} {_repl_method} {_test_failed}".title()
+        return f"{_screened} {_validity} {_range} {_changed} {_repl_cause} {_repl_method} {_test_failed} {_protection}".title()
 
     @property
     def symbol(self) -> str:
@@ -908,14 +909,14 @@ class Quality:
         The text symbol of the quality.
 
         The symbol will be one or two characters, with the first character being:
-        * `u`: Unscreened
-        * `i` or `I`: Screened, value is indeterminate
-        * `o` or `O`: Screened, value is okay
-        * `m` or `M`: Screened, value is missing
-        * `q` or `Q`: Screened, value is questioned
-        * `r` or `R`: Screened, value is rejected
+        * `~`: Not screened
+        * `u` or 'U': Screened, validity is unknown
+        * `o` or `O`: Screened, validity is okay
+        * `m` or `M`: Screened, validity is missing
+        * `q` or `Q`: Screened, validity is questioned
+        * `r` or `R`: Screened, validity is rejected
 
-        If the quality has the protection bit set, the first chanacter will be uppercase; if not, it will be lowercase.
+        If a screened quality has the protection bit set, the first chanacter will be uppercase; if not, it will be lowercase.
 
         A second character of `+` signifies that the quality has additional information about one or more of the following:
         * value range
@@ -930,9 +931,9 @@ class Quality:
         if not self._validated:
             self._validate()
         if not self._screened:
-            s = "u"
+            s = "~"
         else:
-            s = _validity_ids[self._validity][0].replace("U", "I")
+            s = _validity_ids[self._validity][0]
             if self._value_range or self._changed or self._test_failed:
                 s += "+"
             if not self.protection:

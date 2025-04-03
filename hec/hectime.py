@@ -6,24 +6,29 @@ Module to provide native python compatibility for the `hec.heclib.util.HecTime` 
 Jump to [**`class HecTime`**](#HecTime)
 """
 
-import os, sys
+import os
+import sys
 
 _import_dir = os.path.abspath(".")
 if not _import_dir in sys.path:
     sys.path.append(_import_dir)
 
-from datetime import datetime, timedelta
-from functools import total_ordering, wraps
-from typing import cast
-from typing import Any
-from typing import Callable
-from typing import Optional
-from typing import Union
-from zoneinfo import ZoneInfo
-from hec.timespan import TimeSpan
-from hec.interval import Interval
+import math
+import re
+import traceback
+import warnings
+import zoneinfo
+from datetime import datetime, timedelta, timezone, tzinfo
 from fractions import Fraction
-import math, re, tzlocal, warnings, zoneinfo
+from functools import total_ordering, wraps
+from typing import Any, Callable, Optional, Union, cast
+from zoneinfo import ZoneInfo
+
+import pytz
+import tzlocal
+
+from hec.interval import Interval
+from hec.timespan import TimeSpan
 
 __all__ = [
     "UNDEFINED_TIME",
@@ -455,7 +460,7 @@ def datjul(dateStr: str, julian: list[int]) -> None:
     Raises:
         HecTimeException: if the date string cannot be successfully parsed
     """
-    values = parseDateTimeStr(dateStr)
+    values = parseDateTimeStr(dateStr)[0]
     julian[0] = yearMonthDayToJulian(values[Y], values[M], values[D], False)
 
 
@@ -472,7 +477,7 @@ def datymd(dateStr: str, ymd: list[int]) -> int:
     """
     status = 0
     try:
-        values = parseDateTimeStr(dateStr)
+        values = parseDateTimeStr(dateStr)[0]
         ymd[Y] = values[Y]
         ymd[M] = values[M]
         ymd[D] = values[D]
@@ -762,12 +767,12 @@ def getTimeWindow(
             start, end = f"{parts[0]} {parts[1]}", parts[2]
     else:
         try:
-            timevals_start = parseDateTimeStr(f"{parts[0]} {parts[1]}")
-            tiemvals_end = parseDateTimeStr(parts[2])
+            timevals_start = parseDateTimeStr(f"{parts[0]} {parts[1]}")[0]
+            tiemvals_end = parseDateTimeStr(parts[2])[0]
         except:
             try:
-                tiemvals_start = parseDateTimeStr(parts[0])
-                timevals_end = parseDateTimeStr(f"{parts[1]} {parts[2]}")
+                tiemvals_start = parseDateTimeStr(parts[0])[0]
+                timevals_end = parseDateTimeStr(f"{parts[1]} {parts[2]}")[0]
             except:
                 status = -1
     if status == 0:
@@ -1552,9 +1557,11 @@ def normalizeTimeVals(values: list[int]) -> None:
         d = maxDay(values[Y], values[M])
 
 
-def parseDateTimeStr(dateTimeStr: str) -> list[int]:
+def parseDateTimeStr(
+    dateTimeStr: str, include_tz: bool = False
+) -> tuple[list[int], Optional[str]]:
     """
-    Parse date/time strings of various formats into time values (`[year, month, day, hour, minute, second]`).
+    Parse date/time strings of various formats into time values (`[year, month, day, hour, minute, second]` and an optional time zone string).
 
     The string must contain at least year, month, day. Missing seconds, (minutes, seconds), or (hours, minutes, seconds)
     are set to zero.
@@ -1563,12 +1570,16 @@ def parseDateTimeStr(dateTimeStr: str) -> list[int]:
 
     Args:
         dateTimeStr (str): The date/time string
+        include_tz (bool): Whether to include the time zone portion if dateTimeStr is in ISO-8601 format.
+        If  `True`, the tuple returned will include the time zone string. Defaults to False
 
     Raises:
         HecTimeException: if dateTimeStr cannot be parsed into at least year, month, and day
 
     Returns:
-        list[int]: The time values as parsed from the date/time string.
+        tuple[list[int], Optional[str]]:
+            *Position 0: The time values as parsed from the date/time string: `[year, month, day, hour, minute, second]`
+            *Position 1: The time zone string if `include_tz == True` and `dateTimeStr` has a time zone portion, otherwise None
 
     See Also:
         [**`HecTime.strptime()`**](#HecTime.strptime)
@@ -1595,9 +1606,10 @@ def parseDateTimeStr(dateTimeStr: str) -> list[int]:
         # 10 = tz string
         # 11 = tz hour
         # 13 = tz minute
-        r"(-?\d{4,})-(\d{2})-(\d{2})(T(\d{2})(:(\d{2})(:(\d{2}))?)?)?(Z|([+-]?\d{2})(:(\d{2}))?)?"
+        r"(-?\d{4,})-(\d{2})-(\d{2})([T ](\d{2})(:(\d{2})(:(\d{2}))?)?)?(Z|([+-]?\d{2})(:(\d{2}))?)?"
     )
 
+    tzstr = None
     matcher = iso8601Pattern.match(dateTimeStr)
     if matcher and len(matcher.group(0)) == len(dateTimeStr):
         y, m, d, h, n, s = [
@@ -1605,7 +1617,10 @@ def parseDateTimeStr(dateTimeStr: str) -> list[int]:
             for v in [matcher.group(i) for i in (1, 2, 3, 5, 7, 9)]
         ]
         # TODO - Handle time zone
-        return [y, m, d, h, n, s]
+        if include_tz:
+            tzstr = matcher.group(10)
+            return [y, m, d, h, n, s], tzstr
+        return [y, m, d, h, n, s], None
 
     # ---------------------- #
     # handle generic pattern #
@@ -1689,7 +1704,7 @@ def parseDateTimeStr(dateTimeStr: str) -> list[int]:
     s = intParts[5]
     if not 0 <= s <= 59:
         raise Exception
-    return [y, m, d, h, n, s]
+    return [y, m, d, h, n, s], tzstr
 
 
 def previousMonth(y: int, m: int) -> tuple[int, int]:
@@ -1963,11 +1978,11 @@ class HecTime:
 
         This class is written to be trivially convertable to/from `datetime` objects and updatable via `timedelta` objects.
         Like `datetime` objects, `HecTime` objects are not time zone aware unless given time zone information. For `HecTime`
-        objects the `atTimeZone()` method is used for this purpose. Also like `datetime` objects, using the [`astimezone()`](#HecTime.astimezone)
+        objects the `labelAsTimeZone()` method is used for this purpose. Also like `datetime` objects, using the [`astimezone()`](#HecTime.astimezone)
         method causes the object to act as if it had been initialized with the local time zone.
 
         Initialization from a `datetime` object is acccomplished via `ht = HecTime(dt_obj)`. Retieval of a `datetime`
-        object is accomplished via `dt_obj = ht.datetime()`. The [`HecTime.atTimeZone(tz)`](#HecTime.atTimeZone) accomplishes
+        object is accomplished via `dt_obj = ht.datetime()`. The [`HecTime.labelAsTimeZone(tz)`](#HecTime.labelAsTimeZone) accomplishes
         the same thing as `datetime.replace(tzinfo=tz)`, and the [`HecTime.astimezone(tz)`](#HecTime.astimezone) accomplishes
         the same thing as `datetime.astimezone(tz)`
 
@@ -2005,22 +2020,37 @@ class HecTime:
 
         **Addition, subtraction, and comparison operators**
 
-        Integers, `HecTime` objects, `timedelta` objects, and specially formatted strings can be used on the right side of the
-        `+` and `+=` operators. The result is always another `HecTime` object. Allowing `HecTime` objects to be added to each
-        other breaks the similarity with `datetime`, but the Java HecTime code suppored it.
+        <a name="addition"></a>
+        Integers, `HecTime` objects, [`TimeSpan`](./timespan.html#TimeSpan) objects, [`Interval`](./interval.html#Interval) objects,
+        [`Duration`](./duration.html#Duration) objects, `timedelta` objects, and specially formatted strings (see below) can be used
+        on the right side of the `+` and `+=` operators. The result is always another `HecTime` object. Allowing `HecTime` objects
+        to be added to each other breaks the similarity with `datetime`, but is included to provide the functionality Java HecTime.
 
-        Integers, `HecTime` objects, `datetime` objects, `timedelta` objects, and specially formatted strings and be usd
-        on the right side of the `-` operator. The result is a `HecTime` object for intgers, `timedelta` objects and strings.
-        it is a `timedelta` object for `HecTime` and `timedelta` objects. Integers, `timedelta` objects and specially foratted
-        strings can also be on the right side of the `-=` operator
+        <a name="subtraction"></a>
+        Integers, `HecTime` objects, `datetime` objects, [`TimeSpan`](./timespan.html#TimeSpan) objects, [`Interval`](./interval.html#Interval)
+        objects, [`Duration`](./duration.html#Duration) objects, `timedelta` objects, and specially formatted strings (see below) can be
+        used on the right side of the `-` or `-=` operators.
+        * The result is an `HecTime` object when subtracting intgers, [`TimeSpan`](./timespan.html#TimeSpan) objects,
+            [`Interval`](./interval.html#Interval) objects, [`Duration`](./duration.html#Duration) objects, `timedelta` objects and strings.
+        * The result is a [`TimeSpan`](./timespan.html#TimeSpan) object when subtracting `HecTime` objects
+        * The result is a `timedelta` object when subtracting `datetime` objects
+
+        If the `HecTime` object on the left side of any `+`, `-`, `+=`, or `-=` operator has a time zone attached and the right-
+        side object is an `Interval` has the `is_local_regular` property of True, then addition and subtraction is performed
+        with respect to the time zone of the `HecTime` object. For example if the `HecTime` object is at midnight in the US/Pacific
+        time zone, then adding a local-regular interval of 2 hours will result in an `HecTime` object at 2 a.m. in the same time
+        zone. The actual amount of time added with respect to UTC will be 1, 2, or 3 hours, depending on the day, month, and year.
 
         Adding and subtracting integers adds or subracts the number of granules in the object so the change may be in seconds,
         minutes, hours, or days, depending on the object's granularity.
 
         Strings of the format used for the offset portion of relative time strings in [`getTimeWindow()`](#getTimeWindow) can be
         used in addition and subtraction operators. Examples
-            - `t - "1y"` would return an `HecTime` object one year prior to the `t` object
-            - `t += "3m-2d+1h"` would increment the `t` object forward 3 months, back 2 days and forward 1 hour.
+        - `t - "1y"` would return an `HecTime` object one year prior to the `t` object
+        - `t += "3m-2d+1h"` would increment the `t` object forward 3 months, back 2 days and forward 1 hour.
+
+        This precludes using ISO 8601 duration strings that have minutes or seconds components. To use these, create a [`TimeSpan`](./timespan.html#TimeSpan)
+        object from the string for the addend
 
         `HecTime` objects can be compared with each other or with `datetime` objects using the standard operators (`==`, `!=`, `<`, `<=`, `>`, `>=`).
         Either type may be on either side of the operators.
@@ -2052,7 +2082,7 @@ class HecTime:
 
     def __init__(self, *args: Any):
         """
-        Initializes a newly-created `HecTime` object.
+        <a id="HecTime.__init__">Initializes a newly-created `HecTime` object.</a>
 
         <h6 id="arguments">Arguments:</h6>
         - **`HecTime()`** initializes granularity to [`MINUTE_GRANULARITY`](#MINUTE_GRANULARITY) and time to [`UNDEFINED_TIME`](#UNDEFINED_TIME)
@@ -2069,15 +2099,15 @@ class HecTime:
             HecTimeException: if invalid parameters are specified
         """
         # ----------------------------------------------------------- #
-        # NOTE __timevals ALWAYS has midnight as 0000 if not None     #
+        # NOTE _timevals ALWAYS has midnight as 0000 if not None      #
         # It is converted to midnight as 2400 out output as necessary #
         # ----------------------------------------------------------- #
-        self.__value: Optional[int] = UNDEFINED_TIME
-        self.__granularity: int = MINUTE_GRANULARITY
-        self.__values: Optional[list[int]] = None
-        self.__midnight_as_2400: bool = True
-        self.__default_date_style = 2
-        self.__tz = None
+        self._value: Optional[int] = UNDEFINED_TIME
+        self._granularity: int = MINUTE_GRANULARITY
+        self._values: Optional[list[int]] = None
+        self._midnight_as_2400: bool = True
+        self._default_date_style = 2
+        self._tz = None
 
         if len(args) == 0:
             # -------------- #
@@ -2102,7 +2132,7 @@ class HecTime:
                 self.set(args[0])
             elif isinstance(args[0], str):
                 # initialize from a datetime string
-                self.set(parseDateTimeStr(args[0]))
+                self.set(args[0])
             else:
                 raise HecTimeException(
                     f"Invalid initializer: {args[0].__class__.__name__} {args[0]}"
@@ -2157,99 +2187,161 @@ class HecTime:
 
     def __iadd__(self, other: object) -> "HecTime":
         if self.defined:
+            temp = self if self._tz is None else self.convertToTimeZone("UTC")
             if isinstance(other, int):
-                self.value += other
+                temp.value += other
             elif isinstance(other, HecTime):
                 if other.defined:
-                    self.value += other.value * (
+                    temp.value += other.value * (
                         SECONDS_IN_GRANULE[other.granularity]
-                        // SECONDS_IN_GRANULE[self.granularity]
+                        // SECONDS_IN_GRANULE[temp.granularity]
                     )
             elif isinstance(other, timedelta):
                 s = other.total_seconds()
-                self.value += int(
+                temp.value += int(
                     abs(s)
                     // SECONDS_IN_GRANULE[self.granularity]
                     * (-1 if s < 0 else 1)
                 )
+            elif isinstance(other, Interval) and other.is_local_regular:
+                if self.tzinfo is None:
+                    self += TimeSpan(other.values)
+                else:
+                    utc = cast(HecTime, self.clone()).labelAsTimeZone(
+                        "UTC", onAlreadytSet=0
+                    )
+                    span = TimeSpan(other.values)
+                    while True:
+                        utc += span
+                        try:
+                            local = utc.labelAsTimeZone(self._tz, onAlreadytSet=0)
+                            break
+                        except:
+                            pass
+                    self.set(local.values)
+                    return self
             elif isinstance(other, TimeSpan):
                 vals = [
                     v1 + v2
                     for v1, v2 in zip(
-                        cast(list[int], self.values), cast(list[int], other.values)
+                        cast(list[int], temp.values), cast(list[int], other.values)
                     )
                 ]
-                self.set(vals)
+                temp.set(vals)
             elif isinstance(other, str):
-                for m in re.finditer(r"([+-]?\d+)([YMDH])", other):
+                for m in re.finditer(r"([+-]?\d+)([YyMmDdHh])", other):
                     count = int(m.group(1))
-                    if m.group(2) == "Y":
-                        self.increment(count, Interval.MINUTES["1Year"])
-                    elif m.group(2) == "M":
-                        self.increment(count, Interval.MINUTES["1Month"])
-                    elif m.group(2) == "D":
-                        self.increment(count, Interval.MINUTES["1Day"])
-                    elif m.group(2) == "H":
-                        self.increment(count, Interval.MINUTES["1Hour"])
+                    if m.group(2) in "Yy":
+                        temp.increment(count, Interval.MINUTES["1Year"])
+                    elif m.group(2) in "Mm":
+                        temp.increment(count, Interval.MINUTES["1Month"])
+                    elif m.group(2) in "Dd":
+                        temp.increment(count, Interval.MINUTES["1Day"])
+                    elif m.group(2) in "Hh":
+                        temp.increment(count, Interval.MINUTES["1Hour"])
             else:
-                raise HecTimeException(
-                    f"Cannot add {other.__class__.__name__} to HecTime object"
-                )
+                return NotImplemented
+            if temp is not self:
+                assert self._tz is not None
+                self.values = temp.convertToTimeZone(self._tz).values
         return self
 
     def __isub__(self, other: object) -> "HecTime":
         if self.defined:
+            temp = self if self._tz is None else self.convertToTimeZone("UTC")
             if isinstance(other, int):
-                self.value -= other
+                temp.value -= other
             elif isinstance(other, HecTime):
                 if other.defined:
-                    self.value -= other.value * (
+                    temp.value -= other.value * (
                         SECONDS_IN_GRANULE[other.granularity]
-                        // SECONDS_IN_GRANULE[self.granularity]
+                        // SECONDS_IN_GRANULE[temp.granularity]
                     )
             elif isinstance(other, timedelta):
                 s = other.total_seconds()
-                self.value -= int(
+                temp.value -= int(
                     abs(s)
-                    // SECONDS_IN_GRANULE[self.granularity]
+                    // SECONDS_IN_GRANULE[temp.granularity]
                     * (-1 if s < 0 else 1)
                 )
+            elif isinstance(other, Interval) and other.is_local_regular:
+                if self.tzinfo is None:
+                    self -= TimeSpan(other.values)
+                else:
+                    utc = cast(HecTime, self.clone()).labelAsTimeZone(
+                        "UTC", onAlreadytSet=0
+                    )
+                    span = TimeSpan(other.values)
+                    while True:
+                        utc -= span
+                        try:
+                            local = utc.labelAsTimeZone(self._tz, onAlreadytSet=0)
+                            break
+                        except:
+                            pass
+                    self.set(local.values)
+                return self
             elif isinstance(other, TimeSpan):
                 vals = [
                     v1 - v2
                     for v1, v2 in zip(
-                        cast(list[int], self.values), cast(list[int], other.values)
+                        cast(list[int], temp.values), cast(list[int], other.values)
                     )
                 ]
-                self.set(vals)
+                temp.set(vals)
             elif isinstance(other, str):
-                for m in re.finditer(r"([+-]?\d+)([YMDH])", other):
+                for m in re.finditer(r"([+-]?\d+)([YyMmDdHh])", other):
                     count = int(m.group(1))
-                    if m.group(2) == "Y":
-                        self.increment(-count, Interval.MINUTES["1Year"])
-                    elif m.group(2) == "M":
-                        self.increment(-count, Interval.MINUTES["1Month"])
-                    elif m.group(2) == "D":
-                        self.increment(-count, Interval.MINUTES["1Day"])
-                    elif m.group(2) == "H":
-                        self.increment(-count, Interval.MINUTES["1Hour"])
+                    if m.group(2) in "Yy":
+                        temp.increment(-count, Interval.MINUTES["1Year"])
+                    elif m.group(2) in "Mm":
+                        temp.increment(-count, Interval.MINUTES["1Month"])
+                    elif m.group(2) in "Dd":
+                        temp.increment(-count, Interval.MINUTES["1Day"])
+                    elif m.group(2) in "Hh":
+                        temp.increment(-count, Interval.MINUTES["1Hour"])
             else:
-                raise HecTimeException(
-                    f"Cannot add {other.__class__.__name__} to HecTime object"
-                )
+                return NotImplemented
+            if temp is not self:
+                assert self._tz is not None
+                self.values = temp.convertToTimeZone(self._tz).values
         return self
 
     def __add__(self, other: object) -> "HecTime":
-        newTime = HecTime(self)
+        newTime = HecTime(self) if self._tz is None else self.convertToTimeZone("UTC")
         if newTime.defined:
             if isinstance(other, int):
                 newTime.value += other
             elif isinstance(other, HecTime):
                 if other.defined:
-                    newTime.value += other.value * (
-                        SECONDS_IN_GRANULE[other.granularity]
+                    temp = (
+                        HecTime(other)
+                        if other._tz is None
+                        else other.convertToTimeZone("UTC")
+                    )
+                    newTime.value += temp.value * (
+                        SECONDS_IN_GRANULE[temp.granularity]
                         // SECONDS_IN_GRANULE[newTime.granularity]
                     )
+            elif isinstance(other, Interval) and other.is_local_regular:
+                if self._tz is None:
+                    newTime += TimeSpan(other.values)
+                else:
+                    utc = cast(HecTime, self.clone()).labelAsTimeZone(
+                        "UTC", onAlreadytSet=0
+                    )
+                    span = TimeSpan(other.values)
+                    count = 0
+                    while True:
+                        utc += span
+                        try:
+                            local = utc.labelAsTimeZone(self._tz, onAlreadytSet=0)
+                            break
+                        except:
+                            count += 1
+                            if count > 1000:
+                                raise
+                    newTime = cast(HecTime, local.clone())
             elif isinstance(other, TimeSpan):
                 vals = [
                     v1 + v2
@@ -2266,15 +2358,15 @@ class HecTime:
                     * (-1 if s < 0 else 1)
                 )
             elif isinstance(other, str):
-                for m in re.finditer(r"([+-]?\d+)([YMDH])", other):
+                for m in re.finditer(r"([+-]?\d+)([YyMmDdHh])", other):
                     count = int(m.group(1))
-                    if m.group(2) == "Y":
+                    if m.group(2) in "Yy":
                         newTime.increment(count, Interval.MINUTES["1Year"])
-                    elif m.group(2) == "M":
+                    elif m.group(2) in "Mm":
                         newTime.increment(count, Interval.MINUTES["1Month"])
-                    elif m.group(2) == "D":
+                    elif m.group(2) in "Dd":
                         newTime.increment(count, Interval.MINUTES["1Day"])
-                    elif m.group(2) == "H":
+                    elif m.group(2) in "Hh":
                         newTime.increment(count, Interval.MINUTES["1Hour"])
             else:
                 return NotImplemented
@@ -2284,20 +2376,46 @@ class HecTime:
             if newTime.granularity > MINUTE_GRANULARITY:
                 values[N] = 0
             newTime.set(values)
+            if self._tz is not None:
+                newTime = newTime.convertToTimeZone(self._tz)
         return newTime
 
     def __sub__(self, other: object) -> Optional[Union["HecTime", TimeSpan, timedelta]]:
         if not self.defined:
             return None
-        return_obj: Union[HecTime, TimeSpan, timedelta]
-        if isinstance(other, (int, str, timedelta)):
-            return_obj = HecTime(self)
+        return_obj: Union[HecTime, TimeSpan, timedelta, None]
+        temp = self if self._tz is None else self.convertToTimeZone("UTC")
+        if isinstance(other, Interval) and other.is_local_regular:
+            if self.tzinfo is None:
+                return_obj = self - (TimeSpan(other.values))
+            else:
+                return_obj = HecTime(self)
+                utc = cast(HecTime, self.clone()).labelAsTimeZone(
+                    "UTC", onAlreadytSet=0
+                )
+                span = TimeSpan(other.values)
+                while True:
+                    utc -= span
+                    try:
+                        local = utc.labelAsTimeZone(self._tz, onAlreadytSet=0)
+                        break
+                    except:
+                        pass
+                return_obj.set(local.values)
+            return return_obj
+        elif isinstance(other, (int, str, TimeSpan, timedelta)):
+            return_obj = HecTime(temp)
             if not return_obj.defined:
                 return None
             if isinstance(other, int):
                 return_obj.value -= other
             elif isinstance(other, TimeSpan):
-                vals = [v1 - v2 for v1, v2 in zip(self.values, other.values)]
+                if other.values is None:
+                    return return_obj
+                vals = [
+                    v1 - v2
+                    for v1, v2 in zip(cast(list[int], temp.values), other.values)
+                ]
                 return_obj.set(vals)
             elif isinstance(other, timedelta):
                 s = other.total_seconds()
@@ -2307,29 +2425,45 @@ class HecTime:
                     * (-1 if s < 0 else 1)
                 )
             elif isinstance(other, str):
-                for m in re.finditer(r"([+-]?\d+)([YMDH])", other):
+                for m in re.finditer(r"([+-]?\d+)([YyMmDdHh])", other):
                     count = int(m.group(1))
-                    if m.group(2) == "Y":
+                    if m.group(2) in "Yy":
                         return_obj.increment(-count, Interval.MINUTES["1Year"])
-                    elif m.group(2) == "M":
+                    elif m.group(2) in "Mm":
                         return_obj.increment(-count, Interval.MINUTES["1Month"])
-                    elif m.group(2) == "D":
+                    elif m.group(2) in "Dd":
                         return_obj.increment(-count, Interval.MINUTES["1Day"])
-                    elif m.group(2) == "H":
+                    elif m.group(2) in "Hh":
                         return_obj.increment(-count, Interval.MINUTES["1Hour"])
+            if temp is not self:
+                assert self._tz is not None
+                return_obj = return_obj.convertToTimeZone(self._tz)
             return return_obj
         elif isinstance(other, HecTime):
             vals = [
                 v1 - v2
                 for v1, v2 in zip(
-                    cast(list[int], self.values), cast(list[int], other.values)
+                    cast(
+                        list[int],
+                        cast(HecTime, temp.clone())
+                        .convertToTimeZone("UTC", onTzNotSet=0)
+                        .values,
+                    ),
+                    cast(
+                        list[int],
+                        cast(HecTime, other.clone())
+                        .convertToTimeZone("UTC", onTzNotSet=0)
+                        .values,
+                    ),
                 )
             ]
             return_obj = TimeSpan(vals)
         elif isinstance(other, datetime):
-            return_obj = cast(datetime, self.datetime()) - other
+            return_obj = cast(datetime, temp.datetime()) - other
         else:
             return NotImplemented
+        if temp is not self and isinstance(return_obj, HecTime):
+            return_obj = return_obj.convertToTimeZone(self._tz)
         return return_obj
 
     def __rsub__(self, other: datetime) -> timedelta:
@@ -2346,8 +2480,8 @@ class HecTime:
             granularityStr = "HOUR_GRANULARITY"
         else:
             granularityStr = "DAY_GRANULARITY"
-        if self.__tz:
-            tzStr = f'.atTimeZone("{str(self.__tz)}")'
+        if self._tz:
+            tzStr = f'.labelAsTimeZone("{str(self._tz)}")'
         else:
             tzStr = ""
         if not self.defined:
@@ -2359,14 +2493,30 @@ class HecTime:
         return self.getISO8601DateTime()
 
     def __eq__(self, other: object) -> bool:
+        if other is None or not self.defined:
+            return False
         if isinstance(other, HecTime):
-            vals1 = (
-                self.astimezone("UTC").values if self.__tz is not None else self.values
+            if not other.defined:
+                return False
+            vals1 = to0000(
+                cast(
+                    list[int],
+                    (
+                        self.astimezone("UTC").values
+                        if self._tz is not None
+                        else self.values
+                    ),
+                )
             )
-            vals2 = (
-                other.astimezone("UTC").values
-                if other.__tz is not None
-                else other.values
+            vals2 = to0000(
+                cast(
+                    list[int],
+                    (
+                        other.astimezone("UTC").values
+                        if other._tz is not None
+                        else other.values
+                    ),
+                )
             )
             return vals1 == vals2
         elif isinstance(other, datetime):
@@ -2376,15 +2526,36 @@ class HecTime:
         else:
             return NotImplemented
 
+    def __hash__(self) -> int:
+        return hash(self.getISO8601DateTime())
+
     def __lt__(self, other: object) -> bool:
+        if other is None or not self.defined:
+            return False
         if isinstance(other, HecTime):
-            if not self.defined:
-                return False if not other.defined else True
-            return (
-                False
-                if not other.defined
-                else cast(list[int], self.values) < cast(list[int], other.values)
+            if not other.defined:
+                return False
+            vals1 = to0000(
+                cast(
+                    list[int],
+                    (
+                        self.astimezone("UTC").values
+                        if self._tz is not None
+                        else self.values
+                    ),
+                )
             )
+            vals2 = to0000(
+                cast(
+                    list[int],
+                    (
+                        other.astimezone("UTC").values
+                        if other._tz is not None
+                        else other.values
+                    ),
+                )
+            )
+            return vals1 < vals2
         elif isinstance(other, datetime):
             if not self.defined:
                 return True
@@ -2395,14 +2566,32 @@ class HecTime:
             return NotImplemented
 
     def __gt__(self, other: object) -> bool:
+        if other is None or not self.defined:
+            return False
         if isinstance(other, HecTime):
-            if not self.defined:
+            if not other.defined:
                 return False
-            return (
-                True
-                if not other.defined
-                else cast(list[int], self.values) > cast(list[int], other.values)
+            vals1 = to0000(
+                cast(
+                    list[int],
+                    (
+                        self.astimezone("UTC").values
+                        if self._tz is not None
+                        else self.values
+                    ),
+                )
             )
+            vals2 = to0000(
+                cast(
+                    list[int],
+                    (
+                        other.astimezone("UTC").values
+                        if other._tz is not None
+                        else other.values
+                    ),
+                )
+            )
+            return vals1 > vals2
         elif isinstance(other, datetime):
             if not self.defined:
                 return False
@@ -2492,7 +2681,14 @@ class HecTime:
         Operations:
             Read Only
         """
-        return self.__tz
+        return self._tz
+
+    @property
+    def is_utc(self) -> bool:
+        return (
+            self.defined
+            and self.values == self.convertToTimeZone("UTC", onTzNotSet=0).values
+        )
 
     @property
     def granularity(self) -> int:
@@ -2505,7 +2701,7 @@ class HecTime:
         Returns:
             int: The granularity
         """
-        return self.__granularity
+        return self._granularity
 
     @granularity.setter
     def granularity(self, value: int) -> None:
@@ -2515,15 +2711,15 @@ class HecTime:
             value += 10
         if not isValidGranularity(value):
             raise HecTimeException(f"Invalid time granularity: {value}")
-        self.__granularity = value
+        self._granularity = value
         if values:
             try:
                 self.set(values)
             except:
-                self.__value = UNDEFINED_TIME
-                self.__values = None
-        if self.__granularity == DAY_GRANULARITY:
-            self.__tz = None
+                self._value = UNDEFINED_TIME
+                self._values = None
+        if self._granularity == DAY_GRANULARITY:
+            self._tz = None
 
     @property
     def defined(self) -> bool:
@@ -2544,11 +2740,9 @@ class HecTime:
         Operations:
             Read/Write
         """
-        if self.__value is None:
-            self.__value = getTimeInt(
-                cast(list[int], self.__values), self.__granularity
-            )
-        return self.__value
+        if self._value is None:
+            self._value = getTimeInt(cast(list[int], self._values), self._granularity)
+        return self._value
 
     @value.setter
     def value(self, value: int) -> None:
@@ -2557,11 +2751,11 @@ class HecTime:
             <= value
             <= cast(int, EXTENTS[self.granularity][DATE_INTEGER][MAX_EXTENT])
         ):
-            self.__value = value
-            self.__values = None
+            self._value = value
+            self._values = None
         else:
-            self.__value = UNDEFINED_TIME
-            self.__values = None
+            self._value = UNDEFINED_TIME
+            self._values = None
 
     @property
     def values(self) -> Optional[list[int]]:
@@ -2574,13 +2768,13 @@ class HecTime:
         Operations:
             Read/Write
         """
-        if self.__values is None:
+        if self._values is None:
             if not self.defined:
                 return None
-            self.__values = getTimeVals(cast(int, self.__value), self.__granularity)
-            if self.__values[:3] == [4, 12, 31]:
-                self.__values[D] = 30
-        return to2400(self.__values) if self.__midnight_as_2400 else self.__values[:]
+            self._values = getTimeVals(cast(int, self._value), self._granularity)
+            if self._values[:3] == [4, 12, 31]:
+                self._values[D] = 30
+        return to2400(self._values) if self._midnight_as_2400 else to0000(self._values)
 
     @values.setter
     def values(self, values: Union[tuple[int, ...], list[int]]) -> None:
@@ -2593,13 +2787,13 @@ class HecTime:
         if self.granularity > HOUR_GRANULARITY:
             values[H] = 0
         if isValidTime(values, self.granularity):
-            self.__values = values
-            self.__value = None
+            self._values = values
+            self._value = None
             if self.granularity == DAY_GRANULARITY and any(values[3:]):
                 self.value += 1
         else:
-            self.__value = UNDEFINED_TIME
-            self.__values = None
+            self._value = UNDEFINED_TIME
+            self._values = None
 
     @property
     def midnight_as_2400(self) -> bool:
@@ -2610,11 +2804,11 @@ class HecTime:
         Operations:
             Read/Write
         """
-        return self.__midnight_as_2400
+        return self._midnight_as_2400
 
     @midnight_as_2400.setter
     def midnight_as_2400(self, state: bool) -> None:
-        self.__midnight_as_2400 = state
+        self._midnight_as_2400 = state
 
     @property
     def default_date_style(self) -> int:
@@ -2625,11 +2819,11 @@ class HecTime:
         Operations:
             Read/Write
         """
-        return self.__default_date_style
+        return self._default_date_style
 
     @default_date_style.setter
     def default_date_style(self, style: int) -> None:
-        self.__default_date_style = style
+        self._default_date_style = style
 
     @property
     def date_str(self) -> str:
@@ -2653,19 +2847,15 @@ class HecTime:
         """
         return self.dateAndTime()
 
-    def add(self, time: Union[int, "HecTime"]) -> "HecTime":
+    def add(self, time: Union[int, "HecTime", TimeSpan, timedelta, str]) -> "HecTime":
         """
         Adds an number of granules or an HecTime to this object
 
         Args:
-            time (Union[int, HecTime]): the to add. If an integer:
-        - SECOND_GRANULARITY - adds the specified number of seconds
-        - MINUTE_GRANULARITY - adds the specified number of minutes
-        - HOUR_GRANULARITY - adds the specified number of hours
-        - DAY_GRANULARITY - adds the specified number of days
+            other (Union[int, &quot;HecTime&quot;, TimeSpan, timedelta, str]): item to add
 
         Deprecated:
-            Use the `+=` operator instead
+            Use the [`+=`](#addition) operator instead
 
         Returns:
             HecTime: The modified object
@@ -2851,16 +3041,16 @@ class HecTime:
             self.values = values
         return self
 
-    def atTimeZone(
+    def labelAsTimeZone(
         self,
-        timeZone: Union["HecTime", datetime, ZoneInfo, str, None],
+        timeZone: Optional[Union["HecTime", datetime, ZoneInfo, timezone, str]],
         onAlreadytSet: int = 1,
     ) -> "HecTime":
         """
         Attaches the specified time zone to this object. Does not change the time
 
         Args:
-            timeZone (Union[ZoneInfo, str]): The time zone to attach or object containing that time zone.
+            timeZone (Optional[Union["HecTime", datetime, ZoneInfo, timezone, str]]): The time zone to attach or object containing that time zone.
                 Use `"local"` to specify the system time zone.
             onAlreadytSet (int, optional): Specifies action to take if a different time zone is already
                 attached. Defaults to 1.
@@ -2874,42 +3064,58 @@ class HecTime:
             HecTime: The updated object
         """
         if isinstance(timeZone, HecTime):
-            tz = timeZone.__tz
+            tz = timeZone._tz
         elif isinstance(timeZone, datetime):
             tz = timeZone.tzinfo
-        elif isinstance(timeZone, (ZoneInfo, type(None))):
+        elif isinstance(timeZone, (ZoneInfo, timezone, type(None))):
             tz = timeZone
-        else:
+        elif isinstance(timeZone, str):
             tz = (
                 tzlocal.get_localzone()
                 if timeZone.lower() == "local"
                 else ZoneInfo(timeZone)
             )
-        if self.__tz:
-            if tz == self.__tz:
+        elif isinstance(timeZone, (pytz.tzfile.DstTzInfo, pytz.tzfile.StaticTzInfo)):
+            tz = ZoneInfo(timeZone.__class__.__name__)
+        else:
+            raise TypeError(
+                f"Don't know how to handle time zone type f{type(timeZone)}"
+            )
+        if self._tz:
+            if tz == self._tz:
                 return self
             if tz is not None:
                 if onAlreadytSet > 0:
-                    message = f"{self} already has a time zone set to {self.__tz} when setting to {tz}"
+                    message = f"{self} already has a time zone set to {self._tz} when setting to {tz}"
                     if onAlreadytSet > 1:
                         raise HecTimeException(message)
                     else:
                         warnings.warn(
-                            message + ". Use onAlreadySet=0 to prevent this message.",
+                            message + ". Use onAlreadySet=0 to prevent this message.\n",
                             UserWarning,
                         )
-        if self.__granularity != DAY_GRANULARITY:
-            self.__tz = tz
+        if self._granularity != DAY_GRANULARITY:
+            self._tz = tz
         return self
 
     def astimezone(
         self, timeZone: Union["HecTime", datetime, ZoneInfo, str], onTzNotSet: int = 1
     ) -> "HecTime":
         """
+        See `convertToTimeZone`
+        """
+        return self.convertToTimeZone(timeZone)
+
+    def convertToTimeZone(
+        self,
+        timeZone: Union["HecTime", datetime, ZoneInfo, timezone, str],
+        onTzNotSet: int = 1,
+    ) -> "HecTime":
+        """
         Returns a copy of this object at the spcified time zone
 
         Args:
-            timeZone (Union[HecTime, datetime, ZoneInfo, str]): The target time zone or object containg the target time zone.
+            timeZone (Union["HecTime", datetime, ZoneInfo, timezone, str]): The target time zone or object containg the target time zone.
                 Use `"local"` to specify the system time zone.
             onTzNotSet (int, optional): Specifies behavior if this object has no time zone attached. Defaults to 1.
                 - `0`: Quietly behave as if this object had the local time zone attached.
@@ -2919,26 +3125,35 @@ class HecTime:
         Returns:
             HecTime: A copy of this object at the specified time zone
         """
-        if isinstance(timeZone, HecTime):
-            tz = timeZone.__tz
+        tz: Optional[ZoneInfo]
+        if timeZone is None:
+            tz = None
+        elif isinstance(timeZone, HecTime):
+            tz = ZoneInfo(cast(str, timeZone._tz))
         elif isinstance(timeZone, datetime):
-            tz = timeZone.tzinfo
+            tz = None if not timeZone.tzinfo else ZoneInfo(str(timeZone.tzinfo))
         elif isinstance(timeZone, ZoneInfo):
             tz = timeZone
-        else:
+        elif isinstance(timeZone, timezone):
+            tz = ZoneInfo(str(timeZone))
+        elif isinstance(timeZone, str):
             tz = (
                 tzlocal.get_localzone()
                 if timeZone.lower() == "local"
                 else ZoneInfo(timeZone)
             )
+        elif isinstance(timeZone, (pytz.tzfile.DstTzInfo, pytz.tzfile.StaticTzInfo)):
+            tz = ZoneInfo(timeZone.__class__.__name__)
+        else:
+            raise TypeError(f"Unexpected type for timeZone parameter: {type(timeZone)}")
 
         t = HecTime(self)
         if t.granularity != DAY_GRANULARITY:
-            if not self.__tz:
+            if not self._tz:
                 if onTzNotSet > 0:
                     if onTzNotSet > 1:
                         raise HecTimeException(
-                            f"Cannot convert {repr(self)} to time zone {str(tz)}: No time zone attached."
+                            f"Cannot convert {repr(self)} to time zone {tz}: No time zone attached."
                         )
                     localname = tzlocal.get_localzone_name()
                     warnings.warn(
@@ -2946,9 +3161,10 @@ class HecTime:
                         f"to time zone {str(tz)}.\nUse onTzNotSet=0 to prevent this warning."
                     )
             if t.defined:
-                t.set(cast(datetime, self.datetime()).astimezone(tz))
-            else:
-                t.__tz = tz
+                dt = cast(datetime, self.datetime())
+                dt = dt.astimezone(tz)
+                t.set(dt)
+            t._tz = tz
         return t
 
     @NoOpWarning
@@ -2981,7 +3197,7 @@ class HecTime:
         return -1 if self < other else 1 if self > other else 0
 
     @NotImplementedWarning
-    def compareTo(self, other: object) -> int:
+    def compareTo(self, other: object) -> Any:
         """Not supported in this implementation"""
         return NotImplemented
 
@@ -3172,7 +3388,7 @@ class HecTime:
             return ""
         dateStr = ""
         if style is None:
-            style = self.__default_date_style
+            style = self._default_date_style
         style = normalizeDateStyle(style)
         y, m, d = cast(list[int], self.values)[:3]
         year: str
@@ -3236,9 +3452,9 @@ class HecTime:
         dateTimeStr = ""
         if self.defined:
             dateTimeStr += self.date(style)
-        if self.__granularity < DAY_GRANULARITY:
+        if self._granularity < DAY_GRANULARITY:
             timeStr = self.time()
-            if self.__granularity > SECOND_GRANULARITY:
+            if self._granularity > SECOND_GRANULARITY:
                 timeStr = timeStr[:5]
             dateTimeStr += f", {timeStr}" if dateTimeStr else timeStr
         return dateTimeStr
@@ -3259,8 +3475,8 @@ class HecTime:
                     f"Time values {self.values} are not in datetime range"
                 )
             y, m, d, h, n, s = to0000(values)
-            if self.__tz:
-                dt = datetime(y, m, d, h, n, s, tzinfo=self.__tz)
+            if self._tz:
+                dt = datetime(y, m, d, h, n, s, tzinfo=self._tz)
             else:
                 dt = datetime(y, m, d, h, n, s)
             return dt
@@ -3345,14 +3561,14 @@ class HecTime:
             DeprecationWarning,
             stacklevel=2,
         )
-        return self.__default_date_style
+        return self._default_date_style
 
-    def getIntervalOffset(self, interval: int) -> Optional[int]:
+    def getIntervalOffset(self, interval: Union[Interval, int]) -> Optional[int]:
         """
         Returns the number of minutes that the current object is after the top of the most recent standard interval
 
         Args:
-            interval (int): The interval to determine the offset into
+            interval Union[Interval, int]: The interval to determine the offset into. If int, then the value is minutes.
 
         Raises:
             HecTimeException: if the interval is not a standard interval
@@ -3365,57 +3581,65 @@ class HecTime:
             return None
         julian = cast(int, self.julian())
         minutes = cast(int, self.minutesSinceMidnight())
-        if interval == Interval.MINUTES["1Minute"]:
+        if isinstance(interval, Interval):
+            intvl_minutes = int(interval.total_seconds() // 60)
+        elif isinstance(interval, int):
+            intvl_minutes = interval
+        else:
+            raise TypeError(
+                f"Expected interval parameter to be Interval or int, got {type(interval)}"
+            )
+        if intvl_minutes == Interval.MINUTES["1Minute"]:
             topOfInterval = [tv[Y], tv[M], tv[D], tv[H], tv[N], 0]
-        elif interval == Interval.MINUTES["2Minutes"]:
+        elif intvl_minutes == Interval.MINUTES["2Minutes"]:
             topOfInterval = [tv[Y], tv[M], tv[D], tv[H], tv[N] - tv[N] % 2, 0]
-        elif interval == Interval.MINUTES["3Minutes"]:
+        elif intvl_minutes == Interval.MINUTES["3Minutes"]:
             topOfInterval = [tv[Y], tv[M], tv[D], tv[H], tv[N] - tv[N] % 3, 0]
-        elif interval == Interval.MINUTES["4Minutes"]:
+        elif intvl_minutes == Interval.MINUTES["4Minutes"]:
             topOfInterval = [tv[Y], tv[M], tv[D], tv[H], tv[N] - tv[N] % 4, 0]
-        elif interval == Interval.MINUTES["5Minutes"]:
+        elif intvl_minutes == Interval.MINUTES["5Minutes"]:
             topOfInterval = [tv[Y], tv[M], tv[D], tv[H], tv[N] - tv[N] % 5, 0]
-        elif interval == Interval.MINUTES["6Minutes"]:
+        elif intvl_minutes == Interval.MINUTES["6Minutes"]:
             topOfInterval = [tv[Y], tv[M], tv[D], tv[H], tv[N] - tv[N] % 6, 0]
-        elif interval == Interval.MINUTES["10Minutes"]:
+        elif intvl_minutes == Interval.MINUTES["10Minutes"]:
             topOfInterval = [tv[Y], tv[M], tv[D], tv[H], tv[N] - tv[N] % 10, 0]
-        elif interval == Interval.MINUTES["12Minutes"]:
+        elif intvl_minutes == Interval.MINUTES["12Minutes"]:
             topOfInterval = [tv[Y], tv[M], tv[D], tv[H], tv[N] - tv[N] % 12, 0]
-        elif interval == Interval.MINUTES["15Minutes"]:
+        elif intvl_minutes == Interval.MINUTES["15Minutes"]:
             topOfInterval = [tv[Y], tv[M], tv[D], tv[H], tv[N] - tv[N] % 15, 0]
-        elif interval == Interval.MINUTES["20Minutes"]:
+        elif intvl_minutes == Interval.MINUTES["20Minutes"]:
             topOfInterval = [tv[Y], tv[M], tv[D], tv[H], tv[N] - tv[N] % 20, 0]
-        elif interval == Interval.MINUTES["30Minutes"]:
+        elif intvl_minutes == Interval.MINUTES["30Minutes"]:
             topOfInterval = [tv[Y], tv[M], tv[D], tv[H], tv[N] - tv[N] % 30, 0]
-        elif interval == Interval.MINUTES["1Hour"]:
+        elif intvl_minutes == Interval.MINUTES["1Hour"]:
             topOfInterval = [tv[Y], tv[M], tv[D], tv[H], 0, 0]
-        elif interval == Interval.MINUTES["2Hours"]:
+        elif intvl_minutes == Interval.MINUTES["2Hours"]:
             topOfInterval = [tv[Y], tv[M], tv[D], tv[H] - tv[H] % 2, 0, 0]
-        elif interval == Interval.MINUTES["3Hours"]:
+        elif intvl_minutes == Interval.MINUTES["3Hours"]:
             topOfInterval = [tv[Y], tv[M], tv[D], tv[H] - tv[H] % 3, 0, 0]
-        elif interval == Interval.MINUTES["4Hours"]:
+        elif intvl_minutes == Interval.MINUTES["4Hours"]:
             topOfInterval = [tv[Y], tv[M], tv[D], tv[H] - tv[H] % 4, 0, 0]
-        elif interval == Interval.MINUTES["6Hours"]:
+        elif intvl_minutes == Interval.MINUTES["6Hours"]:
             topOfInterval = [tv[Y], tv[M], tv[D], tv[H] - tv[H] % 6, 0, 0]
-        elif interval == Interval.MINUTES["8Hours"]:
+        elif intvl_minutes == Interval.MINUTES["8Hours"]:
             topOfInterval = [tv[Y], tv[M], tv[D], tv[H] - tv[H] % 8, 0, 0]
-        elif interval == Interval.MINUTES["12Hours"]:
+        elif intvl_minutes == Interval.MINUTES["12Hours"]:
             topOfInterval = [tv[Y], tv[M], tv[D], tv[H] - tv[H] % 12, 0, 0]
-        elif interval == Interval.MINUTES["1Day"]:
+        elif intvl_minutes == Interval.MINUTES["1Day"]:
             topOfInterval = [tv[Y], tv[M], tv[D], 0, 0, 0]
-        elif interval == Interval.MINUTES["2Days"]:
+        elif intvl_minutes == Interval.MINUTES["2Days"]:
             topOfInterval = [tv[Y], tv[M], tv[D] - julian % 2, 0, 0, 0]
-        elif interval == Interval.MINUTES["3Days"]:
+        elif intvl_minutes == Interval.MINUTES["3Days"]:
             topOfInterval = [tv[Y], tv[M], tv[D] - julian % 3, 0, 0, 0]
-        elif interval == Interval.MINUTES["4Days"]:
+        elif intvl_minutes == Interval.MINUTES["4Days"]:
             topOfInterval = [tv[Y], tv[M], tv[D] - julian % 4, 0, 0, 0]
-        elif interval == Interval.MINUTES["5Days"]:
+        elif intvl_minutes == Interval.MINUTES["5Days"]:
             topOfInterval = [tv[Y], tv[M], tv[D] - julian % 5, 0, 0, 0]
-        elif interval == Interval.MINUTES["6Days"]:
+        elif intvl_minutes == Interval.MINUTES["6Days"]:
             topOfInterval = [tv[Y], tv[M], tv[D] - julian % 6, 0, 0, 0]
-        elif interval == Interval.MINUTES["1Week"]:
+        elif intvl_minutes == Interval.MINUTES["1Week"]:
             topOfInterval = [tv[Y], tv[M], tv[D] - julian % 7, 0, 0, 0]
-        elif interval == Interval.MINUTES["Tri-Month"]:
+        elif intvl_minutes == Interval.MINUTES["Tri-Month"]:
             topOfInterval = [
                 tv[Y],
                 tv[M],
@@ -3424,14 +3648,16 @@ class HecTime:
                 0,
                 0,
             ]
-        elif interval == Interval.MINUTES["Semi-Month"]:
+        elif intvl_minutes == Interval.MINUTES["Semi-Month"]:
             topOfInterval = [tv[Y], tv[M], 1 if tv[D] < 15 else 16, 0, 0, 0]
-        elif interval == Interval.MINUTES["1Month"]:
+        elif intvl_minutes == Interval.MINUTES["1Month"]:
             topOfInterval = [tv[Y], tv[M], 1, 0, 0, 0]
-        elif interval == Interval.MINUTES["1Year"]:
+        elif intvl_minutes == Interval.MINUTES["1Year"]:
             topOfInterval = [tv[Y], 1, 1, 0, 0, 0]
         else:
-            raise HecTimeException(f"Interval {interval} is not a standard interval")
+            raise HecTimeException(
+                f"Interval {intvl_minutes} is not a standard intvl_minutes"
+            )
         topJulian = yearMonthDayToJulian(
             topOfInterval[Y], topOfInterval[M], topOfInterval[D]
         )
@@ -3450,11 +3676,11 @@ class HecTime:
             timestr = self.date(-13)
             tv = cast(list[int], self.values)
             timestr += f"T{tv[H]:02d}:{tv[N]:02d}:{tv[S]:02d}"
-            if self.__tz is not None:
+            if self._tz is not None:
                 utc_offset = cast(datetime, self.datetime()).utcoffset()
                 if utc_offset is None:
                     raise HecTimeException(
-                        f"Could not determine UTC offset for time zone {self.__tz}"
+                        f"Could not determine UTC offset for time zone {self._tz}"
                     )
                 offsetMinutes = int(utc_offset.total_seconds() / 60)
                 timestr += f"{int(offsetMinutes/60):+03d}:{offsetMinutes % 60:02d}"
@@ -3661,7 +3887,9 @@ class HecTime:
         if self.defined:
             hours[0], minutes[0], seconds[0] = cast(list[int], self.values)[3:]
 
-    def increment(self, count: int, interval: Union[TimeSpan, int]) -> "HecTime":
+    def increment(
+        self, count: int, interval: Union[Interval, TimeSpan, timedelta, int]
+    ) -> "HecTime":
         """
         Increments this object by a specified number of intervals.
 
@@ -3690,12 +3918,17 @@ class HecTime:
 
         Args:
             count (int): The number of intervals to increment
-            interval (Union[TimeSpan, int]): The interval to increment by.
+            interval (Union[Interval, TimeSpan, timedelta, int]): The interval to increment by. If int:
+                * interpreted as a number of minutes
+                * for standard intervals:
+                    * should be actual minutes for intervals <= 1Week
+                    * should characteristic minutes for intervals > 1Week
 
         Returns:
             HecTime: The incremented object
         """
-        values = self.values
+        temp = self if self._tz is None else self.convertToTimeZone("UTC", onTzNotSet=0)
+        values = temp.values
         if values is not None:
             values = to0000(values)
             if isinstance(interval, int):
@@ -3707,13 +3940,31 @@ class HecTime:
                 # ---------------- #
                 # Interval object  #
                 # ---------------- #
+                if self._tz is not None and interval.is_local_regular:
+                    utc = cast(HecTime, self.clone()).labelAsTimeZone(
+                        "UTC", onAlreadytSet=0
+                    )
+                    span = TimeSpan(interval.values)
+                    for i in range(abs(count)):
+                        while True:
+                            if count > 0:
+                                utc += span
+                            else:
+                                utc -= span
+                            try:
+                                local = utc.labelAsTimeZone(self._tz, onAlreadytSet=0)
+                                break
+                            except:
+                                pass
+                    self.values = local.values
+                    return self
                 minutes = interval.minutes
-            else:
+            elif isinstance(interval, TimeSpan):
                 # ------------------------------------- #
                 # TimeSpan object (likely non-standard) #
                 # ------------------------------------- #
                 tsvals = cast(list[Union[Fraction, int]], interval.values)
-                t = HecTime(self)
+                t = HecTime(temp)
                 if tsvals[Y]:
                     t.increment(count * cast(int, tsvals[0]), Interval.MINUTES["1Year"])
                 if tsvals[M]:
@@ -3740,8 +3991,19 @@ class HecTime:
                         + cast(int, tsvals[H]) * 60
                         + cast(int, tsvals[N]),
                     )
-                self.set(t)
+                temp.set(t)
+                if temp is not self:
+                    assert self._tz is not None
+                    at_tz = temp.convertToTimeZone(self._tz, onTzNotSet=0)
+                    self.values = at_tz.values
                 return self
+            elif isinstance(interval, timedelta):
+                # ---------------- #
+                # timedelta object #
+                # ---------------- #
+                minutes = int(interval.total_seconds() // 60)
+            else:
+                return NotImplemented
             if minutes == Interval.MINUTES["1Century"]:
                 # --------- #
                 # 1 century #
@@ -3841,19 +4103,23 @@ class HecTime:
                         10 if values[D] <= 10 else 20 if values[D] <= 20 else lastDay
                     )
             else:
-                i = Interval.getAny(lambda i: i.minutes == minutes)
-                if i:
+                intvl = Interval.getAny(lambda i: i.minutes == minutes, False)
+                if intvl:
                     # ------------------------------ #
                     # standard non-calendar interval #
                     # ------------------------------ #
-                    values[N] += count * i.minutes
+                    values[N] += count * intvl.minutes
                 else:
                     # ------------------------------------------------------------------------- #
                     # not a standard interval, just increment the time by the number of minutes #
                     # ------------------------------------------------------------------------- #
                     values[N] += count * minutes
             normalizeTimeVals(values)
-            self.values = values
+            temp.values = values
+            if temp is not self:
+                assert self._tz is not None
+                at_tz = temp.convertToTimeZone(self._tz, onTzNotSet=0)
+                self.values = at_tz.values
         return self
 
     def incrementSecs(self, count: int, interval: int) -> "HecTime":
@@ -4055,14 +4321,22 @@ class HecTime:
             # ------------ #
             if isinstance(args[0], int):
                 # set from a time integer
-                if isValidTime(args[0], self.__granularity):
+                if isValidTime(args[0], self._granularity):
                     self.value = args[0]
                 else:
                     self.value = UNDEFINED_TIME
             elif isinstance(args[0], str):
                 # set from a datetime string
                 try:
-                    self.set(parseDateTimeStr(args[0]))
+                    timevals, tzstr = parseDateTimeStr(args[0], include_tz=True)
+                    self.set(timevals)
+                    if tzstr:
+                        hours = int(tzstr.split(":")[0])
+                        minutes = int(tzstr.split(":")[1])
+                        offset = timedelta(minutes=hours * 60 + minutes)
+                        tz = timezone(offset)
+                        dt = datetime.now().replace(tzinfo=tz)
+                        self.labelAsTimeZone(dt)
                 except:
                     self.value = UNDEFINED_TIME
             elif isinstance(args[0], datetime):
@@ -4076,17 +4350,22 @@ class HecTime:
                     args[0].minute,
                     args[0].second,
                 ]
-                self.__tz = dt.tzinfo
+                if isinstance(
+                    dt.tzinfo, (pytz.tzfile.DstTzInfo, pytz.tzfile.StaticTzInfo)  # type: ignore
+                ):
+                    self._tz = ZoneInfo(dt.tzinfo.__class__.__name__)
+                else:
+                    self._tz = dt.tzinfo
             elif isinstance(args[0], (list, tuple)):
                 # initialize from a list or tuple of integers
                 self.values = list(args[0])
             elif isinstance(args[0], HecTime):
                 # initialize from another HecTime object
-                self.__value = args[0].value
-                self.__values = args[0].values
-                self.__granularity = args[0].granularity
-                self.__midnight_as_2400 = args[0].midnight_as_2400
-                self.__tz = args[0].__tz
+                self._value = args[0].value
+                self._values = args[0].values
+                self._granularity = args[0].granularity
+                self._midnight_as_2400 = args[0].midnight_as_2400
+                self._tz = args[0]._tz
         elif len(args) == 2:
             if isinstance(args[0], str) and isinstance(args[1], str):
                 self.set(args[0] + " " + args[1])
@@ -4114,7 +4393,7 @@ class HecTime:
             int: `0` on success or `-1` on failure
         """
         try:
-            values = parseDateTimeStr(dateStr)[:3] = [0, 0, 0]
+            values = parseDateTimeStr(dateStr)[0][:3] = [0, 0, 0]
             if self.defined:
                 values = values[:3] + cast(list[int], self.values)[3:]
             self.values = values
@@ -4137,7 +4416,7 @@ class HecTime:
             DeprecationWarning,
             stacklevel=2,
         )
-        self.__default_date_style = style
+        self._default_date_style = style
 
     def setJulian(
         self,
@@ -4232,10 +4511,10 @@ class HecTime:
         """
         if self.defined:
             try:
-                parsedVals = parseDateTimeStr(timeStr)
+                parsedVals = parseDateTimeStr(timeStr)[0]
             except:
                 try:
-                    parsedVals = parseDateTimeStr(f"01Jan2000 {timeStr}")
+                    parsedVals = parseDateTimeStr(f"01Jan2000 {timeStr}")[0]
                 except:
                     return -1
             values = cast(list[int], self.values)[:3] + parsedVals[3:]
@@ -4412,15 +4691,17 @@ class HecTime:
         self.set(datetime.strptime(dateTimeStr, format))
         return self
 
-    def subtract(self, other: Union[int, "HecTime"]) -> "HecTime":
+    def subtract(
+        self, other: Union[int, "HecTime", TimeSpan, timedelta, str]
+    ) -> "HecTime":
         """
         Subtracts an integer number of granules or HecTime object from this one
 
         Args:
-            other (Union[int, &quot;HecTime&quot;]): The number of granules or HecTime object to subtract
+            other (Union[int, &quot;HecTime&quot;, TimeSpan, timedelta, str]): item to subtract
 
         Deprecated:
-            Use the `-=` operator instead instead
+            Use the [`-=`](#subtraction) operator instead
 
         Returns:
             HecTime: The modified object
@@ -4524,6 +4805,6 @@ class HecTime:
         return self.granularity
 
     @NotImplementedWarning
-    def toString(self, style: Optional[int]) -> str:
+    def toString(self, style: Optional[int]) -> Any:
         """Not supported in this implementation"""
         return NotImplemented

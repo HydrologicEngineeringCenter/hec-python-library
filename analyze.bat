@@ -1,2 +1,2 @@
-mypy src\hec test --strict
+mypy hec test --strict
 nbqa mypy examples --strict 

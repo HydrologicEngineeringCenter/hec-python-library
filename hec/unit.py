@@ -90,13 +90,17 @@ __all__ = [
     "get_unit_name",
     "get_unit_aliases",
     "get_compatible_units",
+    "get_compatible_base_parameters",
     "get_unit_system",
     "get_unit_names_for_unit_system",
     "convert_units",
     "UnitException",
     "UnitQuantity",
 ]
-import copy, math, os, sys
+import copy
+import math
+import os
+import sys
 
 import pint.facets
 
@@ -104,15 +108,19 @@ import_dir = os.path.abspath(".")
 if not import_dir in sys.path:
     sys.path.append(import_dir)
 
-from functools import total_ordering
 from fractions import Fraction
-from typing import Any
-from typing import Optional
-from typing import Union
-from typing import cast
-from pint.errors import UndefinedUnitError
-import cwms  # type: ignore
+from functools import total_ordering
+from typing import Any, Optional, Union, cast
+
 import pint
+from pint.errors import UndefinedUnitError
+
+try:
+    import cwms  # type: ignore
+
+    cwms_imported = True
+except ImportError:
+    cwms_imported = False
 
 
 class UnitException(Exception):
@@ -609,6 +617,11 @@ unit_names_by_alias = {
     "volts": "volt",
 }
 
+# ----------------------------------- #
+# compatible parameters for each unit #
+# ----------------------------------- #
+base_parameters_by_unit: dict[str, dict[str, list[str]]] = {}
+
 # -------------------------------------------- #
 # Unit names for each Pint unit representation #
 # -------------------------------------------- #
@@ -671,7 +684,7 @@ def get_pint_unit(unit: str) -> pint.Unit:
         elif isinstance(obj, pint.Unit):
             return obj
         else:
-            raise UnitException(f"Unexpected object type: type(obj).__name__")
+            raise UnitException(f"Unexpected object type: {type(obj).__name__}")
     except UndefinedUnitError:
         raise UnitException(f"Unknown unit: {unit}")
 
@@ -744,6 +757,47 @@ def get_compatible_units(unit: Union[str, pint.Unit]) -> list[str]:
     return compatible
 
 
+def get_compatible_base_parameters(
+    unit: Union[str, pint.Unit], parameter_context: str = "CWMS"
+) -> list[str]:
+    """
+    Returns a list of base parameter names that are compatible with the specified unit
+
+    Args:
+        unit (Union[str, pint.Unit]): The unit object or unit name to retrieve the base parameter names for
+        parameter_context (str): The parameter context, defaults to "CWMS" (currently only valid context)
+
+    Raises:
+        UnitException: If an invalid context is specified
+
+    Returns:
+        list[str]: The compatible base parameter names
+    """
+    if parameter_context not in ("CWMS",):
+        raise UnitException(f"Unknown parameter context: {parameter_context}")
+    unit_name = get_compatible_units(unit)[0]
+    if (
+        not base_parameters_by_unit
+        or parameter_context not in base_parameters_by_unit
+        or unit_name not in base_parameters_by_unit[parameter_context]
+    ):
+        from hec.parameter import Parameter
+
+        base_parameters_by_unit.setdefault(parameter_context, {})
+        if unit_name not in base_parameters_by_unit[parameter_context]:
+            base_parameters_by_unit[parameter_context][unit_name] = [
+                p
+                for p in Parameter.base_parameters(parameter_context)
+                if unit_name
+                in (UnitQuantity(1, Parameter(p).unit)).getCompatibleUnits()
+            ]
+    return (
+        []
+        if unit_name not in base_parameters_by_unit[parameter_context]
+        else base_parameters_by_unit[parameter_context][unit_name]
+    )
+
+
 def get_unit_system(unit: str) -> Optional[str]:
     """
     Returns the unit system of a unit name or unit alias
@@ -808,7 +862,7 @@ def convert_units(
             * Pint Quantity
             * list
             * tuple
-            * cwms.types.Data
+            * cwms.cwms_types.Data
         from_unit (Union[pint.Unit, str]): The unit to convert from. May be:
             * a unit name
             * a unit alias
@@ -819,7 +873,7 @@ def convert_units(
             * a unit alias
             * a valid Pint unit string
             * a Pint unit
-        in_place (bool): for list and cwms.type.Data types, specifies whether to convert the object
+        in_place (bool): for list and cwms.cwms_types.Data types, specifies whether to convert the object
             in-place. Ignored for all other data types. If True, the converted object is returned.
             If False, a converted copy is returned. Defaults to False
 
@@ -829,7 +883,7 @@ def convert_units(
                 * a unit name
                 * a unit alias
                 * a valid Pint unit string
-            * The object to convert is Pint quantity or cwms.types.Data object whose
+            * The object to convert is Pint quantity or cwms.cwms_types.Data object whose
                 unit is not the same as the `from_unit`.
 
     Returns:
@@ -865,7 +919,7 @@ def convert_units(
             # -------------- #
             if dst_unit == src_unit:
                 return 1
-            hz = pint.Quantity(math.sqrt(to_convert * 1000), ureg.Hz)  # type: ignore
+            hz = pint.Quantity(math.sqrt(to_convert * 1000), ureg.Hz)
             return hz.to(dst_unit).magnitude
         elif dst_unit == ureg("B_unit"):
             # -------------- #
@@ -891,7 +945,7 @@ def convert_units(
             # -------------- #
             if dst_unit == src_unit:
                 return ureg("B_unit")
-            hz = pint.Quantity(math.sqrt(to_convert.magnitude * 1000), ureg.Hz)  # type: ignore
+            hz = pint.Quantity(math.sqrt(to_convert.magnitude * 1000), ureg.Hz)
             return hz.to(dst_unit)
         elif dst_unit == ureg("B_unit"):
             # -------------- #
@@ -900,7 +954,7 @@ def convert_units(
             if dst_unit == src_unit:
                 return ureg("B_unit")
             hz = pint.Quantity(to_convert.magnitude, src_unit).to(ureg("Hz")).magnitude
-            return pint.Quantity(hz**2 / 1000.0, ureg.B_unit)  # type: ignore
+            return pint.Quantity(hz**2 / 1000.0, ureg.B_unit)
         else:
             return to_convert.to(dst_unit, ctx)
     elif isinstance(to_convert, str):
@@ -924,7 +978,10 @@ def convert_units(
         # tuple #
         # ----- #
         return tuple(convert_units(list(to_convert), from_unit, to_unit))
-    elif isinstance(to_convert, cwms.types.Data):
+    elif cwms_imported and isinstance(to_convert, cwms.cwms_types.Data):
+        # -------------- #
+        # cwms.type.Data #
+        # -------------- #
         data_unit = get_pint_unit(to_convert.json["units"])
         if src_unit != data_unit:
             raise UnitException(
@@ -956,8 +1013,6 @@ def convert_units(
         converted.json = json  # type: ignore
         converted._df = None  # type: ignore
         return converted
-
-    else:
         # ----- #
         # other #
         # ----- #
@@ -995,7 +1050,9 @@ class UnitQuantity:
 
         Args:
             One argument:<br>
-                * `str`: A valid string for [Pint string parsing](https://pint.readthedocs.io/en/stable/user/defining-quantities.html)
+                * `str`: Either:
+                    * A valid string for [Pint string parsing](https://pint.readthedocs.io/en/stable/user/defining-quantities.html)
+                    * A unit name (quantity will default to 1.0)
                 * `UnitQuantity`: Another UnitQuantity object
                 * `pint.Quantity`: A Pint Quantity object
             Two arguments:<br>
@@ -1005,11 +1062,17 @@ class UnitQuantity:
         Raises:
             UnitException: if in valid arguments are specified
         """
+        self._init(*args)
+
+    def _init(self, *args: Any) -> None:
         arg_count = len(args)
         if arg_count == 1:
             if isinstance(args[0], str):
-                self._quantity = ureg(args[0])
-                self._specified_unit = str(self._quantity.units)
+                if len(args[0].split()) == 1:
+                    self._init(1.0, args[0])
+                else:
+                    self._quantity = ureg(args[0])
+                    self._specified_unit = str(self._quantity.units)
             elif isinstance(args[0], UnitQuantity):
                 self._quantity = args[0]._quantity
                 self._specified_unit = args[0]._specified_unit
@@ -1172,7 +1235,7 @@ class UnitQuantity:
             self._quantity += other  # type: ignore
             return self
         elif isinstance(other, (int, float)):
-            self._quantity += UnitQuantity(other, self._specified_unit)  # type: ignore
+            self._quantity._magnitude += other
             return self
         return NotImplemented
 
@@ -1338,6 +1401,16 @@ class UnitQuantity:
         return self._quantity.magnitude
 
     @property
+    def isnan(self) -> bool:
+        """
+        Whether the magnitude of the objed is NaN
+
+        Operations:
+            Read/Only
+        """
+        return math.isnan(self._quantity.magnitude)
+
+    @property
     def units(self) -> pint.Unit:
         """
         The Pint unit of the object
@@ -1387,9 +1460,8 @@ class UnitQuantity:
 
         Args:
             unit (Union[str, pint.Unit]): The unit to convert to
-            in_place (bool, optional): If True, this object is modified and returned Otherwise
-                a new object is returned. Defaults to False. Using this method with `in_place=True`
-                differs from `ito()` in that the converted object is returned.
+            in_place (bool, optional): If True, this object is modified and returned. Otherwise
+                a new object is returned. Defaults to False.
 
         Returns:
             UnitQuantity: The converted object
@@ -1407,15 +1479,19 @@ class UnitQuantity:
         else:
             return UnitQuantity(self._quantity.to(_unit, ctx), _unit_str)
 
-    def ito(self, unit: Union[str, pint.Unit]) -> None:
+    def ito(self, unit: Union[str, pint.Unit]) -> "UnitQuantity":
         """
-        Converts this object to a different unit in place. Unlike `.to(..., in_place=True)`
-        no object is returned after the conversion
+        Converts this object to a different unit in place.
+
+        Identical to calling `.to(..., in_place=True)`
 
         Args:
             unit (Union[str, pint.Unit]): The unit ot convert to
+
+        Returns:
+            UnitQuantity: The converted object
         """
-        self.to(unit, in_place=True)
+        return self.to(unit, in_place=True)
 
     def getUnitAliases(self) -> list[str]:
         """
@@ -1435,3 +1511,30 @@ class UnitQuantity:
             list[str]: The list of compatible unit names for this object's specified unit
         """
         return get_compatible_units(self._specified_unit)
+
+    def getCompatibleBaseParameters(self, parameter_context: str = "CWMS") -> list[str]:
+        """
+        Returns a list of base parameter names that are compatible with this object.
+
+        Args:
+            parameter_context (str, optional): Currently only "CWMS" is supported. Defaults to "CWMS".
+
+        Returns:
+            list[str]: _description_
+        """
+        return get_compatible_base_parameters(self._specified_unit, parameter_context)
+
+    def getUnitSystems(self) -> list[str]:
+        """
+        Returns a list of unit systems that include the name of this unit.
+
+        Returns:
+            list[str]: Will be [], ['EN'], ['SI'], or ['EN', 'SI']
+        """
+        systems = []
+        for system in ("EN", "SI"):
+            if get_unit_name(self.specified_unit) in get_unit_names_for_unit_system(
+                system
+            ):
+                systems.append(system)
+        return systems

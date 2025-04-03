@@ -3,20 +3,18 @@ Provides basic time span functionality.
 Like timedelta, but with calendar capabilities and without sub-second resolution.
 """
 
-import os, sys
+import os
+import sys
 
 _import_dir = os.path.abspath(".")
 if not _import_dir in sys.path:
     sys.path.append(_import_dir)
 
+import re
 from datetime import timedelta
 from fractions import Fraction
 from functools import total_ordering
-from typing import Any
-from typing import cast
-from typing import Optional
-from typing import Union
-import re
+from typing import Any, Optional, Union, cast
 
 __all__ = ["TimeSpanException", "TimeSpan"]
 Y, M, D, H, N, S = 0, 1, 2, 3, 4, 5
@@ -199,6 +197,24 @@ class TimeSpan:
         else:
             return NotImplemented
 
+    def __iadd__(self, other: object) -> "TimeSpan":
+        if isinstance(other, TimeSpan):
+            values = []
+            values.append(self.values)
+            values.append(other.values)
+            self.values = list(map(sum, zip(*values)))
+            return self
+        elif isinstance(other, timedelta):
+            vals = cast(list[Union[int, Fraction]], self.values)
+            vals[S] += int(other.total_seconds())
+            self.values = vals
+            return self
+        else:
+            return NotImplemented
+
+    def __radd__(self, other: timedelta) -> Union["TimeSpan", timedelta]:
+        return timedelta(seconds=other.total_seconds() + self.total_seconds())
+
     def __sub__(self, other: object) -> "TimeSpan":
         if isinstance(other, TimeSpan):
             values = []
@@ -214,11 +230,55 @@ class TimeSpan:
         else:
             return NotImplemented
 
-    def __radd__(self, other: timedelta) -> timedelta:
-        return timedelta(seconds=other.total_seconds() + self.total_seconds())
+    def __isub__(self, other: object) -> "TimeSpan":
+        if isinstance(other, TimeSpan):
+            values = []
+            values.append(self.values)
+            values.append(
+                list(map(lambda x: -x, cast(list[Union[int, Fraction]], other.values)))
+            )
+            self.values = list(map(sum, zip(*values)))
+            return self
+        elif isinstance(other, timedelta):
+            vals = cast(list[Union[int, Fraction]], self.values)
+            vals[S] -= int(other.total_seconds())
+            self.values = vals
+            return self
+        else:
+            return NotImplemented
 
-    def __rsub__(self, other: timedelta) -> timedelta:
-        return timedelta(seconds=other.total_seconds() - self.total_seconds())
+    def __rsub__(self, other: Any) -> Any:
+        if isinstance(other, timedelta):
+            return timedelta(seconds=other.total_seconds() - self.total_seconds())
+        return NotImplemented
+
+    def __mul__(self, other: object) -> "TimeSpan":
+        if isinstance(other, int):
+            values = list(
+                map(lambda v: v * other, cast(list[Union[int, Fraction]], self.values))
+            )
+            return TimeSpan(values)
+        else:
+            return NotImplemented
+
+    def __imul__(self, other: object) -> "TimeSpan":
+        if isinstance(other, int):
+            vals = list(
+                map(lambda v: v * other, cast(list[Union[int, Fraction]], self.values))
+            )
+            self.values = vals
+            return self
+        else:
+            return NotImplemented
+
+    def __rmul__(self, other: object) -> "TimeSpan":
+        if isinstance(other, int):
+            values = list(
+                map(lambda v: v * other, cast(list[Union[int, Fraction]], self.values))
+            )
+            return TimeSpan(values)
+        else:
+            return NotImplemented
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, TimeSpan):
@@ -494,7 +554,7 @@ class TimeSpan:
                 self._seconds = int(args[0][5]) if len(args[0]) > 5 else 0
             else:
                 raise TimeSpanException(
-                    f"Positional argument 1 is of unexpectd type: {args[0].__class__.__name__}"
+                    f"Positional argument 1 is of unexpected type: {args[0].__class__.__name__}"
                 )
         elif len(args) > 6:
             raise TimeSpanException(
@@ -542,11 +602,11 @@ class TimeSpan:
                     )
                 self._hours = int(kwargs[key])
             if key == "minutes":
-                if self._years is not None:
+                if self._minutes is not None:
                     raise TimeSpanException(
                         "Cannot specify years in both positional and keyword parameters"
                     )
-                self._years = int(kwargs[key])
+                self._minutes = int(kwargs[key])
             if key == "seconds":
                 if self._seconds is not None:
                     raise TimeSpanException(

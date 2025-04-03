@@ -1,0 +1,60 @@
+#  Tab separated
+#  1 - BASE_PARAMETER_ID
+#  2 - LONG_NAME
+#  3 - DESCRIPTION
+#  4 - DEFAULT_EN_UNIT
+#  5 - DEFAULT_SI_UNIT
+#  6 - ACCUMULATABLE (over time)
+#  7 - INTEGRATED_BASE_PARAMETER_ID (over time) optional
+#  8 - DIFFERENTIATED_BASE_PARAMETER_ID (by time) optional
+#  9 - EN_DIFFERENTIATION_CONVERSION_FACTOR (from DEFAULT_EN_UNIT[field 1]/s to DEFAULT_EN_UNIT[field 8]) required if field 8 is present
+# 10 - SI_DIFFERENTIATION_CONVERSION_FACTOR (from DEFAULT_SI_UNIT[field 1]/s to DEFAULT_SI_UNIT[field 8]) required if field 8 is present
+%	Percent	Ratio expressed as hundredths	%	%	True
+Area	Surface Area	Area of a surface	ft2	m2	True
+Code	Coded Information	Numeric code symbolically representing a phenomenon	n/a	n/a	False
+Coeff	Coefficient	Unitless coefficient for formulas	n/a	n/a	False
+Conc	Concentration	Relative content of a component dissolved or dispersed in a volume of water	ppm	mg/l	False
+Cond	Conductivity	Ability of an aqueous solution to conduct electricity	umho/cm	umho/cm	False
+Count	Count	Progressive sum of items enumerated one by one or group by group.	unit	unit	True
+Currency	Currency	Economic value expressed as currency/money	$	$	True
+Current	Current	Electric current flowing past a point in a circuit	ampere	ampere	False
+Depth	Depth	Depth of any form of water above the ground surface	in	mm	False		Speed	0.056818182	0.0036
+DepthVelocity	Depth Velocity	Depth Velocity	ft2/s	m2/s	False	Area
+Dir	Direction	Map direction specified clockwise from North	deg	deg	False
+Dist	Distance	Distance between two points.	mi	km	True		Speed	3600	3600
+Elev	Elevation	The height of a surface above a datum which approximates sea level	ft	m	False		Speed	0.681818182	3.6
+Energy	Energy	Energy, work, or quantity of heat	MWh	MWh	True		Power	0.000277778	0.000277778
+Evap	Evaporation	Liquid water lost to vapor measured as an equivalent depth of liquid water	in	mm	True		EvapRate	86400	86400
+EvapRate	Evaporation Rate	Rate of liquid water evaporation	in/day	mm/day	False	Depth
+Fish	Fish Count	Fish Count.	unit	unit	True
+Flow	Flow Rate	Volume rate of moving water	cfs	cms	False	Volume
+Freq	Frequency	The number of cycles or occurrences per time unit	Hz	Hz	False
+Frost	Ground Frost	Depth of frost penetration into the ground (non-permafrost)	in	cm	False		Speed	0.056818182	0.036
+Head	Head	Difference between two elevations in a column of water	ft	m	False		Speed	0.681818182	3.6
+Height	Height	The height of a surface above an arbitrary datum	ft	m	False		Speed	0.681818182	3.6
+Irrad	Irradiance	Radiant Power on a unit area of irradiated surface.	langley/min	W/m2	False	Rad
+Length	Length	Linear displacement associated with the larger horizontal planar measurment	ft	m	False		Speed	0.681818182	3.6
+Opening	Opening Height	Height of opening controlling passage of water	ft	m	False		Speed	0.681818182	3.6
+Power	Power	Energy rate, Radiant Flux	MW	MW	False	Energy
+Precip	Precipitation	Deposit on the earth of hail, mist, rain, sleet, or snow	in	mm	True		Speed	0.056818182	0.0036
+Pres	Pressure	Pressure (force per unit area)	in-hg	kPa	False
+Probability	Probability	Expected fraction of all events for a specific event	n/a	n/a	False
+Rad	Irradiation	Radiant energy on a unit area of irradiated surface.	langley	J/m2	False		Irrad	60	1
+Ratio	Ratio	Quotient of two numbers having the same units	n/a	n/a	False
+Rotation	Rotation	Angular displacement	deg	deg	True		SpinRate	0.166666667	0.166666667
+Speed	Speed	Rate of moving substance or object irrespective of direction	mph	kph	False	Dist
+SpinRate	Spin Rate	Number of revolutions made about an axis per unit of time	rpm	rpm	False	Rotation
+Stage	Stage	The height of a water surface above a designated datum other than sea level	ft	m	False		Speed	0.681818182	3.6
+Stor	Storage	Volume of impounded water	ac-ft	m3	True		Flow	43560	1
+Temp	Temperature	Hotness or coldness of a substance based on measuring expansion of mercury	F	C	False
+Thick	Thickness	Thickness of sheet of substance	in	cm	False		Speed	0.056818182	0.036
+Timing	Timing	A duration of a phenomenon	sec	sec	True
+Travel	Accumulated Travel	Accumulated movement of a fluid past a point	mi	km	True		Speed	3600	3600
+Turb	Turbidity	Measurement of interference to the passage of light by matter in suspension	JTU	JTU	False
+TurbF	Turbidity	Measurement of scattered light at an angle of 90+/-2.5 degrees to the incident light beam from a monochromatic light source (860+/-60 nm) (ISO 7027)	FNU	FNU	False
+TurbJ	Turbidity	Measurement of interference to the passage of light by matter in suspension	JTU	JTU	False
+TurbN	Turbidity	Measurement of scattered light at an angle of 90+/-30 degrees to the incident light beam from a white light source (540+/-140 nm) (EPA method 180.1)	NTU	NTU	False
+Volt	Voltage	Electric Potential	volt	volt	False
+Volume	Volume	Volume of anything other than impounded water	ft3	m3	True		Flow	1	1
+Width	Width	Linear displacement associated with the smaller horizontal planar measurment	ft	m	False		Speed	0.681818182	3.6
+pH	pH	Negative logarithm of hydrogen-ion concentration in a solution	su	su	False

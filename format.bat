@@ -1,1 +1,3 @@
-black src\hec test examples
+isort --profile black hec test
+nbqa isort examples --profile black
+black hec test examples
