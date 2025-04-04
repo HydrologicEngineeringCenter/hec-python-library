@@ -1852,7 +1852,7 @@ class TimeSeries:
                     f"Cannot compute differences on a time series with parameter of {base_param_name}, "
                     f"base parameter must be one of {Parameter.accumulatable_base_parameters()}"
                 )
-            if cast(ParameterType, self.parameter_type).getRawName() in (
+            if cast(ParameterType, self.parameter_type).get_raw_name() in (
                 "Constant",
                 "Minimum",
                 "Maximum",
@@ -2014,7 +2014,7 @@ class TimeSeries:
                         f"Cannot perform INTEGRATE resample operation on time series with unit of {self.unit}\n"
                         f"Unit dimensionality must be one of {sorted(set([str(Parameter(p).unit.dimensionality) for p in Parameter.integrable_base_parameters()]))}"
                     )
-            if cast(ParameterType, self.parameter_type).getRawName() not in [
+            if cast(ParameterType, self.parameter_type).get_raw_name() not in [
                 "Average",
                 "Constant",
                 "Instantaneous",
@@ -2027,7 +2027,7 @@ class TimeSeries:
             new_unit = this_unit * time_unit
             new_parameter = self.get_integration_parameter()
         elif operation == _RESAMPLE_OP_ACCUMULATE:
-            if cast(ParameterType, self.parameter_type).getRawName() in (
+            if cast(ParameterType, self.parameter_type).get_raw_name() in (
                 "Constant",
                 "Minimum",
                 "Maximum",
@@ -2049,9 +2049,9 @@ class TimeSeries:
                     f"Unit dimensionality must be not be one of {sorted(set([str(Parameter(p).unit.dimensionality) for p in hec.parameter._integration_parameters]))}"
                 )
         is_inst = (
-            cast(ParameterType, self.parameter_type).getRawName() == "Instantaneous"
+            cast(ParameterType, self.parameter_type).get_raw_name() == "Instantaneous"
         )
-        is_total = cast(ParameterType, self.parameter_type).getRawName() == "Total"
+        is_total = cast(ParameterType, self.parameter_type).get_raw_name() == "Total"
         is_accum = (
             cast(ParameterType, self.parameter_type).name == "INST-CUM"
             if self.context == _DSS
@@ -2587,7 +2587,7 @@ class TimeSeries:
         entire_interval: Optional[bool] = None,
     ) -> None:
         is_inst = (
-            cast(ParameterType, self.parameter_type).getRawName() == "Instantaneous"
+            cast(ParameterType, self.parameter_type).get_raw_name() == "Instantaneous"
         )
         require_entire_interval = (
             entire_interval
@@ -3102,7 +3102,7 @@ class TimeSeries:
                 f"Cannot accumulate a time series with parameter of {self.parameter.name}, "
                 f"base parameter must be one of {Parameter.accumulatable_base_parameters()}"
             )
-        if cast(ParameterType, self.parameter_type).getRawName() in (
+        if cast(ParameterType, self.parameter_type).get_raw_name() in (
             "Constant",
             "Minimum",
             "Maximum",
@@ -5137,7 +5137,7 @@ class TimeSeries:
         if self._context == _CWMS:
             parts.append(str(self._location))
             parts.append(self._parameter.name)
-            parts.append(cast(ParameterType, self._parameter_type).getCwmsName())
+            parts.append(cast(ParameterType, self._parameter_type).get_cwms_name())
             parts.append(self._interval.name)
             parts.append(cast(Duration, self._duration).name)
             parts.append(cast(str, self._version))
