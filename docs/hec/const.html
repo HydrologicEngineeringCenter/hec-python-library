@@ -31,6 +31,27 @@
             <h2>API Documentation</h2>
                 <ul class="memberlist">
             <li>
+                    <a class="class" href="#Combine">Combine</a>
+                            <ul class="memberlist">
+                        <li>
+                                <a class="variable" href="#Combine.NOOP">NOOP</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Combine.REPLACE">REPLACE</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Combine.AND">AND</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Combine.OR">OR</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Combine.XOR">XOR</a>
+                        </li>
+                </ul>
+
+            </li>
+            <li>
                     <a class="class" href="#Safety">Safety</a>
                             <ul class="memberlist">
                         <li>
@@ -41,18 +62,6 @@
                         </li>
                         <li>
                                 <a class="variable" href="#Safety.ERROR_ON_UNSAFE">ERROR_ON_UNSAFE</a>
-                        </li>
-                </ul>
-
-            </li>
-            <li>
-                    <a class="class" href="#SelectionState">SelectionState</a>
-                            <ul class="memberlist">
-                        <li>
-                                <a class="variable" href="#SelectionState.TRANSIENT">TRANSIENT</a>
-                        </li>
-                        <li>
-                                <a class="variable" href="#SelectionState.DURABLE">DURABLE</a>
                         </li>
                 </ul>
 
@@ -73,22 +82,13 @@
 
             </li>
             <li>
-                    <a class="class" href="#Combine">Combine</a>
+                    <a class="class" href="#SelectionState">SelectionState</a>
                             <ul class="memberlist">
                         <li>
-                                <a class="variable" href="#Combine.NOOP">NOOP</a>
+                                <a class="variable" href="#SelectionState.TRANSIENT">TRANSIENT</a>
                         </li>
                         <li>
-                                <a class="variable" href="#Combine.REPLACE">REPLACE</a>
-                        </li>
-                        <li>
-                                <a class="variable" href="#Combine.AND">AND</a>
-                        </li>
-                        <li>
-                                <a class="variable" href="#Combine.OR">OR</a>
-                        </li>
-                        <li>
-                                <a class="variable" href="#Combine.XOR">XOR</a>
+                                <a class="variable" href="#SelectionState.DURABLE">DURABLE</a>
                         </li>
                 </ul>
 
@@ -116,164 +116,6 @@
                 
                 
             </section>
-                <section id="Safety">
-                    <div class="attr class">
-            
-    <span class="def">class</span>
-    <span class="name">Safety</span><wbr>(<span class="base">enum.Enum</span>):
-
-        
-    </div>
-    <a class="headerlink" href="#Safety"></a>
-    
-            <div class="docstring"><p>Enumeration for specifying behavior of potentially unsafe operations.</p>
-
-<ul>
-<li><code><a href="#Safety.NOOP_ON_UNSAFE">NOOP_ON_UNSAFE</a></code>: No action is taken on potientially unsafe operations</li>
-<li><code><a href="#Safety.WARN_ON_UNSAFE">WARN_ON_UNSAFE</a></code>: Potentially unsafe operations will generate a warning</li>
-<li><code><a href="#Safety.ERROR_ON_UNSAFE">ERROR_ON_UNSAFE</a></code>: Potentially unsafe operations will raise an exception</li>
-</ul>
-</div>
-
-
-                            <div id="Safety.NOOP_ON_UNSAFE" class="classattr">
-                                <div class="attr variable">
-            <span class="name">NOOP_ON_UNSAFE</span>        =
-<span class="default_value">&lt;<a href="#Safety.NOOP_ON_UNSAFE">Safety.NOOP_ON_UNSAFE</a>: 0&gt;</span>
-
-        
-    </div>
-    <a class="headerlink" href="#Safety.NOOP_ON_UNSAFE"></a>
-    
-    
-
-                            </div>
-                            <div id="Safety.WARN_ON_UNSAFE" class="classattr">
-                                <div class="attr variable">
-            <span class="name">WARN_ON_UNSAFE</span>        =
-<span class="default_value">&lt;<a href="#Safety.WARN_ON_UNSAFE">Safety.WARN_ON_UNSAFE</a>: 1&gt;</span>
-
-        
-    </div>
-    <a class="headerlink" href="#Safety.WARN_ON_UNSAFE"></a>
-    
-    
-
-                            </div>
-                            <div id="Safety.ERROR_ON_UNSAFE" class="classattr">
-                                <div class="attr variable">
-            <span class="name">ERROR_ON_UNSAFE</span>        =
-<span class="default_value">&lt;<a href="#Safety.ERROR_ON_UNSAFE">Safety.ERROR_ON_UNSAFE</a>: 2&gt;</span>
-
-        
-    </div>
-    <a class="headerlink" href="#Safety.ERROR_ON_UNSAFE"></a>
-    
-    
-
-                            </div>
-                </section>
-                <section id="SelectionState">
-                    <div class="attr class">
-            
-    <span class="def">class</span>
-    <span class="name">SelectionState</span><wbr>(<span class="base">enum.Enum</span>):
-
-        
-    </div>
-    <a class="headerlink" href="#SelectionState"></a>
-    
-            <div class="docstring"><p>Enumeration for specifying selection durability</p>
-
-<ul>
-<li><code><a href="#SelectionState.TRANSIENT">TRANSIENT</a></code>: Selection is cleared after next operation</li>
-<li><code><a href="#SelectionState.DURABLE">DURABLE</a></code>: Selection persists until explicitly modified</li>
-</ul>
-</div>
-
-
-                            <div id="SelectionState.TRANSIENT" class="classattr">
-                                <div class="attr variable">
-            <span class="name">TRANSIENT</span>        =
-<span class="default_value">&lt;<a href="#SelectionState.TRANSIENT">SelectionState.TRANSIENT</a>: 0&gt;</span>
-
-        
-    </div>
-    <a class="headerlink" href="#SelectionState.TRANSIENT"></a>
-    
-    
-
-                            </div>
-                            <div id="SelectionState.DURABLE" class="classattr">
-                                <div class="attr variable">
-            <span class="name">DURABLE</span>        =
-<span class="default_value">&lt;<a href="#SelectionState.DURABLE">SelectionState.DURABLE</a>: 1&gt;</span>
-
-        
-    </div>
-    <a class="headerlink" href="#SelectionState.DURABLE"></a>
-    
-    
-
-                            </div>
-                </section>
-                <section id="Select">
-                    <div class="attr class">
-            
-    <span class="def">class</span>
-    <span class="name">Select</span><wbr>(<span class="base">enum.Enum</span>):
-
-        
-    </div>
-    <a class="headerlink" href="#Select"></a>
-    
-            <div class="docstring"><p>Enumeration for specifying items to select</p>
-
-<ul>
-<li><code><a href="#Select.NONE">NONE</a></code>: Set all items to unselected</li>
-<li><code><a href="#Select.ALL">ALL</a></code>: Set all items to selected</li>
-<li><code><a href="#Select.INVERT">INVERT</a></code>: Set all items to the inverse of their currently selected state</li>
-</ul>
-</div>
-
-
-                            <div id="Select.NONE" class="classattr">
-                                <div class="attr variable">
-            <span class="name">NONE</span>        =
-<span class="default_value">&lt;<a href="#Select.NONE">Select.NONE</a>: 0&gt;</span>
-
-        
-    </div>
-    <a class="headerlink" href="#Select.NONE"></a>
-    
-    
-
-                            </div>
-                            <div id="Select.ALL" class="classattr">
-                                <div class="attr variable">
-            <span class="name">ALL</span>        =
-<span class="default_value">&lt;<a href="#Select.ALL">Select.ALL</a>: 1&gt;</span>
-
-        
-    </div>
-    <a class="headerlink" href="#Select.ALL"></a>
-    
-    
-
-                            </div>
-                            <div id="Select.INVERT" class="classattr">
-                                <div class="attr variable">
-            <span class="name">INVERT</span>        =
-<span class="default_value">&lt;<a href="#Select.INVERT">Select.INVERT</a>: 2&gt;</span>
-
-        
-    </div>
-    <a class="headerlink" href="#Select.INVERT"></a>
-    
-    
-
-                            </div>
-                </section>
                 <section id="Combine">
                     <div class="attr class">
             
@@ -352,6 +194,164 @@
         
     </div>
     <a class="headerlink" href="#Combine.XOR"></a>
+    
+    
+
+                            </div>
+                </section>
+                <section id="Safety">
+                    <div class="attr class">
+            
+    <span class="def">class</span>
+    <span class="name">Safety</span><wbr>(<span class="base">enum.Enum</span>):
+
+        
+    </div>
+    <a class="headerlink" href="#Safety"></a>
+    
+            <div class="docstring"><p>Enumeration for specifying behavior of potentially unsafe operations.</p>
+
+<ul>
+<li><code><a href="#Safety.NOOP_ON_UNSAFE">NOOP_ON_UNSAFE</a></code>: No action is taken on potientially unsafe operations</li>
+<li><code><a href="#Safety.WARN_ON_UNSAFE">WARN_ON_UNSAFE</a></code>: Potentially unsafe operations will generate a warning</li>
+<li><code><a href="#Safety.ERROR_ON_UNSAFE">ERROR_ON_UNSAFE</a></code>: Potentially unsafe operations will raise an exception</li>
+</ul>
+</div>
+
+
+                            <div id="Safety.NOOP_ON_UNSAFE" class="classattr">
+                                <div class="attr variable">
+            <span class="name">NOOP_ON_UNSAFE</span>        =
+<span class="default_value">&lt;<a href="#Safety.NOOP_ON_UNSAFE">Safety.NOOP_ON_UNSAFE</a>: 0&gt;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Safety.NOOP_ON_UNSAFE"></a>
+    
+    
+
+                            </div>
+                            <div id="Safety.WARN_ON_UNSAFE" class="classattr">
+                                <div class="attr variable">
+            <span class="name">WARN_ON_UNSAFE</span>        =
+<span class="default_value">&lt;<a href="#Safety.WARN_ON_UNSAFE">Safety.WARN_ON_UNSAFE</a>: 1&gt;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Safety.WARN_ON_UNSAFE"></a>
+    
+    
+
+                            </div>
+                            <div id="Safety.ERROR_ON_UNSAFE" class="classattr">
+                                <div class="attr variable">
+            <span class="name">ERROR_ON_UNSAFE</span>        =
+<span class="default_value">&lt;<a href="#Safety.ERROR_ON_UNSAFE">Safety.ERROR_ON_UNSAFE</a>: 2&gt;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Safety.ERROR_ON_UNSAFE"></a>
+    
+    
+
+                            </div>
+                </section>
+                <section id="Select">
+                    <div class="attr class">
+            
+    <span class="def">class</span>
+    <span class="name">Select</span><wbr>(<span class="base">enum.Enum</span>):
+
+        
+    </div>
+    <a class="headerlink" href="#Select"></a>
+    
+            <div class="docstring"><p>Enumeration for specifying items to select</p>
+
+<ul>
+<li><code><a href="#Select.NONE">NONE</a></code>: Set all items to unselected</li>
+<li><code><a href="#Select.ALL">ALL</a></code>: Set all items to selected</li>
+<li><code><a href="#Select.INVERT">INVERT</a></code>: Set all items to the inverse of their currently selected state</li>
+</ul>
+</div>
+
+
+                            <div id="Select.NONE" class="classattr">
+                                <div class="attr variable">
+            <span class="name">NONE</span>        =
+<span class="default_value">&lt;<a href="#Select.NONE">Select.NONE</a>: 0&gt;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Select.NONE"></a>
+    
+    
+
+                            </div>
+                            <div id="Select.ALL" class="classattr">
+                                <div class="attr variable">
+            <span class="name">ALL</span>        =
+<span class="default_value">&lt;<a href="#Select.ALL">Select.ALL</a>: 1&gt;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Select.ALL"></a>
+    
+    
+
+                            </div>
+                            <div id="Select.INVERT" class="classattr">
+                                <div class="attr variable">
+            <span class="name">INVERT</span>        =
+<span class="default_value">&lt;<a href="#Select.INVERT">Select.INVERT</a>: 2&gt;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Select.INVERT"></a>
+    
+    
+
+                            </div>
+                </section>
+                <section id="SelectionState">
+                    <div class="attr class">
+            
+    <span class="def">class</span>
+    <span class="name">SelectionState</span><wbr>(<span class="base">enum.Enum</span>):
+
+        
+    </div>
+    <a class="headerlink" href="#SelectionState"></a>
+    
+            <div class="docstring"><p>Enumeration for specifying selection durability</p>
+
+<ul>
+<li><code><a href="#SelectionState.TRANSIENT">TRANSIENT</a></code>: Selection is cleared after next operation</li>
+<li><code><a href="#SelectionState.DURABLE">DURABLE</a></code>: Selection persists until explicitly modified</li>
+</ul>
+</div>
+
+
+                            <div id="SelectionState.TRANSIENT" class="classattr">
+                                <div class="attr variable">
+            <span class="name">TRANSIENT</span>        =
+<span class="default_value">&lt;<a href="#SelectionState.TRANSIENT">SelectionState.TRANSIENT</a>: 0&gt;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#SelectionState.TRANSIENT"></a>
+    
+    
+
+                            </div>
+                            <div id="SelectionState.DURABLE" class="classattr">
+                                <div class="attr variable">
+            <span class="name">DURABLE</span>        =
+<span class="default_value">&lt;<a href="#SelectionState.DURABLE">SelectionState.DURABLE</a>: 1&gt;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#SelectionState.DURABLE"></a>
     
     
 
