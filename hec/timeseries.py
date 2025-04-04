@@ -178,7 +178,7 @@ class TimeSeriesValue:
                 return (
                     self.time == other.time
                     and self.value.magnitude == other.value.magnitude
-                    and self.value.units == other.value.units
+                    and self.value.unit == other.value.unit
                 )
             elif degree == 4:
                 return (
@@ -190,7 +190,7 @@ class TimeSeriesValue:
                 return (
                     self.time == other.time
                     and self.value.magnitude == other.value.magnitude
-                    and self.value.units == other.value.units
+                    and self.value.unit == other.value.unit
                     and self.quality == other.quality
                 )
             else:
@@ -441,7 +441,7 @@ class TimeSeries:
             # --------------------------------------- #
             # add a scalar with a unit to time series #
             # --------------------------------------- #
-            if UnitQuantity(1, amount.units).units.dimensionless:
+            if UnitQuantity(1, amount.unit).unit.dimensionless:
                 to_unit = "n/a"
             else:
                 to_unit = self.unit
@@ -455,7 +455,7 @@ class TimeSeries:
                     "Operation is invalid with empty time series."
                 )
             this = self._data
-            if UnitQuantity(1, amount.unit).units.dimensionless:
+            if UnitQuantity(1, amount.unit).unit.dimensionless:
                 that = cast(pd.DataFrame, amount.to("n/a")._data)
             else:
                 that = cast(pd.DataFrame, amount.to(self.unit)._data)
@@ -509,7 +509,7 @@ class TimeSeries:
             # -------------------------------------- #
             # divide time series by scalar with unit #
             # -------------------------------------- #
-            if UnitQuantity(1, amount.units).units.dimensionless:
+            if UnitQuantity(1, amount.unit).unit.dimensionless:
                 to_unit = "n/a"
                 new_parameter = self.parameter
             else:
@@ -517,23 +517,23 @@ class TimeSeries:
                     srcq = UnitQuantity(1, self.unit)
                     try:
                         end_unit = hec.unit.get_unit_name(
-                            (srcq / UnitQuantity(1, amount.units)).units
+                            (srcq / UnitQuantity(1, amount.unit)).unit
                         )
                     except:
                         end_unit = hec.unit.get_unit_name(
                             hec.unit.get_compatible_units(
-                                (srcq / UnitQuantity(1, amount.units)).units
+                                (srcq / UnitQuantity(1, amount.unit)).unit
                             )[0]
                         )
                     dstq = UnitQuantity(1, end_unit)
-                    to_unit = hec.unit.get_unit_name((srcq / dstq).units)
+                    to_unit = hec.unit.get_unit_name((srcq / dstq).unit)
                     new_param_name = hec.parameter.get_compatible_parameters(end_unit)[
                         0
                     ]
                     new_parameter = Parameter(new_param_name, end_unit)
                 except:
                     raise TimeSeriesException(
-                        f"\n==> Cannot automtically determine conversion to divide '{self.unit}' by '{amount.units}'."
+                        f"\n==> Cannot automtically determine conversion to divide '{self.unit}' by '{amount.unit}'."
                         "\n==> Use the '.to()' method to convert one of the operands to a unit compatible with the other."
                     ) from None
             other = self.__floordiv__(amount.to(to_unit).magnitude)
@@ -547,7 +547,7 @@ class TimeSeries:
                 raise TimeSeriesException(
                     "Operation is invalid with empty time series."
                 )
-            if UnitQuantity(1, amount.unit).units.dimensionless:
+            if UnitQuantity(1, amount.unit).unit.dimensionless:
                 to_unit = "n/a"
                 new_parameter = self.parameter
             else:
@@ -555,16 +555,16 @@ class TimeSeries:
                     srcq = UnitQuantity(1, self.unit)
                     try:
                         end_unit = hec.unit.get_unit_name(
-                            (srcq / UnitQuantity(1, amount.unit)).units
+                            (srcq / UnitQuantity(1, amount.unit)).unit
                         )
                     except:
                         end_unit = hec.unit.get_unit_name(
                             hec.unit.get_compatible_units(
-                                (srcq / UnitQuantity(1, amount.unit)).units
+                                (srcq / UnitQuantity(1, amount.unit)).unit
                             )[0]
                         )
                     dstq = UnitQuantity(1, end_unit)
-                    to_unit = hec.unit.get_unit_name((srcq / dstq).units)
+                    to_unit = hec.unit.get_unit_name((srcq / dstq).unit)
                     new_param_name = hec.parameter.get_compatible_parameters(end_unit)[
                         0
                     ]
@@ -657,7 +657,7 @@ class TimeSeries:
             # --------------------------------------- #
             # add a scalar with a unit to time series #
             # --------------------------------------- #
-            if UnitQuantity(1, amount.units).units.dimensionless:
+            if UnitQuantity(1, amount.unit).unit.dimensionless:
                 to_unit = "n/a"
             else:
                 to_unit = self.unit
@@ -671,7 +671,7 @@ class TimeSeries:
                     "Operation is invalid with empty time series."
                 )
             this = self._data
-            if UnitQuantity(1, amount.unit).units.dimensionless:
+            if UnitQuantity(1, amount.unit).unit.dimensionless:
                 that = cast(pd.DataFrame, amount.to("n/a")._data)
             else:
                 that = cast(pd.DataFrame, amount.to(self.unit)._data)
@@ -721,7 +721,7 @@ class TimeSeries:
             # -------------------------------------- #
             # divide time series by scalar with unit #
             # -------------------------------------- #
-            if UnitQuantity(1, amount.units).units.dimensionless:
+            if UnitQuantity(1, amount.unit).unit.dimensionless:
                 to_unit = "n/a"
                 new_parameter = self.parameter
             else:
@@ -729,23 +729,23 @@ class TimeSeries:
                     srcq = UnitQuantity(1, self.unit)
                     try:
                         end_unit = hec.unit.get_unit_name(
-                            (srcq / UnitQuantity(1, amount.units)).units
+                            (srcq / UnitQuantity(1, amount.unit)).unit
                         )
                     except:
                         end_unit = hec.unit.get_unit_name(
                             hec.unit.get_compatible_units(
-                                (srcq / UnitQuantity(1, amount.units)).units
+                                (srcq / UnitQuantity(1, amount.unit)).unit
                             )[0]
                         )
                     dstq = UnitQuantity(1, end_unit)
-                    to_unit = hec.unit.get_unit_name((srcq / dstq).units)
+                    to_unit = hec.unit.get_unit_name((srcq / dstq).unit)
                     new_param_name = hec.parameter.get_compatible_parameters(end_unit)[
                         0
                     ]
                     new_parameter = Parameter(new_param_name, end_unit)
                 except:
                     raise TimeSeriesException(
-                        f"\n==> Cannot automtically determine conversion to divide '{self.unit}' by '{amount.units}'."
+                        f"\n==> Cannot automtically determine conversion to divide '{self.unit}' by '{amount.unit}'."
                         "\n==> Use the '.to()' method to convert one of the operands to a unit compatible with the other."
                     ) from None
             self.__ifloordiv__(amount.to(to_unit).magnitude)
@@ -759,7 +759,7 @@ class TimeSeries:
                 raise TimeSeriesException(
                     "Operation is invalid with empty time series."
                 )
-            if UnitQuantity(1, amount.unit).units.dimensionless:
+            if UnitQuantity(1, amount.unit).unit.dimensionless:
                 to_unit = "n/a"
                 new_parameter = self.parameter
             else:
@@ -767,16 +767,16 @@ class TimeSeries:
                     srcq = UnitQuantity(1, self.unit)
                     try:
                         end_unit = hec.unit.get_unit_name(
-                            (srcq / UnitQuantity(1, amount.unit)).units
+                            (srcq / UnitQuantity(1, amount.unit)).unit
                         )
                     except:
                         end_unit = hec.unit.get_unit_name(
                             hec.unit.get_compatible_units(
-                                (srcq / UnitQuantity(1, amount.unit)).units
+                                (srcq / UnitQuantity(1, amount.unit)).unit
                             )[0]
                         )
                     dstq = UnitQuantity(1, end_unit)
-                    to_unit = hec.unit.get_unit_name((srcq / dstq).units)
+                    to_unit = hec.unit.get_unit_name((srcq / dstq).unit)
                     new_param_name = hec.parameter.get_compatible_parameters(end_unit)[
                         0
                     ]
@@ -861,7 +861,7 @@ class TimeSeries:
             # --------------------------------------- #
             # mod time series with a scalar with unit #
             # --------------------------------------- #
-            if UnitQuantity(1, amount.units).units.dimensionless:
+            if UnitQuantity(1, amount.unit).unit.dimensionless:
                 to_unit = "n/a"
             else:
                 to_unit = self.unit
@@ -875,7 +875,7 @@ class TimeSeries:
                     "Operation is invalid with empty time series."
                 )
             this = self._data
-            if UnitQuantity(1, amount.unit).units.dimensionless:
+            if UnitQuantity(1, amount.unit).unit.dimensionless:
                 that = cast(pd.DataFrame, amount.to("n/a")._data)
             else:
                 that = cast(pd.DataFrame, amount.to(self.unit)._data)
@@ -925,7 +925,7 @@ class TimeSeries:
             # ---------------------------------------- #
             # multiply time series by scalar with unit #
             # ---------------------------------------- #
-            if UnitQuantity(1, amount.units).units.dimensionless:
+            if UnitQuantity(1, amount.unit).unit.dimensionless:
                 to_unit = "n/a"
                 new_parameter = self.parameter
             else:
@@ -933,23 +933,23 @@ class TimeSeries:
                     srcq = UnitQuantity(1, self.unit)
                     try:
                         end_unit = hec.unit.get_unit_name(
-                            (srcq * UnitQuantity(1, amount.units)).units
+                            (srcq * UnitQuantity(1, amount.unit)).unit
                         )
                     except:
                         end_unit = hec.unit.get_unit_name(
                             hec.unit.get_compatible_units(
-                                (srcq * UnitQuantity(1, amount.units)).units
+                                (srcq * UnitQuantity(1, amount.unit)).unit
                             )[0]
                         )
                     dstq = UnitQuantity(1, end_unit)
-                    to_unit = hec.unit.get_unit_name((dstq / srcq).units)
+                    to_unit = hec.unit.get_unit_name((dstq / srcq).unit)
                     new_param_name = hec.parameter.get_compatible_parameters(end_unit)[
                         0
                     ]
                     new_parameter = Parameter(new_param_name, end_unit)
                 except:
                     raise TimeSeriesException(
-                        f"\n==> Cannot automtically determine conversion to multiply '{self.unit}' by '{amount.units}'."
+                        f"\n==> Cannot automtically determine conversion to multiply '{self.unit}' by '{amount.unit}'."
                         "\n==> Use the '.to()' method to convert one of the operands to a unit compatible with the other."
                     ) from None
             self.__imul__(amount.to(to_unit).magnitude)
@@ -963,7 +963,7 @@ class TimeSeries:
                 raise TimeSeriesException(
                     "Operation is invalid with empty time series."
                 )
-            if UnitQuantity(1, amount.unit).units.dimensionless:
+            if UnitQuantity(1, amount.unit).unit.dimensionless:
                 to_unit = "n/a"
                 new_parameter = self.parameter
             else:
@@ -971,16 +971,16 @@ class TimeSeries:
                     srcq = UnitQuantity(1, self.unit)
                     try:
                         end_unit = hec.unit.get_unit_name(
-                            (srcq * UnitQuantity(1, amount.unit)).units
+                            (srcq * UnitQuantity(1, amount.unit)).unit
                         )
                     except:
                         end_unit = hec.unit.get_unit_name(
                             hec.unit.get_compatible_units(
-                                (srcq * UnitQuantity(1, amount.unit)).units
+                                (srcq * UnitQuantity(1, amount.unit)).unit
                             )[0]
                         )
                     dstq = UnitQuantity(1, end_unit)
-                    to_unit = hec.unit.get_unit_name((dstq / srcq).units)
+                    to_unit = hec.unit.get_unit_name((dstq / srcq).unit)
                     new_param_name = hec.parameter.get_compatible_parameters(end_unit)[
                         0
                     ]
@@ -1125,7 +1125,7 @@ class TimeSeries:
             # ---------------------------------------------- #
             # subtract a scalar with a unit from time series #
             # ---------------------------------------------- #
-            if UnitQuantity(1, amount.units).units.dimensionless:
+            if UnitQuantity(1, amount.unit).unit.dimensionless:
                 to_unit = "n/a"
             else:
                 to_unit = self.unit
@@ -1139,7 +1139,7 @@ class TimeSeries:
                     "Operation is invalid with empty time series."
                 )
             this = self._data
-            if UnitQuantity(1, amount.unit).units.dimensionless:
+            if UnitQuantity(1, amount.unit).unit.dimensionless:
                 that = cast(pd.DataFrame, amount.to("n/a")._data)
             else:
                 that = cast(pd.DataFrame, amount.to(self.unit)._data)
@@ -1189,7 +1189,7 @@ class TimeSeries:
             # -------------------------------------- #
             # divide time series by scalar with unit #
             # -------------------------------------- #
-            if UnitQuantity(1, amount.units).units.dimensionless:
+            if UnitQuantity(1, amount.unit).unit.dimensionless:
                 to_unit = "n/a"
                 new_parameter = self.parameter
             else:
@@ -1197,23 +1197,23 @@ class TimeSeries:
                     srcq = UnitQuantity(1, self.unit)
                     try:
                         end_unit = hec.unit.get_unit_name(
-                            (srcq / UnitQuantity(1, amount.units)).units
+                            (srcq / UnitQuantity(1, amount.unit)).unit
                         )
                     except:
                         end_unit = hec.unit.get_unit_name(
                             hec.unit.get_compatible_units(
-                                (srcq / UnitQuantity(1, amount.units)).units
+                                (srcq / UnitQuantity(1, amount.unit)).unit
                             )[0]
                         )
                     dstq = UnitQuantity(1, end_unit)
-                    to_unit = hec.unit.get_unit_name((srcq / dstq).units)
+                    to_unit = hec.unit.get_unit_name((srcq / dstq).unit)
                     new_param_name = hec.parameter.get_compatible_parameters(end_unit)[
                         0
                     ]
                     new_parameter = Parameter(new_param_name, end_unit)
                 except:
                     raise TimeSeriesException(
-                        f"\n==> Cannot automtically determine conversion to divide '{self.unit}' by '{amount.units}'."
+                        f"\n==> Cannot automtically determine conversion to divide '{self.unit}' by '{amount.unit}'."
                         "\n==> Use the '.to()' method to convert one of the operands to a unit compatible with the other."
                     ) from None
             self.__itruediv__(amount.to(to_unit).magnitude)
@@ -1227,7 +1227,7 @@ class TimeSeries:
                 raise TimeSeriesException(
                     "Operation is invalid with empty time series."
                 )
-            if UnitQuantity(1, amount.unit).units.dimensionless:
+            if UnitQuantity(1, amount.unit).unit.dimensionless:
                 to_unit = "n/a"
                 new_parameter = self.parameter
             else:
@@ -1235,16 +1235,16 @@ class TimeSeries:
                     srcq = UnitQuantity(1, self.unit)
                     try:
                         end_unit = hec.unit.get_unit_name(
-                            (srcq / UnitQuantity(1, amount.unit)).units
+                            (srcq / UnitQuantity(1, amount.unit)).unit
                         )
                     except:
                         end_unit = hec.unit.get_unit_name(
                             hec.unit.get_compatible_units(
-                                (srcq / UnitQuantity(1, amount.unit)).units
+                                (srcq / UnitQuantity(1, amount.unit)).unit
                             )[0]
                         )
                     dstq = UnitQuantity(1, end_unit)
-                    to_unit = hec.unit.get_unit_name((srcq / dstq).units)
+                    to_unit = hec.unit.get_unit_name((srcq / dstq).unit)
                     new_param_name = hec.parameter.get_compatible_parameters(end_unit)[
                         0
                     ]
@@ -1349,7 +1349,7 @@ class TimeSeries:
             # --------------------------------------- #
             # mod time series with a scalar with unit #
             # --------------------------------------- #
-            if UnitQuantity(1, amount.units).units.dimensionless:
+            if UnitQuantity(1, amount.unit).unit.dimensionless:
                 to_unit = "n/a"
             else:
                 to_unit = self.unit
@@ -1363,7 +1363,7 @@ class TimeSeries:
                     "Operation is invalid with empty time series."
                 )
             this = self._data
-            if UnitQuantity(1, amount.unit).units.dimensionless:
+            if UnitQuantity(1, amount.unit).unit.dimensionless:
                 that = cast(pd.DataFrame, amount.to("n/a")._data)
             else:
                 that = cast(pd.DataFrame, amount.to(self.unit)._data)
@@ -1417,7 +1417,7 @@ class TimeSeries:
             # ---------------------------------------- #
             # multiply time series by scalar with unit #
             # ---------------------------------------- #
-            if UnitQuantity(1, amount.units).units.dimensionless:
+            if UnitQuantity(1, amount.unit).unit.dimensionless:
                 to_unit = "n/a"
                 new_parameter = self.parameter
             else:
@@ -1425,23 +1425,23 @@ class TimeSeries:
                     srcq = UnitQuantity(1, self.unit)
                     try:
                         end_unit = hec.unit.get_unit_name(
-                            (srcq * UnitQuantity(1, amount.units)).units
+                            (srcq * UnitQuantity(1, amount.unit)).unit
                         )
                     except:
                         end_unit = hec.unit.get_unit_name(
                             hec.unit.get_compatible_units(
-                                (srcq * UnitQuantity(1, amount.units)).units
+                                (srcq * UnitQuantity(1, amount.unit)).unit
                             )[0]
                         )
                     dstq = UnitQuantity(1, end_unit)
-                    to_unit = hec.unit.get_unit_name((dstq / srcq).units)
+                    to_unit = hec.unit.get_unit_name((dstq / srcq).unit)
                     new_param_name = hec.parameter.get_compatible_parameters(end_unit)[
                         0
                     ]
                     new_parameter = Parameter(new_param_name, end_unit)
                 except:
                     raise TimeSeriesException(
-                        f"\n==> Cannot automtically determine conversion to multiply '{self.unit}' by '{amount.units}'."
+                        f"\n==> Cannot automtically determine conversion to multiply '{self.unit}' by '{amount.unit}'."
                         "\n==> Use the '.to()' method to convert one of the operands to a unit compatible with the other."
                     ) from None
             other = self.__mul__(amount.to(to_unit).magnitude)
@@ -1455,7 +1455,7 @@ class TimeSeries:
                 raise TimeSeriesException(
                     "Operation is invalid with empty time series."
                 )
-            if UnitQuantity(1, amount.unit).units.dimensionless:
+            if UnitQuantity(1, amount.unit).unit.dimensionless:
                 to_unit = "n/a"
                 new_parameter = self.parameter
             else:
@@ -1463,16 +1463,16 @@ class TimeSeries:
                     srcq = UnitQuantity(1, self.unit)
                     try:
                         end_unit = hec.unit.get_unit_name(
-                            (srcq * UnitQuantity(1, amount.unit)).units
+                            (srcq * UnitQuantity(1, amount.unit)).unit
                         )
                     except:
                         end_unit = hec.unit.get_unit_name(
                             hec.unit.get_compatible_units(
-                                (srcq * UnitQuantity(1, amount.unit)).units
+                                (srcq * UnitQuantity(1, amount.unit)).unit
                             )[0]
                         )
                     dstq = UnitQuantity(1, end_unit)
-                    to_unit = hec.unit.get_unit_name((dstq / srcq).units)
+                    to_unit = hec.unit.get_unit_name((dstq / srcq).unit)
                     new_param_name = hec.parameter.get_compatible_parameters(end_unit)[
                         0
                     ]
@@ -1650,7 +1650,7 @@ class TimeSeries:
             # ---------------------------------------------- #
             # subtract a scalar with a unit from time series #
             # ---------------------------------------------- #
-            if UnitQuantity(1, amount.units).units.dimensionless:
+            if UnitQuantity(1, amount.unit).unit.dimensionless:
                 to_unit = "n/a"
             else:
                 to_unit = self.unit
@@ -1664,7 +1664,7 @@ class TimeSeries:
                     "Operation is invalid with empty time series."
                 )
             this = self._data
-            if UnitQuantity(1, amount.unit).units.dimensionless:
+            if UnitQuantity(1, amount.unit).unit.dimensionless:
                 that = cast(pd.DataFrame, amount.to("n/a")._data)
             else:
                 that = cast(pd.DataFrame, amount.to(self.unit)._data)
@@ -1718,7 +1718,7 @@ class TimeSeries:
             # -------------------------------------- #
             # divide time series by scalar with unit #
             # -------------------------------------- #
-            if UnitQuantity(1, amount.units).units.dimensionless:
+            if UnitQuantity(1, amount.unit).unit.dimensionless:
                 to_unit = "n/a"
                 new_parameter = self.parameter
             else:
@@ -1726,23 +1726,23 @@ class TimeSeries:
                     srcq = UnitQuantity(1, self.unit)
                     try:
                         end_unit = hec.unit.get_unit_name(
-                            (srcq / UnitQuantity(1, amount.units)).units
+                            (srcq / UnitQuantity(1, amount.unit)).unit
                         )
                     except:
                         end_unit = hec.unit.get_unit_name(
                             hec.unit.get_compatible_units(
-                                (srcq / UnitQuantity(1, amount.units)).units
+                                (srcq / UnitQuantity(1, amount.unit)).unit
                             )[0]
                         )
                     dstq = UnitQuantity(1, end_unit)
-                    to_unit = hec.unit.get_unit_name((srcq / dstq).units)
+                    to_unit = hec.unit.get_unit_name((srcq / dstq).unit)
                     new_param_name = hec.parameter.get_compatible_parameters(end_unit)[
                         0
                     ]
                     new_parameter = Parameter(new_param_name, end_unit)
                 except:
                     raise TimeSeriesException(
-                        f"\n==> Cannot automtically determine conversion to divide '{self.unit}' by '{amount.units}'."
+                        f"\n==> Cannot automtically determine conversion to divide '{self.unit}' by '{amount.unit}'."
                         "\n==> Use the '.to()' method to convert one of the operands to a unit compatible with the other."
                     ) from None
             other = self.__truediv__(amount.to(to_unit).magnitude)
@@ -1756,24 +1756,24 @@ class TimeSeries:
                 raise TimeSeriesException(
                     "Operation is invalid with empty time series."
                 )
-            if UnitQuantity(1, amount.unit).units.dimensionless:
+            if UnitQuantity(1, amount.unit).unit.dimensionless:
                 to_unit = "n/a"
                 new_parameter = self.parameter
             else:
                 try:
-                    srcq = UnitQuantity(1, str(UnitQuantity(1, self.unit).units))
+                    srcq = UnitQuantity(1, str(UnitQuantity(1, self.unit).unit))
                     try:
                         end_unit = hec.unit.get_unit_name(
-                            (srcq / UnitQuantity(1, amount.unit)).units
+                            (srcq / UnitQuantity(1, amount.unit)).unit
                         )
                     except:
                         end_unit = hec.unit.get_unit_name(
                             hec.unit.get_compatible_units(
-                                (srcq / UnitQuantity(1, amount.unit)).units
+                                (srcq / UnitQuantity(1, amount.unit)).unit
                             )[0]
                         )
-                    dstq = UnitQuantity(1, str(UnitQuantity(1, end_unit).units))
-                    to_unit = hec.unit.get_unit_name((srcq / dstq).units)
+                    dstq = UnitQuantity(1, str(UnitQuantity(1, end_unit).unit))
+                    to_unit = hec.unit.get_unit_name((srcq / dstq).unit)
                     new_param_name = hec.parameter.get_compatible_parameters(end_unit)[
                         0
                     ]
@@ -4034,7 +4034,7 @@ class TimeSeries:
         )
         if sub_param:
             new_parameter_name += f"-{sub_param}"
-        unit_system = UnitQuantity(self.parameter.unit_name).getUnitSystems()[0]
+        unit_system = UnitQuantity(self.parameter.unit_name).get_unit_systems()[0]
         new_parameter = Parameter(
             new_parameter_name,
             unit_system,
