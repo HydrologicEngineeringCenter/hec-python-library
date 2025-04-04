@@ -14,15 +14,17 @@ import itertools as it
 import numpy as np
 import pandas as pd
 
-from hec.const import Combine, Select, SelectionState
-from hec.duration import Duration
-from hec.hectime import HecTime
-from hec.interval import Interval
-from hec.parameter import Parameter, ParameterType
-from hec.quality import Quality as Qual
-from hec.timeseries import TimeSeries, TimeSeriesException, TimeSeriesValue
-from hec.timespan import TimeSpan
-from hec.unit import UnitQuantity as UQ
+from hec import Combine, Duration, HecTime, Interval, Parameter, ParameterType
+from hec import Quality as Qual
+from hec import (
+    Select,
+    SelectionState,
+    TimeSeries,
+    TimeSeriesException,
+    TimeSeriesValue,
+    TimeSpan,
+)
+from hec import UnitQuantity as UQ
 
 
 def equal_values(v1: list[float], v2: list[float]) -> bool:
@@ -74,7 +76,7 @@ def test_time_series_value() -> None:
     # -------------------------------------- #
     tsv.time += timedelta(minutes=65)
     tsv.value += 0.7
-    tsv.quality = Qual("missing").setProtection(1)
+    tsv.quality = Qual("missing").set_protection(1)
     assert (
         repr(tsv)
         == "TimeSeriesValue(HecTime([2024, 10, 14, 12, 0, 0], MINUTE_GRANULARITY), UnitQuantity(13.0, 'ft'), Quality(-2147483643))"
@@ -129,7 +131,7 @@ def test_create_time_series_by_name() -> None:
 def test_math_ops_scalar() -> None:
     assert Parameter("Flow").to("EN").unit_name == "cfs"
     start_time = HecTime("2024-10-10T01:00:00")
-    intvl = Interval.getCwms("1Hour")
+    intvl = Interval.get_cwms("1Hour")
     value_count = 24
     times = pd.Index(  # type: ignore
         [
@@ -268,7 +270,7 @@ def test_math_ops_scalar() -> None:
 
 def test_math_ops_ts() -> None:
     start_time = HecTime("2024-10-10T01:00:00")
-    intvl = Interval.getCwms("1Hour")
+    intvl = Interval.get_cwms("1Hour")
     value_count = 24
     times = pd.Index(  # type: ignore
         [
@@ -369,7 +371,7 @@ def test_math_ops_ts() -> None:
 
 def test_selection_and_filter() -> None:
     start_time = HecTime("2024-10-10T01:00:00")
-    intvl = Interval.getDss("1Hour")
+    intvl = Interval.get_dss("1Hour")
     value_count = 24
     times = pd.Index(  # type: ignore
         [
@@ -404,7 +406,7 @@ def test_selection_and_filter() -> None:
     assert flow2.has_selection
     assert flow2.selected == 6 * [False, False, False, True]
     flow2.iset_value_quality(
-        math.nan, Qual(0).setScreened("SCREENED").setValidity("MISSING")
+        math.nan, Qual(0).set_screened("SCREENED").set_validity("MISSING")
     )
     assert not flow2.has_selection
     assert np.nan_to_num(flow2.values, nan=-1).tolist() == 6 * [100.0, 125.0, 112.0, -1]
@@ -428,7 +430,7 @@ def test_selection_and_filter() -> None:
 
 def test_aggregate_ts() -> None:
     start_time = HecTime("2024-10-10T01:00:00")
-    intvl = Interval.getCwms("1Hour")
+    intvl = Interval.get_cwms("1Hour")
     value_count = 24
     ts_count = 10
     times = pd.Index(  # type: ignore
@@ -734,7 +736,7 @@ def test_aggregate_ts() -> None:
 
 def test_aggregate_values() -> None:
     start_time = HecTime("2024-10-10T01:00:00")
-    intvl = Interval.getCwms("1Hour")
+    intvl = Interval.get_cwms("1Hour")
     values = [
         1000,
         1015,
@@ -957,7 +959,7 @@ def test_aggregate_values() -> None:
 
 def test_min_max() -> None:
     start_time = HecTime("2024-10-10T01:00:00")
-    intvl = Interval.getCwms("1Hour")
+    intvl = Interval.get_cwms("1Hour")
     value_count = 24
     values = [10.0 + i for i in range(value_count)]
     values[3] = math.nan
@@ -988,7 +990,7 @@ def test_min_max() -> None:
 
 def test_accum_diff() -> None:
     start_time = HecTime("2024-10-10T01:00:00")
-    intvl = Interval.getCwms("1Hour")
+    intvl = Interval.get_cwms("1Hour")
     # Col 1 = starting values (made up)
     # Col 2 = from TimeSeriesMath.accumualtion() using col 1
     # Col 3 = from TimeSeriesMath.successiveDiffereneces using col 2(except for first value)
@@ -1095,7 +1097,7 @@ def test_accum_diff() -> None:
 
 def test_value_counts() -> None:
     start_time = HecTime("2024-10-10T01:00:00")
-    intvl = Interval.getCwms("1Hour")
+    intvl = Interval.get_cwms("1Hour")
     values = [
         1000,
         1015,
@@ -1176,7 +1178,7 @@ def test_value_counts() -> None:
 
 def test_unit() -> None:
     start_time = HecTime("2024-10-10T01:00:00")
-    intvl = Interval.getCwms("1Hour")
+    intvl = Interval.get_cwms("1Hour")
     values = [
         1000,
         1015,
@@ -1366,7 +1368,7 @@ def test_roundoff() -> None:
     for value, precsion, magnitude, result in data:
         assert TimeSeries._round_off(value, int(precsion), int(magnitude)) == result
     start_time = HecTime("2024-10-10T01:00:00")
-    intvl = Interval.getCwms("1Hour")
+    intvl = Interval.get_cwms("1Hour")
     values = [
         1000.123,
         1015.123,
@@ -1425,7 +1427,7 @@ def test_smoothing() -> None:
         data = eval(f.read())
     values = [data[i][0] for i in range(len(data))]
     start_time = HecTime("2024-10-10T01:00:00")
-    intvl = Interval.getCwms("1Hour")
+    intvl = Interval.get_cwms("1Hour")
     times = pd.Index(  # type: ignore
         [
             (start_time + i * TimeSpan(intvl.values)).datetime()
@@ -1545,7 +1547,7 @@ def test_smoothing() -> None:
 
 def test_protected() -> None:
     start_time = HecTime("2024-10-10T01:00:00")
-    intvl = Interval.getCwms("1Hour")
+    intvl = Interval.get_cwms("1Hour")
     values = [
         1000,
         1015,
@@ -1628,7 +1630,7 @@ def test_protected() -> None:
 
 def test_screen_with_value_range() -> None:
     start_time = HecTime("2024-10-10T01:00:00")
-    intvl = Interval.getCwms("1Hour")
+    intvl = Interval.get_cwms("1Hour")
     values = [
         1000,
         1015,
@@ -1670,10 +1672,10 @@ def test_screen_with_value_range() -> None:
         },
         index=times,
     )
-    minRejectLimit = 1030
-    minQuestionLimit = 1060
-    maxQuestionLimit = 1240
-    maxRejectLimit = 1300
+    min_reject_limit = 1030
+    min_question_limit = 1060
+    max_question_limit = 1240
+    max_reject_limit = 1300
     unscreened_code = Qual(
         "Unscreened Unknown No_range Original None None None Unprotected".split()
     ).code
@@ -1692,13 +1694,13 @@ def test_screen_with_value_range() -> None:
     reject_code = Qual(
         "Screened Rejected No_range Original None None Absolute_Value Unprotected".split()
     ).code
-    # -------------------- #
-    # screenWithValueRange #
-    # -------------------- #
-    for minr in (minRejectLimit, math.nan):
-        for minq in (minQuestionLimit, math.nan):
-            for maxq in (maxQuestionLimit, math.nan):
-                for maxr in (maxRejectLimit, math.nan):
+    # ----------------------- #
+    # screen_with_value_range #
+    # ----------------------- #
+    for minr in (min_reject_limit, math.nan):
+        for minq in (min_question_limit, math.nan):
+            for maxq in (max_question_limit, math.nan):
+                for maxr in (max_reject_limit, math.nan):
                     ts2 = ts.screen_with_value_range(minr, minq, maxq, maxr)
                     for tsv in ts2.tsv:
                         if tsv.value.magnitude < minr or tsv.value.magnitude > maxr:
@@ -1709,13 +1711,13 @@ def test_screen_with_value_range() -> None:
                             assert tsv.quality == missing_code
                         else:
                             assert tsv.quality == okay_code
-    # ------------------------------------------------ #
-    # screenWithValueRange: work with protected values #
-    # ------------------------------------------------ #
-    for minr in (minRejectLimit, math.nan):
-        for minq in (minQuestionLimit, math.nan):
-            for maxq in (maxQuestionLimit, math.nan):
-                for maxr in (maxRejectLimit, math.nan):
+    # --------------------------------------------------- #
+    # screen_with_value_range: work with protected values #
+    # --------------------------------------------------- #
+    for minr in (min_reject_limit, math.nan):
+        for minq in (min_question_limit, math.nan):
+            for maxq in (max_question_limit, math.nan):
+                for maxr in (max_reject_limit, math.nan):
                     ts2 = (
                         ts.select(lambda tsv: cast(int, tsv.time.hour) % 2 == 0)
                         .iset_protected()
@@ -1732,14 +1734,14 @@ def test_screen_with_value_range() -> None:
                             assert tsv.quality == missing_code
                         else:
                             assert tsv.quality == okay_code
-    # ----------------------------------------- #
-    # screenWithValueRange: work with selection #
-    # ----------------------------------------- #
+    # -------------------------------------------- #
+    # screen_with_value_range: work with selection #
+    # -------------------------------------------- #
     time = HecTime("2024-10-10T06:00:00")
-    for minr in (minRejectLimit, math.nan):
-        for minq in (minQuestionLimit, math.nan):
-            for maxq in (maxQuestionLimit, math.nan):
-                for maxr in (maxRejectLimit, math.nan):
+    for minr in (min_reject_limit, math.nan):
+        for minq in (min_question_limit, math.nan):
+            for maxq in (max_question_limit, math.nan):
+                for maxr in (max_reject_limit, math.nan):
                     ts2 = ts.select(
                         lambda tsv: tsv.time > time
                     ).screen_with_value_range(minr, minq, maxq, maxr)
@@ -1758,7 +1760,7 @@ def test_screen_with_value_range() -> None:
 
 def test_screen_with_value_change_rate() -> None:
     start_time = HecTime("2024-10-10T01:00:00")
-    intvl = Interval.getCwms("1Hour")
+    intvl = Interval.get_cwms("1Hour")
     values = [
         1000,
         1015,  #      0.25, o
@@ -1800,10 +1802,10 @@ def test_screen_with_value_change_rate() -> None:
         },
         index=times,
     )
-    minRejectLimit = -0.6
-    minQuestionLimit = -0.4
-    maxQuestionLimit = 0.4
-    maxRejectLimit = 0.6
+    min_reject_limit = -0.6
+    min_question_limit = -0.4
+    max_question_limit = 0.4
+    max_reject_limit = 0.6
     unscreened_code = Qual(
         "Unscreened Unknown No_range Original None None None Unprotected".split()
     ).code
@@ -1822,13 +1824,13 @@ def test_screen_with_value_change_rate() -> None:
     reject_code = Qual(
         "Screened Rejected No_range Original None None Rate_of_Change Unprotected".split()
     ).code
-    # ------------------------- #
-    # screenWithValueChangeRate #
-    # ------------------------- #
-    for minr in (minRejectLimit, math.nan):
-        for minq in (minQuestionLimit, math.nan):
-            for maxq in (maxQuestionLimit, math.nan):
-                for maxr in (maxRejectLimit, math.nan):
+    # ----------------------------- #
+    # screen_with_value_change_rate #
+    # ----------------------------- #
+    for minr in (min_reject_limit, math.nan):
+        for minq in (min_question_limit, math.nan):
+            for maxq in (max_question_limit, math.nan):
+                for maxr in (max_reject_limit, math.nan):
                     ts2 = ts.screen_with_value_change_rate(minr, minq, maxq, maxr)
                     tsvs = ts2.tsv
                     for i, tsv in enumerate(tsvs):
@@ -1852,13 +1854,13 @@ def test_screen_with_value_change_rate() -> None:
                             assert tsv.quality == missing_code
                         else:
                             assert tsv.quality == okay_code
-    # ----------------------------------------------------- #
-    # screenWithValueChangeRate: work with protected values #
-    # ----------------------------------------------------- #
-    for minr in (minRejectLimit, math.nan):
-        for minq in (minQuestionLimit, math.nan):
-            for maxq in (maxQuestionLimit, math.nan):
-                for maxr in (maxRejectLimit, math.nan):
+    # --------------------------------------------------------- #
+    # screen_with_value_change_rate: work with protected values #
+    # --------------------------------------------------------- #
+    for minr in (min_reject_limit, math.nan):
+        for minq in (min_question_limit, math.nan):
+            for maxq in (max_question_limit, math.nan):
+                for maxr in (max_reject_limit, math.nan):
                     ts2 = (
                         ts.select(lambda tsv: cast(int, tsv.time.hour) % 2 == 0)
                         .iset_protected()
@@ -1888,14 +1890,14 @@ def test_screen_with_value_change_rate() -> None:
                             assert tsv.quality == missing_code
                         else:
                             assert tsv.quality == okay_code
-    # ---------------------------------------------- #
-    # screenWithValueChangeRate: work with selection #
-    # ---------------------------------------------- #
+    # -------------------------------------------------- #
+    # screen_with_value_change_rate: work with selection #
+    # -------------------------------------------------- #
     time = HecTime("2024-10-10T06:00:00")
-    for minr in (minRejectLimit, math.nan):
-        for minq in (minQuestionLimit, math.nan):
-            for maxq in (maxQuestionLimit, math.nan):
-                for maxr in (maxRejectLimit, math.nan):
+    for minr in (min_reject_limit, math.nan):
+        for minq in (min_question_limit, math.nan):
+            for maxq in (max_question_limit, math.nan):
+                for maxr in (max_reject_limit, math.nan):
                     ts2 = ts.select(
                         lambda tsv: tsv.time > time
                     ).screen_with_value_change_rate(minr, minq, maxq, maxr)
@@ -1933,7 +1935,7 @@ def test_screen_with_value_change_rate() -> None:
 
 def test_screen_with_value_range_or_change_rate() -> None:
     start_time = HecTime("2024-10-10T01:00:00")
-    intvl = Interval.getCwms("1Hour")
+    intvl = Interval.get_cwms("1Hour")
     values = [
         1000,
         1015,
@@ -1975,9 +1977,9 @@ def test_screen_with_value_range_or_change_rate() -> None:
         },
         index=times,
     )
-    minValid = 1050
-    maxValid = 1300
-    maxChange = 15
+    min_valid = 1050
+    max_valid = 1300
+    max_change = 15
     unscreened_code = Qual(
         "Unscreened Unknown No_range Original None None None Unprotected".split()
     ).code
@@ -2009,11 +2011,11 @@ def test_screen_with_value_range_or_change_rate() -> None:
         "Screened Rejected No_range Modified Automatic Explicit Rate_of_Change Unprotected".split()
     ).code
     # ----------------------------------------------------------- #
-    #  screenValueRangeOrChangeRate: don't replace invalid values #
+    #  screen_with_value_change_rate: don't replace invalid values #
     # ----------------------------------------------------------- #
-    for minv in (minValid, math.nan):
-        for maxv in (maxValid, math.nan):
-            for maxc in (maxChange, math.nan):
+    for minv in (min_valid, math.nan):
+        for maxv in (max_valid, math.nan):
+            for maxc in (max_change, math.nan):
                 ts2 = ts.screen_with_value_range_or_change(minv, maxv, maxc, False)
                 tsvs = ts2.tsv
                 for i, tsv in enumerate(tsvs):
@@ -2029,12 +2031,12 @@ def test_screen_with_value_range_or_change_rate() -> None:
                         assert tsv.quality == missing_code
                     else:
                         assert tsv.quality == okay_code
-    # --------------------------------------------------------- #
-    #  screenValueRangeOrChangeRate: work with protected values #
-    # --------------------------------------------------------- #
-    for minv in (minValid, math.nan):
-        for maxv in (maxValid, math.nan):
-            for maxc in (maxChange, math.nan):
+    # -------------------------------------------------------------- #
+    #  screen_with_value_range_or_change: work with protected values #
+    # -------------------------------------------------------------- #
+    for minv in (min_valid, math.nan):
+        for maxv in (max_valid, math.nan):
+            for maxc in (max_change, math.nan):
                 ts2 = (
                     ts.select(lambda tsv: cast(int, tsv.time.hour) % 2 == 0)
                     .iset_protected()
@@ -2052,13 +2054,13 @@ def test_screen_with_value_range_or_change_rate() -> None:
                         )
                     else:
                         assert tsv.quality == okay_code
-    # -------------------------------------------------- #
-    #  screenValueRangeOrChangeRate: work with selection #
-    # -------------------------------------------------- #
+    # ------------------------------------------------------- #
+    #  screen_with_value_range_or_change: work with selection #
+    # ------------------------------------------------------- #
     time = HecTime("2024-10-10T06:00:00")
-    for minv in (minValid, math.nan):
-        for maxv in (maxValid, math.nan):
-            for maxc in (maxChange, math.nan):
+    for minv in (min_valid, math.nan):
+        for maxv in (max_valid, math.nan):
+            for maxc in (max_change, math.nan):
                 ts2 = ts.select(
                     lambda tsv: tsv.time > time
                 ).screen_with_value_range_or_change(minv, maxv, maxc)
@@ -2074,12 +2076,12 @@ def test_screen_with_value_range_or_change_rate() -> None:
                         )
                     else:
                         assert tsv.quality == okay_code
-    # -------------------------------------------------------------------------- #
-    #  screenValueRangeOrChangeRate: specify non-NaN value, use Rejected quality #
-    # -------------------------------------------------------------------------- #
-    for minv in (minValid, math.nan):
-        for maxv in (maxValid, math.nan):
-            for maxc in (maxChange, math.nan):
+    # ------------------------------------------------------------------------------- #
+    #  screen_with_value_range_or_change: specify non-NaN value, use Rejected quality #
+    # ------------------------------------------------------------------------------- #
+    for minv in (min_valid, math.nan):
+        for maxv in (max_valid, math.nan):
+            for maxc in (max_change, math.nan):
                 ts2 = ts.select(
                     lambda tsv: tsv.time > time
                 ).screen_with_value_range_or_change(minv, maxv, maxc, True, -901, "R")
@@ -2100,7 +2102,7 @@ def test_screen_with_value_range_or_change_rate() -> None:
 
 def test_screen_with_duration_magnitude() -> None:
     start_time = HecTime("2024-10-10T01:00:00")
-    intvl = Interval.getCwms("6Hours")
+    intvl = Interval.get_cwms("6Hours")
     values = [
         0.300,
         0.250,
@@ -2142,12 +2144,12 @@ def test_screen_with_duration_magnitude() -> None:
         },
         index=times,
     )
-    minMissingLimit = 0.051
-    minRejectLimit = 0.101
-    minQuestionLimit = 0.151
-    maxQuestionLimit = 0.349
-    maxRejectLimit = 0.399
-    maxMissingLimit = 0.449
+    min_missing_limit = 0.051
+    min_reject_limit = 0.101
+    min_question_limit = 0.151
+    max_question_limit = 0.349
+    max_reject_limit = 0.399
+    max_missing_limit = 0.449
     unscreened_code = Qual(
         "Unscreened Unknown No_range Original None None None Unprotected".split()
     ).code
@@ -2174,12 +2176,12 @@ def test_screen_with_duration_magnitude() -> None:
     # --------------------------- #
     for hours in 6, 8, 12:
         for pct in 50, 75:
-            for minm in (minMissingLimit * hours / 6.0, math.nan):
-                for minr in (minRejectLimit * hours / 6.0, math.nan):
-                    for minq in (minQuestionLimit * hours / 6.0, math.nan):
-                        for maxq in (maxQuestionLimit * hours / 6.0, math.nan):
-                            for maxr in (maxRejectLimit * hours / 6.0, math.nan):
-                                for maxm in (maxMissingLimit * hours / 6.0, math.nan):
+            for minm in (min_missing_limit * hours / 6.0, math.nan):
+                for minr in (min_reject_limit * hours / 6.0, math.nan):
+                    for minq in (min_question_limit * hours / 6.0, math.nan):
+                        for maxq in (max_question_limit * hours / 6.0, math.nan):
+                            for maxr in (max_reject_limit * hours / 6.0, math.nan):
+                                for maxm in (max_missing_limit * hours / 6.0, math.nan):
                                     ts2 = ts.screen_with_duration_magnitude(
                                         f"{hours}Hours",
                                         minm,
@@ -2258,12 +2260,12 @@ def test_screen_with_duration_magnitude() -> None:
     # ------------------------------------------------------- #
     for hours in 6, 8, 12:
         for pct in 50, 75:
-            for minm in (minMissingLimit * hours / 6.0, math.nan):
-                for minr in (minRejectLimit * hours / 6.0, math.nan):
-                    for minq in (minQuestionLimit * hours / 6.0, math.nan):
-                        for maxq in (maxQuestionLimit * hours / 6.0, math.nan):
-                            for maxr in (maxRejectLimit * hours / 6.0, math.nan):
-                                for maxm in (maxMissingLimit * hours / 6.0, math.nan):
+            for minm in (min_missing_limit * hours / 6.0, math.nan):
+                for minr in (min_reject_limit * hours / 6.0, math.nan):
+                    for minq in (min_question_limit * hours / 6.0, math.nan):
+                        for maxq in (max_question_limit * hours / 6.0, math.nan):
+                            for maxr in (max_reject_limit * hours / 6.0, math.nan):
+                                for maxm in (max_missing_limit * hours / 6.0, math.nan):
                                     ts2 = (
                                         ts.select(
                                             lambda tsv: cast(int, tsv.time.hour) % 24
@@ -2357,12 +2359,12 @@ def test_screen_with_duration_magnitude() -> None:
     time = HecTime("2024-10-11 07:00")
     for hours in 6, 8, 12:
         for pct in 50, 75:
-            for minm in (minMissingLimit * hours / 6.0, math.nan):
-                for minr in (minRejectLimit * hours / 6.0, math.nan):
-                    for minq in (minQuestionLimit * hours / 6.0, math.nan):
-                        for maxq in (maxQuestionLimit * hours / 6.0, math.nan):
-                            for maxr in (maxRejectLimit * hours / 6.0, math.nan):
-                                for maxm in (maxMissingLimit * hours / 6.0, math.nan):
+            for minm in (min_missing_limit * hours / 6.0, math.nan):
+                for minr in (min_reject_limit * hours / 6.0, math.nan):
+                    for minq in (min_question_limit * hours / 6.0, math.nan):
+                        for maxq in (max_question_limit * hours / 6.0, math.nan):
+                            for maxr in (max_reject_limit * hours / 6.0, math.nan):
+                                for maxm in (max_missing_limit * hours / 6.0, math.nan):
                                     ts2 = ts.select(
                                         lambda tsv: tsv.time > time
                                     ).iscreen_with_duration_magnitude(
@@ -2446,7 +2448,7 @@ def test_screen_with_duration_magnitude() -> None:
 
 def test_screen_with_constant_value() -> None:
     start_time = HecTime("2024-10-10T01:00:00")
-    intvl = Interval.getCwms("1Hour")
+    intvl = Interval.get_cwms("1Hour")
     values = [
         613.535,
         613.535,
@@ -2488,9 +2490,9 @@ def test_screen_with_constant_value() -> None:
         },
         index=times,
     )
-    missingLimit = {2: 0.001, 4: 0.003, 6: 0.0035}
-    rejectLimit = {2: 0.005, 4: 0.015, 6: 0.0175}
-    questionLimit = {2: 0.01, 4: 0.03, 6: 0.035}
+    missing_limit = {2: 0.001, 4: 0.003, 6: 0.0035}
+    reject_limit = {2: 0.005, 4: 0.015, 6: 0.0175}
+    question_limit = {2: 0.01, 4: 0.03, 6: 0.035}
     unscreened_code = Qual(
         "Unscreened Unknown No_range Original None None None Unprotected".split()
     ).code
@@ -2516,9 +2518,9 @@ def test_screen_with_constant_value() -> None:
     # screen_with_constant_value #
     # ----------------------- #
     for hours in 2, 4, 6:
-        for m in missingLimit[hours], math.nan:
-            for r in rejectLimit[hours], math.nan:
-                for q in questionLimit[hours], math.nan:
+        for m in missing_limit[hours], math.nan:
+            for r in reject_limit[hours], math.nan:
+                for q in question_limit[hours], math.nan:
                     for above in 613.5, 613.51:
                         for pct in 50, 90:
                             ts2 = ts.screen_with_constant_value(
@@ -2557,9 +2559,9 @@ def test_screen_with_constant_value() -> None:
     # screen_with_constant_value: work with protected values #
     # --------------------------------------------------- #
     for hours in 2, 4, 6:
-        for m in missingLimit[hours], math.nan:
-            for r in rejectLimit[hours], math.nan:
-                for q in questionLimit[hours], math.nan:
+        for m in missing_limit[hours], math.nan:
+            for r in reject_limit[hours], math.nan:
+                for q in question_limit[hours], math.nan:
                     for above in 613.5, 613.51:
                         for pct in 50, 90:
                             ts2 = (
@@ -2611,9 +2613,9 @@ def test_screen_with_constant_value() -> None:
     # -------------------------------------------- #
     time = HecTime("2024-10-10T06:00:00")
     for hours in 2, 4, 6:
-        for m in missingLimit[hours], math.nan:
-            for r in rejectLimit[hours], math.nan:
-                for q in questionLimit[hours], math.nan:
+        for m in missing_limit[hours], math.nan:
+            for r in reject_limit[hours], math.nan:
+                for q in question_limit[hours], math.nan:
                     for above in 613.5, 613.51:
                         for pct in 50, 90:
                             ts2 = ts.select(
@@ -2654,7 +2656,7 @@ def test_screen_with_constant_value() -> None:
 
 def test_screen_with_forward_moving_average() -> None:
     start_time = HecTime("2024-10-10T01:00:00")
-    intvl = Interval.getCwms("1Hour")
+    intvl = Interval.get_cwms("1Hour")
     values = [
         1000,
         1015,
@@ -2721,14 +2723,14 @@ def test_screen_with_forward_moving_average() -> None:
     # screen_with_forward_moving_average #
     # ------------------------------ #
     for window in 3, 5:
-        for onlyValid in False, True:
-            for useReduced in False, True:
-                for diffLimit in 10, 15:
-                    for failedValidity in "QRM":
-                        ts2 = ts.forward_moving_average(window, onlyValid, useReduced)
+        for only_valid in False, True:
+            for use_reduced in False, True:
+                for diff_limit in 10, 15:
+                    for failed_validity in "QRM":
+                        ts2 = ts.forward_moving_average(window, only_valid, use_reduced)
                         averaged = ts2.values
                         ts3 = ts.screen_with_forward_moving_average(
-                            window, onlyValid, useReduced, diffLimit, failedValidity
+                            window, only_valid, use_reduced, diff_limit, failed_validity
                         )
                         tsvs = ts3.tsv
                         for i, tsv in enumerate(tsvs):
@@ -2736,10 +2738,10 @@ def test_screen_with_forward_moving_average() -> None:
                                 assert tsv.quality == missing_code_unscreened
                             elif math.isnan(averaged[i]):
                                 assert tsv.quality == unscreened_code
-                            elif abs(averaged[i] - values[i]) > diffLimit:
-                                if failedValidity == "Q":
+                            elif abs(averaged[i] - values[i]) > diff_limit:
+                                if failed_validity == "Q":
                                     assert tsv.quality == question_code
-                                elif failedValidity == "R":
+                                elif failed_validity == "R":
                                     assert tsv.quality == reject_code
                                 else:
                                     assert tsv.quality == missing_code_screened
@@ -2750,17 +2752,21 @@ def test_screen_with_forward_moving_average() -> None:
     # screen_with_forward_moving_average: work with protected values #
     # ---------------------------------------------------------- #
     for window in 3, 5:
-        for onlyValid in False, True:
-            for useReduced in False, True:
-                for diffLimit in 10, 15:
-                    for failedValidity in "QRM":
-                        ts2 = ts.forward_moving_average(window, onlyValid, useReduced)
+        for only_valid in False, True:
+            for use_reduced in False, True:
+                for diff_limit in 10, 15:
+                    for failed_validity in "QRM":
+                        ts2 = ts.forward_moving_average(window, only_valid, use_reduced)
                         averaged = ts2.values
                         ts3 = (
                             ts.select(lambda tsv: cast(int, tsv.time.hour) % 24 == 1)
                             .iset_protected()
                             .screen_with_forward_moving_average(
-                                window, onlyValid, useReduced, diffLimit, failedValidity
+                                window,
+                                only_valid,
+                                use_reduced,
+                                diff_limit,
+                                failed_validity,
                             )
                         )
                         tsvs = ts3.tsv
@@ -2775,10 +2781,10 @@ def test_screen_with_forward_moving_average() -> None:
                                 assert tsv.quality == missing_code_unscreened
                             elif math.isnan(averaged[i]):
                                 assert tsv.quality == unscreened_code
-                            elif abs(averaged[i] - values[i]) > diffLimit:
-                                if failedValidity == "Q":
+                            elif abs(averaged[i] - values[i]) > diff_limit:
+                                if failed_validity == "Q":
                                     assert tsv.quality == question_code
-                                elif failedValidity == "R":
+                                elif failed_validity == "R":
                                     assert tsv.quality == reject_code
                                 else:
                                     assert tsv.quality == missing_code_screened
@@ -2790,16 +2796,16 @@ def test_screen_with_forward_moving_average() -> None:
     # --------------------------------------------------- #
     time = HecTime("2024-10-10T06:00:00")
     for window in 3, 5:
-        for onlyValid in False, True:
-            for useReduced in False, True:
-                for diffLimit in 10, 15:
-                    for failedValidity in "QRM":
-                        ts2 = ts.forward_moving_average(window, onlyValid, useReduced)
+        for only_valid in False, True:
+            for use_reduced in False, True:
+                for diff_limit in 10, 15:
+                    for failed_validity in "QRM":
+                        ts2 = ts.forward_moving_average(window, only_valid, use_reduced)
                         averaged = ts2.values
                         ts3 = ts.select(
                             lambda tsv: tsv.time > time
                         ).screen_with_forward_moving_average(
-                            window, onlyValid, useReduced, diffLimit, failedValidity
+                            window, only_valid, use_reduced, diff_limit, failed_validity
                         )
                         tsvs = ts3.tsv
                         for i, tsv in enumerate(tsvs):
@@ -2809,10 +2815,10 @@ def test_screen_with_forward_moving_average() -> None:
                                 assert tsv.quality == missing_code_unscreened
                             elif math.isnan(averaged[i]):
                                 assert tsv.quality == unscreened_code
-                            elif abs(averaged[i] - values[i]) > diffLimit:
-                                if failedValidity == "Q":
+                            elif abs(averaged[i] - values[i]) > diff_limit:
+                                if failed_validity == "Q":
                                     assert tsv.quality == question_code
-                                elif failedValidity == "R":
+                                elif failed_validity == "R":
                                     assert tsv.quality == reject_code
                                 else:
                                     assert tsv.quality == missing_code_screened
@@ -2853,8 +2859,8 @@ def test_estimate_missing_values() -> None:
          [    1330,  3,          1330,    3,            1330,    3,           1330,    3,           1330,    3,           1330,    3,           1330,    3,          1330,    3,           1330,    3],
          [    1300,  3,          1300,    3,            1300,    3,           1300,    3,           1300,    3,           1300,    3,           1300,    3,          1300,    3,           1300,    3]]
 """
-    TimeSeries.show_quality_codes_as_unsigned()
-    dataVals = np.transpose(eval(data.strip()))
+    Qual.set_return_unsigned_codes()
+    data_vals = np.transpose(eval(data.strip()))
     columns = {
         # value columns, quality columns are this plus 1
         (False, False, False): 2,
@@ -2867,19 +2873,19 @@ def test_estimate_missing_values() -> None:
         (True, True, True): 16,
     }
     start_time = HecTime("2024-10-10T01:00:00")
-    intvl = Interval.getCwms("1Hour")
+    intvl = Interval.get_cwms("1Hour")
     times = pd.Index(  # type: ignore
         [
             (start_time + i * TimeSpan(intvl.values)).datetime()
-            for i in range(len(dataVals[0]))
+            for i in range(len(data_vals[0]))
         ],
         name="time",
     )
     ts = TimeSeries(f"Loc1.Flow.Inst.{intvl.name}.0.Computed")
     ts._data = pd.DataFrame(
         {
-            "value": dataVals[0],
-            "quality": list(map(int, dataVals[1])),
+            "value": data_vals[0],
+            "quality": list(map(int, data_vals[1])),
         },
         index=times,
     )
@@ -2894,8 +2900,8 @@ def test_estimate_missing_values() -> None:
                     max_missing_count, accumulation, estimate_rejected, set_questionable
                 )
                 key = (accumulation, estimate_rejected, set_questionable)
-                expected_values = dataVals[columns[key]]
-                expected_qualities = list(map(int, dataVals[columns[key] + 1]))
+                expected_values = data_vals[columns[key]]
+                expected_qualities = list(map(int, data_vals[columns[key] + 1]))
                 assert np.allclose(ts2.values, expected_values, equal_nan=True)
                 assert all(
                     [
@@ -2920,14 +2926,14 @@ def test_estimate_missing_values() -> None:
                     )
                 )
                 key = (accumulation, estimate_rejected, set_questionable)
-                expected_values = copy.deepcopy(dataVals[columns[key]])
-                expected_qualities = list(map(int, dataVals[columns[key] + 1]))
-                dv0 = dataVals[0][:]
-                dv1 = dataVals[1][:]
+                expected_values = copy.deepcopy(data_vals[columns[key]])
+                expected_qualities = list(map(int, data_vals[columns[key] + 1]))
+                dv0 = data_vals[0][:]
+                dv1 = data_vals[1][:]
                 for i in range(0, len(dv0), 2):
                     expected_values[i] = dv0[i]
                     expected_qualities[i] = (
-                        Qual(int(dv1[i])).setProtection("Protected").unsigned
+                        Qual(int(dv1[i])).set_protection("Protected").unsigned
                     )
                 assert np.allclose(ts2.values, expected_values, equal_nan=True)
                 assert all(
@@ -2955,14 +2961,14 @@ def test_estimate_missing_values() -> None:
                 expected_qualities = []
                 for i in range(len(ts)):
                     expected_values.append(
-                        dataVals[0][i]
+                        data_vals[0][i]
                         if i <= time_offset
-                        else dataVals[columns[key]][i]
+                        else data_vals[columns[key]][i]
                     )
                     expected_qualities.append(
-                        int(dataVals[1][i])
+                        int(data_vals[1][i])
                         if i <= time_offset
-                        else dataVals[columns[key] + 1][i]
+                        else data_vals[columns[key] + 1][i]
                     )
                 assert np.allclose(ts2.values, expected_values, equal_nan=True)
                 assert all(
@@ -2975,7 +2981,7 @@ def test_estimate_missing_values() -> None:
 
 def test_expand_collapse_trim() -> None:
     start_time = HecTime("2024-10-15T01:00:00")
-    intvl = Interval.getCwms("1Day")
+    intvl = Interval.get_cwms("1Day")
     values = [
         1000,
         1015,
@@ -3020,127 +3026,143 @@ def test_expand_collapse_trim() -> None:
     # ------------------------------------------#
     # RTS without protected values or selection #
     # ------------------------------------------#
-    expectedLength1 = len(ts)
-    expectedTimes1 = ts.times[:]
-    expectedValues1 = ts.values[:]
-    expectedQualities1 = ts.qualities[:]
+    expected_length_1 = len(ts)
+    expected_times_1 = ts.times[:]
+    expected_values_1 = ts.values[:]
+    expected_qualities_1 = ts.qualities[:]
     ts2 = ts.collapse()
-    expectedLength2 = expectedLength1 - 6
-    expectedTimes = expectedTimes1[:5] + expectedTimes1[11:]
-    expectedValues = expectedValues1[:5] + expectedValues1[11:]
-    expectedQualities = expectedQualities1[:5] + expectedQualities1[11:]
-    assert len(ts2) == expectedLength1
-    assert len(ts2.times) == expectedLength2
-    assert all(ts2.times[i] == expectedTimes[i] for i in range(expectedLength2))
-    assert np.allclose(ts2.values, expectedValues, equal_nan=True)
-    assert all(ts2.qualities[i] == expectedQualities[i] for i in range(expectedLength2))
+    expected_length_2 = expected_length_1 - 6
+    expected_times = expected_times_1[:5] + expected_times_1[11:]
+    expected_values = expected_values_1[:5] + expected_values_1[11:]
+    expected_qualities = expected_qualities_1[:5] + expected_qualities_1[11:]
+    assert len(ts2) == expected_length_1
+    assert len(ts2.times) == expected_length_2
+    assert all(ts2.times[i] == expected_times[i] for i in range(expected_length_2))
+    assert np.allclose(ts2.values, expected_values, equal_nan=True)
+    assert all(
+        ts2.qualities[i] == expected_qualities[i] for i in range(expected_length_2)
+    )
     ts2.iexpand("2024-10-13T01:00:00", "2024-11-09T01:00:00")
-    expectedLength2 = expectedLength1 + 4
-    expectedTimes = (
+    expected_length_2 = expected_length_1 + 4
+    expected_times = (
         ["2024-10-13 01:00:00", "2024-10-14 01:00:00"]
-        + expectedTimes1
+        + expected_times_1
         + ["2024-11-08 01:00:00", "2024-11-09 01:00:00"]
     )
-    expectedValues = [math.nan, math.nan] + expectedValues1 + [math.nan, math.nan]
-    expectedQualities = [5, 5] + expectedQualities1 + [5, 5]
-    assert len(ts2) == expectedLength2
-    assert all(ts2.times[i] == expectedTimes[i] for i in range(expectedLength2))
-    assert np.allclose(ts2.values, expectedValues, equal_nan=True)
-    assert all(ts2.qualities[i] == expectedQualities[i] for i in range(expectedLength2))
-    ts2.itrim()
-    assert len(ts2) == expectedLength1
-    assert all(ts2.times[i] == expectedTimes1[i] for i in range(expectedLength1))
-    assert np.allclose(ts2.values, expectedValues1, equal_nan=True)
+    expected_values = [math.nan, math.nan] + expected_values_1 + [math.nan, math.nan]
+    expected_qualities = [5, 5] + expected_qualities_1 + [5, 5]
+    assert len(ts2) == expected_length_2
+    assert all(ts2.times[i] == expected_times[i] for i in range(expected_length_2))
+    assert np.allclose(ts2.values, expected_values, equal_nan=True)
     assert all(
-        ts2.qualities[i] == expectedQualities1[i] for i in range(expectedLength1)
+        ts2.qualities[i] == expected_qualities[i] for i in range(expected_length_2)
+    )
+    ts2.itrim()
+    assert len(ts2) == expected_length_1
+    assert all(ts2.times[i] == expected_times_1[i] for i in range(expected_length_1))
+    assert np.allclose(ts2.values, expected_values_1, equal_nan=True)
+    assert all(
+        ts2.qualities[i] == expected_qualities_1[i] for i in range(expected_length_1)
     )
     # ----------------------------------------#
     # RTS with protected values and selection #
     # ----------------------------------------#
-    Qual.setReturnUnsignedCodes()
+    Qual.set_return_unsigned_codes()
     ts2 = ts.select(
         lambda tsv: tsv.time == HecTime("2024-10-20T01:00:00")
     ).iset_protected()
     ts2.iselect(lambda tsv: tsv.time == HecTime("2024-10-25T01:00:00"))
-    expectedLength1 = len(ts)
-    expectedTimes1 = ts2.times[:]
-    expectedValues1 = ts2.values[:]
-    expectedQualities1 = ts2.qualities[:]
+    expected_length_1 = len(ts)
+    expected_times_1 = ts2.times[:]
+    expected_values_1 = ts2.values[:]
+    expected_qualities_1 = ts2.qualities[:]
     ts2 = ts2.icollapse()
     # print(ts2.data)
-    expectedLength2 = expectedLength1 - 4
-    expectedTimes = expectedTimes1[:6] + expectedTimes1[10:]
-    expectedValues = expectedValues1[:6] + expectedValues1[10:]
-    expectedQualities = expectedQualities1[:6] + expectedQualities1[10:]
-    assert len(ts2) == expectedLength1
-    assert all(ts2.times[i] == expectedTimes[i] for i in range(expectedLength2))
-    assert np.allclose(ts2.values, expectedValues, equal_nan=True)
-    assert all(ts2.qualities[i] == expectedQualities[i] for i in range(expectedLength2))
+    expected_length_2 = expected_length_1 - 4
+    expected_times = expected_times_1[:6] + expected_times_1[10:]
+    expected_values = expected_values_1[:6] + expected_values_1[10:]
+    expected_qualities = expected_qualities_1[:6] + expected_qualities_1[10:]
+    assert len(ts2) == expected_length_1
+    assert all(ts2.times[i] == expected_times[i] for i in range(expected_length_2))
+    assert np.allclose(ts2.values, expected_values, equal_nan=True)
+    assert all(
+        ts2.qualities[i] == expected_qualities[i] for i in range(expected_length_2)
+    )
     ts2.iexpand("2024-10-13T01:00:00", "2024-11-09T01:00:00")
     # print(ts2.data)
-    expectedLength2 = expectedLength1 + 4
-    expectedTimes = (
+    expected_length_2 = expected_length_1 + 4
+    expected_times = (
         ["2024-10-13 01:00:00", "2024-10-14 01:00:00"]
-        + expectedTimes1
+        + expected_times_1
         + ["2024-11-08 01:00:00", "2024-11-09 01:00:00"]
     )
-    expectedValues = [math.nan, math.nan] + expectedValues1 + [math.nan, math.nan]
-    expectedQualities = [5, 5] + expectedQualities1 + [5, 5]
-    assert len(ts2) == expectedLength2
-    assert all(ts2.times[i] == expectedTimes[i] for i in range(expectedLength2))
-    assert np.allclose(ts2.values, expectedValues, equal_nan=True)
-    assert all(ts2.qualities[i] == expectedQualities[i] for i in range(expectedLength2))
+    expected_values = [math.nan, math.nan] + expected_values_1 + [math.nan, math.nan]
+    expected_qualities = [5, 5] + expected_qualities_1 + [5, 5]
+    assert len(ts2) == expected_length_2
+    assert all(ts2.times[i] == expected_times[i] for i in range(expected_length_2))
+    assert np.allclose(ts2.values, expected_values, equal_nan=True)
+    assert all(
+        ts2.qualities[i] == expected_qualities[i] for i in range(expected_length_2)
+    )
     selected = ts2.selected  # save selection
     ts2.iselect(lambda tsv: tsv.time == HecTime("2024-11-08 01:00:00")).iset_protected()
     cast(pd.DataFrame, ts2.data)["selected"] = selected  # restore selection
     ts2.iselect(lambda tsv: tsv.time == HecTime("2024-10-14 01:00:00"), Combine.OR)
     ts2.itrim()
     # print(ts2.data)
-    expectedLength2 = expectedLength1 + 2
-    expectedTimes = ["2024-10-14 01:00:00"] + expectedTimes1 + ["2024-11-08 01:00:00"]
-    expectedValues = [math.nan] + expectedValues1 + [math.nan]
-    expectedQualities = [5] + expectedQualities1 + [2147483653]
-    assert len(ts2) == expectedLength2
-    assert all(ts2.times[i] == expectedTimes[i] for i in range(expectedLength2))
-    assert np.allclose(ts2.values, expectedValues, equal_nan=True)
-    assert all(ts2.qualities[i] == expectedQualities[i] for i in range(expectedLength2))
+    expected_length_2 = expected_length_1 + 2
+    expected_times = (
+        ["2024-10-14 01:00:00"] + expected_times_1 + ["2024-11-08 01:00:00"]
+    )
+    expected_values = [math.nan] + expected_values_1 + [math.nan]
+    expected_qualities = [5] + expected_qualities_1 + [2147483653]
+    assert len(ts2) == expected_length_2
+    assert all(ts2.times[i] == expected_times[i] for i in range(expected_length_2))
+    assert np.allclose(ts2.values, expected_values, equal_nan=True)
+    assert all(
+        ts2.qualities[i] == expected_qualities[i] for i in range(expected_length_2)
+    )
     # ----------------------------------------#
     # LRTS with protected values or selection #
     # ----------------------------------------#
     intvl = cast(
         Interval,
-        Interval.getAnyCwms(lambda i: i.name == "~1Day" and i.is_local_regular),
+        Interval.get_any_cwms(lambda i: i.name == "~1Day" and i.is_local_regular),
     )
     ts2 = ts.label_as_time_zone("US/Pacific")
     ts2 = ts2.set_interval(intvl)
-    expectedLength1 = len(ts2)
-    expectedTimes1 = ts2.times[:]
-    expectedValues1 = ts2.values[:]
-    expectedQualities1 = ts2.qualities[:]
+    expected_length_1 = len(ts2)
+    expected_times_1 = ts2.times[:]
+    expected_values_1 = ts2.values[:]
+    expected_qualities_1 = ts2.qualities[:]
     ts2.icollapse()
-    expectedLength2 = expectedLength1 - 6
-    expectedTimes = expectedTimes1[:5] + expectedTimes1[11:]
-    expectedValues = expectedValues1[:5] + expectedValues1[11:]
-    expectedQualities = expectedQualities1[:5] + expectedQualities1[11:]
-    assert len(ts2) == expectedLength1
-    assert len(ts2.times) == expectedLength2
-    assert all(ts2.times[i] == expectedTimes[i] for i in range(expectedLength2))
-    assert np.allclose(ts2.values, expectedValues, equal_nan=True)
-    assert all(ts2.qualities[i] == expectedQualities[i] for i in range(expectedLength2))
+    expected_length_2 = expected_length_1 - 6
+    expected_times = expected_times_1[:5] + expected_times_1[11:]
+    expected_values = expected_values_1[:5] + expected_values_1[11:]
+    expected_qualities = expected_qualities_1[:5] + expected_qualities_1[11:]
+    assert len(ts2) == expected_length_1
+    assert len(ts2.times) == expected_length_2
+    assert all(ts2.times[i] == expected_times[i] for i in range(expected_length_2))
+    assert np.allclose(ts2.values, expected_values, equal_nan=True)
+    assert all(
+        ts2.qualities[i] == expected_qualities[i] for i in range(expected_length_2)
+    )
     ts2.iexpand("2024-10-13T01:00:00-07:00", "2024-11-09T01:00:00-08:00")
     # print(ts2.data)
-    expectedLength2 = expectedLength1 + 4
-    expectedTimes = (
+    expected_length_2 = expected_length_1 + 4
+    expected_times = (
         ["2024-10-13 01:00:00-07:00", "2024-10-14 01:00:00-07:00"]
-        + expectedTimes1
+        + expected_times_1
         + ["2024-11-08 01:00:00-08:00", "2024-11-09 01:00:00-08:00"]
     )
-    expectedValues = [math.nan, math.nan] + expectedValues1 + [math.nan, math.nan]
-    expectedQualities = [5, 5] + expectedQualities1 + [5, 5]
-    assert len(ts2) == expectedLength2
-    assert all(ts2.times[i] == expectedTimes[i] for i in range(expectedLength2))
-    assert np.allclose(ts2.values, expectedValues, equal_nan=True)
-    assert all(ts2.qualities[i] == expectedQualities[i] for i in range(expectedLength2))
+    expected_values = [math.nan, math.nan] + expected_values_1 + [math.nan, math.nan]
+    expected_qualities = [5, 5] + expected_qualities_1 + [5, 5]
+    assert len(ts2) == expected_length_2
+    assert all(ts2.times[i] == expected_times[i] for i in range(expected_length_2))
+    assert np.allclose(ts2.values, expected_values, equal_nan=True)
+    assert all(
+        ts2.qualities[i] == expected_qualities[i] for i in range(expected_length_2)
+    )
     ts2.iselect(
         lambda tsv: tsv.time == HecTime("2024-11-08 01:00:00-08:00")
     ).iset_protected()
@@ -3148,21 +3170,23 @@ def test_expand_collapse_trim() -> None:
         lambda tsv: tsv.time == HecTime("2024-10-14 01:00:00-07:00"), Combine.OR
     )
     ts2.itrim()
-    expectedLength2 = expectedLength1 + 2
-    expectedTimes = (
-        ["2024-10-14 01:00:00-07:00"] + expectedTimes1 + ["2024-11-08 01:00:00-08:00"]
+    expected_length_2 = expected_length_1 + 2
+    expected_times = (
+        ["2024-10-14 01:00:00-07:00"] + expected_times_1 + ["2024-11-08 01:00:00-08:00"]
     )
-    expectedValues = [math.nan] + expectedValues1 + [math.nan]
-    expectedQualities = [5] + expectedQualities1 + [2147483653]
-    assert len(ts2) == expectedLength2
-    assert all(ts2.times[i] == expectedTimes[i] for i in range(expectedLength2))
-    assert np.allclose(ts2.values, expectedValues, equal_nan=True)
-    assert all(ts2.qualities[i] == expectedQualities[i] for i in range(expectedLength2))
+    expected_values = [math.nan] + expected_values_1 + [math.nan]
+    expected_qualities = [5] + expected_qualities_1 + [2147483653]
+    assert len(ts2) == expected_length_2
+    assert all(ts2.times[i] == expected_times[i] for i in range(expected_length_2))
+    assert np.allclose(ts2.values, expected_values, equal_nan=True)
+    assert all(
+        ts2.qualities[i] == expected_qualities[i] for i in range(expected_length_2)
+    )
 
 
 def test_merge() -> None:
     start_time = HecTime("2024-10-15T01:00:00")
-    intvl = Interval.getCwms("1Day")
+    intvl = Interval.get_cwms("1Day")
     values1 = [
         1000,
         1015,
@@ -3249,8 +3273,8 @@ def test_merge() -> None:
     # same time window, no protected values #
     # ------------------------------------- #
     ts3 = ts1.merge(ts2)
-    expectedLength = len(ts1)
-    expectedValues = [
+    expected_length = len(ts1)
+    expected_values = [
         (
             ts2.values[i]
             if math.isnan(ts1.values[i])
@@ -3258,9 +3282,9 @@ def test_merge() -> None:
             and not math.isnan(ts2.values[i])
             else ts1.values[i]
         )
-        for i in range(expectedLength)
+        for i in range(expected_length)
     ]
-    expectedQualities = [
+    expected_qualities = [
         (
             ts2.qualities[i]
             if math.isnan(ts1.values[i])
@@ -3268,12 +3292,14 @@ def test_merge() -> None:
             and not math.isnan(ts2.values[i])
             else ts1.qualities[i]
         )
-        for i in range(expectedLength)
+        for i in range(expected_length)
     ]
-    assert len(ts3) == expectedLength
+    assert len(ts3) == expected_length
     assert all([ts3.times[i] == ts2.times[i] for i in range(len(ts1))])
-    assert np.allclose(ts3.values, expectedValues, equal_nan=True)
-    assert all(ts3.qualities[i] == expectedQualities[i] for i in range(expectedLength))
+    assert np.allclose(ts3.values, expected_values, equal_nan=True)
+    assert all(
+        ts3.qualities[i] == expected_qualities[i] for i in range(expected_length)
+    )
     # ------------------------------ #
     # test merging empty time series #
     # ------------------------------ #
@@ -3281,15 +3307,15 @@ def test_merge() -> None:
     ts2_copy = ts2.clone()  # will restore later
     ts1._data = None
     ts3 = ts1.merge(ts2)
-    assert len(ts3) == expectedLength
-    assert all([ts3.times[i] == ts2.times[i] for i in range(expectedLength)])
+    assert len(ts3) == expected_length
+    assert all([ts3.times[i] == ts2.times[i] for i in range(expected_length)])
     assert np.allclose(ts3.values, ts2.values, equal_nan=True)
-    assert all(ts3.qualities[i] == ts2.qualities[i] for i in range(expectedLength))
+    assert all(ts3.qualities[i] == ts2.qualities[i] for i in range(expected_length))
     ts3 = ts2.merge(ts1)
-    assert len(ts3) == expectedLength
-    assert all([ts3.times[i] == ts2.times[i] for i in range(expectedLength)])
+    assert len(ts3) == expected_length
+    assert all([ts3.times[i] == ts2.times[i] for i in range(expected_length)])
     assert np.allclose(ts3.values, ts2.values, equal_nan=True)
-    assert all(ts3.qualities[i] == ts2.qualities[i] for i in range(expectedLength))
+    assert all(ts3.qualities[i] == ts2.qualities[i] for i in range(expected_length))
     # ---------------------------------- #
     # same time window, protected values #
     # ---------------------------------- #
@@ -3298,14 +3324,16 @@ def test_merge() -> None:
     ts1.iselect(5).iset_protected()
     ts2.iselect(21).iset_protected()
     ts3 = ts1.merge(ts2)
-    expectedValues[5] = ts1.values[5]
-    expectedQualities[5] = ts1.qualities[5]
-    expectedValues[21] = ts2.values[21]
-    expectedQualities[21] = ts2.qualities[21]
-    assert len(ts3) == expectedLength
+    expected_values[5] = ts1.values[5]
+    expected_qualities[5] = ts1.qualities[5]
+    expected_values[21] = ts2.values[21]
+    expected_qualities[21] = ts2.qualities[21]
+    assert len(ts3) == expected_length
     assert all([ts3.times[i] == ts2.times[i] for i in range(len(ts1))])
-    assert np.allclose(ts3.values, expectedValues, equal_nan=True)
-    assert all(ts3.qualities[i] == expectedQualities[i] for i in range(expectedLength))
+    assert np.allclose(ts3.values, expected_values, equal_nan=True)
+    assert all(
+        ts3.qualities[i] == expected_qualities[i] for i in range(expected_length)
+    )
     # ---------------------- #
     # differing time windows #
     # ---------------------- #
@@ -3314,9 +3342,9 @@ def test_merge() -> None:
     shift_offset = 6  # intervals
     ts2 >>= shift_offset
     ts3 = ts1.merge(ts2)
-    expectedLength += shift_offset
-    expectedTimes = sorted(set(ts1.times) | set(ts2.times))
-    expectedValues = (
+    expected_length += shift_offset
+    expected_times = sorted(set(ts1.times) | set(ts2.times))
+    expected_values = (
         ts1.values[:shift_offset]
         + [
             (
@@ -3330,7 +3358,7 @@ def test_merge() -> None:
         ]
         + ts2.values[-shift_offset:]
     )
-    expectedQualities = (
+    expected_qualities = (
         ts1.qualities[:shift_offset]
         + [
             (
@@ -3344,14 +3372,16 @@ def test_merge() -> None:
         ]
         + ts2.qualities[-shift_offset:]
     )
-    assert len(ts3) == expectedLength
-    assert all([ts3.times[i] == expectedTimes[i] for i in range(len(ts1))])
-    assert np.allclose(ts3.values, expectedValues, equal_nan=True)
-    assert all(ts3.qualities[i] == expectedQualities[i] for i in range(expectedLength))
+    assert len(ts3) == expected_length
+    assert all([ts3.times[i] == expected_times[i] for i in range(len(ts1))])
+    assert np.allclose(ts3.values, expected_values, equal_nan=True)
+    assert all(
+        ts3.qualities[i] == expected_qualities[i] for i in range(expected_length)
+    )
     # --------------------- #
     # test mixing intervals #
     # --------------------- #
-    intvl = Interval.getCwms("12Hours")
+    intvl = Interval.get_cwms("12Hours")
     times = pd.Index(
         [
             (start_time + i * TimeSpan(intvl.values)).datetime()
@@ -3375,7 +3405,7 @@ def test_merge() -> None:
 
 def test_to_irregular() -> None:
     start_time = HecTime("2024-10-15T01:00:00")
-    intvl = Interval.getCwms("1Day")
+    intvl = Interval.get_cwms("1Day")
     values1 = [
         1000,
         1015,
@@ -3418,8 +3448,8 @@ def test_to_irregular() -> None:
         index=times,
     )
     assert ts.interval.name == "1Day"
-    valid_intervals = set(Interval.getAllCwmsNames(lambda i: i.is_any_irregular))
-    for intvl_name in Interval.getAllNames():
+    valid_intervals = set(Interval.get_all_cwms_names(lambda i: i.is_any_irregular))
+    for intvl_name in Interval.get_all_names():
         try:
             ts.ito_irregular(intvl_name)
             assert (
@@ -3435,7 +3465,7 @@ def test_to_irregular() -> None:
 
 def test_snap_to_regular() -> None:
     start_time = HecTime("2024-10-15T01:00:00")
-    intvl = Interval.getCwms("1Hour")
+    intvl = Interval.get_cwms("1Hour")
     values1 = [
         1000,
         1015,
@@ -3484,43 +3514,46 @@ def test_snap_to_regular() -> None:
     assert len(ts2) == 0
     ts2 = ts.snap_to_regular("4Hours", "PT10M", "PT1H")
     # print(ts2.data)
-    expectedTimeVals = [
-        HecTime("2024-10-15 04:10:00") + i * TimeSpan(Interval.getCwms("4Hours").values)
+    expected_time_vals = [
+        HecTime("2024-10-15 04:10:00")
+        + i * TimeSpan(Interval.get_cwms("4Hours").values)
         for i in range(6)
     ]
-    expectedTimes = [f"{t.date(-13)} {t.time(True)}" for t in expectedTimeVals]
-    expectedValues = [1045.0, math.nan, 1165.0, 1225.0, -math.inf, 1300.0]
-    expectedQualities = [0, 5, 0, 0, 0, 0]
-    assert all([ts2.times[i] == expectedTimes[i] for i in range(6)])
-    assert np.allclose(ts2.values, expectedValues, equal_nan=True)
-    assert all([ts2.qualities[i] == expectedQualities[i] for i in range(6)])
+    expected_times = [f"{t.date(-13)} {t.time(True)}" for t in expected_time_vals]
+    expected_values = [1045.0, math.nan, 1165.0, 1225.0, -math.inf, 1300.0]
+    expected_qualities = [0, 5, 0, 0, 0, 0]
+    assert all([ts2.times[i] == expected_times[i] for i in range(6)])
+    assert np.allclose(ts2.values, expected_values, equal_nan=True)
+    assert all([ts2.qualities[i] == expected_qualities[i] for i in range(6)])
     ts2 = ts.snap_to_regular("4Hours", "PT10M", "PT0S", "PT1H")
     # print(ts2.data)
-    expectedTimeVals = [
-        HecTime("2024-10-15 00:10:00") + i * TimeSpan(Interval.getCwms("4Hours").values)
+    expected_time_vals = [
+        HecTime("2024-10-15 00:10:00")
+        + i * TimeSpan(Interval.get_cwms("4Hours").values)
         for i in range(6)
     ]
-    expectedTimes = [f"{t.date(-13)} {t.time(True)}" for t in expectedTimeVals]
-    expectedValues = [1000.0, 1060.0, math.nan, 1180.0, 1240.0, 1300.0]
-    expectedQualities = [0, 0, 5, 0, 0, 0]
-    assert all([ts2.times[i] == expectedTimes[i] for i in range(6)])
-    assert np.allclose(ts2.values, expectedValues, equal_nan=True)
-    assert all([ts2.qualities[i] == expectedQualities[i] for i in range(6)])
+    expected_times = [f"{t.date(-13)} {t.time(True)}" for t in expected_time_vals]
+    expected_values = [1000.0, 1060.0, math.nan, 1180.0, 1240.0, 1300.0]
+    expected_qualities = [0, 0, 5, 0, 0, 0]
+    assert all([ts2.times[i] == expected_times[i] for i in range(6)])
+    assert np.allclose(ts2.values, expected_values, equal_nan=True)
+    assert all([ts2.qualities[i] == expected_qualities[i] for i in range(6)])
     ts2 = ts.snap_to_regular("4Hours", "PT10M", "PT1H", "PT1H")
     # print(ts2.data)
-    expectedTimeVals = [
-        HecTime("2024-10-15 00:10:00") + i * TimeSpan(Interval.getCwms("4Hours").values)
+    expected_time_vals = [
+        HecTime("2024-10-15 00:10:00")
+        + i * TimeSpan(Interval.get_cwms("4Hours").values)
         for i in range(6)
     ]
-    expectedTimes = [f"{t.date(-13)} {t.time(True)}" for t in expectedTimeVals]
-    expectedValues = [1000.0, 1045.0, math.nan, 1165.0, 1225.0, 1300.0]
-    expectedQualities = [0, 0, 5, 0, 0, 0]
+    expected_times = [f"{t.date(-13)} {t.time(True)}" for t in expected_time_vals]
+    expected_values = [1000.0, 1045.0, math.nan, 1165.0, 1225.0, 1300.0]
+    expected_qualities = [0, 0, 5, 0, 0, 0]
 
 
 def test_new_regular_time_series() -> None:
     name = "Loc1.Flow.Inst.0.0.Computed"
-    startTimes = [
-        HecTime(s).labelAsTimeZone("US/Pacific")
+    start_times = [
+        HecTime(s).label_as_time_zone("US/Pacific")
         for s in ("2025-02-15T15:30:00", "2025-10-15T15:30:00")
     ]
     matchers = [
@@ -3529,7 +3562,7 @@ def test_new_regular_time_series() -> None:
     ]
     intervals = [
         cast(Interval, intvl)
-        for intvl in [Interval.getAnyCwms(matcher) for matcher in matchers]
+        for intvl in [Interval.get_any_cwms(matcher) for matcher in matchers]
     ]
     offsets: List[Union[TimeSpan, timedelta, str, int]] = [
         TimeSpan(hours=8),
@@ -3544,8 +3577,8 @@ def test_new_regular_time_series() -> None:
         [0, 3],
         [Qual(0), Qual(3)],
     )
-    expectedLength = 24
-    expectedTimes = {
+    expected_length = 24
+    expected_times = {
         "2025-02-15T15:30:00-08:00": {
             "~1Day": (
                 "2025-02-16 08:00:00-08:00",
@@ -3655,18 +3688,18 @@ def test_new_regular_time_series() -> None:
             ),
         },
     }
-    for startTime in startTimes:
-        endSpecs: tuple[HecTime, int] = (
-            HecTime(startTime) + 24 * TimeSpan(Interval.getCwms("1Day").values),
+    for start_time in start_times:
+        end_specs: tuple[HecTime, int] = (
+            HecTime(start_time) + 24 * TimeSpan(Interval.get_cwms("1Day").values),
             24,
         )
-        for end in endSpecs:
+        for end in end_specs:
             for intvl in intervals:
                 for offset in offsets:
                     for value in values:
                         for quality in qualities:
                             # for item in (
-                            #     "startTime",
+                            #     "start_time",
                             #     "end",
                             #     "intvl",
                             #     "offset",
@@ -3680,7 +3713,7 @@ def test_new_regular_time_series() -> None:
 
                             ts = TimeSeries.new_regular_time_series(
                                 name,
-                                HecTime(startTime).labelAsTimeZone("US/Pacific"),
+                                HecTime(start_time).label_as_time_zone("US/Pacific"),
                                 end,
                                 intvl,
                                 offset,
@@ -3690,15 +3723,15 @@ def test_new_regular_time_series() -> None:
                             assert ts.name == name.replace(
                                 "Inst.0", f"Inst.{intvl.name}"
                             )
-                            assert len(ts) == expectedLength
+                            assert len(ts) == expected_length
                             same = [
                                 ts.times[i]
-                                == expectedTimes[str(startTime)][intvl.name][i]
-                                for i in range(expectedLength)
+                                == expected_times[str(start_time)][intvl.name][i]
+                                for i in range(expected_length)
                             ]
                             assert all(same)
                             if value == 100.0:
-                                assert ts.values == expectedLength * [100.0]
+                                assert ts.values == expected_length * [100.0]
                             else:
                                 assert ts.values == eval(
                                     "[1.,2.,3.,4.,5.,1.,2.,3.,4.,5.,1.,2.,3.,4.,5.,1.,2.,3.,4.,5.,1.,2.,3.,4.]"
@@ -3708,12 +3741,12 @@ def test_new_regular_time_series() -> None:
                                     "[0,3,0,3,0,3,0,3,0,3,0,3,0,3,0,3,0,3,0,3,0,3,0,3]"
                                 )
                             else:
-                                assert ts.qualities == expectedLength * [3]
+                                assert ts.qualities == expected_length * [3]
 
 
 def test_resample() -> None:
-    intvl_1_hour = Interval.getCwms("1Hour")
-    intvl_6_hours = Interval.getCwms("6Hours")
+    intvl_1_hour = Interval.get_cwms("1Hour")
+    intvl_6_hours = Interval.get_cwms("6Hours")
     call_count = 0
     # ----------------------- #
     # same interval (aligned) #
@@ -3849,7 +3882,7 @@ def test_resample() -> None:
             "Total": "[100., 101., 102., 103., 104., 105., 106., 107., 108., 109., 110., 111., 112., 113., 114., 115., 116., 117., 118., 119., 120., 121., 122., 123., 124., 125., 126., 127., 128., 129.]",
         },
     }
-    for paramType in [
+    for param_type in [
         "Average",
         "Constant",
         "Instantaneous",
@@ -3857,22 +3890,22 @@ def test_resample() -> None:
         "Minimum",
         "Total",
     ]:
-        parameterType = ParameterType(paramType, "CWMS")
-        ts.iset_parameter_type(parameterType)
-        expectedParamTypeName = {
+        parameter_type = ParameterType(param_type, "CWMS")
+        ts.iset_parameter_type(parameter_type)
+        expected_param_type_name = {
             "count": "Total",
             "max": "Max",
             "min": "Min",
-            "prev": parameterType.name,
-            "interp": parameterType.name,
-            "integ": parameterType.name,
-            "volume": parameterType.name,
+            "prev": parameter_type.name,
+            "interp": parameter_type.name,
+            "integ": parameter_type.name,
+            "volume": parameter_type.name,
             "average": "Ave",
-            "accum": parameterType.name,
+            "accum": parameter_type.name,
         }
         for param in ("Precip", "Code", "Flow"):
             ts.iset_parameter(param)
-            expectedParamName = {
+            expected_param_name = {
                 "count": f"Count-{param}",
                 "max": param,
                 "min": param,
@@ -3883,7 +3916,7 @@ def test_resample() -> None:
                 "average": param,
                 "accum": param,
             }
-            expectedUnit = {
+            expected_unit = {
                 "count": "unit",
                 "max": ts.unit,
                 "min": ts.unit,
@@ -3905,32 +3938,32 @@ def test_resample() -> None:
                 "average",
                 "accum",
             ):
-                expectedName = f"Loc.{expectedParamName[op]}.{expectedParamTypeName[op]}.{intvl_1_hour.name}.0.Test"
+                expected_name = f"Loc.{expected_param_name[op]}.{expected_param_type_name[op]}.{intvl_1_hour.name}.0.Test"
                 if op in ("count", "max", "min"):
                     for require_entire_interval in (True, False, None):
-                        # print(f"\nparamType       = {paramType}")
+                        # print(f"\nparam_type      = {param_type}")
                         # print(f"param           = {param}")
                         # print(f"op              = {op}")
-                        # print(f"expected        = {expectedName} ({expectedUnit[op]})")
+                        # print(f"expected        = {expected_name} ({expected_unit[op]})")
                         # print(f"entire_interval = {require_entire_interval}")
                         ts2 = ts.resample(op, entire_interval=require_entire_interval)
                         call_count += 1
-                        assert ts2.name == expectedName
-                        assert ts2.unit == expectedUnit[op]
+                        assert ts2.name == expected_name
+                        assert ts2.unit == expected_unit[op]
                         assert np.allclose(
                             ts2.values,
                             eval(
                                 expected_values[op][str(require_entire_interval)][  # type: ignore
-                                    paramType
+                                    param_type
                                 ]
                             ),
                             equal_nan=True,
                         )
                 else:
-                    # print(f"\nparamType = {paramType}")
-                    # print(f"param     = {param}")
-                    # print(f"op        = {op}")
-                    # print(f"expected  = {expectedName} ({expectedUnit[op]})")
+                    # print(f"\nparam_type = {param_type}")
+                    # print(f"param      = {param}")
+                    # print(f"op         = {op}")
+                    # print(f"expected   = {expected_name} ({expected_unit[op]})")
                     try:
                         ts2 = ts.resample(op)
                         call_count += 1
@@ -3947,11 +3980,11 @@ def test_resample() -> None:
                         else:
                             raise
                     else:
-                        assert ts2.name == expectedName
-                        assert ts2.unit == expectedUnit[op]
+                        assert ts2.name == expected_name
+                        assert ts2.unit == expected_unit[op]
                         assert np.allclose(
                             ts2.values,
-                            eval(expected_values[op][paramType]),  # type: ignore
+                            eval(expected_values[op][param_type]),  # type: ignore
                             equal_nan=True,
                         )
     # --------------------------- #
@@ -4089,7 +4122,7 @@ def test_resample() -> None:
         },
     }
 
-    for paramType in [
+    for param_type in [
         "Average",
         "Constant",
         "Instantaneous",
@@ -4097,22 +4130,22 @@ def test_resample() -> None:
         "Minimum",
         "Total",
     ]:
-        parameterType = ParameterType(paramType, "CWMS")
-        ts.iset_parameter_type(parameterType)
-        expectedParamTypeName = {
+        parameter_type = ParameterType(param_type, "CWMS")
+        ts.iset_parameter_type(parameter_type)
+        expected_param_type_name = {
             "count": "Total",
             "max": "Max",
             "min": "Min",
-            "prev": parameterType.name,
-            "interp": parameterType.name,
-            "integ": parameterType.name,
-            "volume": parameterType.name,
+            "prev": parameter_type.name,
+            "interp": parameter_type.name,
+            "integ": parameter_type.name,
+            "volume": parameter_type.name,
             "average": "Ave",
-            "accum": parameterType.name,
+            "accum": parameter_type.name,
         }
         for param in ("Precip", "Code", "Flow"):
             ts.iset_parameter(param)
-            expectedParamName = {
+            expected_param_name = {
                 "count": f"Count-{param}",
                 "max": param,
                 "min": param,
@@ -4123,7 +4156,7 @@ def test_resample() -> None:
                 "average": param,
                 "accum": param,
             }
-            expectedUnit = {
+            expected_unit = {
                 "count": "unit",
                 "max": ts.unit,
                 "min": ts.unit,
@@ -4145,34 +4178,34 @@ def test_resample() -> None:
                 "average",
                 "accum",
             ):
-                expectedName = f"Loc.{expectedParamName[op]}.{expectedParamTypeName[op]}.{intvl_1_hour.name}.0.Test"
+                expected_name = f"Loc.{expected_param_name[op]}.{expected_param_type_name[op]}.{intvl_1_hour.name}.0.Test"
                 if op in ("count", "max", "min"):
                     for require_entire_interval in (True, False, None):
-                        # print(f"\nparamType       = {paramType}")
+                        # print(f"\nparam_type      = {param_type}")
                         # print(f"param           = {param}")
                         # print(f"op              = {op}")
-                        # print(f"expected        = {expectedName} ({expectedUnit[op]})")
+                        # print(f"expected        = {expected_name} ({expected_unit[op]})")
                         # print(f"entire_interval = {require_entire_interval}")
                         ts2 = ts.resample(
                             op, intvl_1_hour, entire_interval=require_entire_interval
                         )
                         call_count += 1
-                        assert ts2.name == expectedName
-                        assert ts2.unit == expectedUnit[op]
+                        assert ts2.name == expected_name
+                        assert ts2.unit == expected_unit[op]
                         assert np.allclose(
                             ts2.values,
                             eval(
                                 expected_values[op][str(require_entire_interval)][  # type: ignore
-                                    paramType
+                                    param_type
                                 ]
                             ),
                             equal_nan=True,
                         )
                 else:
-                    # print(f"\nparamType = {paramType}")
-                    # print(f"param     = {param}")
-                    # print(f"op        = {op}")
-                    # print(f"expected  = {expectedName} ({expectedUnit[op]})")
+                    # print(f"\nparam_type = {param_type}")
+                    # print(f"param      = {param}")
+                    # print(f"op         = {op}")
+                    # print(f"expected   = {expected_name} ({expected_unit[op]})")
                     try:
                         ts2 = ts.resample(op, intvl_1_hour)
                         call_count += 1
@@ -4189,11 +4222,11 @@ def test_resample() -> None:
                         else:
                             raise
                     else:
-                        assert ts2.name == expectedName
-                        assert ts2.unit == expectedUnit[op]
+                        assert ts2.name == expected_name
+                        assert ts2.unit == expected_unit[op]
                         assert np.allclose(
                             ts2.values,
-                            eval(expected_values[op][paramType]),  # type: ignore
+                            eval(expected_values[op][param_type]),  # type: ignore
                             equal_nan=True,
                         )
     # ------------------------------------------ #
@@ -4331,7 +4364,7 @@ def test_resample() -> None:
         },
     }
 
-    for paramType in [
+    for param_type in [
         "Average",
         "Constant",
         "Instantaneous",
@@ -4339,22 +4372,22 @@ def test_resample() -> None:
         "Minimum",
         "Total",
     ]:
-        parameterType = ParameterType(paramType, "CWMS")
-        ts.iset_parameter_type(parameterType)
-        expectedParamTypeName = {
+        parameter_type = ParameterType(param_type, "CWMS")
+        ts.iset_parameter_type(parameter_type)
+        expected_param_type_name = {
             "count": "Total",
             "max": "Max",
             "min": "Min",
-            "prev": parameterType.name,
-            "interp": parameterType.name,
-            "integ": parameterType.name,
-            "volume": parameterType.name,
+            "prev": parameter_type.name,
+            "interp": parameter_type.name,
+            "integ": parameter_type.name,
+            "volume": parameter_type.name,
             "average": "Ave",
-            "accum": parameterType.name,
+            "accum": parameter_type.name,
         }
         for param in ("Precip", "Code", "Flow"):
             ts.iset_parameter(param)
-            expectedParamName = {
+            expected_param_name = {
                 "count": f"Count-{param}",
                 "max": param,
                 "min": param,
@@ -4365,7 +4398,7 @@ def test_resample() -> None:
                 "average": param,
                 "accum": param,
             }
-            expectedUnit = {
+            expected_unit = {
                 "count": "unit",
                 "max": ts.unit,
                 "min": ts.unit,
@@ -4387,34 +4420,34 @@ def test_resample() -> None:
                 "average",
                 "accum",
             ):
-                expectedName = f"Loc.{expectedParamName[op]}.{expectedParamTypeName[op]}.{intvl_6_hours.name}.0.Test"
+                expected_name = f"Loc.{expected_param_name[op]}.{expected_param_type_name[op]}.{intvl_6_hours.name}.0.Test"
                 if op in ("count", "max", "min"):
                     for require_entire_interval in (True, False, None):
-                        # print(f"\nparamType       = {paramType}")
+                        # print(f"\nparam_type      = {param_type}")
                         # print(f"param           = {param}")
                         # print(f"op              = {op}")
-                        # print(f"expected        = {expectedName} ({expectedUnit[op]})")
+                        # print(f"expected        = {expected_name} ({expected_unit[op]})")
                         # print(f"entire_interval = {require_entire_interval}")
                         ts2 = ts.resample(
                             op, intvl_6_hours, entire_interval=require_entire_interval
                         )
                         call_count += 1
-                        assert ts2.name == expectedName
-                        assert ts2.unit == expectedUnit[op]
+                        assert ts2.name == expected_name
+                        assert ts2.unit == expected_unit[op]
                         assert np.allclose(
                             ts2.values,
                             eval(
                                 expected_values[op][str(require_entire_interval)][  # type: ignore
-                                    paramType
+                                    param_type
                                 ]
                             ),
                             equal_nan=True,
                         )
                 else:
-                    # print(f"\nparamType = {paramType}")
+                    # print(f"\nparam_type = {param_type}")
                     # print(f"param     = {param}")
                     # print(f"op        = {op}")
-                    # print(f"expected  = {expectedName} ({expectedUnit[op]})")
+                    # print(f"expected  = {expected_name} ({expected_unit[op]})")
                     try:
                         ts2 = ts.resample(op, intvl_6_hours)
                         call_count += 1
@@ -4431,11 +4464,11 @@ def test_resample() -> None:
                         else:
                             raise
                     else:
-                        assert ts2.name == expectedName
-                        assert ts2.unit == expectedUnit[op]
+                        assert ts2.name == expected_name
+                        assert ts2.unit == expected_unit[op]
                         assert np.allclose(
                             ts2.values,
-                            eval(expected_values[op][paramType]),  # type: ignore
+                            eval(expected_values[op][param_type]),  # type: ignore
                             equal_nan=True,
                         )
     # ------------------------------------------ #
@@ -4572,7 +4605,7 @@ def test_resample() -> None:
             "Total": "[16.6666667, 17.6666667, 17.6666667, 17.6666667, 17.6666667, 17.6666667, 17.6666667, 18.6666667, 18.6666667, 18.6666667, 18.6666667, 18.6666667, 18.6666667, 19.6666667, 19.6666667, 19.6666667, 19.6666667, 19.6666667, 19.6666667, 20.6666667, 20.6666667, 20.6666667, 20.6666667, 20.6666667, 20.6666667]",
         },
     }
-    for paramType in [
+    for param_type in [
         "Average",
         "Constant",
         "Instantaneous",
@@ -4580,22 +4613,22 @@ def test_resample() -> None:
         "Minimum",
         "Total",
     ]:
-        parameterType = ParameterType(paramType, "CWMS")
-        ts.iset_parameter_type(parameterType)
-        expectedParamTypeName = {
+        parameter_type = ParameterType(param_type, "CWMS")
+        ts.iset_parameter_type(parameter_type)
+        expected_param_type_name = {
             "count": "Total",
             "max": "Max",
             "min": "Min",
-            "prev": parameterType.name,
-            "interp": parameterType.name,
-            "integ": parameterType.name,
-            "volume": parameterType.name,
+            "prev": parameter_type.name,
+            "interp": parameter_type.name,
+            "integ": parameter_type.name,
+            "volume": parameter_type.name,
             "average": "Ave",
-            "accum": parameterType.name,
+            "accum": parameter_type.name,
         }
         for param in ("Precip", "Code", "Flow"):
             ts.iset_parameter(param)
-            expectedParamName = {
+            expected_param_name = {
                 "count": f"Count-{param}",
                 "max": param,
                 "min": param,
@@ -4606,7 +4639,7 @@ def test_resample() -> None:
                 "average": param,
                 "accum": param,
             }
-            expectedUnit = {
+            expected_unit = {
                 "count": "unit",
                 "max": ts.unit,
                 "min": ts.unit,
@@ -4628,34 +4661,34 @@ def test_resample() -> None:
                 "average",
                 "accum",
             ):
-                expectedName = f"Loc.{expectedParamName[op]}.{expectedParamTypeName[op]}.{intvl_1_hour.name}.0.Test"
+                expected_name = f"Loc.{expected_param_name[op]}.{expected_param_type_name[op]}.{intvl_1_hour.name}.0.Test"
                 if op in ("count", "max", "min"):
                     for require_entire_interval in (True, False, None):
-                        # print(f"\nparamType       = {paramType}")
+                        # print(f"\nparam_type       = {param_type}")
                         # print(f"param           = {param}")
                         # print(f"op              = {op}")
-                        # print(f"expected        = {expectedName} ({expectedUnit[op]})")
+                        # print(f"expected        = {expected_name} ({expected_unit[op]})")
                         # print(f"entire_interval = {require_entire_interval}")
                         ts2 = ts.resample(
                             op, intvl_1_hour, entire_interval=require_entire_interval
                         )
                         call_count += 1
-                        assert ts2.name == expectedName
-                        assert ts2.unit == expectedUnit[op]
+                        assert ts2.name == expected_name
+                        assert ts2.unit == expected_unit[op]
                         assert np.allclose(
                             ts2.values,
                             eval(
                                 expected_values[op][str(require_entire_interval)][  # type: ignore
-                                    paramType
+                                    param_type
                                 ]
                             ),
                             equal_nan=True,
                         )
                 else:
-                    # print(f"\nparamType = {paramType}")
+                    # print(f"\nparam_type = {param_type}")
                     # print(f"param     = {param}")
                     # print(f"op        = {op}")
-                    # print(f"expected  = {expectedName} ({expectedUnit[op]})")
+                    # print(f"expected  = {expected_name} ({expected_unit[op]})")
                     try:
                         ts2 = ts.resample(op, intvl_1_hour)
                         call_count += 1
@@ -4672,11 +4705,11 @@ def test_resample() -> None:
                         else:
                             raise
                     else:
-                        assert ts2.name == expectedName
-                        assert ts2.unit == expectedUnit[op]
+                        assert ts2.name == expected_name
+                        assert ts2.unit == expected_unit[op]
                         assert np.allclose(
                             ts2.values,
-                            eval(expected_values[op][paramType]),  # type: ignore
+                            eval(expected_values[op][param_type]),  # type: ignore
                             equal_nan=True,
                         )
     # ---------------------------------------------- #
@@ -4813,7 +4846,7 @@ def test_resample() -> None:
             "Total": "[514.17, 650., 686., 722., 758.]",
         },
     }
-    for paramType in [
+    for param_type in [
         "Average",
         "Constant",
         "Instantaneous",
@@ -4821,22 +4854,22 @@ def test_resample() -> None:
         "Minimum",
         "Total",
     ]:
-        parameterType = ParameterType(paramType, "CWMS")
-        ts.iset_parameter_type(parameterType)
-        expectedParamTypeName = {
+        parameter_type = ParameterType(param_type, "CWMS")
+        ts.iset_parameter_type(parameter_type)
+        expected_param_type_name = {
             "count": "Total",
             "max": "Max",
             "min": "Min",
-            "prev": parameterType.name,
-            "interp": parameterType.name,
-            "integ": parameterType.name,
-            "volume": parameterType.name,
+            "prev": parameter_type.name,
+            "interp": parameter_type.name,
+            "integ": parameter_type.name,
+            "volume": parameter_type.name,
             "average": "Ave",
-            "accum": parameterType.name,
+            "accum": parameter_type.name,
         }
         for param in ("Precip", "Code", "Flow"):
             ts.iset_parameter(param)
-            expectedParamName = {
+            expected_param_name = {
                 "count": f"Count-{param}",
                 "max": param,
                 "min": param,
@@ -4847,7 +4880,7 @@ def test_resample() -> None:
                 "average": param,
                 "accum": param,
             }
-            expectedUnit = {
+            expected_unit = {
                 "count": "unit",
                 "max": ts.unit,
                 "min": ts.unit,
@@ -4869,34 +4902,34 @@ def test_resample() -> None:
                 "average",
                 "accum",
             ):
-                expectedName = f"Loc.{expectedParamName[op]}.{expectedParamTypeName[op]}.{intvl_6_hours.name}.0.Test"
+                expected_name = f"Loc.{expected_param_name[op]}.{expected_param_type_name[op]}.{intvl_6_hours.name}.0.Test"
                 if op in ("count", "max", "min"):
                     for require_entire_interval in (True, False, None):
-                        # print(f"\nparamType       = {paramType}")
+                        # print(f"\nparam_type       = {param_type}")
                         # print(f"param           = {param}")
                         # print(f"op              = {op}")
-                        # print(f"expected        = {expectedName} ({expectedUnit[op]})")
+                        # print(f"expected        = {expected_name} ({expected_unit[op]})")
                         # print(f"entire_interval = {require_entire_interval}")
                         ts2 = ts.resample(
                             op, intvl_6_hours, entire_interval=require_entire_interval
                         )
                         call_count += 1
-                        assert ts2.name == expectedName
-                        assert ts2.unit == expectedUnit[op]
+                        assert ts2.name == expected_name
+                        assert ts2.unit == expected_unit[op]
                         assert np.allclose(
                             ts2.values,
                             eval(
                                 expected_values[op][str(require_entire_interval)][  # type: ignore
-                                    paramType
+                                    param_type
                                 ]
                             ),
                             equal_nan=True,
                         )
                 else:
-                    # print(f"\nparamType = {paramType}")
+                    # print(f"\nparam_type = {param_type}")
                     # print(f"param     = {param}")
                     # print(f"op        = {op}")
-                    # print(f"expected  = {expectedName} ({expectedUnit[op]})")
+                    # print(f"expected  = {expected_name} ({expected_unit[op]})")
                     try:
                         ts2 = ts.resample(op, intvl_6_hours)
                         call_count += 1
@@ -4913,11 +4946,11 @@ def test_resample() -> None:
                         else:
                             raise
                     else:
-                        assert ts2.name == expectedName
-                        assert ts2.unit == expectedUnit[op]
+                        assert ts2.name == expected_name
+                        assert ts2.unit == expected_unit[op]
                         assert np.allclose(
                             ts2.values,
-                            eval(expected_values[op][paramType]),  # type: ignore
+                            eval(expected_values[op][param_type]),  # type: ignore
                             equal_nan=True,
                         )
     # ---------------------------------------------- #
@@ -5055,7 +5088,7 @@ def test_resample() -> None:
         },
     }
 
-    for paramType in [
+    for param_type in [
         "Average",
         "Constant",
         "Instantaneous",
@@ -5063,22 +5096,22 @@ def test_resample() -> None:
         "Minimum",
         "Total",
     ]:
-        parameterType = ParameterType(paramType, "CWMS")
-        ts.iset_parameter_type(parameterType)
-        expectedParamTypeName = {
+        parameter_type = ParameterType(param_type, "CWMS")
+        ts.iset_parameter_type(parameter_type)
+        expected_param_type_name = {
             "count": "Total",
             "max": "Max",
             "min": "Min",
-            "prev": parameterType.name,
-            "interp": parameterType.name,
-            "integ": parameterType.name,
-            "volume": parameterType.name,
+            "prev": parameter_type.name,
+            "interp": parameter_type.name,
+            "integ": parameter_type.name,
+            "volume": parameter_type.name,
             "average": "Ave",
-            "accum": parameterType.name,
+            "accum": parameter_type.name,
         }
         for param in ("Precip", "Code", "Flow"):
             ts.iset_parameter(param)
-            expectedParamName = {
+            expected_param_name = {
                 "count": f"Count-{param}",
                 "max": param,
                 "min": param,
@@ -5089,7 +5122,7 @@ def test_resample() -> None:
                 "average": param,
                 "accum": param,
             }
-            expectedUnit = {
+            expected_unit = {
                 "count": "unit",
                 "max": ts.unit,
                 "min": ts.unit,
@@ -5111,34 +5144,34 @@ def test_resample() -> None:
                 "average",
                 "accum",
             ):
-                expectedName = f"Loc.{expectedParamName[op]}.{expectedParamTypeName[op]}.{intvl_1_hour.name}.0.Test"
+                expected_name = f"Loc.{expected_param_name[op]}.{expected_param_type_name[op]}.{intvl_1_hour.name}.0.Test"
                 if op in ("count", "max", "min"):
                     for require_entire_interval in (True, False, None):
-                        # print(f"\nparamType       = {paramType}")
+                        # print(f"\nparam_type       = {param_type}")
                         # print(f"param           = {param}")
                         # print(f"op              = {op}")
-                        # print(f"expected        = {expectedName} ({expectedUnit[op]})")
+                        # print(f"expected        = {expected_name} ({expected_unit[op]})")
                         # print(f"entire_interval = {require_entire_interval}")
                         ts2 = ts.resample(
                             op, intvl_1_hour, entire_interval=require_entire_interval
                         )
                         call_count += 1
-                        assert ts2.name == expectedName
-                        assert ts2.unit == expectedUnit[op]
+                        assert ts2.name == expected_name
+                        assert ts2.unit == expected_unit[op]
                         assert np.allclose(
                             ts2.values,
                             eval(
                                 expected_values[op][str(require_entire_interval)][  # type: ignore
-                                    paramType
+                                    param_type
                                 ]
                             ),
                             equal_nan=True,
                         )
                 else:
-                    # print(f"\nparamType = {paramType}")
+                    # print(f"\nparam_type = {param_type}")
                     # print(f"param     = {param}")
                     # print(f"op        = {op}")
-                    # print(f"expected  = {expectedName} ({expectedUnit[op]})")
+                    # print(f"expected  = {expected_name} ({expected_unit[op]})")
                     try:
                         ts2 = ts.resample(op, intvl_1_hour)
                         call_count += 1
@@ -5155,11 +5188,11 @@ def test_resample() -> None:
                         else:
                             raise
                     else:
-                        assert ts2.name == expectedName
-                        assert ts2.unit == expectedUnit[op]
+                        assert ts2.name == expected_name
+                        assert ts2.unit == expected_unit[op]
                         assert np.allclose(
                             ts2.values,
-                            eval(expected_values[op][paramType]),  # type: ignore
+                            eval(expected_values[op][param_type]),  # type: ignore
                             equal_nan=True,
                         )
     # ------------------------------------- #
@@ -5214,30 +5247,30 @@ def test_resample() -> None:
 
 
 if __name__ == "__main__":
-    test_time_series_value()
-    test_create_time_series_by_name()
-    test_math_ops_scalar()
-    test_math_ops_ts()
-    test_selection_and_filter()
-    test_aggregate_ts()
-    test_aggregate_values()
-    test_min_max()
-    test_accum_diff()
-    test_value_counts()
-    test_unit()
-    test_roundoff()
-    test_smoothing()
-    test_protected()
-    test_screen_with_value_range()
-    test_screen_with_value_change_rate()
-    test_screen_with_value_range_or_change_rate()
-    test_screen_with_duration_magnitude()
-    test_screen_with_constant_value()
-    test_screen_with_forward_moving_average()
-    test_estimate_missing_values()
+    # test_time_series_value()
+    # test_create_time_series_by_name()
+    # test_math_ops_scalar()
+    # test_math_ops_ts()
+    # test_selection_and_filter()
+    # test_aggregate_ts()
+    # test_aggregate_values()
+    # test_min_max()
+    # test_accum_diff()
+    # test_value_counts()
+    # test_unit()
+    # test_roundoff()
+    # test_smoothing()
+    # test_protected()
+    # test_screen_with_value_range()
+    # test_screen_with_value_change_rate()
+    # test_screen_with_value_range_or_change_rate()
+    # test_screen_with_duration_magnitude()
+    # test_screen_with_constant_value()
+    # test_screen_with_forward_moving_average()
+    # test_estimate_missing_values()
     test_expand_collapse_trim()
-    test_merge()
-    test_to_irregular()
-    test_snap_to_regular()
-    test_new_regular_time_series()
-    test_resample()
+    # test_merge()
+    # test_to_irregular()
+    # test_snap_to_regular()
+    # test_new_regular_time_series()
+    # test_resample()

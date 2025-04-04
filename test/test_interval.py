@@ -1,11 +1,11 @@
 """Module for testing hec.interval module
 """
 
-from hec.interval import Interval, IntervalException
+from hec import Interval, IntervalException
 
 
 def test_get_all() -> None:
-    assert Interval.getAllCwmsNames() == [
+    assert Interval.get_all_cwms_names() == [
         "0",
         "Irr",
         "~1Minute",
@@ -63,15 +63,15 @@ def test_get_all() -> None:
         "1Month",
         "1Year",
     ]
-    assert Interval.getAllCwmsNames(lambda i: i.is_irregular) == [
+    assert Interval.get_all_cwms_names(lambda i: i.is_irregular) == [
         "0",
         "Irr",
     ]
-    assert Interval.getAllCwmsNames(lambda i: i.minutes == 720) == [
+    assert Interval.get_all_cwms_names(lambda i: i.minutes == 720) == [
         "12Hours",
         "~12Hours",
     ]
-    assert Interval.getAllDssNames() == [
+    assert Interval.get_all_dss_names() == [
         "Ir-Day",
         "Ir-Month",
         "Ir-Year",
@@ -134,79 +134,79 @@ def test_get_all() -> None:
         "1Month",
         "1Year",
     ]
-    assert Interval.getAllDssNames(lambda i: i.is_irregular) == [
+    assert Interval.get_all_dss_names(lambda i: i.is_irregular) == [
         "Ir-Day",
         "Ir-Month",
         "Ir-Year",
         "Ir-Decade",
         "Ir-Century",
     ]
-    assert Interval.getAllDssNames(lambda i: i.minutes == 720) == [
+    assert Interval.get_all_dss_names(lambda i: i.minutes == 720) == [
         "12Hour",
     ]
-    assert Interval.getAllDssBlockNames() == [
+    assert Interval.get_all_dss_block_names() == [
         "1Month",
         "1Year",
         "1Decade",
         "1Century",
     ]
-    assert Interval.getAllDssBlockNames(lambda i: i.is_irregular) == []
+    assert Interval.get_all_dss_block_names(lambda i: i.is_irregular) == []
 
 
 def test_get_any() -> None:
-    assert Interval.getAnyCwmsName(lambda i: i.minutes == 720) == "12Hours"
-    assert Interval.getAnyDssName(lambda i: i.minutes == 720) == "12Hour"
-    i = Interval.getAnyCwms(lambda i: i.name == "12Hours")
+    assert Interval.get_any_cwms_name(lambda i: i.minutes == 720) == "12Hours"
+    assert Interval.get_any_dss_name(lambda i: i.minutes == 720) == "12Hour"
+    i = Interval.get_any_cwms(lambda i: i.name == "12Hours")
     assert i is not None
     assert i.minutes == 720
     assert i.name == "12Hours"
-    i = Interval.getAnyDss(lambda i: i.name == "12Hour")
+    i = Interval.get_any_dss(lambda i: i.name == "12Hour")
     assert i is not None
     assert i.minutes == 720
     assert i.name == "12Hour"
-    assert Interval.getAnyDss(lambda i: i.name == "12Hours") is None
+    assert Interval.get_any_dss(lambda i: i.name == "12Hours") is None
 
 
-def test_getCwms() -> None:
-    intvl = Interval.getCwms("1Month")
+def test_get_cwms() -> None:
+    intvl = Interval.get_cwms("1Month")
     assert intvl.name == "1Month"
     assert intvl.minutes == 43200
-    intvl = Interval.getCwms(720)
+    intvl = Interval.get_cwms(720)
     assert intvl.name == "12Hours"
     assert intvl.minutes == 720
     exception_raised = False
     try:
-        intvl = Interval.getCwms("12Hour")
+        intvl = Interval.get_cwms("12Hour")
     except Exception as e:
         exception_raised = True
         assert isinstance(e, IntervalException)
     assert exception_raised
     exception_raised = False
     try:
-        intvl = Interval.getCwms(intvl)  # type: ignore
+        intvl = Interval.get_cwms(intvl)  # type: ignore
     except Exception as e:
         exception_raised = True
         assert isinstance(e, TypeError)
     assert exception_raised
 
 
-def test_getDss() -> None:
-    intvl = Interval.getDss("1Month")
+def get_get_dss() -> None:
+    intvl = Interval.get_dss("1Month")
     assert intvl.name == "1Month"
     assert intvl.minutes == 43200
-    intvl = Interval.getDss(720)
+    intvl = Interval.get_dss(720)
     assert intvl.name == "12Hour"
     assert intvl.minutes == 720
     exception_raised = False
     try:
-        intvl = Interval.getDss("12Hours")
+        intvl = Interval.get_dss("12Hours")
     except Exception as e:
         exception_raised = True
         assert isinstance(e, IntervalException)
     assert exception_raised
     exception_raised = False
     try:
-        intvl = Interval.getDss(intvl)  # type: ignore
+        intvl = Interval.get_dss(intvl)  # type: ignore
     except Exception as e:
         exception_raised = True
         assert isinstance(e, TypeError)

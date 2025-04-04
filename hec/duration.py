@@ -40,8 +40,145 @@ class Duration(TimeSpan):
     during module initialization.
     """
 
+    def __init__(self, interval: Union[Interval, str], bop: bool = False):
+        """Initializer used by module"""
+        if isinstance(interval, str):
+            intvl = Interval.get_any(lambda i: i.name == interval)
+            if intvl is None:
+                raise DurationException(f"Cannot find Interval with name '{interval}'")
+        else:
+            intvl = interval
+        super().__init__(str(intvl))
+        self._interval = intvl
+        self._bop = bop
+
+    def __add__(self, other: object) -> "Duration":
+        if isinstance(other, (TimeSpan, timedelta)):
+            minutes = (self.total_seconds() + other.total_seconds()) // 60
+            return Duration.for_interval(
+                cast(
+                    Interval,
+                    Interval.get_any(
+                        lambda i: i.minutes == minutes and i.is_regular, True
+                    ),
+                ),
+                self.is_bop,
+            )
+        else:
+            return NotImplemented
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, Duration):
+            return self.name == other.name
+        return False
+
+    def __iadd__(self, other: object) -> "Interval":
+        raise NotImplementedError("Cannot modify an existing Duration object")
+
+    def __imul__(self, other: object) -> "Duration":
+        raise NotImplementedError("Cannot modify an existing Duration object")
+
+    def __isub__(self, other: object) -> "Duration":
+        raise NotImplementedError("Cannot modify an existing Duration object")
+
+    def __mul__(self, other: object) -> "Duration":
+        if isinstance(other, (int, float)):
+            minutes = int((self.total_seconds() * other) // 60)
+            return Duration.for_interval(
+                cast(
+                    Interval,
+                    Interval.get_any(
+                        lambda i: i.minutes == minutes and i.is_regular, True
+                    ),
+                ),
+                self.is_bop,
+            )
+        else:
+            return NotImplemented
+
+    def __radd__(self, other: timedelta) -> Union[TimeSpan, timedelta]:
+        if isinstance(other, TimeSpan):
+            return TimeSpan(seconds=other.total_seconds() + self.total_seconds())
+        elif isinstance(other, timedelta):
+            return timedelta(seconds=other.total_seconds() + self.total_seconds())
+        else:
+            return NotImplemented
+
+    def __repr__(self) -> str:
+        if self.minutes == 0:
+            return f"Duration({repr(self._interval)})"
+        else:
+            return f"Duration({repr(self._interval)}, bop={self._bop})"
+
+    def __rmul__(self, other: object) -> "TimeSpan":
+        if isinstance(other, (int, float)):
+            minutes = int((self.total_seconds() * other) // 60)
+            return Duration.for_interval(
+                cast(
+                    Interval,
+                    Interval.get_any(
+                        lambda i: i.minutes == minutes and i.is_regular, True
+                    ),
+                ),
+                self.is_bop,
+            )
+        else:
+            return NotImplemented
+
+    def __rsub__(self, other: object) -> Union[TimeSpan, timedelta]:
+        if isinstance(other, TimeSpan):
+            return TimeSpan(seconds=other.total_seconds() - self.total_seconds())
+        elif isinstance(other, timedelta):
+            return timedelta(seconds=other.total_seconds() - self.total_seconds())
+        return NotImplemented
+
+    def __sub__(self, other: object) -> "Duration":
+        if isinstance(other, (TimeSpan, timedelta)):
+            minutes = (self.total_seconds() - other.total_seconds()) // 60
+            return Duration.for_interval(
+                cast(
+                    Interval,
+                    Interval.get_any(
+                        lambda i: i.minutes == minutes and i.is_regular, True
+                    ),
+                ),
+                self.is_bop,
+            )
+        else:
+            return NotImplemented
+
+    def __str__(self) -> str:
+        if self.minutes == 0:
+            return super().__str__()
+        else:
+            return super().__str__() + (":BOP" if self._bop else ":EOP")
+
+    @property
+    def is_bop(self) -> bool:
+        """
+        Whether this object is a Beginning of Period Duration
+
+        Operations:
+            Read-only
+        """
+        if self.minutes == 0:
+            return True
+        return self._bop
+
+    @property
+    def is_eop(self) -> bool:
+        """
+        Whether this object is an End of Period Duration
+
+        Operations:
+            Read-only
+        """
+        if self.minutes == 0:
+            return True
+        return not self._bop
+
     @staticmethod
-    def forInterval(
+    def for_interval(
         interval: Union[Interval, str, int], bop: bool = False
     ) -> "Duration":
         """
@@ -62,9 +199,9 @@ class Duration(TimeSpan):
             Duration: The Duration object matching the specified interval and bop setting.
         """
         if isinstance(interval, str):
-            intvl = Interval.getAnyCwms(lambda i: i.name == interval)
+            intvl = Interval.get_any_cwms(lambda i: i.name == interval)
         elif isinstance(interval, int):
-            intvl = Interval.getAnyCwms(lambda i: i.minutes == interval)
+            intvl = Interval.get_any_cwms(lambda i: i.minutes == interval)
         elif isinstance(interval, Interval):
             intvl = interval
         else:
@@ -83,119 +220,6 @@ class Duration(TimeSpan):
             return _DURATIONS[key]
         except KeyError:
             raise DurationException(f"No such duration: {intvl}, bop={bop}")
-
-    def __init__(self, interval: Union[Interval, str], bop: bool = False):
-        """Initializer used by module"""
-        if isinstance(interval, str):
-            intvl = Interval.getAny(lambda i: i.name == interval)
-            if intvl is None:
-                raise DurationException(f"Cannot find Interval with name '{interval}'")
-        else:
-            intvl = interval
-        super().__init__(str(intvl))
-        self._interval = intvl
-        self._bop = bop
-
-    def __add__(self, other: object) -> "Duration":
-        if isinstance(other, (TimeSpan, timedelta)):
-            minutes = (self.total_seconds() + other.total_seconds()) // 60
-            return Duration.forInterval(
-                cast(
-                    Interval,
-                    Interval.getAny(
-                        lambda i: i.minutes == minutes and i.is_regular, True
-                    ),
-                ),
-                self.isBop,
-            )
-        else:
-            return NotImplemented
-
-    def __iadd__(self, other: object) -> "Interval":
-        raise NotImplementedError("Cannot modify an existing Duration object")
-
-    def __radd__(self, other: timedelta) -> Union[TimeSpan, timedelta]:
-        if isinstance(other, TimeSpan):
-            return TimeSpan(seconds=other.total_seconds() + self.total_seconds())
-        elif isinstance(other, timedelta):
-            return timedelta(seconds=other.total_seconds() + self.total_seconds())
-        else:
-            return NotImplemented
-
-    def __sub__(self, other: object) -> "Duration":
-        if isinstance(other, (TimeSpan, timedelta)):
-            minutes = (self.total_seconds() - other.total_seconds()) // 60
-            return Duration.forInterval(
-                cast(
-                    Interval,
-                    Interval.getAny(
-                        lambda i: i.minutes == minutes and i.is_regular, True
-                    ),
-                ),
-                self.isBop,
-            )
-        else:
-            return NotImplemented
-
-    def __isub__(self, other: object) -> "Duration":
-        raise NotImplementedError("Cannot modify an existing Duration object")
-
-    def __rsub__(self, other: object) -> Union[TimeSpan, timedelta]:
-        if isinstance(other, TimeSpan):
-            return TimeSpan(seconds=other.total_seconds() - self.total_seconds())
-        elif isinstance(other, timedelta):
-            return timedelta(seconds=other.total_seconds() - self.total_seconds())
-        return NotImplemented
-
-    def __mul__(self, other: object) -> "Duration":
-        if isinstance(other, (int, float)):
-            minutes = int((self.total_seconds() * other) // 60)
-            return Duration.forInterval(
-                cast(
-                    Interval,
-                    Interval.getAny(
-                        lambda i: i.minutes == minutes and i.is_regular, True
-                    ),
-                ),
-                self.isBop,
-            )
-        else:
-            return NotImplemented
-
-    def __imul__(self, other: object) -> "Duration":
-        raise NotImplementedError("Cannot modify an existing Duration object")
-
-    def __rmul__(self, other: object) -> "TimeSpan":
-        if isinstance(other, (int, float)):
-            minutes = int((self.total_seconds() * other) // 60)
-            return Duration.forInterval(
-                cast(
-                    Interval,
-                    Interval.getAny(
-                        lambda i: i.minutes == minutes and i.is_regular, True
-                    ),
-                ),
-                self.isBop,
-            )
-        else:
-            return NotImplemented
-
-    def __eq__(self, other: object) -> bool:
-        if isinstance(other, Duration):
-            return self.name == other.name
-        return False
-
-    def __repr__(self) -> str:
-        if self.minutes == 0:
-            return f"Duration({repr(self._interval)})"
-        else:
-            return f"Duration({repr(self._interval)}, bop={self._bop})"
-
-    def __str__(self) -> str:
-        if self.minutes == 0:
-            return super().__str__()
-        else:
-            return super().__str__() + (":BOP" if self._bop else ":EOP")
 
     @property
     def minutes(self) -> int:
@@ -217,35 +241,11 @@ class Duration(TimeSpan):
         """
         return self._interval.name + ("BOP" if self.minutes > 0 and self._bop else "")
 
-    @property
-    def isBop(self) -> bool:
-        """
-        Whether this object is a Beginning of Period Duration
-
-        Operations:
-            Read-only
-        """
-        if self.minutes == 0:
-            return True
-        return self._bop
-
-    @property
-    def isEop(self) -> bool:
-        """
-        Whether this object is an End of Period Duration
-
-        Operations:
-            Read-only
-        """
-        if self.minutes == 0:
-            return True
-        return not self._bop
-
 
 _DURATIONS = {}
 for _d in [
     Duration(intvl, bop)
-    for intvl in Interval.getAllCwms(
+    for intvl in Interval.get_all_cwms(
         lambda i: i.name != "Irr" and not i.name.startswith("~")
     )
     for bop in (False, True)

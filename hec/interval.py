@@ -50,18 +50,18 @@ class Interval(TimeSpan):
     - **DSS Block Size Context:** Contains Intervals for the record block sizes in HEC-DSS files
 
     Each context has its own set of four static methods that retrieve Interval objects or their names:
-    - <code>getAny<em>Context</em>()</code>
-    - <code>getAny<em>Context</em>Name()</code>
-    - <code>getAll<em>Context</em>()</code>
-    - <code>getAll<em>Context</em>Names()</code>
+    - <code>get_any<em>Context</em>()</code>
+    - <code>get_any<em>Context</em>_name()</code>
+    - <code>get_all<em>Context</em>()</code>
+    - <code>get_all<em>Context</em>_names()</code>
 
     Where *Context* is `Cwms`, `Dss`, or `DssBlock`.
 
     There are similar static methods that retrieve Interval objects or their names from all contexts:
-    - <code>getAny()</code>
-    - <code>getAnyName()</code>
-    - <code>getAll()</code>
-    - <code>getAllNames()</code>
+    - <code>get_any()</code>
+    - <code>get_any_name()</code>
+    - <code>get_all()</code>
+    - <code>get_all_names()</code>
     """
 
     MINUTES: dict[str, int] = {}
@@ -136,567 +136,6 @@ class Interval(TimeSpan):
 
     _default_exception_on_not_found: bool = False
 
-    @staticmethod
-    def setDefaultExceptionOnNotFound(state: bool) -> None:
-        """
-        Sets the default behavior if any of the get... methods do not find an Interval object to return.
-
-        Args:
-            state (bool): Whether to raise an exception if no Interval is found (True) or return None (False)
-        """
-        Interval._default_exception_on_not_found = state
-
-    @staticmethod
-    def getDefaultExceptionOnNotFound() -> bool:
-        """
-        Retrieves the default behavior if any of the get... methods do not find an Interval object to return.
-
-        Returns:
-            bool: True if the default behavior is to raise an exception when no Interval is found or False
-                if None is returned when no Interval is found
-        """
-        return Interval._default_exception_on_not_found
-
-    @staticmethod
-    def _getAny(
-        intervals: list["Interval"],
-        matcher: Callable[["Interval"], bool],
-        exceptionOnNotFound: Optional[bool] = None,
-    ) -> Optional["Interval"]:
-        all = Interval._getAll(intervals, matcher)
-        if all:
-            return all[0]
-        else:
-            raise_exc = (
-                exceptionOnNotFound
-                if exceptionOnNotFound is not None
-                else Interval._default_exception_on_not_found
-            )
-            if raise_exc:
-                print(exceptionOnNotFound)
-                print(Interval._default_exception_on_not_found)
-                raise IntervalException("No such Interval")
-            else:
-                return None
-
-    @staticmethod
-    def _getAnyName(
-        intervals: list["Interval"],
-        matcher: Callable[["Interval"], bool],
-        exceptionOnNotFound: Optional[bool] = None,
-    ) -> Optional[str]:
-        all = Interval._getAllNames(intervals, matcher)
-        if all:
-            return all[0]
-        else:
-            raise_exc = (
-                exceptionOnNotFound
-                if exceptionOnNotFound is not None
-                else Interval._default_exception_on_not_found
-            )
-            if raise_exc:
-                raise IntervalException("No such Interval")
-            else:
-                return None
-
-    @staticmethod
-    def _getAll(
-        intervals: list["Interval"],
-        matcher: Optional[Callable[["Interval"], bool]] = None,
-        exceptionOnNotFound: Optional[bool] = None,
-    ) -> list["Interval"]:
-        all = [i for i in intervals if matcher(i)] if matcher else intervals[:]
-        if all:
-            return all
-        else:
-            raise_exc = (
-                exceptionOnNotFound
-                if exceptionOnNotFound is not None
-                else Interval._default_exception_on_not_found
-            )
-            if raise_exc:
-                raise IntervalException("No such Interval")
-            else:
-                return all
-
-    @staticmethod
-    def _getAllNames(
-        intervals: list["Interval"],
-        matcher: Optional[Callable[["Interval"], bool]] = None,
-        exceptionOnNotFound: Optional[bool] = None,
-    ) -> list[str]:
-        all = (
-            [i.name for i in intervals if matcher(i)]
-            if matcher
-            else [i.name for i in intervals]
-        )
-        if all:
-            return all
-        else:
-            raise_exc = (
-                exceptionOnNotFound
-                if exceptionOnNotFound is not None
-                else Interval._default_exception_on_not_found
-            )
-            if raise_exc:
-                raise IntervalException("No such Interval")
-            else:
-                return all
-
-    @staticmethod
-    def getCwms(key: Union[str, int]) -> "Interval":
-        """
-        Returns a CWMS interval with the specified name or minutes
-
-        Args:
-            key (Union[str, int]): The name or (actual or characteristic) minutes of the interval to retrieve.
-
-        Raises:
-            IntervalException: if no CWMS interval exists with the specified key
-            TypeError: If the key is not a string or integer
-
-        Returns:
-            Interval: The CWMS interval
-        """
-        intvl: Optional[Interval] = None
-        if isinstance(key, str):
-            intvl = Interval.getAnyCwms(lambda i: i.name == key.title(), False)
-            if intvl is None:
-                raise IntervalException(f'No CWMS interval found with name = "{key}"')
-        elif isinstance(key, int):
-            intvl = Interval.getAnyCwms(lambda i: i.minutes == key, False)
-            if intvl is None:
-                raise IntervalException(f"No CWMS interval found with minutes = {key}")
-        else:
-            raise TypeError(f"Expected string or integer, got {key.__class__.__name__}")
-        return intvl
-
-    @staticmethod
-    def getDss(key: Union[str, int]) -> "Interval":
-        """
-        Returns an HEC-DSS interval with the specified name or minutes
-
-        Args:
-            key (Union[str, int]): The name or (actual or characteristic) minutes of the interval to retrieve.
-
-        Raises:
-            IntervalException: if no Dss interval exists with the specified key
-            TypeError: If the key is not a string or integer
-
-        Returns:
-            Interval: The Dss interval
-        """
-        intvl: Optional[Interval] = None
-        if isinstance(key, str):
-            intvl = Interval.getAnyDss(lambda i: i.name == key.title(), False)
-            if intvl is None:
-                raise IntervalException(
-                    f'No HEC-DSS interval found with name = "{key}"'
-                )
-        elif isinstance(key, int):
-            intvl = Interval.getAnyDss(lambda i: i.minutes == key, False)
-            if intvl is None:
-                raise IntervalException(
-                    f"No HEC-DSS interval found with minutes = {key}"
-                )
-        else:
-            raise TypeError(f"Expected string or integer, got {key.__class__.__name__}")
-        return intvl
-
-    @staticmethod
-    def getAny(
-        matcher: Callable[["Interval"], bool],
-        exceptionOnNotFound: Optional[bool] = None,
-    ) -> Optional["Interval"]:
-        """
-        Retuns a matched `Interval` object in any context
-
-        Args:
-            matcher (Callable[[Interval], bool]): A function that returns True or False when passed an `Interval` object parameter.<br>
-                Examples:
-                - `lambda i : i.isIrregular`
-                - `lambda i : i.minutes < 60`
-                - `lambda i : i.name.find("Week") != -1`
-            exceptionOnNotFound (bool): Specifies whether to raise an exception if no Intervals are found. If None, the default
-                behavior is used. Optional. Defaults to None. See [setDefaultExceptionOnNotFound](#Interval.setDefaultExceptionOnNotFound) and
-                [getDefaultExceptionOnNotFound](#Interval.getDefaultExceptionOnNotFound)
-
-        Returns:
-            Optional[Interval]: A matched `Interval` object or None
-        """
-        for intervals in (_CWMS_INTERVALS, _DSS_INTERVALS, _DSS_BLOCK_SIZES):
-            i = Interval._getAny(intervals, matcher, exceptionOnNotFound)
-            if i:
-                break
-        return i
-
-    @staticmethod
-    def getAnyName(
-        matcher: Callable[["Interval"], bool],
-        exceptionOnNotFound: Optional[bool] = None,
-    ) -> Optional[str]:
-        """
-        Retuns the name of a matched `Interval` object in the any context, or None if there is no such object
-
-        Args:
-            matcher (Callable[[Interval], bool]): A function that returns True or False when passed an `Interval` object parameter.<br>
-                Examples:
-                - `lambda i : i.isIrregular`
-                - `lambda i : i.minutes < 60`
-                - `lambda i : i.name.find("Week") != -1`
-            exceptionOnNotFound (bool): Specifies whether to raise an exception if no Intervals are found. If None, the default
-                behavior is used. Optional. Defaults to None. See [setDefaultExceptionOnNotFound](#Interval.setDefaultExceptionOnNotFound) and
-                [getDefaultExceptionOnNotFound](#Interval.getDefaultExceptionOnNotFound)
-
-        Returns:
-            Optional[str]: The name of a matched `Interval` object or None
-        """
-        for intervals in (_CWMS_INTERVALS, _DSS_INTERVALS, _DSS_BLOCK_SIZES):
-            i = Interval._getAnyName(intervals, matcher, exceptionOnNotFound)
-            if i:
-                break
-        return i
-
-    @staticmethod
-    def getAll(
-        matcher: Optional[Callable[["Interval"], bool]] = None,
-        exceptionOnNotFound: Optional[bool] = None,
-    ) -> list["Interval"]:
-        """
-        Retuns list of matched `Interval` objects in the any context
-
-        Args:
-            matcher (Optional[Callable[[Interval], bool]]): A function that returns True or False when passed an `Interval` object parameter. Defaults to None.
-                If None, all `Interval` objects in all contexts are matched.<br>
-                Examples:
-                - `lambda i : i.isIrregular`
-                - `lambda i : i.minutes < 60`
-                - `lambda i : i.name.find("Week") != -1`
-
-        Returns:
-            List[Interval]: A list of matched `Interval` objects (may be empty)
-        """
-        return Interval._getAll(
-            _CWMS_INTERVALS + _DSS_INTERVALS + _DSS_BLOCK_SIZES,
-            matcher,
-            exceptionOnNotFound,
-        )
-
-    @staticmethod
-    def getAllNames(
-        matcher: Optional[Callable[["Interval"], bool]] = None,
-        exceptionOnNotFound: Optional[bool] = None,
-    ) -> list[str]:
-        """
-        Retuns list of names of matched `Interval` objects in the any context
-
-        Args:
-            matcher (Optional[Callable[[Interval], bool]]): A function that returns True or False when passed an `Interval` object parameter. Defaults to None.
-                If None, all `Interval` objects in all contexts are matched.<br>
-                Examples:
-                - `lambda i : i.isIrregular`
-                - `lambda i : i.minutes < 60`
-                - `lambda i : i.name.find("Week") != -1`
-
-        Returns:
-            List[str]: A list of names of matched `Interval` objects (may be empty)
-        """
-        return list(
-            dict.fromkeys(
-                Interval._getAllNames(
-                    _CWMS_INTERVALS + _DSS_INTERVALS + _DSS_BLOCK_SIZES,
-                    matcher,
-                    exceptionOnNotFound,
-                )
-            )
-        )
-
-    @staticmethod
-    def getAnyCwms(
-        matcher: Callable[["Interval"], bool],
-        exceptionOnNotFound: Optional[bool] = None,
-    ) -> Optional["Interval"]:
-        """
-        Retuns a matched `Interval` object in the CWMS context, or None if there is no such object
-
-        Args:
-            matcher (Callable[[Interval], bool]): A function that returns True or False when passed an `Interval` object parameter.<br>
-                Examples:
-                - `lambda i : i.isIrregular`
-                - `lambda i : i.minutes < 60`
-                - `lambda i : i.name.find("Week") != -1`
-            exceptionOnNotFound (bool): Specifies whether to raise an exception if no Intervals are found. If None, the default
-                behavior is used. Optional. Defaults to None. See [setDefaultExceptionOnNotFound](#Interval.setDefaultExceptionOnNotFound) and
-                [getDefaultExceptionOnNotFound](#Interval.getDefaultExceptionOnNotFound)
-
-        Returns:
-            Optional[Interval]: A matched `Interval` object or None
-        """
-        return Interval._getAny(_CWMS_INTERVALS, matcher, exceptionOnNotFound)
-
-    @staticmethod
-    def getAnyCwmsName(
-        matcher: Callable[["Interval"], bool],
-        exceptionOnNotFound: Optional[bool] = None,
-    ) -> Optional[str]:
-        """
-        Retuns the name of a matched `Interval` object in the CWMS context, or None if there is no such object
-
-        Args:
-            matcher (Callable[[Interval], bool]): A function that returns True or False when passed an `Interval` object parameter.<br>
-                Examples:
-                - `lambda i : i.isIrregular`
-                - `lambda i : i.minutes < 60`
-                - `lambda i : i.name.find("Week") != -1`
-            exceptionOnNotFound (bool): Specifies whether to raise an exception if no Intervals are found. If None, the default
-                behavior is used. Optional. Defaults to None. See [setDefaultExceptionOnNotFound](#Interval.setDefaultExceptionOnNotFound) and
-                [getDefaultExceptionOnNotFound](#Interval.getDefaultExceptionOnNotFound)
-
-        Returns:
-            Optional[str]: The name of a matched `Interval` object or None
-        """
-        return Interval._getAnyName(_CWMS_INTERVALS, matcher, exceptionOnNotFound)
-
-    @staticmethod
-    def getAllCwms(
-        matcher: Optional[Callable[["Interval"], bool]] = None,
-        exceptionOnNotFound: Optional[bool] = None,
-    ) -> list["Interval"]:
-        """
-        Retuns list of matched `Interval` objects in the CWMS context
-
-        Args:
-            matcher (Optional[Callable[[Interval], bool]]): A function that returns True or False when passed an `Interval` object parameter. Defaults to None.
-                If None, all `Interval` objects in the context are matched.<br>
-                Examples:
-                - `lambda i : i.isIrregular`
-                - `lambda i : i.minutes < 60`
-                - `lambda i : i.name.find("Week") != -1`
-            exceptionOnNotFound (bool): Specifies whether to raise an exception if no Intervals are found. If None, the default
-                behavior is used. Optional. Defaults to None. See [setDefaultExceptionOnNotFound](#Interval.setDefaultExceptionOnNotFound) and
-                [getDefaultExceptionOnNotFound](#Interval.getDefaultExceptionOnNotFound)
-
-        Returns:
-            List[Interval]: A list of matched `Interval` objects (may be empty)
-        """
-        return Interval._getAll(_CWMS_INTERVALS, matcher, exceptionOnNotFound)
-
-    @staticmethod
-    def getAllCwmsNames(
-        matcher: Optional[Callable[["Interval"], bool]] = None,
-        exceptionOnNotFound: Optional[bool] = None,
-    ) -> list[str]:
-        """
-        Retuns list of names of matched `Interval` objects in the CWMS context
-
-        Args:
-            matcher (Optional[Callable[[Interval], bool]]): A function that returns True or False when passed an `Interval` object parameter. Defaults to None.
-                If None, all `Interval` objects in the context are matched.<br>
-                Examples:
-                - `lambda i : i.isIrregular`
-                - `lambda i : i.minutes < 60`
-                - `lambda i : i.name.find("Week") != -1`
-            exceptionOnNotFound (bool): Specifies whether to raise an exception if no Intervals are found. If None, the default
-                behavior is used. Optional. Defaults to None. See [setDefaultExceptionOnNotFound](#Interval.setDefaultExceptionOnNotFound) and
-                [getDefaultExceptionOnNotFound](#Interval.getDefaultExceptionOnNotFound)
-
-        Returns:
-            List[str]: A list of names of matched `Interval` objects (may be empty)
-        """
-        return list(
-            dict.fromkeys(
-                Interval._getAllNames(_CWMS_INTERVALS, matcher, exceptionOnNotFound)
-            )
-        )
-
-    @staticmethod
-    def getAnyDss(
-        matcher: Callable[["Interval"], bool],
-        exceptionOnNotFound: Optional[bool] = None,
-    ) -> Optional["Interval"]:
-        """
-        Retuns a matched `Interval` object in the DSS context, or None if there is no such object
-
-        Args:
-            matcher (Callable[[Interval], bool]): A function that returns True or False when passed an `Interval` object parameter.<br>
-                Examples:
-                - `lambda i : i.isIrregular`
-                - `lambda i : i.minutes < 60`
-                - `lambda i : i.name.find("Week") != -1`
-            exceptionOnNotFound (bool): Specifies whether to raise an exception if no Intervals are found. If None, the default
-                behavior is used. Optional. Defaults to None. See [setDefaultExceptionOnNotFound](#Interval.setDefaultExceptionOnNotFound) and
-                [getDefaultExceptionOnNotFound](#Interval.getDefaultExceptionOnNotFound)
-
-        Returns:
-            Optional[Interval]: A matched `Interval` object or None
-        """
-        return Interval._getAny(_DSS_INTERVALS, matcher, exceptionOnNotFound)
-
-    @staticmethod
-    def getAnyDssName(
-        matcher: Callable[["Interval"], bool],
-        exceptionOnNotFound: Optional[bool] = None,
-    ) -> Optional[str]:
-        """
-        Retuns the name of a matched `Interval` object in the DSS context, or None if there is no such object
-
-        Args:
-            matcher (Callable[[Interval], bool]): A function that returns True or False when passed an `Interval` object parameter.<br>
-                Examples:
-                - `lambda i : i.isIrregular`
-                - `lambda i : i.minutes < 60`
-                - `lambda i : i.name.find("Week") != -1`
-            exceptionOnNotFound (bool): Specifies whether to raise an exception if no Intervals are found. If None, the default
-                behavior is used. Optional. Defaults to None. See [setDefaultExceptionOnNotFound](#Interval.setDefaultExceptionOnNotFound) and
-                [getDefaultExceptionOnNotFound](#Interval.getDefaultExceptionOnNotFound)
-
-        Returns:
-            Optional[str]: The name of a matched `Interval` object or None
-        """
-        return Interval._getAnyName(_DSS_INTERVALS, matcher, exceptionOnNotFound)
-
-    @staticmethod
-    def getAllDss(
-        matcher: Optional[Callable[["Interval"], bool]] = None,
-        exceptionOnNotFound: Optional[bool] = None,
-    ) -> list["Interval"]:
-        """
-        Retuns list of matched `Interval` objects in the DSS context
-
-        Args:
-            matcher (Optional[Callable[[Interval], bool]]): A function that returns True or False when passed an `Interval` object parameter. Defaults to None.
-                If None, all `Interval` objects in the context are matched.<br>
-                Examples:
-                - `lambda i : i.isIrregular`
-                - `lambda i : i.minutes < 60`
-                - `lambda i : i.name.find("Week") != -1`
-            exceptionOnNotFound (bool): Specifies whether to raise an exception if no Intervals are found. If None, the default
-                behavior is used. Optional. Defaults to None. See [setDefaultExceptionOnNotFound](#Interval.setDefaultExceptionOnNotFound) and
-                [getDefaultExceptionOnNotFound](#Interval.getDefaultExceptionOnNotFound)
-
-        Returns:
-            List[Interval]: A list of matched `Interval` objects (may be empty)
-        """
-        return Interval._getAll(_DSS_INTERVALS, matcher, exceptionOnNotFound)
-
-    @staticmethod
-    def getAllDssNames(
-        matcher: Optional[Callable[["Interval"], bool]] = None,
-        exceptionOnNotFound: Optional[bool] = None,
-    ) -> list[str]:
-        """
-        Retuns list of names of matched `Interval` objects in the DSS context
-
-        Args:
-            matcher (Optional[Callable[[Interval], bool]]): A function that returns True or False when passed an `Interval` object parameter. Defaults to None.
-                If None, all `Interval` objects in the context are matched.<br>
-                Examples:
-                - `lambda i : i.isIrregular`
-                - `lambda i : i.minutes < 60`
-                - `lambda i : i.name.find("Week") != -1`
-            exceptionOnNotFound (bool): Specifies whether to raise an exception if no Intervals are found. If None, the default
-                behavior is used. Optional. Defaults to None. See [setDefaultExceptionOnNotFound](#Interval.setDefaultExceptionOnNotFound) and
-                [getDefaultExceptionOnNotFound](#Interval.getDefaultExceptionOnNotFound)
-
-        Returns:
-            List[str]: A list of names of matched `Interval` objects (may be empty)
-        """
-        return Interval._getAllNames(_DSS_INTERVALS, matcher, exceptionOnNotFound)
-
-    @staticmethod
-    def getAnyDssBlock(
-        matcher: Callable[["Interval"], bool],
-        exceptionOnNotFound: Optional[bool] = None,
-    ) -> Optional["Interval"]:
-        """
-        Retuns a matched `Interval` object in the DSS block size context, or None if there is no such object
-
-        Args:
-            matcher (Callable[[Interval], bool]): A function that returns True or False when passed an `Interval` object parameter.<br>
-                Examples:
-                - `lambda i : i.isIrregular`
-                - `lambda i : i.minutes < 60`
-                - `lambda i : i.name.find("Week") != -1`
-            exceptionOnNotFound (bool): Specifies whether to raise an exception if no Intervals are found. If None, the default
-                behavior is used. Optional. Defaults to None. See [setDefaultExceptionOnNotFound](#Interval.setDefaultExceptionOnNotFound) and
-                [getDefaultExceptionOnNotFound](#Interval.getDefaultExceptionOnNotFound)
-
-        Returns:
-            Optional[Interval]: A matched `Interval` object or None
-        """
-        return Interval._getAny(_DSS_BLOCK_SIZES, matcher, exceptionOnNotFound)
-
-    @staticmethod
-    def getAnyDssBlockName(
-        matcher: Callable[["Interval"], bool],
-        exceptionOnNotFound: Optional[bool] = None,
-    ) -> Optional[str]:
-        """
-        Retuns the name of a matched `Interval` object in the DSS block size context, or None if there is no such object
-
-        Args:
-            matcher (Callable[[Interval], bool]): A function that returns True or False when passed an `Interval` object parameter.<br>
-                Examples:
-                - `lambda i : i.isIrregular`
-                - `lambda i : i.minutes < 60`
-                - `lambda i : i.name.find("Week") != -1`
-            exceptionOnNotFound (bool): Specifies whether to raise an exception if no Intervals are found. If None, the default
-                behavior is used. Optional. Defaults to None. See [setDefaultExceptionOnNotFound](#Interval.setDefaultExceptionOnNotFound) and
-                [getDefaultExceptionOnNotFound](#Interval.getDefaultExceptionOnNotFound)
-
-        Returns:
-            Optional[str]: The name of a matched `Interval` object or None
-        """
-        return Interval._getAnyName(_DSS_BLOCK_SIZES, matcher, exceptionOnNotFound)
-
-    @staticmethod
-    def getAllDssBlock(
-        matcher: Optional[Callable[["Interval"], bool]] = None,
-        exceptionOnNotFound: Optional[bool] = None,
-    ) -> list["Interval"]:
-        """
-        Retuns list of matched `Interval` objects in the DSS block size context
-
-        Args:
-            matcher (Optional[Callable[[Interval], bool]]): A function that returns True or False when passed an `Interval` object parameter. Defaults to None.
-                If None, all `Interval` objects in the context are matched.<br>
-                Examples:
-                - `lambda i : i.isIrregular`
-                - `lambda i : i.minutes < 60`
-                - `lambda i : i.name.find("Week") != -1`
-            exceptionOnNotFound (bool): Specifies whether to raise an exception if no Intervals are found. If None, the default
-                behavior is used. Optional. Defaults to None. See [setDefaultExceptionOnNotFound](#Interval.setDefaultExceptionOnNotFound) and
-                [getDefaultExceptionOnNotFound](#Interval.getDefaultExceptionOnNotFound)
-
-        Returns:
-            List[Interval]: A list of matched `Interval` objects (may be empty)
-        """
-        return Interval._getAll(_DSS_BLOCK_SIZES, matcher, exceptionOnNotFound)
-
-    @staticmethod
-    def getAllDssBlockNames(
-        matcher: Optional[Callable[["Interval"], bool]] = None,
-        exceptionOnNotFound: Optional[bool] = None,
-    ) -> list[str]:
-        """
-        Retuns list of names of matched `Interval` objects in the DSS block size context
-
-        Args:
-            matcher (Optional[Callable[[Interval], bool]]): A function that returns True or False when passed an `Interval` object parameter. Defaults to None.
-                If None, all `Interval` objects in the context are matched.<br>
-                Examples:
-                - `lambda i : i.isIrregular`
-                - `lambda i : i.minutes < 60`
-                - `lambda i : i.name.find("Week") != -1`
-            exceptionOnNotFound (bool): Specifies whether to raise an exception if no Intervals are found. If None, the default
-                behavior is used. Optional. Defaults to None. See [setDefaultExceptionOnNotFound](#Interval.setDefaultExceptionOnNotFound) and
-                [getDefaultExceptionOnNotFound](#Interval.getDefaultExceptionOnNotFound)
-
-        Returns:
-            List[str]: A list of names of matched `Interval` objects (may be empty)
-        """
-        return Interval._getAllNames(_DSS_BLOCK_SIZES, matcher, exceptionOnNotFound)
-
     def __init__(
         self, timespan: str, name: str, context: str, minutes: Optional[int] = None
     ):
@@ -735,25 +174,25 @@ class Interval(TimeSpan):
             if self in _DSS_INTERVALS:
                 return cast(
                     Interval,
-                    Interval.getAnyDss(
+                    Interval.get_any_dss(
                         lambda i: i.minutes == minutes and i.is_regular,
-                        exceptionOnNotFound=True,
+                        exception_on_not_found=True,
                     ),
                 )
             elif self in _CWMS_INTERVALS:
                 return cast(
                     Interval,
-                    Interval.getAnyCwms(
+                    Interval.get_any_cwms(
                         lambda i: i.minutes == minutes and i.is_regular,
-                        exceptionOnNotFound=True,
+                        exception_on_not_found=True,
                     ),
                 )
             elif self in _DSS_BLOCK_SIZES:
                 return cast(
                     Interval,
-                    Interval.getAnyDssBlock(
+                    Interval.get_any_dss_block(
                         lambda i: i.minutes == minutes and i.is_regular,
-                        exceptionOnNotFound=True,
+                        exception_on_not_found=True,
                     ),
                 )
             else:
@@ -761,8 +200,67 @@ class Interval(TimeSpan):
         else:
             return NotImplemented
 
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, Interval):
+            return [self.context, self.name, self.minutes] == [
+                other.context,
+                other.name,
+                other.minutes,
+            ]
+        return False
+
     def __iadd__(self, other: object) -> "Interval":
         raise NotImplementedError("Cannot modify an existing Interval object")
+
+    def __imul__(self, other: object) -> "Interval":
+        raise NotImplementedError("Cannot modify an existing Interval object")
+
+    def __isub__(self, other: object) -> "Interval":
+        raise NotImplementedError("Cannot modify an existing Interval object")
+
+    def __mul__(self, other: object) -> "Interval":
+        if self.is_local_regular:
+            raise NotImplementedError(
+                "Cannot perform mathematical operations with a local-regular Interval object"
+            )
+        if self.is_irregular:
+            raise NotImplementedError(
+                "Cannot perform mathematical operations with an irregular Interval object"
+            )
+        if self.is_pseudo_regular:
+            raise NotImplementedError(
+                "Cannot perform mathematical operations with an pseudo-regular Interval object"
+            )
+        if isinstance(other, (int, float)):
+            minutes = int((self.total_seconds() * other) // 60)
+            if self in _DSS_INTERVALS:
+                return cast(
+                    Interval,
+                    Interval.get_any_dss(
+                        lambda i: i.minutes == minutes and i.is_regular,
+                        exception_on_not_found=True,
+                    ),
+                )
+            elif self in _CWMS_INTERVALS:
+                return cast(
+                    Interval,
+                    Interval.get_any_cwms(
+                        lambda i: i.minutes == minutes and i.is_regular,
+                        exception_on_not_found=True,
+                    ),
+                )
+            elif self in _DSS_BLOCK_SIZES:
+                return cast(
+                    Interval,
+                    Interval.get_any_dss_block(
+                        lambda i: i.minutes == minutes and i.is_regular,
+                        exception_on_not_found=True,
+                    ),
+                )
+            else:
+                return NotImplemented
+        else:
+            return NotImplemented
 
     def __radd__(self, other: timedelta) -> Union[TimeSpan, timedelta]:
         if self.is_local_regular:
@@ -784,7 +282,14 @@ class Interval(TimeSpan):
         else:
             return NotImplemented
 
-    def __sub__(self, other: object) -> "Interval":
+    def __repr__(self) -> str:
+        try:
+            self.total_seconds()
+            return f'Interval("{super().__str__()}", "{self._name}")'
+        except:
+            return f'Interval("{super().__str__()}", "{self._name}", {self.minutes})'
+
+    def __rmul__(self, other: object) -> "TimeSpan":
         if self.is_local_regular:
             raise NotImplementedError(
                 "Cannot perform mathematical operations with a local-regular Interval object"
@@ -797,39 +302,36 @@ class Interval(TimeSpan):
             raise NotImplementedError(
                 "Cannot perform mathematical operations with a pseudo-regular Interval object"
             )
-        if isinstance(other, (TimeSpan, timedelta)):
-            minutes = (self.total_seconds() - other.total_seconds()) // 60
+        if isinstance(other, (int, float)):
+            minutes = int((self.total_seconds() * other) // 60)
             if self in _DSS_INTERVALS:
                 return cast(
                     Interval,
-                    Interval.getAnyDss(
+                    Interval.get_any_dss(
                         lambda i: i.minutes == minutes and i.is_regular,
-                        exceptionOnNotFound=True,
+                        exception_on_not_found=True,
                     ),
                 )
             elif self in _CWMS_INTERVALS:
                 return cast(
                     Interval,
-                    Interval.getAnyCwms(
+                    Interval.get_any_cwms(
                         lambda i: i.minutes == minutes and i.is_regular,
-                        exceptionOnNotFound=True,
+                        exception_on_not_found=True,
                     ),
                 )
             elif self in _DSS_BLOCK_SIZES:
                 return cast(
                     Interval,
-                    Interval.getAnyDssBlock(
+                    Interval.get_any_dss_block(
                         lambda i: i.minutes == minutes and i.is_regular,
-                        exceptionOnNotFound=True,
+                        exception_on_not_found=True,
                     ),
                 )
             else:
                 return NotImplemented
         else:
             return NotImplemented
-
-    def __isub__(self, other: object) -> "Interval":
-        raise NotImplementedError("Cannot modify an existing Interval object")
 
     def __rsub__(self, other: object) -> Union[TimeSpan, timedelta]:
         if self.is_local_regular:
@@ -850,54 +352,7 @@ class Interval(TimeSpan):
             return timedelta(seconds=other.total_seconds() - self.total_seconds())
         return NotImplemented
 
-    def __mul__(self, other: object) -> "Interval":
-        if self.is_local_regular:
-            raise NotImplementedError(
-                "Cannot perform mathematical operations with a local-regular Interval object"
-            )
-        if self.is_irregular:
-            raise NotImplementedError(
-                "Cannot perform mathematical operations with an irregular Interval object"
-            )
-        if self.is_pseudo_regular:
-            raise NotImplementedError(
-                "Cannot perform mathematical operations with an pseudo-regular Interval object"
-            )
-        if isinstance(other, (int, float)):
-            minutes = int((self.total_seconds() * other) // 60)
-            if self in _DSS_INTERVALS:
-                return cast(
-                    Interval,
-                    Interval.getAnyDss(
-                        lambda i: i.minutes == minutes and i.is_regular,
-                        exceptionOnNotFound=True,
-                    ),
-                )
-            elif self in _CWMS_INTERVALS:
-                return cast(
-                    Interval,
-                    Interval.getAnyCwms(
-                        lambda i: i.minutes == minutes and i.is_regular,
-                        exceptionOnNotFound=True,
-                    ),
-                )
-            elif self in _DSS_BLOCK_SIZES:
-                return cast(
-                    Interval,
-                    Interval.getAnyDssBlock(
-                        lambda i: i.minutes == minutes and i.is_regular,
-                        exceptionOnNotFound=True,
-                    ),
-                )
-            else:
-                return NotImplemented
-        else:
-            return NotImplemented
-
-    def __imul__(self, other: object) -> "Interval":
-        raise NotImplementedError("Cannot modify an existing Interval object")
-
-    def __rmul__(self, other: object) -> "TimeSpan":
+    def __sub__(self, other: object) -> "Interval":
         if self.is_local_regular:
             raise NotImplementedError(
                 "Cannot perform mathematical operations with a local-regular Interval object"
@@ -910,30 +365,30 @@ class Interval(TimeSpan):
             raise NotImplementedError(
                 "Cannot perform mathematical operations with a pseudo-regular Interval object"
             )
-        if isinstance(other, (int, float)):
-            minutes = int((self.total_seconds() * other) // 60)
+        if isinstance(other, (TimeSpan, timedelta)):
+            minutes = (self.total_seconds() - other.total_seconds()) // 60
             if self in _DSS_INTERVALS:
                 return cast(
                     Interval,
-                    Interval.getAnyDss(
+                    Interval.get_any_dss(
                         lambda i: i.minutes == minutes and i.is_regular,
-                        exceptionOnNotFound=True,
+                        exception_on_not_found=True,
                     ),
                 )
             elif self in _CWMS_INTERVALS:
                 return cast(
                     Interval,
-                    Interval.getAnyCwms(
+                    Interval.get_any_cwms(
                         lambda i: i.minutes == minutes and i.is_regular,
-                        exceptionOnNotFound=True,
+                        exception_on_not_found=True,
                     ),
                 )
             elif self in _DSS_BLOCK_SIZES:
                 return cast(
                     Interval,
-                    Interval.getAnyDssBlock(
+                    Interval.get_any_dss_block(
                         lambda i: i.minutes == minutes and i.is_regular,
-                        exceptionOnNotFound=True,
+                        exception_on_not_found=True,
                     ),
                 )
             else:
@@ -941,24 +396,649 @@ class Interval(TimeSpan):
         else:
             return NotImplemented
 
-    def __eq__(self, other: object) -> bool:
-        if isinstance(other, Interval):
-            return [self.context, self.name, self.minutes] == [
-                other.context,
-                other.name,
-                other.minutes,
-            ]
-        return False
-
-    def __repr__(self) -> str:
-        try:
-            self.total_seconds()
-            return f'Interval("{super().__str__()}", "{self._name}")'
-        except:
-            return f'Interval("{super().__str__()}", "{self._name}", {self.minutes})'
-
     def __str__(self) -> str:
         return super().__str__()
+
+    @staticmethod
+    def _get_all(
+        intervals: list["Interval"],
+        matcher: Optional[Callable[["Interval"], bool]] = None,
+        exception_on_not_found: Optional[bool] = None,
+    ) -> list["Interval"]:
+        all = [i for i in intervals if matcher(i)] if matcher else intervals[:]
+        if all:
+            return all
+        else:
+            raise_exc = (
+                exception_on_not_found
+                if exception_on_not_found is not None
+                else Interval._default_exception_on_not_found
+            )
+            if raise_exc:
+                raise IntervalException("No such Interval")
+            else:
+                return all
+
+    @staticmethod
+    def _get_all_names(
+        intervals: list["Interval"],
+        matcher: Optional[Callable[["Interval"], bool]] = None,
+        exception_on_not_found: Optional[bool] = None,
+    ) -> list[str]:
+        all = (
+            [i.name for i in intervals if matcher(i)]
+            if matcher
+            else [i.name for i in intervals]
+        )
+        if all:
+            return all
+        else:
+            raise_exc = (
+                exception_on_not_found
+                if exception_on_not_found is not None
+                else Interval._default_exception_on_not_found
+            )
+            if raise_exc:
+                raise IntervalException("No such Interval")
+            else:
+                return all
+
+    @staticmethod
+    def _get_any(
+        intervals: list["Interval"],
+        matcher: Callable[["Interval"], bool],
+        exception_on_not_found: Optional[bool] = None,
+    ) -> Optional["Interval"]:
+        all = Interval._get_all(intervals, matcher)
+        if all:
+            return all[0]
+        else:
+            raise_exc = (
+                exception_on_not_found
+                if exception_on_not_found is not None
+                else Interval._default_exception_on_not_found
+            )
+            if raise_exc:
+                print(exception_on_not_found)
+                print(Interval._default_exception_on_not_found)
+                raise IntervalException("No such Interval")
+            else:
+                return None
+
+    @staticmethod
+    def _get_any_name(
+        intervals: list["Interval"],
+        matcher: Callable[["Interval"], bool],
+        exception_on_not_found: Optional[bool] = None,
+    ) -> Optional[str]:
+        all = Interval._get_all_names(intervals, matcher)
+        if all:
+            return all[0]
+        else:
+            raise_exc = (
+                exception_on_not_found
+                if exception_on_not_found is not None
+                else Interval._default_exception_on_not_found
+            )
+            if raise_exc:
+                raise IntervalException("No such Interval")
+            else:
+                return None
+
+    @staticmethod
+    def get_any(
+        matcher: Callable[["Interval"], bool],
+        exception_on_not_found: Optional[bool] = None,
+    ) -> Optional["Interval"]:
+        """
+        Retuns a matched `Interval` object in any context
+
+        Args:
+            matcher (Callable[[Interval], bool]): A function that returns True or False when passed an `Interval` object parameter.<br>
+                Examples:
+                - `lambda i : i.is_irregular`
+                - `lambda i : i.minutes < 60`
+                - `lambda i : i.name.find("Week") != -1`
+            exception_on_not_found (bool): Specifies whether to raise an exception if no Intervals are found. If None, the default
+                behavior is used. Optional. Defaults to None. See [set_default_exception_on_not_found](#Interval.set_default_exception_on_not_found) and
+                [get_default_exception_on_not_found](#Interval.get_default_exception_on_not_found)
+
+        Returns:
+            Optional[Interval]: A matched `Interval` object or None
+        """
+        for intervals in (_CWMS_INTERVALS, _DSS_INTERVALS, _DSS_BLOCK_SIZES):
+            i = Interval._get_any(intervals, matcher, exception_on_not_found)
+            if i:
+                break
+        return i
+
+    @staticmethod
+    def get_any_cwms(
+        matcher: Callable[["Interval"], bool],
+        exception_on_not_found: Optional[bool] = None,
+    ) -> Optional["Interval"]:
+        """
+        Retuns a matched `Interval` object in the CWMS context, or None if there is no such object
+
+        Args:
+            matcher (Callable[[Interval], bool]): A function that returns True or False when passed an `Interval` object parameter.<br>
+                Examples:
+                - `lambda i : i.is_irregular`
+                - `lambda i : i.minutes < 60`
+                - `lambda i : i.name.find("Week") != -1`
+            exception_on_not_found (bool): Specifies whether to raise an exception if no Intervals are found. If None, the default
+                behavior is used. Optional. Defaults to None. See [set_default_exception_no_not_found](#Interval.set_default_exception_on_not_found) and
+                [get_default_exception_on_not_found](#Interval.get_default_exception_on_not_found)
+
+        Returns:
+            Optional[Interval]: A matched `Interval` object or None
+        """
+        return Interval._get_any(_CWMS_INTERVALS, matcher, exception_on_not_found)
+
+    @staticmethod
+    def get_any_cwms_name(
+        matcher: Callable[["Interval"], bool],
+        exception_on_not_found: Optional[bool] = None,
+    ) -> Optional[str]:
+        """
+        Retuns the name of a matched `Interval` object in the CWMS context, or None if there is no such object
+
+        Args:
+            matcher (Callable[[Interval], bool]): A function that returns True or False when passed an `Interval` object parameter.<br>
+                Examples:
+                - `lambda i : i.is_irregular`
+                - `lambda i : i.minutes < 60`
+                - `lambda i : i.name.find("Week") != -1`
+            exception_on_not_found (bool): Specifies whether to raise an exception if no Intervals are found. If None, the default
+                behavior is used. Optional. Defaults to None. See [set_default_exception_on_not_found](#Interval.set_default_exception_on_not_found) and
+                [get_default_exception_on_not_found](#Interval.get_default_exception_on_not_found)
+
+        Returns:
+            Optional[str]: The name of a matched `Interval` object or None
+        """
+        return Interval._get_any_name(_CWMS_INTERVALS, matcher, exception_on_not_found)
+
+    @staticmethod
+    def get_any_dss(
+        matcher: Callable[["Interval"], bool],
+        exception_on_not_found: Optional[bool] = None,
+    ) -> Optional["Interval"]:
+        """
+        Retuns a matched `Interval` object in the DSS context, or None if there is no such object
+
+        Args:
+            matcher (Callable[[Interval], bool]): A function that returns True or False when passed an `Interval` object parameter.<br>
+                Examples:
+                - `lambda i : i.is_irregular`
+                - `lambda i : i.minutes < 60`
+                - `lambda i : i.name.find("Week") != -1`
+            exception_on_not_found (bool): Specifies whether to raise an exception if no Intervals are found. If None, the default
+                behavior is used. Optional. Defaults to None. See [set_default_exception_on_not_found](#Interval.set_default_exception_on_not_found) and
+                [get_default_exception_on_not_found](#Interval.get_default_exception_on_not_found)
+
+        Returns:
+            Optional[Interval]: A matched `Interval` object or None
+        """
+        return Interval._get_any(_DSS_INTERVALS, matcher, exception_on_not_found)
+
+    @staticmethod
+    def get_any_dss_block(
+        matcher: Callable[["Interval"], bool],
+        exception_on_not_found: Optional[bool] = None,
+    ) -> Optional["Interval"]:
+        """
+        Retuns a matched `Interval` object in the DSS block size context, or None if there is no such object
+
+        Args:
+            matcher (Callable[[Interval], bool]): A function that returns True or False when passed an `Interval` object parameter.<br>
+                Examples:
+                - `lambda i : i.is_irregular`
+                - `lambda i : i.minutes < 60`
+                - `lambda i : i.name.find("Week") != -1`
+            exception_on_not_found (bool): Specifies whether to raise an exception if no Intervals are found. If None, the default
+                behavior is used. Optional. Defaults to None. See [set_default_exception_on_not_found](#Interval.set_default_exception_on_not_found) and
+                [get_default_exception_on_not_found](#Interval.get_default_exception_on_not_found)
+
+        Returns:
+            Optional[Interval]: A matched `Interval` object or None
+        """
+        return Interval._get_any(_DSS_BLOCK_SIZES, matcher, exception_on_not_found)
+
+    @staticmethod
+    def get_any_dss_block_name(
+        matcher: Callable[["Interval"], bool],
+        exception_on_not_found: Optional[bool] = None,
+    ) -> Optional[str]:
+        """
+        Retuns the name of a matched `Interval` object in the DSS block size context, or None if there is no such object
+
+        Args:
+            matcher (Callable[[Interval], bool]): A function that returns True or False when passed an `Interval` object parameter.<br>
+                Examples:
+                - `lambda i : i.is_irregular`
+                - `lambda i : i.minutes < 60`
+                - `lambda i : i.name.find("Week") != -1`
+            exception_on_not_found (bool): Specifies whether to raise an exception if no Intervals are found. If None, the default
+                behavior is used. Optional. Defaults to None. See [set_default_exception_on_not_found](#Interval.set_default_exception_on_not_found) and
+                [get_default_exception_on_not_found](#Interval.get_default_exception_on_not_found)
+
+        Returns:
+            Optional[str]: The name of a matched `Interval` object or None
+        """
+        return Interval._get_any_name(_DSS_BLOCK_SIZES, matcher, exception_on_not_found)
+
+    @staticmethod
+    def get_any_dss_name(
+        matcher: Callable[["Interval"], bool],
+        exception_on_not_found: Optional[bool] = None,
+    ) -> Optional[str]:
+        """
+        Retuns the name of a matched `Interval` object in the DSS context, or None if there is no such object
+
+        Args:
+            matcher (Callable[[Interval], bool]): A function that returns True or False when passed an `Interval` object parameter.<br>
+                Examples:
+                - `lambda i : i.is_irregular`
+                - `lambda i : i.minutes < 60`
+                - `lambda i : i.name.find("Week") != -1`
+            exception_on_not_found (bool): Specifies whether to raise an exception if no Intervals are found. If None, the default
+                behavior is used. Optional. Defaults to None. See [set_default_exception_on_not_found](#Interval.set_default_exception_on_not_found) and
+                [get_default_exception_on_not_found](#Interval.get_default_exception_on_not_found)
+
+        Returns:
+            Optional[str]: The name of a matched `Interval` object or None
+        """
+        return Interval._get_any_name(_DSS_INTERVALS, matcher, exception_on_not_found)
+
+    @staticmethod
+    def get_any_name(
+        matcher: Callable[["Interval"], bool],
+        exception_on_not_found: Optional[bool] = None,
+    ) -> Optional[str]:
+        """
+        Retuns the name of a matched `Interval` object in the any context, or None if there is no such object
+
+        Args:
+            matcher (Callable[[Interval], bool]): A function that returns True or False when passed an `Interval` object parameter.<br>
+                Examples:
+                - `lambda i : i.is_irregular`
+                - `lambda i : i.minutes < 60`
+                - `lambda i : i.name.find("Week") != -1`
+            exception_on_not_found (bool): Specifies whether to raise an exception if no Intervals are found. If None, the default
+                behavior is used. Optional. Defaults to None. See [set_default_excpetion_on_not_found](#Interval.set_default_exception_on_not_found) and
+                [get_default_exception_on_not_found](#Interval.get_default_exception_on_not_found)
+
+        Returns:
+            Optional[str]: The name of a matched `Interval` object or None
+        """
+        for intervals in (_CWMS_INTERVALS, _DSS_INTERVALS, _DSS_BLOCK_SIZES):
+            i = Interval._get_any_name(intervals, matcher, exception_on_not_found)
+            if i:
+                break
+        return i
+
+    @staticmethod
+    def get_cwms(key: Union[str, int]) -> "Interval":
+        """
+        Returns a CWMS interval with the specified name or minutes
+
+        Args:
+            key (Union[str, int]): The name or (actual or characteristic) minutes of the interval to retrieve.
+
+        Raises:
+            IntervalException: if no CWMS interval exists with the specified key
+            TypeError: If the key is not a string or integer
+
+        Returns:
+            Interval: The CWMS interval
+        """
+        intvl: Optional[Interval] = None
+        if isinstance(key, str):
+            intvl = Interval.get_any_cwms(lambda i: i.name == key.title(), False)
+            if intvl is None:
+                raise IntervalException(f'No CWMS interval found with name = "{key}"')
+        elif isinstance(key, int):
+            intvl = Interval.get_any_cwms(lambda i: i.minutes == key, False)
+            if intvl is None:
+                raise IntervalException(f"No CWMS interval found with minutes = {key}")
+        else:
+            raise TypeError(f"Expected string or integer, got {key.__class__.__name__}")
+        return intvl
+
+    @staticmethod
+    def get_default_exception_on_not_found() -> bool:
+        """
+        Retrieves the default behavior if any of the get... methods do not find an Interval object to return.
+
+        Returns:
+            bool: True if the default behavior is to raise an exception when no Interval is found or False
+                if None is returned when no Interval is found
+        """
+        return Interval._default_exception_on_not_found
+
+    @staticmethod
+    def get_dss(key: Union[str, int]) -> "Interval":
+        """
+        Returns an HEC-DSS interval with the specified name or minutes
+
+        Args:
+            key (Union[str, int]): The name or (actual or characteristic) minutes of the interval to retrieve.
+
+        Raises:
+            IntervalException: if no Dss interval exists with the specified key
+            TypeError: If the key is not a string or integer
+
+        Returns:
+            Interval: The Dss interval
+        """
+        intvl: Optional[Interval] = None
+        if isinstance(key, str):
+            intvl = Interval.get_any_dss(lambda i: i.name == key.title(), False)
+            if intvl is None:
+                raise IntervalException(
+                    f'No HEC-DSS interval found with name = "{key}"'
+                )
+        elif isinstance(key, int):
+            intvl = Interval.get_any_dss(lambda i: i.minutes == key, False)
+            if intvl is None:
+                raise IntervalException(
+                    f"No HEC-DSS interval found with minutes = {key}"
+                )
+        else:
+            raise TypeError(f"Expected string or integer, got {key.__class__.__name__}")
+        return intvl
+
+    @staticmethod
+    def set_default_exception_on_not_found(state: bool) -> None:
+        """
+        Sets the default behavior if any of the get... methods do not find an Interval object to return.
+
+        Args:
+            state (bool): Whether to raise an exception if no Interval is found (True) or return None (False)
+        """
+        Interval._default_exception_on_not_found = state
+
+    @staticmethod
+    def get_all(
+        matcher: Optional[Callable[["Interval"], bool]] = None,
+        exception_on_not_found: Optional[bool] = None,
+    ) -> list["Interval"]:
+        """
+        Retuns list of matched `Interval` objects in the any context
+
+        Args:
+            matcher (Optional[Callable[[Interval], bool]]): A function that returns True or False when passed an `Interval` object parameter. Defaults to None.
+                If None, all `Interval` objects in all contexts are matched.<br>
+                Examples:
+                - `lambda i : i.is_irregular`
+                - `lambda i : i.minutes < 60`
+                - `lambda i : i.name.find("Week") != -1`
+
+        Returns:
+            List[Interval]: A list of matched `Interval` objects (may be empty)
+        """
+        return Interval._get_all(
+            _CWMS_INTERVALS + _DSS_INTERVALS + _DSS_BLOCK_SIZES,
+            matcher,
+            exception_on_not_found,
+        )
+
+    @staticmethod
+    def get_all_cwms(
+        matcher: Optional[Callable[["Interval"], bool]] = None,
+        exception_on_not_found: Optional[bool] = None,
+    ) -> list["Interval"]:
+        """
+        Retuns list of matched `Interval` objects in the CWMS context
+
+        Args:
+            matcher (Optional[Callable[[Interval], bool]]): A function that returns True or False when passed an `Interval` object parameter. Defaults to None.
+                If None, all `Interval` objects in the context are matched.<br>
+                Examples:
+                - `lambda i : i.is_irregular`
+                - `lambda i : i.minutes < 60`
+                - `lambda i : i.name.find("Week") != -1`
+            exception_on_not_found (bool): Specifies whether to raise an exception if no Intervals are found. If None, the default
+                behavior is used. Optional. Defaults to None. See [set_default_exception_on_not_found](#Interval.set_default_exception_on_not_found) and
+                [get_default_exception_on_not_found](#Interval.get_default_exception_on_not_found)
+
+        Returns:
+            List[Interval]: A list of matched `Interval` objects (may be empty)
+        """
+        return Interval._get_all(_CWMS_INTERVALS, matcher, exception_on_not_found)
+
+    @staticmethod
+    def get_all_cwms_names(
+        matcher: Optional[Callable[["Interval"], bool]] = None,
+        exception_on_not_found: Optional[bool] = None,
+    ) -> list[str]:
+        """
+        Retuns list of names of matched `Interval` objects in the CWMS context
+
+        Args:
+            matcher (Optional[Callable[[Interval], bool]]): A function that returns True or False when passed an `Interval` object parameter. Defaults to None.
+                If None, all `Interval` objects in the context are matched.<br>
+                Examples:
+                - `lambda i : i.is_irregular`
+                - `lambda i : i.minutes < 60`
+                - `lambda i : i.name.find("Week") != -1`
+            exception_on_not_found (bool): Specifies whether to raise an exception if no Intervals are found. If None, the default
+                behavior is used. Optional. Defaults to None. See [set_default_exception_on_not_found](#Interval.set_default_exception_on_not_found) and
+                [get_default_exception_on_not_found](#Interval.get_default_exception_on_not_found)
+
+        Returns:
+            List[str]: A list of names of matched `Interval` objects (may be empty)
+        """
+        return list(
+            dict.fromkeys(
+                Interval._get_all_names(
+                    _CWMS_INTERVALS, matcher, exception_on_not_found
+                )
+            )
+        )
+
+    @staticmethod
+    def get_all_dss(
+        matcher: Optional[Callable[["Interval"], bool]] = None,
+        exception_on_not_found: Optional[bool] = None,
+    ) -> list["Interval"]:
+        """
+        Retuns list of matched `Interval` objects in the DSS context
+
+        Args:
+            matcher (Optional[Callable[[Interval], bool]]): A function that returns True or False when passed an `Interval` object parameter. Defaults to None.
+                If None, all `Interval` objects in the context are matched.<br>
+                Examples:
+                - `lambda i : i.is_irregular`
+                - `lambda i : i.minutes < 60`
+                - `lambda i : i.name.find("Week") != -1`
+            exception_on_not_found (bool): Specifies whether to raise an exception if no Intervals are found. If None, the default
+                behavior is used. Optional. Defaults to None. See [set_default_exception_on_not_found](#Interval.set_default_exception_on_not_found) and
+                [get_default_exception_on_not_found](#Interval.get_default_exception_on_not_found)
+
+        Returns:
+            List[Interval]: A list of matched `Interval` objects (may be empty)
+        """
+        return Interval._get_all(_DSS_INTERVALS, matcher, exception_on_not_found)
+
+    @staticmethod
+    def get_all_dss_block_names(
+        matcher: Optional[Callable[["Interval"], bool]] = None,
+        exception_on_not_found: Optional[bool] = None,
+    ) -> list[str]:
+        """
+        Retuns list of names of matched `Interval` objects in the DSS block size context
+
+        Args:
+            matcher (Optional[Callable[[Interval], bool]]): A function that returns True or False when passed an `Interval` object parameter. Defaults to None.
+                If None, all `Interval` objects in the context are matched.<br>
+                Examples:
+                - `lambda i : i.is_irregular`
+                - `lambda i : i.minutes < 60`
+                - `lambda i : i.name.find("Week") != -1`
+            exception_on_not_found (bool): Specifies whether to raise an exception if no Intervals are found. If None, the default
+                behavior is used. Optional. Defaults to None. See [set_default_exception_on_not_found](#Interval.set_default_exception_on_not_found) and
+                [get_default_exception_on_not_found](#Interval.get_default_exception_on_not_found)
+
+        Returns:
+            List[str]: A list of names of matched `Interval` objects (may be empty)
+        """
+        return Interval._get_all_names(
+            _DSS_BLOCK_SIZES, matcher, exception_on_not_found
+        )
+
+    @staticmethod
+    def get_all_dss_blocks(
+        matcher: Optional[Callable[["Interval"], bool]] = None,
+        exception_on_not_found: Optional[bool] = None,
+    ) -> list["Interval"]:
+        """
+        Retuns list of matched `Interval` objects in the DSS block size context
+
+        Args:
+            matcher (Optional[Callable[[Interval], bool]]): A function that returns True or False when passed an `Interval` object parameter. Defaults to None.
+                If None, all `Interval` objects in the context are matched.<br>
+                Examples:
+                - `lambda i : i.is_irregular`
+                - `lambda i : i.minutes < 60`
+                - `lambda i : i.name.find("Week") != -1`
+            exception_on_not_found (bool): Specifies whether to raise an exception if no Intervals are found. If None, the default
+                behavior is used. Optional. Defaults to None. See [set_default_exception_on_not_found](#Interval.set_default_exception_on_not_found) and
+                [get_default_exception_on_not_found](#Interval.get_default_exception_on_not_found)
+
+        Returns:
+            List[Interval]: A list of matched `Interval` objects (may be empty)
+        """
+        return Interval._get_all(_DSS_BLOCK_SIZES, matcher, exception_on_not_found)
+
+    @staticmethod
+    def get_all_dss_names(
+        matcher: Optional[Callable[["Interval"], bool]] = None,
+        exception_on_not_found: Optional[bool] = None,
+    ) -> list[str]:
+        """
+        Retuns list of names of matched `Interval` objects in the DSS context
+
+        Args:
+            matcher (Optional[Callable[[Interval], bool]]): A function that returns True or False when passed an `Interval` object parameter. Defaults to None.
+                If None, all `Interval` objects in the context are matched.<br>
+                Examples:
+                - `lambda i : i.is_irregular`
+                - `lambda i : i.minutes < 60`
+                - `lambda i : i.name.find("Week") != -1`
+            exception_on_not_found (bool): Specifies whether to raise an exception if no Intervals are found. If None, the default
+                behavior is used. Optional. Defaults to None. See [set_default_exception_on_not_found](#Interval.set_default_exception_on_not_found) and
+                [get_default_exception_on_not_found](#Interval.get_default_exception_on_not_found)
+
+        Returns:
+            List[str]: A list of names of matched `Interval` objects (may be empty)
+        """
+        return Interval._get_all_names(_DSS_INTERVALS, matcher, exception_on_not_found)
+
+    @staticmethod
+    def get_all_names(
+        matcher: Optional[Callable[["Interval"], bool]] = None,
+        exception_on_not_found: Optional[bool] = None,
+    ) -> list[str]:
+        """
+        Retuns list of names of matched `Interval` objects in the any context
+
+        Args:
+            matcher (Optional[Callable[[Interval], bool]]): A function that returns True or False when passed an `Interval` object parameter. Defaults to None.
+                If None, all `Interval` objects in all contexts are matched.<br>
+                Examples:
+                - `lambda i : i.is_irregular`
+                - `lambda i : i.minutes < 60`
+                - `lambda i : i.name.find("Week") != -1`
+
+        Returns:
+            List[str]: A list of names of matched `Interval` objects (may be empty)
+        """
+        return list(
+            dict.fromkeys(
+                Interval._get_all_names(
+                    _CWMS_INTERVALS + _DSS_INTERVALS + _DSS_BLOCK_SIZES,
+                    matcher,
+                    exception_on_not_found,
+                )
+            )
+        )
+
+    @property
+    def context(self) -> str:
+        """
+        The context of this object ("Cwms", "Dss", or "DssBlock")
+
+        Operations:
+            Read-only
+        """
+        return self._context
+
+    @property
+    def is_any_irregular(self) -> bool:
+        """
+        Whether this object represents a normal irregular or pseudo-regular interval
+
+        Operations:
+            Read-only
+        """
+        return self.values == [0, 0, 0, 0, 0, 0]
+
+    @property
+    def is_any_regular(self) -> bool:
+        """
+        Whether this object represents a regular or local regular interval
+
+        Operations:
+            Read-only
+        """
+        return self.is_regular or self.is_local_regular
+
+    @property
+    def is_local_regular(self) -> bool:
+        """
+        Whether this object represents a local regular interval
+
+        Operations:
+            Read-only
+        """
+        if _new_local_regular_names:
+            return self.values != [0, 0, 0, 0, 0, 0] and self.name.endswith("Local")
+        else:
+            return self.values != [0, 0, 0, 0, 0, 0] and self.name[0] == "~"
+
+    @property
+    def is_pseudo_regular(self) -> bool:
+        """
+        Whether this object represents a pseudo-regular interval
+
+        Operations:
+            Read-only
+        """
+        return self.values == [0, 0, 0, 0, 0, 0] and self.name[0] == "~"
+
+    @property
+    def is_regular(self) -> bool:
+        """
+        Whether this object represents a normal regular interval
+
+        Operations:
+            Read-only
+        """
+        if _new_local_regular_names:
+            return self.values != [0, 0, 0, 0, 0, 0] and not self.name.endswith("Local")
+        else:
+            return self.values != [0, 0, 0, 0, 0, 0] and self.name[0] != "~"
+
+    @property
+    def is_irregular(self) -> bool:
+        """
+        Whether this object represents a normal irregular interval
+
+        Operations:
+            Read-only
+        """
+        return self.values == [0, 0, 0, 0, 0, 0] and self.name[0] != "~"
 
     @property
     def minutes(self) -> int:
@@ -979,82 +1059,6 @@ class Interval(TimeSpan):
             Read-only
         """
         return self._name
-
-    @property
-    def context(self) -> str:
-        """
-        The context of this object ("Cwms", "Dss", or "DssBlock")
-
-        Operations:
-            Read-only
-        """
-        return self._context
-
-    @property
-    def is_regular(self) -> bool:
-        """
-        Whether this object represents a normal regular interval
-
-        Operations:
-            Read-only
-        """
-        if _new_local_regular_names:
-            return self.values != [0, 0, 0, 0, 0, 0] and not self.name.endswith("Local")
-        else:
-            return self.values != [0, 0, 0, 0, 0, 0] and self.name[0] != "~"
-
-    @property
-    def is_local_regular(self) -> bool:
-        """
-        Whether this object represents a local regular interval
-
-        Operations:
-            Read-only
-        """
-        if _new_local_regular_names:
-            return self.values != [0, 0, 0, 0, 0, 0] and self.name.endswith("Local")
-        else:
-            return self.values != [0, 0, 0, 0, 0, 0] and self.name[0] == "~"
-
-    @property
-    def is_any_regular(self) -> bool:
-        """
-        Whether this object represents a regular or local regular interval
-
-        Operations:
-            Read-only
-        """
-        return self.is_regular or self.is_local_regular
-
-    @property
-    def is_irregular(self) -> bool:
-        """
-        Whether this object represents a normal irregular interval
-
-        Operations:
-            Read-only
-        """
-        return self.values == [0, 0, 0, 0, 0, 0] and self.name[0] != "~"
-
-    @property
-    def is_pseudo_regular(self) -> bool:
-        """
-        Whether this object represents a pseudo-regular interval
-
-        Operations:
-            Read-only
-        """
-        return self.values == [0, 0, 0, 0, 0, 0] and self.name[0] == "~"
-
-    @property
-    def is_any_irregular(self) -> bool:
-        """
-        Whether this object represents a normal irregular or pseudo-regular interval
-
-        Operations:
-            Read-only
-        """
-        return self.values == [0, 0, 0, 0, 0, 0]
 
 
 _CWMS_INTERVALS = [

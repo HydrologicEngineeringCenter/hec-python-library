@@ -2,8 +2,7 @@ from test.shared import dataset_from_file
 
 import pytest
 
-from hec import quality
-from hec.quality import Quality
+from hec import Quality, quality
 
 
 # ------------------------------------------------ #
@@ -88,24 +87,24 @@ def test_misc() -> None:
     assert q.test_failed_id == "USER_DEFINED+DISTRIBUTION"
     assert q.protection_id == "PROTECTED"
 
-    q.addTestFailed("RATE_OF_CHANGE")
+    q.add_test_failed("RATE_OF_CHANGE")
     assert q.test_failed_id == "RATE_OF_CHANGE+USER_DEFINED+DISTRIBUTION"
 
-    q.removeTestFailed("USER_DEFINED")
+    q.remove_test_failed("USER_DEFINED")
     assert q.test_failed_id == "RATE_OF_CHANGE+DISTRIBUTION"
 
     q = (
         Quality()
-        .setScreened("screened")
-        .setValidity("questionable")
-        .setRange("range_3")
-        .setChanged("modified")
-        .setReplCause("automatic")
-        .setReplMethod("lin_interp")
-        .setTestFailed("distribution user_defined")
-        .setProtection("protected")
-        .addTestFailed("rate_of_change")
-        .removeTestFailed("user_defined")
+        .set_screened("screened")
+        .set_validity("questionable")
+        .set_range("range_3")
+        .set_changed("modified")
+        .set_repl_cause("automatic")
+        .set_repl_method("lin_interp")
+        .set_test_failed("distribution user_defined")
+        .set_protection("protected")
+        .add_test_failed("rate_of_change")
+        .remove_test_failed("user_defined")
     )
 
     assert q.screened_id == "SCREENED"

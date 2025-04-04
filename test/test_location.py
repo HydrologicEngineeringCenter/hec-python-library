@@ -10,7 +10,7 @@ if not _import_dir in sys.path:
 
 import pytest
 
-from hec.location import Location
+from hec import Location
 
 
 def test_without_name() -> None:

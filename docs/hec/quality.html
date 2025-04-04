@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="generator" content="pdoc 15.0.0"/>
+    <meta name="generator" content="pdoc 15.0.1"/>
     <title>hec.quality API documentation</title>
 
     <style>/*! * Bootstrap Reboot v5.0.0 (https://getbootstrap.com/) * Copyright 2011-2021 The Bootstrap Authors * Copyright 2011-2021 Twitter, Inc. * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE) * Forked from Normalize.css, licensed MIT (https://github.com/necolas/normalize.css/blob/master/LICENSE.md) */*,::after,::before{box-sizing:border-box}@media (prefers-reduced-motion:no-preference){:root{scroll-behavior:smooth}}body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans","Liberation Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";font-size:1rem;font-weight:400;line-height:1.5;color:#212529;background-color:#fff;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}hr{margin:1rem 0;color:inherit;background-color:currentColor;border:0;opacity:.25}hr:not([size]){height:1px}h1,h2,h3,h4,h5,h6{margin-top:0;margin-bottom:.5rem;font-weight:500;line-height:1.2}h1{font-size:calc(1.375rem + 1.5vw)}@media (min-width:1200px){h1{font-size:2.5rem}}h2{font-size:calc(1.325rem + .9vw)}@media (min-width:1200px){h2{font-size:2rem}}h3{font-size:calc(1.3rem + .6vw)}@media (min-width:1200px){h3{font-size:1.75rem}}h4{font-size:calc(1.275rem + .3vw)}@media (min-width:1200px){h4{font-size:1.5rem}}h5{font-size:1.25rem}h6{font-size:1rem}p{margin-top:0;margin-bottom:1rem}abbr[data-bs-original-title],abbr[title]{-webkit-text-decoration:underline dotted;text-decoration:underline dotted;cursor:help;-webkit-text-decoration-skip-ink:none;text-decoration-skip-ink:none}address{margin-bottom:1rem;font-style:normal;line-height:inherit}ol,ul{padding-left:2rem}dl,ol,ul{margin-top:0;margin-bottom:1rem}ol ol,ol ul,ul ol,ul ul{margin-bottom:0}dt{font-weight:700}dd{margin-bottom:.5rem;margin-left:0}blockquote{margin:0 0 1rem}b,strong{font-weight:bolder}small{font-size:.875em}mark{padding:.2em;background-color:#fcf8e3}sub,sup{position:relative;font-size:.75em;line-height:0;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}a{color:#0d6efd;text-decoration:underline}a:hover{color:#0a58ca}a:not([href]):not([class]),a:not([href]):not([class]):hover{color:inherit;text-decoration:none}code,kbd,pre,samp{font-family:SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;font-size:1em;direction:ltr;unicode-bidi:bidi-override}pre{display:block;margin-top:0;margin-bottom:1rem;overflow:auto;font-size:.875em}pre code{font-size:inherit;color:inherit;word-break:normal}code{font-size:.875em;color:#d63384;word-wrap:break-word}a>code{color:inherit}kbd{padding:.2rem .4rem;font-size:.875em;color:#fff;background-color:#212529;border-radius:.2rem}kbd kbd{padding:0;font-size:1em;font-weight:700}figure{margin:0 0 1rem}img,svg{vertical-align:middle}table{caption-side:bottom;border-collapse:collapse}caption{padding-top:.5rem;padding-bottom:.5rem;color:#6c757d;text-align:left}th{text-align:inherit;text-align:-webkit-match-parent}tbody,td,tfoot,th,thead,tr{border-color:inherit;border-style:solid;border-width:0}label{display:inline-block}button{border-radius:0}button:focus:not(:focus-visible){outline:0}button,input,optgroup,select,textarea{margin:0;font-family:inherit;font-size:inherit;line-height:inherit}button,select{text-transform:none}[role=button]{cursor:pointer}select{word-wrap:normal}select:disabled{opacity:1}[list]::-webkit-calendar-picker-indicator{display:none}[type=button],[type=reset],[type=submit],button{-webkit-appearance:button}[type=button]:not(:disabled),[type=reset]:not(:disabled),[type=submit]:not(:disabled),button:not(:disabled){cursor:pointer}::-moz-focus-inner{padding:0;border-style:none}textarea{resize:vertical}fieldset{min-width:0;padding:0;margin:0;border:0}legend{float:left;width:100%;padding:0;margin-bottom:.5rem;font-size:calc(1.275rem + .3vw);line-height:inherit}@media (min-width:1200px){legend{font-size:1.5rem}}legend+*{clear:left}::-webkit-datetime-edit-day-field,::-webkit-datetime-edit-fields-wrapper,::-webkit-datetime-edit-hour-field,::-webkit-datetime-edit-minute,::-webkit-datetime-edit-month-field,::-webkit-datetime-edit-text,::-webkit-datetime-edit-year-field{padding:0}::-webkit-inner-spin-button{height:auto}[type=search]{outline-offset:-2px;-webkit-appearance:textfield}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-color-swatch-wrapper{padding:0}::file-selector-button{font:inherit}::-webkit-file-upload-button{font:inherit;-webkit-appearance:button}output{display:inline-block}iframe{border:0}summary{display:list-item;cursor:pointer}progress{vertical-align:baseline}[hidden]{display:none!important}</style>
@@ -31,25 +31,22 @@
             <h2>API Documentation</h2>
                 <ul class="memberlist">
             <li>
-                    <a class="class" href="#QualityException">QualityException</a>
-                            <ul class="memberlist">
-                </ul>
-
+                    <a class="function" href="#changed_id">changed_id</a>
+            </li>
+            <li>
+                    <a class="function" href="#get_code_ids">get_code_ids</a>
+            </li>
+            <li>
+                    <a class="function" href="#get_component_codes">get_component_codes</a>
             </li>
             <li>
                     <a class="function" href="#normalize_quality_code">normalize_quality_code</a>
             </li>
             <li>
-                    <a class="function" href="#screened_id">screened_id</a>
-            </li>
-            <li>
-                    <a class="function" href="#validity_id">validity_id</a>
+                    <a class="function" href="#protection_id">protection_id</a>
             </li>
             <li>
                     <a class="function" href="#range_id">range_id</a>
-            </li>
-            <li>
-                    <a class="function" href="#changed_id">changed_id</a>
             </li>
             <li>
                     <a class="function" href="#repl_cause_id">repl_cause_id</a>
@@ -58,28 +55,16 @@
                     <a class="function" href="#repl_method_id">repl_method_id</a>
             </li>
             <li>
-                    <a class="function" href="#test_failed_id">test_failed_id</a>
-            </li>
-            <li>
-                    <a class="function" href="#protection_id">protection_id</a>
-            </li>
-            <li>
-                    <a class="function" href="#get_component_codes">get_component_codes</a>
-            </li>
-            <li>
-                    <a class="function" href="#get_code_ids">get_code_ids</a>
-            </li>
-            <li>
-                    <a class="function" href="#set_screened_code">set_screened_code</a>
-            </li>
-            <li>
-                    <a class="function" href="#set_validity_code">set_validity_code</a>
-            </li>
-            <li>
-                    <a class="function" href="#set_range_code">set_range_code</a>
+                    <a class="function" href="#screened_id">screened_id</a>
             </li>
             <li>
                     <a class="function" href="#set_changed_code">set_changed_code</a>
+            </li>
+            <li>
+                    <a class="function" href="#set_protection_code">set_protection_code</a>
+            </li>
+            <li>
+                    <a class="function" href="#set_range_code">set_range_code</a>
             </li>
             <li>
                     <a class="function" href="#set_repl_cause_code">set_repl_cause_code</a>
@@ -88,10 +73,19 @@
                     <a class="function" href="#set_repl_method_code">set_repl_method_code</a>
             </li>
             <li>
+                    <a class="function" href="#set_screened_code">set_screened_code</a>
+            </li>
+            <li>
                     <a class="function" href="#set_test_failed_code">set_test_failed_code</a>
             </li>
             <li>
-                    <a class="function" href="#set_protection_code">set_protection_code</a>
+                    <a class="function" href="#set_validity_code">set_validity_code</a>
+            </li>
+            <li>
+                    <a class="function" href="#test_failed_id">test_failed_id</a>
+            </li>
+            <li>
+                    <a class="function" href="#validity_id">validity_id</a>
             </li>
             <li>
                     <a class="class" href="#Quality">Quality</a>
@@ -100,37 +94,22 @@
                                 <a class="function" href="#Quality.__init__">Quality</a>
                         </li>
                         <li>
-                                <a class="function" href="#Quality.setReturnSignedCodes">setReturnSignedCodes</a>
+                                <a class="function" href="#Quality.add_test_failed">add_test_failed</a>
                         </li>
                         <li>
-                                <a class="function" href="#Quality.setReturnUnsignedCodes">setReturnUnsignedCodes</a>
+                                <a class="variable" href="#Quality.changed">changed</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Quality.changed_id">changed_id</a>
                         </li>
                         <li>
                                 <a class="variable" href="#Quality.code">code</a>
                         </li>
                         <li>
-                                <a class="variable" href="#Quality.signed">signed</a>
+                                <a class="variable" href="#Quality.protection">protection</a>
                         </li>
                         <li>
-                                <a class="variable" href="#Quality.unsigned">unsigned</a>
-                        </li>
-                        <li>
-                                <a class="variable" href="#Quality.text">text</a>
-                        </li>
-                        <li>
-                                <a class="variable" href="#Quality.symbol">symbol</a>
-                        </li>
-                        <li>
-                                <a class="variable" href="#Quality.screened">screened</a>
-                        </li>
-                        <li>
-                                <a class="variable" href="#Quality.screened_id">screened_id</a>
-                        </li>
-                        <li>
-                                <a class="variable" href="#Quality.validity">validity</a>
-                        </li>
-                        <li>
-                                <a class="variable" href="#Quality.validity_id">validity_id</a>
+                                <a class="variable" href="#Quality.protection_id">protection_id</a>
                         </li>
                         <li>
                                 <a class="variable" href="#Quality.range">range</a>
@@ -139,10 +118,7 @@
                                 <a class="variable" href="#Quality.range_id">range_id</a>
                         </li>
                         <li>
-                                <a class="variable" href="#Quality.changed">changed</a>
-                        </li>
-                        <li>
-                                <a class="variable" href="#Quality.changed_id">changed_id</a>
+                                <a class="function" href="#Quality.remove_test_failed">remove_test_failed</a>
                         </li>
                         <li>
                                 <a class="variable" href="#Quality.repl_cause">repl_cause</a>
@@ -160,47 +136,71 @@
                                 <a class="variable" href="#Quality.score">score</a>
                         </li>
                         <li>
+                                <a class="variable" href="#Quality.screened">screened</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Quality.screened_id">screened_id</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Quality.set_changed">set_changed</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Quality.set_protection">set_protection</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Quality.set_range">set_range</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Quality.set_repl_cause">set_repl_cause</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Quality.set_repl_method">set_repl_method</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Quality.set_screened">set_screened</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Quality.set_test_failed">set_test_failed</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Quality.set_validity">set_validity</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Quality.set_return_signed_codes">set_return_signed_codes</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Quality.set_return_unsigned_codes">set_return_unsigned_codes</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Quality.signed">signed</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Quality.symbol">symbol</a>
+                        </li>
+                        <li>
                                 <a class="variable" href="#Quality.test_failed">test_failed</a>
                         </li>
                         <li>
                                 <a class="variable" href="#Quality.test_failed_id">test_failed_id</a>
                         </li>
                         <li>
-                                <a class="variable" href="#Quality.protection">protection</a>
+                                <a class="variable" href="#Quality.text">text</a>
                         </li>
                         <li>
-                                <a class="variable" href="#Quality.protection_id">protection_id</a>
+                                <a class="variable" href="#Quality.unsigned">unsigned</a>
                         </li>
                         <li>
-                                <a class="function" href="#Quality.setScreened">setScreened</a>
+                                <a class="variable" href="#Quality.validity">validity</a>
                         </li>
                         <li>
-                                <a class="function" href="#Quality.setValidity">setValidity</a>
+                                <a class="variable" href="#Quality.validity_id">validity_id</a>
                         </li>
-                        <li>
-                                <a class="function" href="#Quality.setRange">setRange</a>
-                        </li>
-                        <li>
-                                <a class="function" href="#Quality.setChanged">setChanged</a>
-                        </li>
-                        <li>
-                                <a class="function" href="#Quality.setReplCause">setReplCause</a>
-                        </li>
-                        <li>
-                                <a class="function" href="#Quality.setReplMethod">setReplMethod</a>
-                        </li>
-                        <li>
-                                <a class="function" href="#Quality.setTestFailed">setTestFailed</a>
-                        </li>
-                        <li>
-                                <a class="function" href="#Quality.setProtection">setProtection</a>
-                        </li>
-                        <li>
-                                <a class="function" href="#Quality.addTestFailed">addTestFailed</a>
-                        </li>
-                        <li>
-                                <a class="function" href="#Quality.removeTestFailed">removeTestFailed</a>
-                        </li>
+                </ul>
+
+            </li>
+            <li>
+                    <a class="class" href="#QualityException">QualityException</a>
+                            <ul class="memberlist">
                 </ul>
 
             </li>
@@ -268,17 +268,125 @@
                 
                 
             </section>
-                <section id="QualityException">
-                    <div class="attr class">
+                <section id="changed_id">
+                    <div class="attr function">
             
-    <span class="def">class</span>
-    <span class="name">QualityException</span><wbr>(<span class="base">builtins.Exception</span>):
+        <span class="def">def</span>
+        <span class="name">changed_id</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">code</span><span class="p">:</span> <span class="nb">int</span></span><span class="return-annotation">) -> <span class="nb">str</span>:</span></span>
 
         
     </div>
-    <a class="headerlink" href="#QualityException"></a>
+    <a class="headerlink" href="#changed_id"></a>
     
-            <div class="docstring"><p>Common base class for all non-exit exceptions.</p>
+            <div class="docstring"><p>Returns the text identifier for a valid changed code.</p>
+
+<p>This code is encoded in the quality code in bit 7 of 32 as diagrammed in the <a href="#bit-mapping">bit-mapping</a></p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>code (int):</strong>  Must be 0 or 1</li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>str: One of the following identifiers:</p>
+  
+  <p><table>
+<tr><th>code</th><th>returns</th></tr>
+<tr><td>0</td><td>ORIGINAL</td></tr>
+<tr><td>1</td><td>MODIFIED</td></tr>
+</table></p>
+</blockquote>
+</div>
+
+
+                </section>
+                <section id="get_code_ids">
+                    <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">get_code_ids</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">code</span><span class="p">:</span> <span class="nb">int</span></span><span class="return-annotation">) -> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#get_code_ids"></a>
+    
+            <div class="docstring"><p>Returns a list of identifiers for the component codes in a quality code</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>code (int):</strong>  The quality code to return the component code identifiers for</li>
+</ul>
+
+<h6 id="raises">Raises:</h6>
+
+<ul>
+<li><strong>QualityException:</strong>  If the quality code is not valid according the the <a href="#quality-code-rules">quality code rules</a></li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>tuple[int, ...]: A tuple containing the following code identifiers in the order specified:</p>
+  
+  <ul>
+  <li>screened</li>
+  <li>validity</li>
+  <li>range</li>
+  <li>changed</li>
+  <li>replacement cause</li>
+  <li>replacement method</li>
+  <li>test failed</li>
+  <li>protection</li>
+  </ul>
+</blockquote>
+</div>
+
+
+                </section>
+                <section id="get_component_codes">
+                    <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">get_component_codes</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">code</span><span class="p">:</span> <span class="nb">int</span></span><span class="return-annotation">) -> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#get_component_codes"></a>
+    
+            <div class="docstring"><p>Returns a tuple of component codes in a quality code</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>code (int):</strong>  The quality code to return the component codes for</li>
+</ul>
+
+<h6 id="raises">Raises:</h6>
+
+<ul>
+<li><strong>QualityException:</strong>  If the quality code is not valid according the the <a href="#quality-code-rules">quality code rules</a></li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>tuple[int, ...]: A tuple containing the following component codes in the order specified:</p>
+  
+  <ul>
+  <li>screened</li>
+  <li>validity</li>
+  <li>range</li>
+  <li>changed</li>
+  <li>replacement cause</li>
+  <li>replacement method</li>
+  <li>test failed</li>
+  <li>protection</li>
+  </ul>
+</blockquote>
 </div>
 
 
@@ -310,19 +418,19 @@
 
 
                 </section>
-                <section id="screened_id">
+                <section id="protection_id">
                     <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">screened_id</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">code</span><span class="p">:</span> <span class="nb">int</span></span><span class="return-annotation">) -> <span class="nb">str</span>:</span></span>
+        <span class="name">protection_id</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">code</span><span class="p">:</span> <span class="nb">int</span></span><span class="return-annotation">) -> <span class="nb">str</span>:</span></span>
 
         
     </div>
-    <a class="headerlink" href="#screened_id"></a>
+    <a class="headerlink" href="#protection_id"></a>
     
-            <div class="docstring"><p>Returns the text identifier for a valid screened code.</p>
+            <div class="docstring"><p>Returns the text identifier for a valid protection code.</p>
 
-<p>This code is encoded in the quality code in bit 0 of 32 as diagrammed in the <a href="#bit-mapping">bit-mapping</a></p>
+<p>This code is encoded in the quality code in bit 31 of 32 as diagrammed in the <a href="#bit-mapping">bit-mapping</a></p>
 
 <h6 id="arguments">Arguments:</h6>
 
@@ -337,46 +445,8 @@
   
   <p><table>
 <tr><th>code</th><th>returns</th></tr>
-<tr><td>0</td><td>UNSCREENED</td></tr>
-<tr><td>1</td><td>SCREENED</td></tr>
-</table></p>
-</blockquote>
-</div>
-
-
-                </section>
-                <section id="validity_id">
-                    <div class="attr function">
-            
-        <span class="def">def</span>
-        <span class="name">validity_id</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">code</span><span class="p">:</span> <span class="nb">int</span></span><span class="return-annotation">) -> <span class="nb">str</span>:</span></span>
-
-        
-    </div>
-    <a class="headerlink" href="#validity_id"></a>
-    
-            <div class="docstring"><p>Returns the text identifier for a valid validity code.</p>
-
-<p>This code is encoded in the quality code in bits 1-4 of 32 as diagrammed in the <a href="#bit-mapping">bit-mapping</a></p>
-
-<h6 id="arguments">Arguments:</h6>
-
-<ul>
-<li><strong>code (int):</strong>  Must be 0, 1, 2, 4, or 8</li>
-</ul>
-
-<h6 id="returns">Returns:</h6>
-
-<blockquote>
-  <p>str: One of the following identifiers:</p>
-  
-  <p><table>
-<tr><th>code</th><th>returns</th></tr>
-<tr><td>0</td><td>UNKNOWN</td></tr>
-<tr><td>1</td><td>OKAY</td></tr>
-<tr><td>2</td><td>MISSING</td></tr>
-<tr><td>4</td><td>QUESTIONABLE</td></tr>
-<tr><td>8</td><td>REJECTED</td></tr>
+<tr><td>0</td><td>UNPROTECTED</td></tr>
+<tr><td>1</td><td>PROTECTED</td></tr>
 </table></p>
 </blockquote>
 </div>
@@ -414,41 +484,6 @@
 <tr><td>1</td><td>RANGE_1</td></tr>
 <tr><td>2</td><td>RANGE_2</td></tr>
 <tr><td>3</td><td>RANGE_3</td></tr>
-</table></p>
-</blockquote>
-</div>
-
-
-                </section>
-                <section id="changed_id">
-                    <div class="attr function">
-            
-        <span class="def">def</span>
-        <span class="name">changed_id</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">code</span><span class="p">:</span> <span class="nb">int</span></span><span class="return-annotation">) -> <span class="nb">str</span>:</span></span>
-
-        
-    </div>
-    <a class="headerlink" href="#changed_id"></a>
-    
-            <div class="docstring"><p>Returns the text identifier for a valid changed code.</p>
-
-<p>This code is encoded in the quality code in bit 7 of 32 as diagrammed in the <a href="#bit-mapping">bit-mapping</a></p>
-
-<h6 id="arguments">Arguments:</h6>
-
-<ul>
-<li><strong>code (int):</strong>  Must be 0 or 1</li>
-</ul>
-
-<h6 id="returns">Returns:</h6>
-
-<blockquote>
-  <p>str: One of the following identifiers:</p>
-  
-  <p><table>
-<tr><th>code</th><th>returns</th></tr>
-<tr><td>0</td><td>ORIGINAL</td></tr>
-<tr><td>1</td><td>MODIFIED</td></tr>
 </table></p>
 </blockquote>
 </div>
@@ -531,64 +566,19 @@
 
 
                 </section>
-                <section id="test_failed_id">
+                <section id="screened_id">
                     <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">test_failed_id</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">code</span><span class="p">:</span> <span class="nb">int</span></span><span class="return-annotation">) -> <span class="nb">str</span>:</span></span>
+        <span class="name">screened_id</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">code</span><span class="p">:</span> <span class="nb">int</span></span><span class="return-annotation">) -> <span class="nb">str</span>:</span></span>
 
         
     </div>
-    <a class="headerlink" href="#test_failed_id"></a>
+    <a class="headerlink" href="#screened_id"></a>
     
-            <div class="docstring"><p>Returns the text identifier for a valid failed test code.</p>
+            <div class="docstring"><p>Returns the text identifier for a valid screened code.</p>
 
-<p>This code is encoded in the quality code in bits 15-25 of 32 as diagrammed in the <a href="#bit-mapping">bit-mapping</a>, but bits 21 and 23 are not used</p>
-
-<h6 id="arguments">Arguments:</h6>
-
-<ul>
-<li><strong>code (int):</strong>  Must be 0 or sum of 1 or more of: 1, 2, 4, 8, 16, 32, 128, 512, and 1024</li>
-<li>(maximum of one ocrrence per number). Note that values 64 and 256 are not used.</li>
-</ul>
-
-<h6 id="returns">Returns:</h6>
-
-<blockquote>
-  <p>str: One or more of the following identifiers. <code>None</code> is always returned alone; if more that one
-      identifier is returned, they will be concatenated with the <code>+</code> character into a single string.</p>
-  
-  <p><table>
-<tr><th>code</th><th>returns</th></tr>
-<tr><td>0</td><td>NONE</td></tr>
-<tr><td>1</td><td>ABSOLUTE_VALUE</td></tr>
-<tr><td>2</td><td>CONSTANT_VALUE</td></tr>
-<tr><td>4</td><td>RATE_OF_CHANGE</td></tr>
-<tr><td>8</td><td>RELATIVE_VALUE</td></tr>
-<tr><td>16</td><td>DURATION_VALUE</td></tr>
-<tr><td>32</td><td>NEG_INCREMENT</td></tr>
-<tr><td>128</td><td>SKIP_LIST</td></tr>
-<tr><td>512</td><td>USER_DEFINED</td></tr>
-<tr><td>1024</td><td>DISTRIBUTION</td></tr>
-</table></p>
-</blockquote>
-</div>
-
-
-                </section>
-                <section id="protection_id">
-                    <div class="attr function">
-            
-        <span class="def">def</span>
-        <span class="name">protection_id</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">code</span><span class="p">:</span> <span class="nb">int</span></span><span class="return-annotation">) -> <span class="nb">str</span>:</span></span>
-
-        
-    </div>
-    <a class="headerlink" href="#protection_id"></a>
-    
-            <div class="docstring"><p>Returns the text identifier for a valid protection code.</p>
-
-<p>This code is encoded in the quality code in bit 31 of 32 as diagrammed in the <a href="#bit-mapping">bit-mapping</a></p>
+<p>This code is encoded in the quality code in bit 0 of 32 as diagrammed in the <a href="#bit-mapping">bit-mapping</a></p>
 
 <h6 id="arguments">Arguments:</h6>
 
@@ -603,119 +593,31 @@
   
   <p><table>
 <tr><th>code</th><th>returns</th></tr>
-<tr><td>0</td><td>UNPROTECTED</td></tr>
-<tr><td>1</td><td>PROTECTED</td></tr>
+<tr><td>0</td><td>UNSCREENED</td></tr>
+<tr><td>1</td><td>SCREENED</td></tr>
 </table></p>
 </blockquote>
 </div>
 
 
                 </section>
-                <section id="get_component_codes">
+                <section id="set_changed_code">
                     <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">get_component_codes</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">code</span><span class="p">:</span> <span class="nb">int</span></span><span class="return-annotation">) -> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>:</span></span>
+        <span class="name">set_changed_code</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">code</span><span class="p">:</span> <span class="nb">int</span>, </span><span class="param"><span class="n">changed</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="nb">int</span>:</span></span>
 
         
     </div>
-    <a class="headerlink" href="#get_component_codes"></a>
+    <a class="headerlink" href="#set_changed_code"></a>
     
-            <div class="docstring"><p>Returns a tuple of component codes in a quality code</p>
+            <div class="docstring"><p>Encodes a changed code into a quality code</p>
 
 <h6 id="arguments">Arguments:</h6>
 
 <ul>
-<li><strong>code (int):</strong>  The quality code to return the component codes for</li>
-</ul>
-
-<h6 id="raises">Raises:</h6>
-
-<ul>
-<li><strong>QualityException:</strong>  If the quality code is not valid according the the <a href="#quality-code-rules">quality code rules</a></li>
-</ul>
-
-<h6 id="returns">Returns:</h6>
-
-<blockquote>
-  <p>tuple[int, ...]: A tuple containing the following component codes in the order specified:</p>
-  
-  <ul>
-  <li>screened</li>
-  <li>validity</li>
-  <li>range</li>
-  <li>changed</li>
-  <li>replacement cause</li>
-  <li>replacement method</li>
-  <li>test failed</li>
-  <li>protection</li>
-  </ul>
-</blockquote>
-</div>
-
-
-                </section>
-                <section id="get_code_ids">
-                    <div class="attr function">
-            
-        <span class="def">def</span>
-        <span class="name">get_code_ids</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">code</span><span class="p">:</span> <span class="nb">int</span></span><span class="return-annotation">) -> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>:</span></span>
-
-        
-    </div>
-    <a class="headerlink" href="#get_code_ids"></a>
-    
-            <div class="docstring"><p>Returns a list of identifiers for the component codes in a quality code</p>
-
-<h6 id="arguments">Arguments:</h6>
-
-<ul>
-<li><strong>code (int):</strong>  The quality code to return the component code identifiers for</li>
-</ul>
-
-<h6 id="raises">Raises:</h6>
-
-<ul>
-<li><strong>QualityException:</strong>  If the quality code is not valid according the the <a href="#quality-code-rules">quality code rules</a></li>
-</ul>
-
-<h6 id="returns">Returns:</h6>
-
-<blockquote>
-  <p>tuple[int, ...]: A tuple containing the following code identifiers in the order specified:</p>
-  
-  <ul>
-  <li>screened</li>
-  <li>validity</li>
-  <li>range</li>
-  <li>changed</li>
-  <li>replacement cause</li>
-  <li>replacement method</li>
-  <li>test failed</li>
-  <li>protection</li>
-  </ul>
-</blockquote>
-</div>
-
-
-                </section>
-                <section id="set_screened_code">
-                    <div class="attr function">
-            
-        <span class="def">def</span>
-        <span class="name">set_screened_code</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">code</span><span class="p">:</span> <span class="nb">int</span>, </span><span class="param"><span class="n">screened</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="nb">int</span>:</span></span>
-
-        
-    </div>
-    <a class="headerlink" href="#set_screened_code"></a>
-    
-            <div class="docstring"><p>Encodes a screened code into a quality code</p>
-
-<h6 id="arguments">Arguments:</h6>
-
-<ul>
-<li><strong>code (int):</strong>  The quality code to encode the screened code into</li>
-<li><strong>screened (Union[bool, int]):</strong>  The screened code</li>
+<li><strong>code (int):</strong>  The quality code to encode the changed code into</li>
+<li><strong>changed (Union[bool, int]):</strong>  The changed code</li>
 </ul>
 
 <h6 id="returns">Returns:</h6>
@@ -727,23 +629,23 @@
 
 
                 </section>
-                <section id="set_validity_code">
+                <section id="set_protection_code">
                     <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">set_validity_code</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">code</span><span class="p">:</span> <span class="nb">int</span>, </span><span class="param"><span class="n">validity</span><span class="p">:</span> <span class="nb">int</span></span><span class="return-annotation">) -> <span class="nb">int</span>:</span></span>
+        <span class="name">set_protection_code</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">code</span><span class="p">:</span> <span class="nb">int</span>, </span><span class="param"><span class="n">protection</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="nb">int</span>:</span></span>
 
         
     </div>
-    <a class="headerlink" href="#set_validity_code"></a>
+    <a class="headerlink" href="#set_protection_code"></a>
     
-            <div class="docstring"><p>Encodes a validity code into a quality code</p>
+            <div class="docstring"><p>Encodes a protection code into a quality code</p>
 
 <h6 id="arguments">Arguments:</h6>
 
 <ul>
-<li><strong>code (int):</strong>  The quality code to encode the validity code into</li>
-<li><strong>validity (Union[bool, int]):</strong>  The validity code</li>
+<li><strong>code (int):</strong>  The quality code to encode the protection code into</li>
+<li><strong>protection (Union[bool, int]):</strong>  The protection code</li>
 </ul>
 
 <h6 id="returns">Returns:</h6>
@@ -772,34 +674,6 @@
 <ul>
 <li><strong>code (int):</strong>  The quality code to encode the range code into</li>
 <li><strong>range (Union[bool, int]):</strong>  The range code</li>
-</ul>
-
-<h6 id="returns">Returns:</h6>
-
-<blockquote>
-  <p>int: The modified quality code</p>
-</blockquote>
-</div>
-
-
-                </section>
-                <section id="set_changed_code">
-                    <div class="attr function">
-            
-        <span class="def">def</span>
-        <span class="name">set_changed_code</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">code</span><span class="p">:</span> <span class="nb">int</span>, </span><span class="param"><span class="n">changed</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="nb">int</span>:</span></span>
-
-        
-    </div>
-    <a class="headerlink" href="#set_changed_code"></a>
-    
-            <div class="docstring"><p>Encodes a changed code into a quality code</p>
-
-<h6 id="arguments">Arguments:</h6>
-
-<ul>
-<li><strong>code (int):</strong>  The quality code to encode the changed code into</li>
-<li><strong>changed (Union[bool, int]):</strong>  The changed code</li>
 </ul>
 
 <h6 id="returns">Returns:</h6>
@@ -867,6 +741,34 @@
 
 
                 </section>
+                <section id="set_screened_code">
+                    <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">set_screened_code</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">code</span><span class="p">:</span> <span class="nb">int</span>, </span><span class="param"><span class="n">screened</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="nb">int</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#set_screened_code"></a>
+    
+            <div class="docstring"><p>Encodes a screened code into a quality code</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>code (int):</strong>  The quality code to encode the screened code into</li>
+<li><strong>screened (Union[bool, int]):</strong>  The screened code</li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>int: The modified quality code</p>
+</blockquote>
+</div>
+
+
+                </section>
                 <section id="set_test_failed_code">
                     <div class="attr function">
             
@@ -895,29 +797,112 @@
 
 
                 </section>
-                <section id="set_protection_code">
+                <section id="set_validity_code">
                     <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">set_protection_code</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">code</span><span class="p">:</span> <span class="nb">int</span>, </span><span class="param"><span class="n">protection</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="nb">int</span>:</span></span>
+        <span class="name">set_validity_code</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">code</span><span class="p">:</span> <span class="nb">int</span>, </span><span class="param"><span class="n">validity</span><span class="p">:</span> <span class="nb">int</span></span><span class="return-annotation">) -> <span class="nb">int</span>:</span></span>
 
         
     </div>
-    <a class="headerlink" href="#set_protection_code"></a>
+    <a class="headerlink" href="#set_validity_code"></a>
     
-            <div class="docstring"><p>Encodes a protection code into a quality code</p>
+            <div class="docstring"><p>Encodes a validity code into a quality code</p>
 
 <h6 id="arguments">Arguments:</h6>
 
 <ul>
-<li><strong>code (int):</strong>  The quality code to encode the protection code into</li>
-<li><strong>protection (Union[bool, int]):</strong>  The protection code</li>
+<li><strong>code (int):</strong>  The quality code to encode the validity code into</li>
+<li><strong>validity (Union[bool, int]):</strong>  The validity code</li>
 </ul>
 
 <h6 id="returns">Returns:</h6>
 
 <blockquote>
   <p>int: The modified quality code</p>
+</blockquote>
+</div>
+
+
+                </section>
+                <section id="test_failed_id">
+                    <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">test_failed_id</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">code</span><span class="p">:</span> <span class="nb">int</span></span><span class="return-annotation">) -> <span class="nb">str</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#test_failed_id"></a>
+    
+            <div class="docstring"><p>Returns the text identifier for a valid failed test code.</p>
+
+<p>This code is encoded in the quality code in bits 15-25 of 32 as diagrammed in the <a href="#bit-mapping">bit-mapping</a>, but bits 21 and 23 are not used</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>code (int):</strong>  Must be 0 or sum of 1 or more of: 1, 2, 4, 8, 16, 32, 128, 512, and 1024</li>
+<li>(maximum of one ocrrence per number). Note that values 64 and 256 are not used.</li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>str: One or more of the following identifiers. <code>None</code> is always returned alone; if more that one
+      identifier is returned, they will be concatenated with the <code>+</code> character into a single string.</p>
+  
+  <p><table>
+<tr><th>code</th><th>returns</th></tr>
+<tr><td>0</td><td>NONE</td></tr>
+<tr><td>1</td><td>ABSOLUTE_VALUE</td></tr>
+<tr><td>2</td><td>CONSTANT_VALUE</td></tr>
+<tr><td>4</td><td>RATE_OF_CHANGE</td></tr>
+<tr><td>8</td><td>RELATIVE_VALUE</td></tr>
+<tr><td>16</td><td>DURATION_VALUE</td></tr>
+<tr><td>32</td><td>NEG_INCREMENT</td></tr>
+<tr><td>128</td><td>SKIP_LIST</td></tr>
+<tr><td>512</td><td>USER_DEFINED</td></tr>
+<tr><td>1024</td><td>DISTRIBUTION</td></tr>
+</table></p>
+</blockquote>
+</div>
+
+
+                </section>
+                <section id="validity_id">
+                    <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">validity_id</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">code</span><span class="p">:</span> <span class="nb">int</span></span><span class="return-annotation">) -> <span class="nb">str</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#validity_id"></a>
+    
+            <div class="docstring"><p>Returns the text identifier for a valid validity code.</p>
+
+<p>This code is encoded in the quality code in bits 1-4 of 32 as diagrammed in the <a href="#bit-mapping">bit-mapping</a></p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>code (int):</strong>  Must be 0, 1, 2, 4, or 8</li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>str: One of the following identifiers:</p>
+  
+  <p><table>
+<tr><th>code</th><th>returns</th></tr>
+<tr><td>0</td><td>UNKNOWN</td></tr>
+<tr><td>1</td><td>OKAY</td></tr>
+<tr><td>2</td><td>MISSING</td></tr>
+<tr><td>4</td><td>QUESTIONABLE</td></tr>
+<tr><td>8</td><td>REJECTED</td></tr>
+</table></p>
 </blockquote>
 </div>
 
@@ -985,46 +970,67 @@ The sequence must have a mininum length of 8, in this order:
 
 
                             </div>
-                            <div id="Quality.setReturnSignedCodes" class="classattr">
+                            <div id="Quality.add_test_failed" class="classattr">
                                 <div class="attr function">
-                    <div class="decorator decorator-classmethod">@classmethod</div>
-
+            
         <span class="def">def</span>
-        <span class="name">setReturnSignedCodes</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">cls</span>, </span><span class="param"><span class="n">state</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span></span><span class="return-annotation">) -> <span class="kc">None</span>:</span></span>
+        <span class="name">add_test_failed</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="n"><a href="#Quality">Quality</a></span>:</span></span>
 
         
     </div>
-    <a class="headerlink" href="#Quality.setReturnSignedCodes"></a>
+    <a class="headerlink" href="#Quality.add_test_failed"></a>
     
-            <div class="docstring"><p>Sets the type (signed or unsigned of the <code><a href="#Quality.code">code</a></code> property)</p>
+            <div class="docstring"><p>Adds a failed test to the test failed component of this object from a code or identifier and returns the modified object</p>
 
 <h6 id="arguments">Arguments:</h6>
 
 <ul>
-<li><strong>state (bool, optional):</strong>  Sets default type to signed if true, otherwise unsigned. Defaults to True.</li>
+<li><strong>value (Union[int, str]):</strong>  The test failed component code or identifier of the failed test to be added</li>
 </ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>Quality: The modified object</p>
+</blockquote>
 </div>
 
 
                             </div>
-                            <div id="Quality.setReturnUnsignedCodes" class="classattr">
-                                <div class="attr function">
-                    <div class="decorator decorator-classmethod">@classmethod</div>
-
-        <span class="def">def</span>
-        <span class="name">setReturnUnsignedCodes</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">cls</span>, </span><span class="param"><span class="n">state</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span></span><span class="return-annotation">) -> <span class="kc">None</span>:</span></span>
+                            <div id="Quality.changed" class="classattr">
+                                <div class="attr variable">
+            <span class="name">changed</span><span class="annotation">: int</span>
 
         
     </div>
-    <a class="headerlink" href="#Quality.setReturnUnsignedCodes"></a>
+    <a class="headerlink" href="#Quality.changed"></a>
     
-            <div class="docstring"><p>Sets the type (signed or unsigned of the <code><a href="#Quality.code">code</a></code> property)</p>
+            <div class="docstring"><p>The changed component code of the quality code</p>
 
-<h6 id="arguments">Arguments:</h6>
+<h6 id="operations">Operations:</h6>
 
-<ul>
-<li><strong>state (bool, optional):</strong>  Sets default type to unsigned if true, otherwise signed. Defaults to True.</li>
-</ul>
+<blockquote>
+  <p>Read-Write</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="Quality.changed_id" class="classattr">
+                                <div class="attr variable">
+            <span class="name">changed_id</span><span class="annotation">: str</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Quality.changed_id"></a>
+    
+            <div class="docstring"><p>The changed component identifier of the quality code</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read-Write</p>
+</blockquote>
 </div>
 
 
@@ -1042,8 +1048,8 @@ The sequence must have a mininum length of 8, in this order:
 <p>See</p>
 
 <ul>
-<li><a href="#Quality.setReturnSignedCodes">setReturnSignedCodes</a></li>
-<li><a href="#Quality.setReturnUnsignedCodes">setReturnUnsignedCodes</a></li>
+<li><a href="#Quality.set_return_signed_codes">set_return_signed_codes</a></li>
+<li><a href="#Quality.set_return_unsigned_codes">set_return_unsigned_codes</a></li>
 </ul>
 
 <h6 id="operations">Operations:</h6>
@@ -1055,138 +1061,15 @@ The sequence must have a mininum length of 8, in this order:
 
 
                             </div>
-                            <div id="Quality.signed" class="classattr">
+                            <div id="Quality.protection" class="classattr">
                                 <div class="attr variable">
-            <span class="name">signed</span><span class="annotation">: int</span>
+            <span class="name">protection</span><span class="annotation">: int</span>
 
         
     </div>
-    <a class="headerlink" href="#Quality.signed"></a>
+    <a class="headerlink" href="#Quality.protection"></a>
     
-            <div class="docstring"><p>The internal quality code as a signed integer.</p>
-
-<h6 id="operations">Operations:</h6>
-
-<blockquote>
-  <p>Read Only</p>
-</blockquote>
-</div>
-
-
-                            </div>
-                            <div id="Quality.unsigned" class="classattr">
-                                <div class="attr variable">
-            <span class="name">unsigned</span><span class="annotation">: int</span>
-
-        
-    </div>
-    <a class="headerlink" href="#Quality.unsigned"></a>
-    
-            <div class="docstring"><p>The internal quality code as an unsigned integer.</p>
-
-<h6 id="operations">Operations:</h6>
-
-<blockquote>
-  <p>Read Only</p>
-</blockquote>
-</div>
-
-
-                            </div>
-                            <div id="Quality.text" class="classattr">
-                                <div class="attr variable">
-            <span class="name">text</span><span class="annotation">: str</span>
-
-        
-    </div>
-    <a class="headerlink" href="#Quality.text"></a>
-    
-            <div class="docstring"><p>The text description of the quality.</p>
-
-<p>A space separated list of words specifying the state of the following, in order:</p>
-
-<ul>
-<li>Screened: ("Unscreened" or "Screened")</li>
-<li>Validity: ("Unknown", "Okay", "Missing", "Questionable", or "Rejected")</li>
-<li>Range: ("No_range", "Range_1", "Range_2", or "Range_3")</li>
-<li>Changed: ("Original" or "Modified")</li>
-<li>Replacement Cause: ("None", "Automatic", "Interactive", "Manual", "Restored")</li>
-<li>Replacement Method: ("None", "Lin_Interp", "Explicit", "Missing", "Graphical")</li>
-<li>Test Failed: ("None" or one or more of the following concatenated with "+"):
-<ul>
-<li>"Absolute_Value"</li>
-<li>"Constant_Value"</li>
-<li>"Rate_Of_Change"</li>
-<li>"Relative_Value"</li>
-<li>"Duration_Value"</li>
-<li>"Neg_Increment"</li>
-<li>"Skip_List"</li>
-<li>"User_Defined"</li>
-<li>"Distribution"</li>
-</ul></li>
-<li>Protection: ("Unprotected" or "Protected")</li>
-</ul>
-
-<h6 id="operations">Operations:</h6>
-
-<blockquote>
-  <p>Read Only</p>
-</blockquote>
-</div>
-
-
-                            </div>
-                            <div id="Quality.symbol" class="classattr">
-                                <div class="attr variable">
-            <span class="name">symbol</span><span class="annotation">: str</span>
-
-        
-    </div>
-    <a class="headerlink" href="#Quality.symbol"></a>
-    
-            <div class="docstring"><p>The text symbol of the quality.</p>
-
-<p>The symbol will be one or two characters, with the first character being:</p>
-
-<ul>
-<li><code>~</code>: Not screened</li>
-<li><code>u</code> or 'U': Screened, validity is unknown</li>
-<li><code>o</code> or <code>O</code>: Screened, validity is okay</li>
-<li><code>m</code> or <code>M</code>: Screened, validity is missing</li>
-<li><code>q</code> or <code>Q</code>: Screened, validity is questioned</li>
-<li><code>r</code> or <code>R</code>: Screened, validity is rejected</li>
-</ul>
-
-<p>If a screened quality has the protection bit set, the first chanacter will be uppercase; if not, it will be lowercase.</p>
-
-<p>A second character of <code>+</code> signifies that the quality has additional information about one or more of the following:</p>
-
-<ul>
-<li>value range</li>
-<li>value replacement cause and method</li>
-<li>test(s) failed</li>
-</ul>
-
-<p>This property is used when the quality is used in a string context (e.g., <code>print(q)</code>)</p>
-
-<h6 id="operations">Operations:</h6>
-
-<blockquote>
-  <p>Read Only</p>
-</blockquote>
-</div>
-
-
-                            </div>
-                            <div id="Quality.screened" class="classattr">
-                                <div class="attr variable">
-            <span class="name">screened</span><span class="annotation">: int</span>
-
-        
-    </div>
-    <a class="headerlink" href="#Quality.screened"></a>
-    
-            <div class="docstring"><p>The screened component code of the quality code</p>
+            <div class="docstring"><p>The protection component code of the quality code</p>
 
 <h6 id="operations">Operations:</h6>
 
@@ -1197,53 +1080,15 @@ The sequence must have a mininum length of 8, in this order:
 
 
                             </div>
-                            <div id="Quality.screened_id" class="classattr">
+                            <div id="Quality.protection_id" class="classattr">
                                 <div class="attr variable">
-            <span class="name">screened_id</span><span class="annotation">: str</span>
+            <span class="name">protection_id</span><span class="annotation">: str</span>
 
         
     </div>
-    <a class="headerlink" href="#Quality.screened_id"></a>
+    <a class="headerlink" href="#Quality.protection_id"></a>
     
-            <div class="docstring"><p>The screened component identifier of the quality code</p>
-
-<h6 id="operations">Operations:</h6>
-
-<blockquote>
-  <p>Read-Write</p>
-</blockquote>
-</div>
-
-
-                            </div>
-                            <div id="Quality.validity" class="classattr">
-                                <div class="attr variable">
-            <span class="name">validity</span><span class="annotation">: int</span>
-
-        
-    </div>
-    <a class="headerlink" href="#Quality.validity"></a>
-    
-            <div class="docstring"><p>The validity component code of the quality code</p>
-
-<h6 id="operations">Operations:</h6>
-
-<blockquote>
-  <p>Read-Write</p>
-</blockquote>
-</div>
-
-
-                            </div>
-                            <div id="Quality.validity_id" class="classattr">
-                                <div class="attr variable">
-            <span class="name">validity_id</span><span class="annotation">: str</span>
-
-        
-    </div>
-    <a class="headerlink" href="#Quality.validity_id"></a>
-    
-            <div class="docstring"><p>The validity component identifier of the quality code</p>
+            <div class="docstring"><p>The protection component identifier of the quality code</p>
 
 <h6 id="operations">Operations:</h6>
 
@@ -1292,39 +1137,28 @@ The sequence must have a mininum length of 8, in this order:
 
 
                             </div>
-                            <div id="Quality.changed" class="classattr">
-                                <div class="attr variable">
-            <span class="name">changed</span><span class="annotation">: int</span>
+                            <div id="Quality.remove_test_failed" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">remove_test_failed</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="n"><a href="#Quality">Quality</a></span>:</span></span>
 
         
     </div>
-    <a class="headerlink" href="#Quality.changed"></a>
+    <a class="headerlink" href="#Quality.remove_test_failed"></a>
     
-            <div class="docstring"><p>The changed component code of the quality code</p>
+            <div class="docstring"><p>Removes a failed test from the test failed component of this object from a code or identifier and returns the modified object</p>
 
-<h6 id="operations">Operations:</h6>
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>value (Union[int, str]):</strong>  The test failed component code or identifier of the failed test to be removed</li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
 
 <blockquote>
-  <p>Read-Write</p>
-</blockquote>
-</div>
-
-
-                            </div>
-                            <div id="Quality.changed_id" class="classattr">
-                                <div class="attr variable">
-            <span class="name">changed_id</span><span class="annotation">: str</span>
-
-        
-    </div>
-    <a class="headerlink" href="#Quality.changed_id"></a>
-    
-            <div class="docstring"><p>The changed component identifier of the quality code</p>
-
-<h6 id="operations">Operations:</h6>
-
-<blockquote>
-  <p>Read-Write</p>
+  <p>Quality: The modified object</p>
 </blockquote>
 </div>
 
@@ -1435,6 +1269,381 @@ The sequence must have a mininum length of 8, in this order:
 
 
                             </div>
+                            <div id="Quality.screened" class="classattr">
+                                <div class="attr variable">
+            <span class="name">screened</span><span class="annotation">: int</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Quality.screened"></a>
+    
+            <div class="docstring"><p>The screened component code of the quality code</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read-Write</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="Quality.screened_id" class="classattr">
+                                <div class="attr variable">
+            <span class="name">screened_id</span><span class="annotation">: str</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Quality.screened_id"></a>
+    
+            <div class="docstring"><p>The screened component identifier of the quality code</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read-Write</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="Quality.set_changed" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">set_changed</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="n"><a href="#Quality">Quality</a></span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#Quality.set_changed"></a>
+    
+            <div class="docstring"><p>Sets the changed component of this object from a code or identifier and returns the modified object.</p>
+
+<p>Using this method instead of setting the <code><a href="#Quality.changed">changed</a></code> or <code><a href="#Quality.changed_id">changed_id</a></code> properties allows chained operations.</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>value (Union[int, str]):</strong>  The changed component code or identifier</li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>Quality: The modified object</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="Quality.set_protection" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">set_protection</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="n"><a href="#Quality">Quality</a></span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#Quality.set_protection"></a>
+    
+            <div class="docstring"><p>Sets the protection component of this object from a code or identifier and returns the modified object.</p>
+
+<p>Using this method instead of setting the <code><a href="#Quality.protection">protection</a></code> or <code><a href="#Quality.protection_id">protection_id</a></code> properties allows chained operations.</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>value (Union[int, str]):</strong>  The protection component code or identifier</li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>Quality: The modified object</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="Quality.set_range" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">set_range</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="n"><a href="#Quality">Quality</a></span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#Quality.set_range"></a>
+    
+            <div class="docstring"><p>Sets the range component of this object from a code or identifier and returns the modified object.</p>
+
+<p>Using this method instead of setting the <code><a href="#Quality.range">range</a></code> or <code><a href="#Quality.range_id">range_id</a></code> properties allows chained operations.</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>value (Union[int, str]):</strong>  The range component code or identifier</li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>Quality: The modified object</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="Quality.set_repl_cause" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">set_repl_cause</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="n"><a href="#Quality">Quality</a></span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#Quality.set_repl_cause"></a>
+    
+            <div class="docstring"><p>Sets the replacement cause component of this object from a code or identifier and returns the modified object.</p>
+
+<p>Using this method instead of setting the <code><a href="#Quality.repl_cause">repl_cause</a></code> or <code><a href="#Quality.repl_cause_id">repl_cause_id</a></code> properties allows chained operations.</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>value (Union[int, str]):</strong>  The replacement cause component code or identifier</li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>Quality: The modified object</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="Quality.set_repl_method" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">set_repl_method</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="n"><a href="#Quality">Quality</a></span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#Quality.set_repl_method"></a>
+    
+            <div class="docstring"><p>Sets the replacement method component of this object from a code or identifier and returns the modified object.</p>
+
+<p>Using this method instead of setting the <code><a href="#Quality.repl_method">repl_method</a></code> or <code><a href="#Quality.repl_method_id">repl_method_id</a></code> properties allows chained operations.</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>value (Union[int, str]):</strong>  The replacement method component code or identifier</li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>Quality: The modified object</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="Quality.set_screened" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">set_screened</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="n"><a href="#Quality">Quality</a></span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#Quality.set_screened"></a>
+    
+            <div class="docstring"><p>Sets the screened component of this object from a code or identifier and returns the modified object.</p>
+
+<p>Using this method instead of setting the <code><a href="#Quality.screened">screened</a></code> or <code><a href="#Quality.screened_id">screened_id</a></code> properties allows chained operations.</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>value (Union[int, str]):</strong>  The screened component code or identifier</li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>Quality: The modified object</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="Quality.set_test_failed" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">set_test_failed</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="n"><a href="#Quality">Quality</a></span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#Quality.set_test_failed"></a>
+    
+            <div class="docstring"><p>Sets the test failed component of this object from a code or identifier and returns the modified object.</p>
+
+<p>Using this method instead of setting the <code><a href="#Quality.test_failed">test_failed</a></code> or <code><a href="#Quality.test_failed_id">test_failed_id</a></code> properties allows chained operations.</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>value (Union[int, str]):</strong>  The test failed component code or identifier</li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>Quality: The modified object</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="Quality.set_validity" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">set_validity</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="n"><a href="#Quality">Quality</a></span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#Quality.set_validity"></a>
+    
+            <div class="docstring"><p>Sets the validity component of this object from a code or identifier and returns the modified object.</p>
+
+<p>Using this method instead of setting the <code><a href="#Quality.validity">validity</a></code> or <code><a href="#Quality.validity_id">validity_id</a></code> properties allows chained operations.</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>value (Union[int, str]):</strong>  The validity component code or identifier</li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>Quality: The modified object</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="Quality.set_return_signed_codes" class="classattr">
+                                <div class="attr function">
+                    <div class="decorator decorator-classmethod">@classmethod</div>
+
+        <span class="def">def</span>
+        <span class="name">set_return_signed_codes</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">cls</span>, </span><span class="param"><span class="n">state</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span></span><span class="return-annotation">) -> <span class="kc">None</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#Quality.set_return_signed_codes"></a>
+    
+            <div class="docstring"><p>Sets the type (signed or unsigned of the <code><a href="#Quality.code">code</a></code> property)</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>state (bool, optional):</strong>  Sets default type to signed if true, otherwise unsigned. Defaults to True.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="Quality.set_return_unsigned_codes" class="classattr">
+                                <div class="attr function">
+                    <div class="decorator decorator-classmethod">@classmethod</div>
+
+        <span class="def">def</span>
+        <span class="name">set_return_unsigned_codes</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">cls</span>, </span><span class="param"><span class="n">state</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span></span><span class="return-annotation">) -> <span class="kc">None</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#Quality.set_return_unsigned_codes"></a>
+    
+            <div class="docstring"><p>Sets the type (signed or unsigned of the <code><a href="#Quality.code">code</a></code> property)</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>state (bool, optional):</strong>  Sets default type to unsigned if true, otherwise signed. Defaults to True.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="Quality.signed" class="classattr">
+                                <div class="attr variable">
+            <span class="name">signed</span><span class="annotation">: int</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Quality.signed"></a>
+    
+            <div class="docstring"><p>The internal quality code as a signed integer.</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read Only</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="Quality.symbol" class="classattr">
+                                <div class="attr variable">
+            <span class="name">symbol</span><span class="annotation">: str</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Quality.symbol"></a>
+    
+            <div class="docstring"><p>The text symbol of the quality.</p>
+
+<p>The symbol will be one or two characters, with the first character being:</p>
+
+<ul>
+<li><code>~</code>: Not screened</li>
+<li><code>u</code> or 'U': Screened, validity is unknown</li>
+<li><code>o</code> or <code>O</code>: Screened, validity is okay</li>
+<li><code>m</code> or <code>M</code>: Screened, validity is missing</li>
+<li><code>q</code> or <code>Q</code>: Screened, validity is questioned</li>
+<li><code>r</code> or <code>R</code>: Screened, validity is rejected</li>
+</ul>
+
+<p>If a screened quality has the protection bit set, the first chanacter will be uppercase; if not, it will be lowercase.</p>
+
+<p>A second character of <code>+</code> signifies that the quality has additional information about one or more of the following:</p>
+
+<ul>
+<li>value range</li>
+<li>value replacement cause and method</li>
+<li>test(s) failed</li>
+</ul>
+
+<p>This property is used when the quality is used in a string context (e.g., <code>print(q)</code>)</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read Only</p>
+</blockquote>
+</div>
+
+
+                            </div>
                             <div id="Quality.test_failed" class="classattr">
                                 <div class="attr variable">
             <span class="name">test_failed</span><span class="annotation">: int</span>
@@ -1473,15 +1682,77 @@ The sequence must have a mininum length of 8, in this order:
 
 
                             </div>
-                            <div id="Quality.protection" class="classattr">
+                            <div id="Quality.text" class="classattr">
                                 <div class="attr variable">
-            <span class="name">protection</span><span class="annotation">: int</span>
+            <span class="name">text</span><span class="annotation">: str</span>
 
         
     </div>
-    <a class="headerlink" href="#Quality.protection"></a>
+    <a class="headerlink" href="#Quality.text"></a>
     
-            <div class="docstring"><p>The protection component code of the quality code</p>
+            <div class="docstring"><p>The text description of the quality.</p>
+
+<p>A space separated list of words specifying the state of the following, in order:</p>
+
+<ul>
+<li>Screened: ("Unscreened" or "Screened")</li>
+<li>Validity: ("Unknown", "Okay", "Missing", "Questionable", or "Rejected")</li>
+<li>Range: ("No_range", "Range_1", "Range_2", or "Range_3")</li>
+<li>Changed: ("Original" or "Modified")</li>
+<li>Replacement Cause: ("None", "Automatic", "Interactive", "Manual", "Restored")</li>
+<li>Replacement Method: ("None", "Lin_Interp", "Explicit", "Missing", "Graphical")</li>
+<li>Test Failed: ("None" or one or more of the following concatenated with "+"):
+<ul>
+<li>"Absolute_Value"</li>
+<li>"Constant_Value"</li>
+<li>"Rate_Of_Change"</li>
+<li>"Relative_Value"</li>
+<li>"Duration_Value"</li>
+<li>"Neg_Increment"</li>
+<li>"Skip_List"</li>
+<li>"User_Defined"</li>
+<li>"Distribution"</li>
+</ul></li>
+<li>Protection: ("Unprotected" or "Protected")</li>
+</ul>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read Only</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="Quality.unsigned" class="classattr">
+                                <div class="attr variable">
+            <span class="name">unsigned</span><span class="annotation">: int</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Quality.unsigned"></a>
+    
+            <div class="docstring"><p>The internal quality code as an unsigned integer.</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read Only</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="Quality.validity" class="classattr">
+                                <div class="attr variable">
+            <span class="name">validity</span><span class="annotation">: int</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Quality.validity"></a>
+    
+            <div class="docstring"><p>The validity component code of the quality code</p>
 
 <h6 id="operations">Operations:</h6>
 
@@ -1492,15 +1763,15 @@ The sequence must have a mininum length of 8, in this order:
 
 
                             </div>
-                            <div id="Quality.protection_id" class="classattr">
+                            <div id="Quality.validity_id" class="classattr">
                                 <div class="attr variable">
-            <span class="name">protection_id</span><span class="annotation">: str</span>
+            <span class="name">validity_id</span><span class="annotation">: str</span>
 
         
     </div>
-    <a class="headerlink" href="#Quality.protection_id"></a>
+    <a class="headerlink" href="#Quality.validity_id"></a>
     
-            <div class="docstring"><p>The protection component identifier of the quality code</p>
+            <div class="docstring"><p>The validity component identifier of the quality code</p>
 
 <h6 id="operations">Operations:</h6>
 
@@ -1511,292 +1782,21 @@ The sequence must have a mininum length of 8, in this order:
 
 
                             </div>
-                            <div id="Quality.setScreened" class="classattr">
-                                <div class="attr function">
+                </section>
+                <section id="QualityException">
+                    <div class="attr class">
             
-        <span class="def">def</span>
-        <span class="name">setScreened</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="n"><a href="#Quality">Quality</a></span>:</span></span>
+    <span class="def">class</span>
+    <span class="name">QualityException</span><wbr>(<span class="base">builtins.Exception</span>):
 
         
     </div>
-    <a class="headerlink" href="#Quality.setScreened"></a>
+    <a class="headerlink" href="#QualityException"></a>
     
-            <div class="docstring"><p>Sets the screened component of this object from a code or identifier and returns the modified object.</p>
-
-<p>Using this method instead of setting the <code><a href="#Quality.screened">screened</a></code> or <code><a href="#Quality.screened_id">screened_id</a></code> properties allows chained operations.</p>
-
-<h6 id="arguments">Arguments:</h6>
-
-<ul>
-<li><strong>value (Union[int, str]):</strong>  The screened component code or identifier</li>
-</ul>
-
-<h6 id="returns">Returns:</h6>
-
-<blockquote>
-  <p>Quality: The modified object</p>
-</blockquote>
+            <div class="docstring"><p>Common base class for all non-exit exceptions.</p>
 </div>
 
 
-                            </div>
-                            <div id="Quality.setValidity" class="classattr">
-                                <div class="attr function">
-            
-        <span class="def">def</span>
-        <span class="name">setValidity</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="n"><a href="#Quality">Quality</a></span>:</span></span>
-
-        
-    </div>
-    <a class="headerlink" href="#Quality.setValidity"></a>
-    
-            <div class="docstring"><p>Sets the validity component of this object from a code or identifier and returns the modified object.</p>
-
-<p>Using this method instead of setting the <code><a href="#Quality.validity">validity</a></code> or <code><a href="#Quality.validity_id">validity_id</a></code> properties allows chained operations.</p>
-
-<h6 id="arguments">Arguments:</h6>
-
-<ul>
-<li><strong>value (Union[int, str]):</strong>  The validity component code or identifier</li>
-</ul>
-
-<h6 id="returns">Returns:</h6>
-
-<blockquote>
-  <p>Quality: The modified object</p>
-</blockquote>
-</div>
-
-
-                            </div>
-                            <div id="Quality.setRange" class="classattr">
-                                <div class="attr function">
-            
-        <span class="def">def</span>
-        <span class="name">setRange</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="n"><a href="#Quality">Quality</a></span>:</span></span>
-
-        
-    </div>
-    <a class="headerlink" href="#Quality.setRange"></a>
-    
-            <div class="docstring"><p>Sets the range component of this object from a code or identifier and returns the modified object.</p>
-
-<p>Using this method instead of setting the <code><a href="#Quality.range">range</a></code> or <code><a href="#Quality.range_id">range_id</a></code> properties allows chained operations.</p>
-
-<h6 id="arguments">Arguments:</h6>
-
-<ul>
-<li><strong>value (Union[int, str]):</strong>  The range component code or identifier</li>
-</ul>
-
-<h6 id="returns">Returns:</h6>
-
-<blockquote>
-  <p>Quality: The modified object</p>
-</blockquote>
-</div>
-
-
-                            </div>
-                            <div id="Quality.setChanged" class="classattr">
-                                <div class="attr function">
-            
-        <span class="def">def</span>
-        <span class="name">setChanged</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="n"><a href="#Quality">Quality</a></span>:</span></span>
-
-        
-    </div>
-    <a class="headerlink" href="#Quality.setChanged"></a>
-    
-            <div class="docstring"><p>Sets the changed component of this object from a code or identifier and returns the modified object.</p>
-
-<p>Using this method instead of setting the <code><a href="#Quality.changed">changed</a></code> or <code><a href="#Quality.changed_id">changed_id</a></code> properties allows chained operations.</p>
-
-<h6 id="arguments">Arguments:</h6>
-
-<ul>
-<li><strong>value (Union[int, str]):</strong>  The changed component code or identifier</li>
-</ul>
-
-<h6 id="returns">Returns:</h6>
-
-<blockquote>
-  <p>Quality: The modified object</p>
-</blockquote>
-</div>
-
-
-                            </div>
-                            <div id="Quality.setReplCause" class="classattr">
-                                <div class="attr function">
-            
-        <span class="def">def</span>
-        <span class="name">setReplCause</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="n"><a href="#Quality">Quality</a></span>:</span></span>
-
-        
-    </div>
-    <a class="headerlink" href="#Quality.setReplCause"></a>
-    
-            <div class="docstring"><p>Sets the replacement cause component of this object from a code or identifier and returns the modified object.</p>
-
-<p>Using this method instead of setting the <code><a href="#Quality.repl_cause">repl_cause</a></code> or <code><a href="#Quality.repl_cause_id">repl_cause_id</a></code> properties allows chained operations.</p>
-
-<h6 id="arguments">Arguments:</h6>
-
-<ul>
-<li><strong>value (Union[int, str]):</strong>  The replacement cause component code or identifier</li>
-</ul>
-
-<h6 id="returns">Returns:</h6>
-
-<blockquote>
-  <p>Quality: The modified object</p>
-</blockquote>
-</div>
-
-
-                            </div>
-                            <div id="Quality.setReplMethod" class="classattr">
-                                <div class="attr function">
-            
-        <span class="def">def</span>
-        <span class="name">setReplMethod</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="n"><a href="#Quality">Quality</a></span>:</span></span>
-
-        
-    </div>
-    <a class="headerlink" href="#Quality.setReplMethod"></a>
-    
-            <div class="docstring"><p>Sets the replacement method component of this object from a code or identifier and returns the modified object.</p>
-
-<p>Using this method instead of setting the <code><a href="#Quality.repl_method">repl_method</a></code> or <code><a href="#Quality.repl_method_id">repl_method_id</a></code> properties allows chained operations.</p>
-
-<h6 id="arguments">Arguments:</h6>
-
-<ul>
-<li><strong>value (Union[int, str]):</strong>  The replacement method component code or identifier</li>
-</ul>
-
-<h6 id="returns">Returns:</h6>
-
-<blockquote>
-  <p>Quality: The modified object</p>
-</blockquote>
-</div>
-
-
-                            </div>
-                            <div id="Quality.setTestFailed" class="classattr">
-                                <div class="attr function">
-            
-        <span class="def">def</span>
-        <span class="name">setTestFailed</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="n"><a href="#Quality">Quality</a></span>:</span></span>
-
-        
-    </div>
-    <a class="headerlink" href="#Quality.setTestFailed"></a>
-    
-            <div class="docstring"><p>Sets the test failed component of this object from a code or identifier and returns the modified object.</p>
-
-<p>Using this method instead of setting the <code><a href="#Quality.test_failed">test_failed</a></code> or <code><a href="#Quality.test_failed_id">test_failed_id</a></code> properties allows chained operations.</p>
-
-<h6 id="arguments">Arguments:</h6>
-
-<ul>
-<li><strong>value (Union[int, str]):</strong>  The test failed component code or identifier</li>
-</ul>
-
-<h6 id="returns">Returns:</h6>
-
-<blockquote>
-  <p>Quality: The modified object</p>
-</blockquote>
-</div>
-
-
-                            </div>
-                            <div id="Quality.setProtection" class="classattr">
-                                <div class="attr function">
-            
-        <span class="def">def</span>
-        <span class="name">setProtection</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="n"><a href="#Quality">Quality</a></span>:</span></span>
-
-        
-    </div>
-    <a class="headerlink" href="#Quality.setProtection"></a>
-    
-            <div class="docstring"><p>Sets the protection component of this object from a code or identifier and returns the modified object.</p>
-
-<p>Using this method instead of setting the <code><a href="#Quality.protection">protection</a></code> or <code><a href="#Quality.protection_id">protection_id</a></code> properties allows chained operations.</p>
-
-<h6 id="arguments">Arguments:</h6>
-
-<ul>
-<li><strong>value (Union[int, str]):</strong>  The protection component code or identifier</li>
-</ul>
-
-<h6 id="returns">Returns:</h6>
-
-<blockquote>
-  <p>Quality: The modified object</p>
-</blockquote>
-</div>
-
-
-                            </div>
-                            <div id="Quality.addTestFailed" class="classattr">
-                                <div class="attr function">
-            
-        <span class="def">def</span>
-        <span class="name">addTestFailed</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="n"><a href="#Quality">Quality</a></span>:</span></span>
-
-        
-    </div>
-    <a class="headerlink" href="#Quality.addTestFailed"></a>
-    
-            <div class="docstring"><p>Adds a failed test to the test failed component of this object from a code or identifier and returns the modified object</p>
-
-<h6 id="arguments">Arguments:</h6>
-
-<ul>
-<li><strong>value (Union[int, str]):</strong>  The test failed component code or identifier of the failed test to be added</li>
-</ul>
-
-<h6 id="returns">Returns:</h6>
-
-<blockquote>
-  <p>Quality: The modified object</p>
-</blockquote>
-</div>
-
-
-                            </div>
-                            <div id="Quality.removeTestFailed" class="classattr">
-                                <div class="attr function">
-            
-        <span class="def">def</span>
-        <span class="name">removeTestFailed</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="n"><a href="#Quality">Quality</a></span>:</span></span>
-
-        
-    </div>
-    <a class="headerlink" href="#Quality.removeTestFailed"></a>
-    
-            <div class="docstring"><p>Removes a failed test from the test failed component of this object from a code or identifier and returns the modified object</p>
-
-<h6 id="arguments">Arguments:</h6>
-
-<ul>
-<li><strong>value (Union[int, str]):</strong>  The test failed component code or identifier of the failed test to be removed</li>
-</ul>
-
-<h6 id="returns">Returns:</h6>
-
-<blockquote>
-  <p>Quality: The modified object</p>
-</blockquote>
-</div>
-
-
-                            </div>
                 </section>
     </main>
 <script>
