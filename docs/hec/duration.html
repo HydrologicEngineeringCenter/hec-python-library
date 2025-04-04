@@ -43,19 +43,19 @@
                                 <a class="function" href="#Duration.__init__">Duration</a>
                         </li>
                         <li>
-                                <a class="function" href="#Duration.forInterval">forInterval</a>
+                                <a class="variable" href="#Duration.is_bop">is_bop</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Duration.is_eop">is_eop</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Duration.for_interval">for_interval</a>
                         </li>
                         <li>
                                 <a class="variable" href="#Duration.minutes">minutes</a>
                         </li>
                         <li>
                                 <a class="variable" href="#Duration.name">name</a>
-                        </li>
-                        <li>
-                                <a class="variable" href="#Duration.isBop">isBop</a>
-                        </li>
-                        <li>
-                                <a class="variable" href="#Duration.isEop">isEop</a>
                         </li>
                 </ul>
 
@@ -142,16 +142,54 @@ during module initialization.</p>
 
 
                             </div>
-                            <div id="Duration.forInterval" class="classattr">
+                            <div id="Duration.is_bop" class="classattr">
+                                <div class="attr variable">
+            <span class="name">is_bop</span><span class="annotation">: bool</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Duration.is_bop"></a>
+    
+            <div class="docstring"><p>Whether this object is a Beginning of Period Duration</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read-only</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="Duration.is_eop" class="classattr">
+                                <div class="attr variable">
+            <span class="name">is_eop</span><span class="annotation">: bool</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Duration.is_eop"></a>
+    
+            <div class="docstring"><p>Whether this object is an End of Period Duration</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read-only</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="Duration.for_interval" class="classattr">
                                 <div class="attr function">
                     <div class="decorator decorator-staticmethod">@staticmethod</div>
 
         <span class="def">def</span>
-        <span class="name">forInterval</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">interval</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n"><a href="interval.html#Interval">hec.interval.Interval</a></span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span>,</span><span class="param">	<span class="n">bop</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></span><span class="return-annotation">) -> <span class="n"><a href="#Duration">Duration</a></span>:</span></span>
+        <span class="name">for_interval</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">interval</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n"><a href="interval.html#Interval">hec.interval.Interval</a></span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span>,</span><span class="param">	<span class="n">bop</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></span><span class="return-annotation">) -> <span class="n"><a href="#Duration">Duration</a></span>:</span></span>
 
         
     </div>
-    <a class="headerlink" href="#Duration.forInterval"></a>
+    <a class="headerlink" href="#Duration.for_interval"></a>
     
             <div class="docstring"><p>Returns a Duration object for a specified interval</p>
 
@@ -209,44 +247,6 @@ no such Duration object exists</li>
     <a class="headerlink" href="#Duration.name"></a>
     
             <div class="docstring"><p>The name of this object</p>
-
-<h6 id="operations">Operations:</h6>
-
-<blockquote>
-  <p>Read-only</p>
-</blockquote>
-</div>
-
-
-                            </div>
-                            <div id="Duration.isBop" class="classattr">
-                                <div class="attr variable">
-            <span class="name">isBop</span><span class="annotation">: bool</span>
-
-        
-    </div>
-    <a class="headerlink" href="#Duration.isBop"></a>
-    
-            <div class="docstring"><p>Whether this object is a Beginning of Period Duration</p>
-
-<h6 id="operations">Operations:</h6>
-
-<blockquote>
-  <p>Read-only</p>
-</blockquote>
-</div>
-
-
-                            </div>
-                            <div id="Duration.isEop" class="classattr">
-                                <div class="attr variable">
-            <span class="name">isEop</span><span class="annotation">: bool</span>
-
-        
-    </div>
-    <a class="headerlink" href="#Duration.isEop"></a>
-    
-            <div class="docstring"><p>Whether this object is an End of Period Duration</p>
 
 <h6 id="operations">Operations:</h6>
 

@@ -2870,7 +2870,7 @@ class TimeSeries:
             raise TimeSeriesException(
                 f"percent_valid_required must be in range 0..100, got {percent_valid_required}"
             )
-        if duration.isBop:
+        if duration.is_bop:
             raise TimeSeriesException(
                 "Method is currently suitable for End-of-Period durations only"
             )
@@ -7087,7 +7087,7 @@ class TimeSeries:
         if isinstance(value, Duration):
             target._duration = value
         else:
-            target._duration = Duration.forInterval(value)
+            target._duration = Duration.for_interval(value)
         return target
 
     def set_interval(
