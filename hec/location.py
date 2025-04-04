@@ -2,6 +2,8 @@
 Provides location info
 """
 
+__all__ = ["LocationException", "Location"]
+
 import os
 import sys
 
@@ -70,12 +72,6 @@ class Location:
         self.horizontal_datum = horizontal_datum
         self.vertical_datum = vertical_datum
 
-    def __str__(self) -> str:
-        if self.office:
-            return f"{self.office}/{self.name}"
-        else:
-            return self.name
-
     def __repr__(self) -> str:
         s = f"Location(name='{self.name}'"
         if self.office is not None:
@@ -95,33 +91,11 @@ class Location:
         s += ")"
         return s
 
-    @property
-    def name(self) -> str:
-        """
-        The full name of the location
-
-        Operations:
-            Read/Write
-        """
-        return self._name
-
-    @name.setter
-    def name(self, value: str) -> None:
-        v = str(value)
-        for c in "./\\,;'\"`":
-            if c in v:
-                warnings.warn(
-                    f'Location name "{v}" contains the character "{c}" and may not be usable in all contexts',
-                    UserWarning,
-                )
-        for c in value:
-            if not c.isascii():
-                warnings.warn(
-                    f'Location name "{v}" contains the character "{c}" ({ord(c)}, 0x{ord(c):x})'
-                    + " and may not be usable in all contexts",
-                    UserWarning,
-                )
-        self._name = v
+    def __str__(self) -> str:
+        if self.office:
+            return f"{self.office}/{self.name}"
+        else:
+            return self.name
 
     @property
     def basename(self) -> str:
@@ -132,82 +106,6 @@ class Location:
             Read Only
         """
         return self._name.split("-", 1)[0]
-
-    @property
-    def subname(self) -> Optional[str]:
-        """
-        The name of the location after any initial '-' character
-
-        Operations:
-            Read Only
-        """
-        parts = self._name.split("-", 1)
-        return None if len(parts) == 1 else parts[1]
-
-    @property
-    def office(self) -> Optional[str]:
-        """
-        The office that owns the location
-
-        Operations:
-            Read/Write
-        """
-        return self._office
-
-    @office.setter
-    def office(self, value: Optional[str]) -> None:
-        if value is None:
-            self._office = None
-        else:
-            v = str(value)
-            for c in v:
-                if not c.isascii():
-                    warnings.warn(
-                        f'Location office "{v}" contains the character "{c}" ({ord(c)}, 0x{ord(c):x})'
-                        + " and may not be usable in all contexts",
-                        UserWarning,
-                    )
-            self._office = v
-
-    @property
-    def latitude(self) -> Optional[float]:
-        """
-        The latitude of the location
-
-        Operations:
-            Read/Write
-        """
-        return self._latitude
-
-    @latitude.setter
-    def latitude(self, value: Optional[float]) -> None:
-        if value is None:
-            self._latitude = None
-        else:
-            v = float(value)
-            if not -90 <= v <= 90:
-                raise LocationException(f"Latitude of {v} is invalid")
-            self._latitude = v
-
-    @property
-    def longitude(self) -> Optional[float]:
-        """
-        The longitude of the location
-
-        Operations:
-            Read/Write
-        """
-        return self._longitude
-
-    @longitude.setter
-    def longitude(self, value: Optional[float]) -> None:
-        if value is None:
-            self._longitude = None
-        else:
-            v = float(value)
-            if not -180 <= v <= 180:
-                raise LocationException(f"Longitude of {v} is invalid")
-            self._longitude = v
 
     @property
     def elevation(self) -> Optional[float]:
@@ -250,6 +148,110 @@ class Location:
     @horizontal_datum.setter
     def horizontal_datum(self, value: Optional[str]) -> None:
         self._horizontal_datum = None if value is None else str(value)
+
+    @property
+    def latitude(self) -> Optional[float]:
+        """
+        The latitude of the location
+
+        Operations:
+            Read/Write
+        """
+        return self._latitude
+
+    @latitude.setter
+    def latitude(self, value: Optional[float]) -> None:
+        if value is None:
+            self._latitude = None
+        else:
+            v = float(value)
+            if not -90 <= v <= 90:
+                raise LocationException(f"Latitude of {v} is invalid")
+            self._latitude = v
+
+    @property
+    def longitude(self) -> Optional[float]:
+        """
+        The longitude of the location
+
+        Operations:
+            Read/Write
+        """
+        return self._longitude
+
+    @longitude.setter
+    def longitude(self, value: Optional[float]) -> None:
+        if value is None:
+            self._longitude = None
+        else:
+            v = float(value)
+            if not -180 <= v <= 180:
+                raise LocationException(f"Longitude of {v} is invalid")
+            self._longitude = v
+
+    @property
+    def name(self) -> str:
+        """
+        The full name of the location
+
+        Operations:
+            Read/Write
+        """
+        return self._name
+
+    @name.setter
+    def name(self, value: str) -> None:
+        v = str(value)
+        for c in "./\\,;'\"`":
+            if c in v:
+                warnings.warn(
+                    f'Location name "{v}" contains the character "{c}" and may not be usable in all contexts',
+                    UserWarning,
+                )
+        for c in value:
+            if not c.isascii():
+                warnings.warn(
+                    f'Location name "{v}" contains the character "{c}" ({ord(c)}, 0x{ord(c):x})'
+                    + " and may not be usable in all contexts",
+                    UserWarning,
+                )
+        self._name = v
+
+    @property
+    def office(self) -> Optional[str]:
+        """
+        The office that owns the location
+
+        Operations:
+            Read/Write
+        """
+        return self._office
+
+    @office.setter
+    def office(self, value: Optional[str]) -> None:
+        if value is None:
+            self._office = None
+        else:
+            v = str(value)
+            for c in v:
+                if not c.isascii():
+                    warnings.warn(
+                        f'Location office "{v}" contains the character "{c}" ({ord(c)}, 0x{ord(c):x})'
+                        + " and may not be usable in all contexts",
+                        UserWarning,
+                    )
+            self._office = v
+
+    @property
+    def subname(self) -> Optional[str]:
+        """
+        The name of the location after any initial '-' character
+
+        Operations:
+            Read Only
+        """
+        parts = self._name.split("-", 1)
+        return None if len(parts) == 1 else parts[1]
 
     @property
     def vertical_datum(self) -> Optional[str]:
