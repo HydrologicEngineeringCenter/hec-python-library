@@ -4103,7 +4103,7 @@ class HecTime:
                         10 if values[D] <= 10 else 20 if values[D] <= 20 else lastDay
                     )
             else:
-                intvl = Interval.getAny(lambda i: i.minutes == minutes, False)
+                intvl = Interval.get_any(lambda i: i.minutes == minutes, False)
                 if intvl:
                     # ------------------------------ #
                     # standard non-calendar interval #

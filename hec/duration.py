@@ -62,9 +62,9 @@ class Duration(TimeSpan):
             Duration: The Duration object matching the specified interval and bop setting.
         """
         if isinstance(interval, str):
-            intvl = Interval.getAnyCwms(lambda i: i.name == interval)
+            intvl = Interval.get_any_cwms(lambda i: i.name == interval)
         elif isinstance(interval, int):
-            intvl = Interval.getAnyCwms(lambda i: i.minutes == interval)
+            intvl = Interval.get_any_cwms(lambda i: i.minutes == interval)
         elif isinstance(interval, Interval):
             intvl = interval
         else:
@@ -87,7 +87,7 @@ class Duration(TimeSpan):
     def __init__(self, interval: Union[Interval, str], bop: bool = False):
         """Initializer used by module"""
         if isinstance(interval, str):
-            intvl = Interval.getAny(lambda i: i.name == interval)
+            intvl = Interval.get_any(lambda i: i.name == interval)
             if intvl is None:
                 raise DurationException(f"Cannot find Interval with name '{interval}'")
         else:
@@ -102,7 +102,7 @@ class Duration(TimeSpan):
             return Duration.forInterval(
                 cast(
                     Interval,
-                    Interval.getAny(
+                    Interval.get_any(
                         lambda i: i.minutes == minutes and i.is_regular, True
                     ),
                 ),
@@ -128,7 +128,7 @@ class Duration(TimeSpan):
             return Duration.forInterval(
                 cast(
                     Interval,
-                    Interval.getAny(
+                    Interval.get_any(
                         lambda i: i.minutes == minutes and i.is_regular, True
                     ),
                 ),
@@ -153,7 +153,7 @@ class Duration(TimeSpan):
             return Duration.forInterval(
                 cast(
                     Interval,
-                    Interval.getAny(
+                    Interval.get_any(
                         lambda i: i.minutes == minutes and i.is_regular, True
                     ),
                 ),
@@ -171,7 +171,7 @@ class Duration(TimeSpan):
             return Duration.forInterval(
                 cast(
                     Interval,
-                    Interval.getAny(
+                    Interval.get_any(
                         lambda i: i.minutes == minutes and i.is_regular, True
                     ),
                 ),
@@ -245,7 +245,7 @@ class Duration(TimeSpan):
 _DURATIONS = {}
 for _d in [
     Duration(intvl, bop)
-    for intvl in Interval.getAllCwms(
+    for intvl in Interval.get_all_cwms(
         lambda i: i.name != "Irr" and not i.name.startswith("~")
     )
     for bop in (False, True)

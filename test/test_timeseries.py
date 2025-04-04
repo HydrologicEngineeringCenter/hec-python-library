@@ -129,7 +129,7 @@ def test_create_time_series_by_name() -> None:
 def test_math_ops_scalar() -> None:
     assert Parameter("Flow").to("EN").unit_name == "cfs"
     start_time = HecTime("2024-10-10T01:00:00")
-    intvl = Interval.getCwms("1Hour")
+    intvl = Interval.get_cwms("1Hour")
     value_count = 24
     times = pd.Index(  # type: ignore
         [
@@ -268,7 +268,7 @@ def test_math_ops_scalar() -> None:
 
 def test_math_ops_ts() -> None:
     start_time = HecTime("2024-10-10T01:00:00")
-    intvl = Interval.getCwms("1Hour")
+    intvl = Interval.get_cwms("1Hour")
     value_count = 24
     times = pd.Index(  # type: ignore
         [
@@ -369,7 +369,7 @@ def test_math_ops_ts() -> None:
 
 def test_selection_and_filter() -> None:
     start_time = HecTime("2024-10-10T01:00:00")
-    intvl = Interval.getDss("1Hour")
+    intvl = Interval.get_dss("1Hour")
     value_count = 24
     times = pd.Index(  # type: ignore
         [
@@ -428,7 +428,7 @@ def test_selection_and_filter() -> None:
 
 def test_aggregate_ts() -> None:
     start_time = HecTime("2024-10-10T01:00:00")
-    intvl = Interval.getCwms("1Hour")
+    intvl = Interval.get_cwms("1Hour")
     value_count = 24
     ts_count = 10
     times = pd.Index(  # type: ignore
@@ -734,7 +734,7 @@ def test_aggregate_ts() -> None:
 
 def test_aggregate_values() -> None:
     start_time = HecTime("2024-10-10T01:00:00")
-    intvl = Interval.getCwms("1Hour")
+    intvl = Interval.get_cwms("1Hour")
     values = [
         1000,
         1015,
@@ -957,7 +957,7 @@ def test_aggregate_values() -> None:
 
 def test_min_max() -> None:
     start_time = HecTime("2024-10-10T01:00:00")
-    intvl = Interval.getCwms("1Hour")
+    intvl = Interval.get_cwms("1Hour")
     value_count = 24
     values = [10.0 + i for i in range(value_count)]
     values[3] = math.nan
@@ -988,7 +988,7 @@ def test_min_max() -> None:
 
 def test_accum_diff() -> None:
     start_time = HecTime("2024-10-10T01:00:00")
-    intvl = Interval.getCwms("1Hour")
+    intvl = Interval.get_cwms("1Hour")
     # Col 1 = starting values (made up)
     # Col 2 = from TimeSeriesMath.accumualtion() using col 1
     # Col 3 = from TimeSeriesMath.successiveDiffereneces using col 2(except for first value)
@@ -1095,7 +1095,7 @@ def test_accum_diff() -> None:
 
 def test_value_counts() -> None:
     start_time = HecTime("2024-10-10T01:00:00")
-    intvl = Interval.getCwms("1Hour")
+    intvl = Interval.get_cwms("1Hour")
     values = [
         1000,
         1015,
@@ -1176,7 +1176,7 @@ def test_value_counts() -> None:
 
 def test_unit() -> None:
     start_time = HecTime("2024-10-10T01:00:00")
-    intvl = Interval.getCwms("1Hour")
+    intvl = Interval.get_cwms("1Hour")
     values = [
         1000,
         1015,
@@ -1366,7 +1366,7 @@ def test_roundoff() -> None:
     for value, precsion, magnitude, result in data:
         assert TimeSeries._round_off(value, int(precsion), int(magnitude)) == result
     start_time = HecTime("2024-10-10T01:00:00")
-    intvl = Interval.getCwms("1Hour")
+    intvl = Interval.get_cwms("1Hour")
     values = [
         1000.123,
         1015.123,
@@ -1425,7 +1425,7 @@ def test_smoothing() -> None:
         data = eval(f.read())
     values = [data[i][0] for i in range(len(data))]
     start_time = HecTime("2024-10-10T01:00:00")
-    intvl = Interval.getCwms("1Hour")
+    intvl = Interval.get_cwms("1Hour")
     times = pd.Index(  # type: ignore
         [
             (start_time + i * TimeSpan(intvl.values)).datetime()
@@ -1545,7 +1545,7 @@ def test_smoothing() -> None:
 
 def test_protected() -> None:
     start_time = HecTime("2024-10-10T01:00:00")
-    intvl = Interval.getCwms("1Hour")
+    intvl = Interval.get_cwms("1Hour")
     values = [
         1000,
         1015,
@@ -1628,7 +1628,7 @@ def test_protected() -> None:
 
 def test_screen_with_value_range() -> None:
     start_time = HecTime("2024-10-10T01:00:00")
-    intvl = Interval.getCwms("1Hour")
+    intvl = Interval.get_cwms("1Hour")
     values = [
         1000,
         1015,
@@ -1758,7 +1758,7 @@ def test_screen_with_value_range() -> None:
 
 def test_screen_with_value_change_rate() -> None:
     start_time = HecTime("2024-10-10T01:00:00")
-    intvl = Interval.getCwms("1Hour")
+    intvl = Interval.get_cwms("1Hour")
     values = [
         1000,
         1015,  #      0.25, o
@@ -1933,7 +1933,7 @@ def test_screen_with_value_change_rate() -> None:
 
 def test_screen_with_value_range_or_change_rate() -> None:
     start_time = HecTime("2024-10-10T01:00:00")
-    intvl = Interval.getCwms("1Hour")
+    intvl = Interval.get_cwms("1Hour")
     values = [
         1000,
         1015,
@@ -2100,7 +2100,7 @@ def test_screen_with_value_range_or_change_rate() -> None:
 
 def test_screen_with_duration_magnitude() -> None:
     start_time = HecTime("2024-10-10T01:00:00")
-    intvl = Interval.getCwms("6Hours")
+    intvl = Interval.get_cwms("6Hours")
     values = [
         0.300,
         0.250,
@@ -2446,7 +2446,7 @@ def test_screen_with_duration_magnitude() -> None:
 
 def test_screen_with_constant_value() -> None:
     start_time = HecTime("2024-10-10T01:00:00")
-    intvl = Interval.getCwms("1Hour")
+    intvl = Interval.get_cwms("1Hour")
     values = [
         613.535,
         613.535,
@@ -2654,7 +2654,7 @@ def test_screen_with_constant_value() -> None:
 
 def test_screen_with_forward_moving_average() -> None:
     start_time = HecTime("2024-10-10T01:00:00")
-    intvl = Interval.getCwms("1Hour")
+    intvl = Interval.get_cwms("1Hour")
     values = [
         1000,
         1015,
@@ -2867,7 +2867,7 @@ def test_estimate_missing_values() -> None:
         (True, True, True): 16,
     }
     start_time = HecTime("2024-10-10T01:00:00")
-    intvl = Interval.getCwms("1Hour")
+    intvl = Interval.get_cwms("1Hour")
     times = pd.Index(  # type: ignore
         [
             (start_time + i * TimeSpan(intvl.values)).datetime()
@@ -2975,7 +2975,7 @@ def test_estimate_missing_values() -> None:
 
 def test_expand_collapse_trim() -> None:
     start_time = HecTime("2024-10-15T01:00:00")
-    intvl = Interval.getCwms("1Day")
+    intvl = Interval.get_cwms("1Day")
     values = [
         1000,
         1015,
@@ -3109,7 +3109,7 @@ def test_expand_collapse_trim() -> None:
     # ----------------------------------------#
     intvl = cast(
         Interval,
-        Interval.getAnyCwms(lambda i: i.name == "~1Day" and i.is_local_regular),
+        Interval.get_any_cwms(lambda i: i.name == "~1Day" and i.is_local_regular),
     )
     ts2 = ts.label_as_time_zone("US/Pacific")
     ts2 = ts2.set_interval(intvl)
@@ -3162,7 +3162,7 @@ def test_expand_collapse_trim() -> None:
 
 def test_merge() -> None:
     start_time = HecTime("2024-10-15T01:00:00")
-    intvl = Interval.getCwms("1Day")
+    intvl = Interval.get_cwms("1Day")
     values1 = [
         1000,
         1015,
@@ -3351,7 +3351,7 @@ def test_merge() -> None:
     # --------------------- #
     # test mixing intervals #
     # --------------------- #
-    intvl = Interval.getCwms("12Hours")
+    intvl = Interval.get_cwms("12Hours")
     times = pd.Index(
         [
             (start_time + i * TimeSpan(intvl.values)).datetime()
@@ -3375,7 +3375,7 @@ def test_merge() -> None:
 
 def test_to_irregular() -> None:
     start_time = HecTime("2024-10-15T01:00:00")
-    intvl = Interval.getCwms("1Day")
+    intvl = Interval.get_cwms("1Day")
     values1 = [
         1000,
         1015,
@@ -3418,8 +3418,8 @@ def test_to_irregular() -> None:
         index=times,
     )
     assert ts.interval.name == "1Day"
-    valid_intervals = set(Interval.getAllCwmsNames(lambda i: i.is_any_irregular))
-    for intvl_name in Interval.getAllNames():
+    valid_intervals = set(Interval.get_all_cwms_names(lambda i: i.is_any_irregular))
+    for intvl_name in Interval.get_all_names():
         try:
             ts.ito_irregular(intvl_name)
             assert (
@@ -3435,7 +3435,7 @@ def test_to_irregular() -> None:
 
 def test_snap_to_regular() -> None:
     start_time = HecTime("2024-10-15T01:00:00")
-    intvl = Interval.getCwms("1Hour")
+    intvl = Interval.get_cwms("1Hour")
     values1 = [
         1000,
         1015,
@@ -3485,7 +3485,8 @@ def test_snap_to_regular() -> None:
     ts2 = ts.snap_to_regular("4Hours", "PT10M", "PT1H")
     # print(ts2.data)
     expectedTimeVals = [
-        HecTime("2024-10-15 04:10:00") + i * TimeSpan(Interval.getCwms("4Hours").values)
+        HecTime("2024-10-15 04:10:00")
+        + i * TimeSpan(Interval.get_cwms("4Hours").values)
         for i in range(6)
     ]
     expectedTimes = [f"{t.date(-13)} {t.time(True)}" for t in expectedTimeVals]
@@ -3497,7 +3498,8 @@ def test_snap_to_regular() -> None:
     ts2 = ts.snap_to_regular("4Hours", "PT10M", "PT0S", "PT1H")
     # print(ts2.data)
     expectedTimeVals = [
-        HecTime("2024-10-15 00:10:00") + i * TimeSpan(Interval.getCwms("4Hours").values)
+        HecTime("2024-10-15 00:10:00")
+        + i * TimeSpan(Interval.get_cwms("4Hours").values)
         for i in range(6)
     ]
     expectedTimes = [f"{t.date(-13)} {t.time(True)}" for t in expectedTimeVals]
@@ -3509,7 +3511,8 @@ def test_snap_to_regular() -> None:
     ts2 = ts.snap_to_regular("4Hours", "PT10M", "PT1H", "PT1H")
     # print(ts2.data)
     expectedTimeVals = [
-        HecTime("2024-10-15 00:10:00") + i * TimeSpan(Interval.getCwms("4Hours").values)
+        HecTime("2024-10-15 00:10:00")
+        + i * TimeSpan(Interval.get_cwms("4Hours").values)
         for i in range(6)
     ]
     expectedTimes = [f"{t.date(-13)} {t.time(True)}" for t in expectedTimeVals]
@@ -3529,7 +3532,7 @@ def test_new_regular_time_series() -> None:
     ]
     intervals = [
         cast(Interval, intvl)
-        for intvl in [Interval.getAnyCwms(matcher) for matcher in matchers]
+        for intvl in [Interval.get_any_cwms(matcher) for matcher in matchers]
     ]
     offsets: List[Union[TimeSpan, timedelta, str, int]] = [
         TimeSpan(hours=8),
@@ -3657,7 +3660,7 @@ def test_new_regular_time_series() -> None:
     }
     for startTime in startTimes:
         endSpecs: tuple[HecTime, int] = (
-            HecTime(startTime) + 24 * TimeSpan(Interval.getCwms("1Day").values),
+            HecTime(startTime) + 24 * TimeSpan(Interval.get_cwms("1Day").values),
             24,
         )
         for end in endSpecs:
@@ -3712,8 +3715,8 @@ def test_new_regular_time_series() -> None:
 
 
 def test_resample() -> None:
-    intvl_1_hour = Interval.getCwms("1Hour")
-    intvl_6_hours = Interval.getCwms("6Hours")
+    intvl_1_hour = Interval.get_cwms("1Hour")
+    intvl_6_hours = Interval.get_cwms("6Hours")
     call_count = 0
     # ----------------------- #
     # same interval (aligned) #

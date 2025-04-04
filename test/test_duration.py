@@ -6,7 +6,7 @@ from hec.interval import Interval
 
 
 def test_durations() -> None:
-    for intvl in Interval.getAllCwms():
+    for intvl in Interval.get_all_cwms():
         print(intvl.name)
         if intvl.name.startswith("~") or intvl.name.endswith("Local"):
             continue

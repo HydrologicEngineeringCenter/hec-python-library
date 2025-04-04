@@ -79,7 +79,7 @@ def test_cleanTime(_time: str, _expected: str) -> None:
 # run a random subset of the specified percentage  #
 # ------------------------------------------------ #
 INTERVALS = [
-    Interval.getAny(lambda i: i.minutes == m)
+    Interval.get_any(lambda i: i.minutes == m)
     for m in sorted(set([m for m in Interval.MINUTES.values() if m > 0]))
 ]
 if slow_test_coverage < 100:
@@ -286,7 +286,7 @@ def test_increment(start_time: str, _interval: str, _count: str, end_time: str) 
     t2 = HecTime(t)
     t2.increment(count, interval)
     assert t2.dateAndTime(-13) == end_time
-    intvl = Interval.getAny(lambda i: i.minutes == interval)
+    intvl = Interval.get_any(lambda i: i.minutes == interval)
     assert intvl is not None
     t2 = HecTime(t)
     t2.increment(count, intvl)
@@ -308,7 +308,7 @@ def test_increment(start_time: str, _interval: str, _count: str, end_time: str) 
         # --------------------------------- #
         # can't use calendar info in inctim #
         # --------------------------------- #
-        intvl = Interval.getAny(lambda i: i.minutes == interval)
+        intvl = Interval.get_any(lambda i: i.minutes == interval)
         assert intvl is not None
         endJul = [0]
         endMin = [0]
@@ -726,20 +726,20 @@ def test_add_subtract_compare() -> None:
         assert str(ht3) == times[season]["start"]
         assert ht3.values == list(map(int, str(ht3)[:19].translate(table).split()))
 
-        ht2 = ht + Interval.getCwms("1Day")
+        ht2 = ht + Interval.get_cwms("1Day")
         assert str(ht2) == times[season]["next"]
         assert ht2.values == list(map(int, str(ht2)[:19].translate(table).split()))
-        ht3 = ht2 - Interval.getCwms("1Day")
+        ht3 = ht2 - Interval.get_cwms("1Day")
         assert isinstance(ht3, HecTime)
         assert str(ht3) == times[season]["start"]
         assert ht3.values == list(map(int, str(ht3)[:19].translate(table).split()))
 
-        ht2 = ht + Interval.getAnyCwms(
+        ht2 = ht + Interval.get_any_cwms(
             lambda i: i.minutes == 1440 and i.is_local_regular
         )
         assert str(ht2) == times[season]["nextLocal"]
         assert ht2.values == list(map(int, str(ht2)[:19].translate(table).split()))
-        ht3 = ht2 - Interval.getAnyCwms(
+        ht3 = ht2 - Interval.get_any_cwms(
             lambda i: i.minutes == 1440 and i.is_local_regular
         )
         assert isinstance(ht3, HecTime)
@@ -788,21 +788,21 @@ def test_add_subtract_compare() -> None:
         assert ht3.values == list(map(int, str(ht3)[:19].translate(table).split()))
 
         ht2 = cast(HecTime, ht.clone())
-        ht2 += Interval.getCwms("1Day")
+        ht2 += Interval.get_cwms("1Day")
         assert str(ht2) == times[season]["next"]
         assert ht2.values == list(map(int, str(ht2)[:19].translate(table).split()))
         ht3 = cast(HecTime, ht2.clone())
-        ht3 -= Interval.getCwms("1Day")
+        ht3 -= Interval.get_cwms("1Day")
         assert isinstance(ht3, HecTime)
         assert str(ht3) == times[season]["start"]
         assert ht3.values == list(map(int, str(ht3)[:19].translate(table).split()))
 
         ht2 = cast(HecTime, ht.clone())
-        ht2 += Interval.getAnyCwms(lambda i: i.minutes == 1440 and i.is_local_regular)
+        ht2 += Interval.get_any_cwms(lambda i: i.minutes == 1440 and i.is_local_regular)
         assert str(ht2) == times[season]["nextLocal"]
         assert ht2.values == list(map(int, str(ht2)[:19].translate(table).split()))
         ht3 = cast(HecTime, ht2.clone())
-        ht3 -= Interval.getAnyCwms(lambda i: i.minutes == 1440 and i.is_local_regular)
+        ht3 -= Interval.get_any_cwms(lambda i: i.minutes == 1440 and i.is_local_regular)
         assert isinstance(ht3, HecTime)
         assert str(ht3) == times[season]["start"]
         assert ht3.values == list(map(int, str(ht3)[:19].translate(table).split()))
@@ -839,17 +839,19 @@ def test_add_subtract_compare() -> None:
         assert ht3.values == list(map(int, str(ht3)[:19].translate(table).split()))
 
         ht2 = cast(HecTime, ht.clone())
-        ht2.increment(1, Interval.getCwms("1Day"))
+        ht2.increment(1, Interval.get_cwms("1Day"))
         assert str(ht2) == times[season]["next"]
         assert ht2.values == list(map(int, str(ht2)[:19].translate(table).split()))
         ht3 = cast(HecTime, ht2.clone())
-        ht3.increment(-1, Interval.getCwms("1Day"))
+        ht3.increment(-1, Interval.get_cwms("1Day"))
         assert isinstance(ht3, HecTime)
         assert str(ht3) == times[season]["start"]
         assert ht3.values == list(map(int, str(ht3)[:19].translate(table).split()))
 
         ht2 = cast(HecTime, ht.clone())
-        intvl = Interval.getAnyCwms(lambda i: i.minutes == 1440 and i.is_local_regular)
+        intvl = Interval.get_any_cwms(
+            lambda i: i.minutes == 1440 and i.is_local_regular
+        )
         assert isinstance(intvl, Interval)
         ht2.increment(1, intvl)
         assert str(ht2) == times[season]["nextLocal"]

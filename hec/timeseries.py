@@ -4710,24 +4710,24 @@ class TimeSeries:
         intvl: Optional[Interval] = None
         if isinstance(interval, str):
             if self._context == _DSS:
-                if interval not in Interval.getAllDssNames(
+                if interval not in Interval.get_all_dss_names(
                     lambda i: i.is_any_irregular
                 ):
                     raise TimeSeriesException(
                         f"Interval '{interval}' is not a valid DSS irregular interval"
                     )
-                intvl = Interval.getAnyDss(lambda i: i.name == interval)
+                intvl = Interval.get_any_dss(lambda i: i.name == interval)
             elif self._context == _CWMS:
-                if interval not in Interval.getAllCwmsNames(
+                if interval not in Interval.get_all_cwms_names(
                     lambda i: i.is_any_irregular
                 ):
                     raise TimeSeriesException(
                         f"Interval '{interval}' is not a valid CWMS irregular interval"
                     )
-                intvl = Interval.getAnyCwms(lambda i: i.name == interval)
+                intvl = Interval.get_any_cwms(lambda i: i.name == interval)
         elif isinstance(interval, Interval):
             if self._context == _DSS:
-                if interval.name not in Interval.getAllDssNames(
+                if interval.name not in Interval.get_all_dss_names(
                     lambda i: i.is_any_irregular
                 ):
                     raise TimeSeriesException(
@@ -4735,7 +4735,7 @@ class TimeSeries:
                     )
                 intvl = interval
             elif self._context == _CWMS:
-                if interval.name not in Interval.getAllCwmsNames(
+                if interval.name not in Interval.get_all_cwms_names(
                     lambda i: i.is_any_irregular
                 ):
                     raise TimeSeriesException(
@@ -5246,15 +5246,15 @@ class TimeSeries:
                 and i.is_regular
             )
             if ts._context == _DSS:
-                intvl = cast(Interval, Interval.getAnyDss(matcher, True))
+                intvl = cast(Interval, Interval.get_any_dss(matcher, True))
             else:
-                intvl = cast(Interval, Interval.getAnyCwms(matcher, True))
+                intvl = cast(Interval, Interval.get_any_cwms(matcher, True))
         elif isinstance(interval, str):
             matcher = lambda i: i.name == interval and i.is_regular
             if ts._context == _DSS:
-                intvl = cast(Interval, Interval.getAnyDss(matcher, True))
+                intvl = cast(Interval, Interval.get_any_dss(matcher, True))
             else:
-                intvl = cast(Interval, Interval.getAnyCwms(matcher, True))
+                intvl = cast(Interval, Interval.get_any_cwms(matcher, True))
         else:
             raise TypeError(
                 f"Expected interval parameter to be Interval or timedelta, got {type(interval)}"
@@ -6044,15 +6044,15 @@ class TimeSeries:
                     / 365.0
                 )
                 if times_per_year < 10:
-                    target.iset_interval(Interval.getDss("Ir-Decade"))
+                    target.iset_interval(Interval.get_dss("Ir-Decade"))
                 elif times_per_year < 1000:
-                    target.iset_interval(Interval.getDss("Ir-Year"))
+                    target.iset_interval(Interval.get_dss("Ir-Year"))
                 elif times_per_year < 10000:
-                    target.iset_interval(Interval.getDss("Ir-Month"))
+                    target.iset_interval(Interval.get_dss("Ir-Month"))
                 else:
-                    target.iset_interval(Interval.getDss("Ir-Day"))
+                    target.iset_interval(Interval.get_dss("Ir-Day"))
             else:
-                target.iset_interval(Interval.getCwms("0"))
+                target.iset_interval(Interval.get_cwms("0"))
         # ---------------------- #
         # rebuild the data frame #
         # ---------------------- #
@@ -7112,9 +7112,9 @@ class TimeSeries:
             target._interval = value
         else:
             if target._context == _CWMS:
-                target._interval = Interval.getCwms(value)
+                target._interval = Interval.get_cwms(value)
             else:
-                target._interval = Interval.getDss(value)
+                target._interval = Interval.get_dss(value)
         target._validate()
         return target
 
@@ -7509,20 +7509,24 @@ class TimeSeries:
         ahead: Optional[TimeSpan] = None
         if isinstance(interval, str):
             if self._context == _DSS:
-                if interval not in Interval.getAllDssNames(lambda i: i.is_any_regular):
+                if interval not in Interval.get_all_dss_names(
+                    lambda i: i.is_any_regular
+                ):
                     raise TimeSeriesException(
                         f"Interval '{interval}' is not a valid DSS regular interval"
                     )
-                intvl = Interval.getAnyDss(lambda i: i.name == interval)
+                intvl = Interval.get_any_dss(lambda i: i.name == interval)
             elif self._context == _CWMS:
-                if interval not in Interval.getAllCwmsNames(lambda i: i.is_any_regular):
+                if interval not in Interval.get_all_cwms_names(
+                    lambda i: i.is_any_regular
+                ):
                     raise TimeSeriesException(
                         f"Interval '{interval}' is not a valid CWMS regular interval"
                     )
-                intvl = Interval.getAnyCwms(lambda i: i.name == interval)
+                intvl = Interval.get_any_cwms(lambda i: i.name == interval)
         elif isinstance(interval, Interval):
             if self._context == _DSS:
-                if interval.name not in Interval.getAllDssNames(
+                if interval.name not in Interval.get_all_dss_names(
                     lambda i: i.is_any_regular
                 ):
                     raise TimeSeriesException(
@@ -7530,7 +7534,7 @@ class TimeSeries:
                     )
                 intvl = interval
             elif self._context == _CWMS:
-                if interval.name not in Interval.getAllCwmsNames(
+                if interval.name not in Interval.get_all_cwms_names(
                     lambda i: i.is_any_regular
                 ):
                     raise TimeSeriesException(
