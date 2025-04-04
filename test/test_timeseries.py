@@ -2,14 +2,9 @@ import copy
 import math
 import os
 import statistics as stat
-import sys
 import warnings
 from datetime import timedelta
 from typing import List, Union, cast
-
-sys.path.insert(0, "U:\\Devl\\git\hec-python-library")
-
-import itertools as it
 
 import numpy as np
 import pandas as pd

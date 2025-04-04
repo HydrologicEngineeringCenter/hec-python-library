@@ -1,4 +1,3 @@
-import os
 import warnings
 from test.shared import dataset_from_file
 

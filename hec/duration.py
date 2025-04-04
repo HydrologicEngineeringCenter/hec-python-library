@@ -2,13 +2,6 @@
 Provides standard time durations
 """
 
-import os
-import sys
-
-_import_dir = os.path.abspath(".")
-if not _import_dir in sys.path:
-    sys.path.append(_import_dir)
-
 from datetime import timedelta
 from typing import Union, cast
 

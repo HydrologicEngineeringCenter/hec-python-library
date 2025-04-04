@@ -2,14 +2,7 @@
 Provides standard time intervals
 """
 
-import os
-import sys
 from datetime import timedelta
-
-_import_dir = os.path.abspath(".")
-if not _import_dir in sys.path:
-    sys.path.append(_import_dir)
-
 from typing import Any, Callable, Optional, Union, cast
 
 from hec.timespan import TimeSpan, TimeSpanException

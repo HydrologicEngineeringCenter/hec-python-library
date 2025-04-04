@@ -2,13 +2,6 @@
 Provides constants and related items
 """
 
-import os
-import sys
-
-_import_dir = os.path.abspath(".")
-if not _import_dir in sys.path:
-    sys.path.append(_import_dir)
-
 from enum import Enum
 
 
