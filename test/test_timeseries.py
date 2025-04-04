@@ -74,7 +74,7 @@ def test_time_series_value() -> None:
     # -------------------------------------- #
     tsv.time += timedelta(minutes=65)
     tsv.value += 0.7
-    tsv.quality = Qual("missing").setProtection(1)
+    tsv.quality = Qual("missing").set_protection(1)
     assert (
         repr(tsv)
         == "TimeSeriesValue(HecTime([2024, 10, 14, 12, 0, 0], MINUTE_GRANULARITY), UnitQuantity(13.0, 'ft'), Quality(-2147483643))"
@@ -404,7 +404,7 @@ def test_selection_and_filter() -> None:
     assert flow2.has_selection
     assert flow2.selected == 6 * [False, False, False, True]
     flow2.iset_value_quality(
-        math.nan, Qual(0).setScreened("SCREENED").setValidity("MISSING")
+        math.nan, Qual(0).set_screened("SCREENED").set_validity("MISSING")
     )
     assert not flow2.has_selection
     assert np.nan_to_num(flow2.values, nan=-1).tolist() == 6 * [100.0, 125.0, 112.0, -1]
@@ -2927,7 +2927,7 @@ def test_estimate_missing_values() -> None:
                 for i in range(0, len(dv0), 2):
                     expected_values[i] = dv0[i]
                     expected_qualities[i] = (
-                        Qual(int(dv1[i])).setProtection("Protected").unsigned
+                        Qual(int(dv1[i])).set_protection("Protected").unsigned
                     )
                 assert np.allclose(ts2.values, expected_values, equal_nan=True)
                 assert all(
@@ -3057,7 +3057,7 @@ def test_expand_collapse_trim() -> None:
     # ----------------------------------------#
     # RTS with protected values and selection #
     # ----------------------------------------#
-    Qual.setReturnUnsignedCodes()
+    Qual.set_return_unsigned_codes()
     ts2 = ts.select(
         lambda tsv: tsv.time == HecTime("2024-10-20T01:00:00")
     ).iset_protected()
