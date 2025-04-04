@@ -3076,9 +3076,9 @@ class TimeSeries:
         accumulation is computed. They remain missing in the retuned time series.
 
         **Restrictions**
-            * May be performed only on time series with accumulatable base parameters. Use [Parameter.accumulatable_base_parameters()](parameter.html#Parameter.accumulatable_base_parameters) to
-              list the accumulatable base parameters.
-            * May be performed only on Instantaneous, Average, or Total time series (CWMS: Inst, Ave, Total, DSS: INST-VAL, INST-CUM, PER-CUM)
+        * May be performed only on time series with accumulatable base parameters. Use [Parameter.accumulatable_base_parameters()](parameter.html#Parameter.accumulatable_base_parameters) to
+            list the accumulatable base parameters.
+        * May be performed only on Instantaneous, Average, or Total time series (CWMS: Inst, Ave, Total, DSS: INST-VAL, INST-CUM, PER-CUM)
 
         Args:
             in_place (bool, optional): If True, this object is modified and retured, otherwise
@@ -3531,9 +3531,9 @@ class TimeSeries:
         accumulation is computed. They remain missing in the retuned time series.
 
         **Restrictions**
-            * May be performed only on time series with accumulatable base parameters. Use [Parameter.accumulatable_base_parameters()](parameter.html#Parameter.accumulatable_base_parameters) to
-              list the accumulatable base parameters.
-            * May be performed only on Instantaneous, Average, or Total time series (CWMS: Inst, Ave, Total, DSS: INST-VAL, INST-CUM, PER-CUM)
+        * May be performed only on time series with accumulatable base parameters. Use [Parameter.accumulatable_base_parameters()](parameter.html#Parameter.accumulatable_base_parameters) to
+            list the accumulatable base parameters.
+        * May be performed only on Instantaneous, Average, or Total time series (CWMS: Inst, Ave, Total, DSS: INST-VAL, INST-CUM, PER-CUM)
 
         Args:
             in_place (bool, optional): If True, this object is modified and retured, otherwise
