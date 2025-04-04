@@ -10,7 +10,7 @@ hec = ["resources/*.txt"]
 
 [project]
 name = "hec-python-library"
-version = "0.7"
+version = "0.7.1"
 description = "Python 3 implementation of HEC Java/Jython utility classes"
 authors = [
     { name = "Michael Perryman", email = "michael.d.perryman@usace.army.mil" }

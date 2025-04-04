@@ -1,7 +1,6 @@
 """Module for testing hec.timespan module
 """
 
-import traceback
 from datetime import timedelta
 from fractions import Fraction
 from typing import Optional

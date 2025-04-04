@@ -3,15 +3,8 @@ Provides time series types and operations
 """
 
 import bisect
-import os
-import sys
-import types
-
-_import_dir = os.path.abspath(".")
-if not _import_dir in sys.path:
-    sys.path.append(_import_dir)
-
 import math
+import types
 import warnings
 from copy import deepcopy
 from datetime import datetime, timedelta
@@ -5672,7 +5665,7 @@ class TimeSeries:
             * `Count`: The number of valid old points in each new interval
             * `Maximum`: The maximum value of valid old points in each new interval
             * `Minimum`: The minimum value of valid old points in each new interval
-            * `Previous`: The value of the lateest valid old point prior to each new interval time
+            * `Previous`: The value of the latest valid old point prior to each new interval time
         * **Continuous**:
             * `Interpolate`: Find the value at each new interval time (see callouts in plots below)
             * `Integrate`: Integrate the time series for each new interval(see shaded area in plots below)
