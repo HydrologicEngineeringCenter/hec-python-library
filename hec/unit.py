@@ -1057,10 +1057,10 @@ class UnitQuantity:
     def __add__(self, other: object) -> "UnitQuantity":
         if isinstance(other, UnitQuantity):
             q = self._quantity + other._quantity
-            return UnitQuantity(q.magnitude, q.unit)
+            return UnitQuantity(q.magnitude, q.units)
         elif isinstance(other, pint.Quantity):
             q = self._quantity + other
-            return UnitQuantity(q.magnitude, q.unit)
+            return UnitQuantity(q.magnitude, q.units)
         elif isinstance(other, (int, float)):
             return UnitQuantity(self._quantity.magnitude + other, self._specified_unit)
         return NotImplemented
@@ -1083,10 +1083,10 @@ class UnitQuantity:
     def __floordiv__(self, other: object) -> "UnitQuantity":
         if isinstance(other, UnitQuantity):
             q = self._quantity // other._quantity
-            return UnitQuantity(q.magnitude, q.unit)
+            return UnitQuantity(q.magnitude, q.units)
         elif isinstance(other, pint.Quantity):
             q = self._quantity // other
-            return UnitQuantity(q.magnitude, q.unit)
+            return UnitQuantity(q.magnitude, q.units)
         elif isinstance(other, (int, float)):
             return UnitQuantity(self._quantity.magnitude // other, self._specified_unit)
         return NotImplemented
@@ -1200,10 +1200,10 @@ class UnitQuantity:
     def __mod__(self, other: object) -> "UnitQuantity":
         if isinstance(other, UnitQuantity):
             q = self._quantity % other._quantity
-            return UnitQuantity(q.magnitude, q.unit)
+            return UnitQuantity(q.magnitude, q.units)
         elif isinstance(other, pint.Quantity):
             q = self._quantity % other
-            return UnitQuantity(q.magnitude, q.unit)
+            return UnitQuantity(q.magnitude, q.units)
         elif isinstance(other, (int, float)):
             return UnitQuantity(self._quantity.magnitude % other, self._specified_unit)
         return NotImplemented
@@ -1211,10 +1211,10 @@ class UnitQuantity:
     def __mul__(self, other: object) -> "UnitQuantity":
         if isinstance(other, UnitQuantity):
             q = self._quantity * other._quantity
-            return UnitQuantity(q.magnitude, q.unit)
+            return UnitQuantity(q.magnitude, q.units)
         elif isinstance(other, pint.Quantity):
             q = self._quantity * other
-            return UnitQuantity(q.magnitude, q.unit)
+            return UnitQuantity(q.magnitude, q.units)
         elif isinstance(other, (int, float)):
             return UnitQuantity(self._quantity.magnitude * other, self._specified_unit)
         return NotImplemented
@@ -1232,7 +1232,7 @@ class UnitQuantity:
     def __radd__(self, other: object) -> "UnitQuantity":
         if isinstance(other, UnitQuantity):
             q = other._quantity + self._quantity
-            return UnitQuantity(q.magnitude, q.unit)
+            return UnitQuantity(q.magnitude, q.units)
         elif isinstance(other, pint.Quantity):
             q = other + self._quantity
             return UnitQuantity(q.magnitude, q.units)
@@ -1246,7 +1246,7 @@ class UnitQuantity:
     def __rfloordiv__(self, other: object) -> "UnitQuantity":
         if isinstance(other, UnitQuantity):
             q = other._quantity // self._quantity
-            return UnitQuantity(q.magnitude, q.unit)
+            return UnitQuantity(q.magnitude, q.units)
         elif isinstance(other, pint.Quantity):
             q = other // self._quantity
             return UnitQuantity(q.magnitude, q.units)
@@ -1257,7 +1257,7 @@ class UnitQuantity:
     def __rmod__(self, other: object) -> "UnitQuantity":
         if isinstance(other, UnitQuantity):
             q = other._quantity % self._quantity
-            return UnitQuantity(q.magnitude, q.unit)
+            return UnitQuantity(q.magnitude, q.units)
         elif isinstance(other, pint.Quantity):
             q = other % self._quantity
             return UnitQuantity(q.magnitude, q.units)
@@ -1268,7 +1268,7 @@ class UnitQuantity:
     def __rmul__(self, other: object) -> "UnitQuantity":
         if isinstance(other, UnitQuantity):
             q = other._quantity * self._quantity
-            return UnitQuantity(q.magnitude, q.unit)
+            return UnitQuantity(q.magnitude, q.units)
         elif isinstance(other, pint.Quantity):
             q = other * self._quantity
             return UnitQuantity(q.magnitude, q.units)
@@ -1279,7 +1279,7 @@ class UnitQuantity:
     def __rsub__(self, other: object) -> "UnitQuantity":
         if isinstance(other, UnitQuantity):
             q = other._quantity - self._quantity
-            return UnitQuantity(q.magnitude, q.unit)
+            return UnitQuantity(q.magnitude, q.units)
         elif isinstance(other, pint.Quantity):
             q = other - self._quantity
             return UnitQuantity(q.magnitude, q.units)
@@ -1290,7 +1290,7 @@ class UnitQuantity:
     def __rtruediv__(self, other: object) -> "UnitQuantity":
         if isinstance(other, UnitQuantity):
             q = other._quantity / self._quantity
-            return UnitQuantity(q.magnitude, q.unit)
+            return UnitQuantity(q.magnitude, q.units)
         elif isinstance(other, pint.Quantity):
             q = other / self._quantity
             return UnitQuantity(q.magnitude, q.units)
@@ -1314,10 +1314,10 @@ class UnitQuantity:
     def __sub__(self, other: object) -> "UnitQuantity":
         if isinstance(other, UnitQuantity):
             q = self._quantity - other._quantity
-            return UnitQuantity(q.magnitude, q.unit)
+            return UnitQuantity(q.magnitude, q.units)
         elif isinstance(other, pint.Quantity):
             q = self._quantity - other
-            return UnitQuantity(q.magnitude, q.unit)
+            return UnitQuantity(q.magnitude, q.units)
         elif isinstance(other, (int, float)):
             return UnitQuantity(self._quantity.magnitude - other, self._specified_unit)
         return NotImplemented
@@ -1325,10 +1325,10 @@ class UnitQuantity:
     def __truediv__(self, other: object) -> "UnitQuantity":
         if isinstance(other, UnitQuantity):
             q = self._quantity / other._quantity
-            return UnitQuantity(q.magnitude, q.unit)
+            return UnitQuantity(q.magnitude, q.units)
         elif isinstance(other, pint.Quantity):
             q = self._quantity / other
-            return UnitQuantity(q.magnitude, q.unit)
+            return UnitQuantity(q.magnitude, q.units)
         elif isinstance(other, (int, float)):
             return UnitQuantity(self._quantity.magnitude / other, self._specified_unit)
         return NotImplemented
@@ -1541,4 +1541,4 @@ class UnitQuantity:
         Operations:
             Read/Only
         """
-        return self._quantity.unit  # type: ignore
+        return self._quantity.units  # type: ignore

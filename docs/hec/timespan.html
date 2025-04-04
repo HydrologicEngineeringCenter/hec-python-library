@@ -43,16 +43,16 @@
                                 <a class="function" href="#TimeSpan.__init__">TimeSpan</a>
                         </li>
                         <li>
-                                <a class="variable" href="#TimeSpan.values">values</a>
+                                <a class="function" href="#TimeSpan.set">set</a>
                         </li>
                         <li>
-                                <a class="function" href="#TimeSpan.set">set</a>
+                                <a class="function" href="#TimeSpan.timedelta">timedelta</a>
                         </li>
                         <li>
                                 <a class="function" href="#TimeSpan.total_seconds">total_seconds</a>
                         </li>
                         <li>
-                                <a class="function" href="#TimeSpan.timedelta">timedelta</a>
+                                <a class="variable" href="#TimeSpan.values">values</a>
                         </li>
                 </ul>
 
@@ -243,37 +243,6 @@ also be convertable via the <code>Fraction()</code> constructor.</li>
 
 
                             </div>
-                            <div id="TimeSpan.values" class="classattr">
-                                <div class="attr variable">
-            <span class="name">values</span><span class="annotation">: Optional[list[Union[int, fractions.Fraction]]]</span>
-
-        
-    </div>
-    <a class="headerlink" href="#TimeSpan.values"></a>
-    
-            <div class="docstring"><p>A list of years, months, days, hours, minutes, and seconds in this time span.
-On read, all values will be normalized:</p>
-
-<ul>
-<li>years and days are unconstrained in magnitude</li>
-<li>integer months will be in the range of ±0..12</li>
-<li>fractional months normalized</li>
-<li>hours will be in the range of ±0..23</li>
-<li>minutes and seconds will be in the range ±0..59</li>
-<li>calendar-based values (years, months) will have the same sign if not zero</li>
-<li>non-calendar-based values (days, hours, minutes, seconds) will have the same sign if not zero</li>
-<li>calendar- and non-calendar-based values may have different signs</li>
-</ul>
-
-<h6 id="operations">Operations:</h6>
-
-<blockquote>
-  <p>Read/Write</p>
-</blockquote>
-</div>
-
-
-                            </div>
                             <div id="TimeSpan.set" class="classattr">
                                 <div class="attr function">
             
@@ -327,6 +296,33 @@ also be convertable via the <code>Fraction()</code> constructor.</li>
 
 
                             </div>
+                            <div id="TimeSpan.timedelta" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">timedelta</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span><span class="return-annotation">) -> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#TimeSpan.timedelta"></a>
+    
+            <div class="docstring"><p>Returns an equivalent <code><a href="#TimeSpan.timedelta">timedelta</a></code> object</p>
+
+<h6 id="raises">Raises:</h6>
+
+<ul>
+<li><strong>TimeSpanException:</strong>  if the object contains any calendar-based values</li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>timedelta: The equivalent <code><a href="#TimeSpan.timedelta">timedelta</a></code> object</p>
+</blockquote>
+</div>
+
+
+                            </div>
                             <div id="TimeSpan.total_seconds" class="classattr">
                                 <div class="attr function">
             
@@ -354,28 +350,32 @@ also be convertable via the <code>Fraction()</code> constructor.</li>
 
 
                             </div>
-                            <div id="TimeSpan.timedelta" class="classattr">
-                                <div class="attr function">
-            
-        <span class="def">def</span>
-        <span class="name">timedelta</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span><span class="return-annotation">) -> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span>:</span></span>
+                            <div id="TimeSpan.values" class="classattr">
+                                <div class="attr variable">
+            <span class="name">values</span><span class="annotation">: Optional[list[Union[int, fractions.Fraction]]]</span>
 
         
     </div>
-    <a class="headerlink" href="#TimeSpan.timedelta"></a>
+    <a class="headerlink" href="#TimeSpan.values"></a>
     
-            <div class="docstring"><p>Returns an equivalent <code><a href="#TimeSpan.timedelta">timedelta</a></code> object</p>
-
-<h6 id="raises">Raises:</h6>
+            <div class="docstring"><p>A list of years, months, days, hours, minutes, and seconds in this time span.
+On read, all values will be normalized:</p>
 
 <ul>
-<li><strong>TimeSpanException:</strong>  if the object contains any calendar-based values</li>
+<li>years and days are unconstrained in magnitude</li>
+<li>integer months will be in the range of ±0..12</li>
+<li>fractional months normalized</li>
+<li>hours will be in the range of ±0..23</li>
+<li>minutes and seconds will be in the range ±0..59</li>
+<li>calendar-based values (years, months) will have the same sign if not zero</li>
+<li>non-calendar-based values (days, hours, minutes, seconds) will have the same sign if not zero</li>
+<li>calendar- and non-calendar-based values may have different signs</li>
 </ul>
 
-<h6 id="returns">Returns:</h6>
+<h6 id="operations">Operations:</h6>
 
 <blockquote>
-  <p>timedelta: The equivalent <code><a href="#TimeSpan.timedelta">timedelta</a></code> object</p>
+  <p>Read/Write</p>
 </blockquote>
 </div>
 
