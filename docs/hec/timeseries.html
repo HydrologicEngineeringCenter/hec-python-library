@@ -875,10 +875,13 @@ previous time.</p>
 <p>If a selection is present, all non-selected items are set to missing before the
 accumulation is computed. They remain missing in the retuned time series.</p>
 
-<p><strong>Restrictions</strong>
-    * May be performed only on time series with accumulatable base parameters. Use <a href="parameter.html#Parameter.accumulatable_base_parameters">Parameter.accumulatable_base_parameters()</a> to
-      list the accumulatable base parameters.
-    * May be performed only on Instantaneous, Average, or Total time series (CWMS: Inst, Ave, Total, DSS: INST-VAL, INST-CUM, PER-CUM)</p>
+<p><strong>Restrictions</strong></p>
+
+<ul>
+<li>May be performed only on time series with accumulatable base parameters. Use <a href="parameter.html#Parameter.accumulatable_base_parameters">Parameter.accumulatable_base_parameters()</a> to
+list the accumulatable base parameters.</li>
+<li>May be performed only on Instantaneous, Average, or Total time series (CWMS: Inst, Ave, Total, DSS: INST-VAL, INST-CUM, PER-CUM)</li>
+</ul>
 
 <h6 id="arguments">Arguments:</h6>
 
@@ -1335,10 +1338,13 @@ and the next time in the result time sereies to be missing.</p>
 <p>If a selection is present, all non-selected items are set to missing before the
 accumulation is computed. They remain missing in the retuned time series.</p>
 
-<p><strong>Restrictions</strong>
-    * May be performed only on time series with accumulatable base parameters. Use <a href="parameter.html#Parameter.accumulatable_base_parameters">Parameter.accumulatable_base_parameters()</a> to
-      list the accumulatable base parameters.
-    * May be performed only on Instantaneous, Average, or Total time series (CWMS: Inst, Ave, Total, DSS: INST-VAL, INST-CUM, PER-CUM)</p>
+<p><strong>Restrictions</strong></p>
+
+<ul>
+<li>May be performed only on time series with accumulatable base parameters. Use <a href="parameter.html#Parameter.accumulatable_base_parameters">Parameter.accumulatable_base_parameters()</a> to
+list the accumulatable base parameters.</li>
+<li>May be performed only on Instantaneous, Average, or Total time series (CWMS: Inst, Ave, Total, DSS: INST-VAL, INST-CUM, PER-CUM)</li>
+</ul>
 
 <h6 id="arguments">Arguments:</h6>
 
@@ -3365,7 +3371,7 @@ or a list or tuple of such percentiles.</li>
 <li><code>Count</code>: The number of valid old points in each new interval</li>
 <li><code>Maximum</code>: The maximum value of valid old points in each new interval</li>
 <li><code>Minimum</code>: The minimum value of valid old points in each new interval</li>
-<li><code>Previous</code>: The value of the lateest valid old point prior to each new interval time</li>
+<li><code>Previous</code>: The value of the latest valid old point prior to each new interval time</li>
 </ul></li>
 <li><strong>Continuous</strong>:
 <ul>

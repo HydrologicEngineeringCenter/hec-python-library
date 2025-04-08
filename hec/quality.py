@@ -42,14 +42,7 @@ Provides quality code info and operations
 ```
 """
 
-import os
 import re
-import sys
-
-_import_dir = os.path.abspath(".")
-if not _import_dir in sys.path:
-    sys.path.append(_import_dir)
-
 from functools import total_ordering
 
 
