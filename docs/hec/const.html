@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="generator" content="pdoc 15.0.0"/>
+    <meta name="generator" content="pdoc 15.0.1"/>
     <title>hec.const API documentation</title>
 
     <style>/*! * Bootstrap Reboot v5.0.0 (https://getbootstrap.com/) * Copyright 2011-2021 The Bootstrap Authors * Copyright 2011-2021 Twitter, Inc. * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE) * Forked from Normalize.css, licensed MIT (https://github.com/necolas/normalize.css/blob/master/LICENSE.md) */*,::after,::before{box-sizing:border-box}@media (prefers-reduced-motion:no-preference){:root{scroll-behavior:smooth}}body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans","Liberation Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";font-size:1rem;font-weight:400;line-height:1.5;color:#212529;background-color:#fff;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}hr{margin:1rem 0;color:inherit;background-color:currentColor;border:0;opacity:.25}hr:not([size]){height:1px}h1,h2,h3,h4,h5,h6{margin-top:0;margin-bottom:.5rem;font-weight:500;line-height:1.2}h1{font-size:calc(1.375rem + 1.5vw)}@media (min-width:1200px){h1{font-size:2.5rem}}h2{font-size:calc(1.325rem + .9vw)}@media (min-width:1200px){h2{font-size:2rem}}h3{font-size:calc(1.3rem + .6vw)}@media (min-width:1200px){h3{font-size:1.75rem}}h4{font-size:calc(1.275rem + .3vw)}@media (min-width:1200px){h4{font-size:1.5rem}}h5{font-size:1.25rem}h6{font-size:1rem}p{margin-top:0;margin-bottom:1rem}abbr[data-bs-original-title],abbr[title]{-webkit-text-decoration:underline dotted;text-decoration:underline dotted;cursor:help;-webkit-text-decoration-skip-ink:none;text-decoration-skip-ink:none}address{margin-bottom:1rem;font-style:normal;line-height:inherit}ol,ul{padding-left:2rem}dl,ol,ul{margin-top:0;margin-bottom:1rem}ol ol,ol ul,ul ol,ul ul{margin-bottom:0}dt{font-weight:700}dd{margin-bottom:.5rem;margin-left:0}blockquote{margin:0 0 1rem}b,strong{font-weight:bolder}small{font-size:.875em}mark{padding:.2em;background-color:#fcf8e3}sub,sup{position:relative;font-size:.75em;line-height:0;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}a{color:#0d6efd;text-decoration:underline}a:hover{color:#0a58ca}a:not([href]):not([class]),a:not([href]):not([class]):hover{color:inherit;text-decoration:none}code,kbd,pre,samp{font-family:SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;font-size:1em;direction:ltr;unicode-bidi:bidi-override}pre{display:block;margin-top:0;margin-bottom:1rem;overflow:auto;font-size:.875em}pre code{font-size:inherit;color:inherit;word-break:normal}code{font-size:.875em;color:#d63384;word-wrap:break-word}a>code{color:inherit}kbd{padding:.2rem .4rem;font-size:.875em;color:#fff;background-color:#212529;border-radius:.2rem}kbd kbd{padding:0;font-size:1em;font-weight:700}figure{margin:0 0 1rem}img,svg{vertical-align:middle}table{caption-side:bottom;border-collapse:collapse}caption{padding-top:.5rem;padding-bottom:.5rem;color:#6c757d;text-align:left}th{text-align:inherit;text-align:-webkit-match-parent}tbody,td,tfoot,th,thead,tr{border-color:inherit;border-style:solid;border-width:0}label{display:inline-block}button{border-radius:0}button:focus:not(:focus-visible){outline:0}button,input,optgroup,select,textarea{margin:0;font-family:inherit;font-size:inherit;line-height:inherit}button,select{text-transform:none}[role=button]{cursor:pointer}select{word-wrap:normal}select:disabled{opacity:1}[list]::-webkit-calendar-picker-indicator{display:none}[type=button],[type=reset],[type=submit],button{-webkit-appearance:button}[type=button]:not(:disabled),[type=reset]:not(:disabled),[type=submit]:not(:disabled),button:not(:disabled){cursor:pointer}::-moz-focus-inner{padding:0;border-style:none}textarea{resize:vertical}fieldset{min-width:0;padding:0;margin:0;border:0}legend{float:left;width:100%;padding:0;margin-bottom:.5rem;font-size:calc(1.275rem + .3vw);line-height:inherit}@media (min-width:1200px){legend{font-size:1.5rem}}legend+*{clear:left}::-webkit-datetime-edit-day-field,::-webkit-datetime-edit-fields-wrapper,::-webkit-datetime-edit-hour-field,::-webkit-datetime-edit-minute,::-webkit-datetime-edit-month-field,::-webkit-datetime-edit-text,::-webkit-datetime-edit-year-field{padding:0}::-webkit-inner-spin-button{height:auto}[type=search]{outline-offset:-2px;-webkit-appearance:textfield}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-color-swatch-wrapper{padding:0}::file-selector-button{font:inherit}::-webkit-file-upload-button{font:inherit;-webkit-appearance:button}output{display:inline-block}iframe{border:0}summary{display:list-item;cursor:pointer}progress{vertical-align:baseline}[hidden]{display:none!important}</style>
@@ -31,6 +31,27 @@
             <h2>API Documentation</h2>
                 <ul class="memberlist">
             <li>
+                    <a class="class" href="#Combine">Combine</a>
+                            <ul class="memberlist">
+                        <li>
+                                <a class="variable" href="#Combine.NOOP">NOOP</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Combine.REPLACE">REPLACE</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Combine.AND">AND</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Combine.OR">OR</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Combine.XOR">XOR</a>
+                        </li>
+                </ul>
+
+            </li>
+            <li>
                     <a class="class" href="#Safety">Safety</a>
                             <ul class="memberlist">
                         <li>
@@ -41,18 +62,6 @@
                         </li>
                         <li>
                                 <a class="variable" href="#Safety.ERROR_ON_UNSAFE">ERROR_ON_UNSAFE</a>
-                        </li>
-                </ul>
-
-            </li>
-            <li>
-                    <a class="class" href="#SelectionState">SelectionState</a>
-                            <ul class="memberlist">
-                        <li>
-                                <a class="variable" href="#SelectionState.TRANSIENT">TRANSIENT</a>
-                        </li>
-                        <li>
-                                <a class="variable" href="#SelectionState.DURABLE">DURABLE</a>
                         </li>
                 </ul>
 
@@ -73,22 +82,13 @@
 
             </li>
             <li>
-                    <a class="class" href="#Combine">Combine</a>
+                    <a class="class" href="#SelectionState">SelectionState</a>
                             <ul class="memberlist">
                         <li>
-                                <a class="variable" href="#Combine.NOOP">NOOP</a>
+                                <a class="variable" href="#SelectionState.TRANSIENT">TRANSIENT</a>
                         </li>
                         <li>
-                                <a class="variable" href="#Combine.REPLACE">REPLACE</a>
-                        </li>
-                        <li>
-                                <a class="variable" href="#Combine.AND">AND</a>
-                        </li>
-                        <li>
-                                <a class="variable" href="#Combine.OR">OR</a>
-                        </li>
-                        <li>
-                                <a class="variable" href="#Combine.XOR">XOR</a>
+                                <a class="variable" href="#SelectionState.DURABLE">DURABLE</a>
                         </li>
                 </ul>
 
@@ -116,164 +116,6 @@
                 
                 
             </section>
-                <section id="Safety">
-                    <div class="attr class">
-            
-    <span class="def">class</span>
-    <span class="name">Safety</span><wbr>(<span class="base">enum.Enum</span>):
-
-        
-    </div>
-    <a class="headerlink" href="#Safety"></a>
-    
-            <div class="docstring"><p>Enumeration for specifying behavior of potentially unsafe operations.</p>
-
-<ul>
-<li><code><a href="#Safety.NOOP_ON_UNSAFE">NOOP_ON_UNSAFE</a></code>: No action is taken on potientially unsafe operations</li>
-<li><code><a href="#Safety.WARN_ON_UNSAFE">WARN_ON_UNSAFE</a></code>: Potentially unsafe operations will generate a warning</li>
-<li><code><a href="#Safety.ERROR_ON_UNSAFE">ERROR_ON_UNSAFE</a></code>: Potentially unsafe operations will raise an exception</li>
-</ul>
-</div>
-
-
-                            <div id="Safety.NOOP_ON_UNSAFE" class="classattr">
-                                <div class="attr variable">
-            <span class="name">NOOP_ON_UNSAFE</span>        =
-<span class="default_value">&lt;<a href="#Safety.NOOP_ON_UNSAFE">Safety.NOOP_ON_UNSAFE</a>: 0&gt;</span>
-
-        
-    </div>
-    <a class="headerlink" href="#Safety.NOOP_ON_UNSAFE"></a>
-    
-    
-
-                            </div>
-                            <div id="Safety.WARN_ON_UNSAFE" class="classattr">
-                                <div class="attr variable">
-            <span class="name">WARN_ON_UNSAFE</span>        =
-<span class="default_value">&lt;<a href="#Safety.WARN_ON_UNSAFE">Safety.WARN_ON_UNSAFE</a>: 1&gt;</span>
-
-        
-    </div>
-    <a class="headerlink" href="#Safety.WARN_ON_UNSAFE"></a>
-    
-    
-
-                            </div>
-                            <div id="Safety.ERROR_ON_UNSAFE" class="classattr">
-                                <div class="attr variable">
-            <span class="name">ERROR_ON_UNSAFE</span>        =
-<span class="default_value">&lt;<a href="#Safety.ERROR_ON_UNSAFE">Safety.ERROR_ON_UNSAFE</a>: 2&gt;</span>
-
-        
-    </div>
-    <a class="headerlink" href="#Safety.ERROR_ON_UNSAFE"></a>
-    
-    
-
-                            </div>
-                </section>
-                <section id="SelectionState">
-                    <div class="attr class">
-            
-    <span class="def">class</span>
-    <span class="name">SelectionState</span><wbr>(<span class="base">enum.Enum</span>):
-
-        
-    </div>
-    <a class="headerlink" href="#SelectionState"></a>
-    
-            <div class="docstring"><p>Enumeration for specifying selection durability</p>
-
-<ul>
-<li><code><a href="#SelectionState.TRANSIENT">TRANSIENT</a></code>: Selection is cleared after next operation</li>
-<li><code><a href="#SelectionState.DURABLE">DURABLE</a></code>: Selection persists until explicitly modified</li>
-</ul>
-</div>
-
-
-                            <div id="SelectionState.TRANSIENT" class="classattr">
-                                <div class="attr variable">
-            <span class="name">TRANSIENT</span>        =
-<span class="default_value">&lt;<a href="#SelectionState.TRANSIENT">SelectionState.TRANSIENT</a>: 0&gt;</span>
-
-        
-    </div>
-    <a class="headerlink" href="#SelectionState.TRANSIENT"></a>
-    
-    
-
-                            </div>
-                            <div id="SelectionState.DURABLE" class="classattr">
-                                <div class="attr variable">
-            <span class="name">DURABLE</span>        =
-<span class="default_value">&lt;<a href="#SelectionState.DURABLE">SelectionState.DURABLE</a>: 1&gt;</span>
-
-        
-    </div>
-    <a class="headerlink" href="#SelectionState.DURABLE"></a>
-    
-    
-
-                            </div>
-                </section>
-                <section id="Select">
-                    <div class="attr class">
-            
-    <span class="def">class</span>
-    <span class="name">Select</span><wbr>(<span class="base">enum.Enum</span>):
-
-        
-    </div>
-    <a class="headerlink" href="#Select"></a>
-    
-            <div class="docstring"><p>Enumeration for specifying items to select</p>
-
-<ul>
-<li><code><a href="#Select.NONE">NONE</a></code>: Set all items to unselected</li>
-<li><code><a href="#Select.ALL">ALL</a></code>: Set all items to selected</li>
-<li><code><a href="#Select.INVERT">INVERT</a></code>: Set all items to the inverse of their currently selected state</li>
-</ul>
-</div>
-
-
-                            <div id="Select.NONE" class="classattr">
-                                <div class="attr variable">
-            <span class="name">NONE</span>        =
-<span class="default_value">&lt;<a href="#Select.NONE">Select.NONE</a>: 0&gt;</span>
-
-        
-    </div>
-    <a class="headerlink" href="#Select.NONE"></a>
-    
-    
-
-                            </div>
-                            <div id="Select.ALL" class="classattr">
-                                <div class="attr variable">
-            <span class="name">ALL</span>        =
-<span class="default_value">&lt;<a href="#Select.ALL">Select.ALL</a>: 1&gt;</span>
-
-        
-    </div>
-    <a class="headerlink" href="#Select.ALL"></a>
-    
-    
-
-                            </div>
-                            <div id="Select.INVERT" class="classattr">
-                                <div class="attr variable">
-            <span class="name">INVERT</span>        =
-<span class="default_value">&lt;<a href="#Select.INVERT">Select.INVERT</a>: 2&gt;</span>
-
-        
-    </div>
-    <a class="headerlink" href="#Select.INVERT"></a>
-    
-    
-
-                            </div>
-                </section>
                 <section id="Combine">
                     <div class="attr class">
             
@@ -352,6 +194,164 @@
         
     </div>
     <a class="headerlink" href="#Combine.XOR"></a>
+    
+    
+
+                            </div>
+                </section>
+                <section id="Safety">
+                    <div class="attr class">
+            
+    <span class="def">class</span>
+    <span class="name">Safety</span><wbr>(<span class="base">enum.Enum</span>):
+
+        
+    </div>
+    <a class="headerlink" href="#Safety"></a>
+    
+            <div class="docstring"><p>Enumeration for specifying behavior of potentially unsafe operations.</p>
+
+<ul>
+<li><code><a href="#Safety.NOOP_ON_UNSAFE">NOOP_ON_UNSAFE</a></code>: No action is taken on potientially unsafe operations</li>
+<li><code><a href="#Safety.WARN_ON_UNSAFE">WARN_ON_UNSAFE</a></code>: Potentially unsafe operations will generate a warning</li>
+<li><code><a href="#Safety.ERROR_ON_UNSAFE">ERROR_ON_UNSAFE</a></code>: Potentially unsafe operations will raise an exception</li>
+</ul>
+</div>
+
+
+                            <div id="Safety.NOOP_ON_UNSAFE" class="classattr">
+                                <div class="attr variable">
+            <span class="name">NOOP_ON_UNSAFE</span>        =
+<span class="default_value">&lt;<a href="#Safety.NOOP_ON_UNSAFE">Safety.NOOP_ON_UNSAFE</a>: 0&gt;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Safety.NOOP_ON_UNSAFE"></a>
+    
+    
+
+                            </div>
+                            <div id="Safety.WARN_ON_UNSAFE" class="classattr">
+                                <div class="attr variable">
+            <span class="name">WARN_ON_UNSAFE</span>        =
+<span class="default_value">&lt;<a href="#Safety.WARN_ON_UNSAFE">Safety.WARN_ON_UNSAFE</a>: 1&gt;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Safety.WARN_ON_UNSAFE"></a>
+    
+    
+
+                            </div>
+                            <div id="Safety.ERROR_ON_UNSAFE" class="classattr">
+                                <div class="attr variable">
+            <span class="name">ERROR_ON_UNSAFE</span>        =
+<span class="default_value">&lt;<a href="#Safety.ERROR_ON_UNSAFE">Safety.ERROR_ON_UNSAFE</a>: 2&gt;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Safety.ERROR_ON_UNSAFE"></a>
+    
+    
+
+                            </div>
+                </section>
+                <section id="Select">
+                    <div class="attr class">
+            
+    <span class="def">class</span>
+    <span class="name">Select</span><wbr>(<span class="base">enum.Enum</span>):
+
+        
+    </div>
+    <a class="headerlink" href="#Select"></a>
+    
+            <div class="docstring"><p>Enumeration for specifying items to select</p>
+
+<ul>
+<li><code><a href="#Select.NONE">NONE</a></code>: Set all items to unselected</li>
+<li><code><a href="#Select.ALL">ALL</a></code>: Set all items to selected</li>
+<li><code><a href="#Select.INVERT">INVERT</a></code>: Set all items to the inverse of their currently selected state</li>
+</ul>
+</div>
+
+
+                            <div id="Select.NONE" class="classattr">
+                                <div class="attr variable">
+            <span class="name">NONE</span>        =
+<span class="default_value">&lt;<a href="#Select.NONE">Select.NONE</a>: 0&gt;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Select.NONE"></a>
+    
+    
+
+                            </div>
+                            <div id="Select.ALL" class="classattr">
+                                <div class="attr variable">
+            <span class="name">ALL</span>        =
+<span class="default_value">&lt;<a href="#Select.ALL">Select.ALL</a>: 1&gt;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Select.ALL"></a>
+    
+    
+
+                            </div>
+                            <div id="Select.INVERT" class="classattr">
+                                <div class="attr variable">
+            <span class="name">INVERT</span>        =
+<span class="default_value">&lt;<a href="#Select.INVERT">Select.INVERT</a>: 2&gt;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Select.INVERT"></a>
+    
+    
+
+                            </div>
+                </section>
+                <section id="SelectionState">
+                    <div class="attr class">
+            
+    <span class="def">class</span>
+    <span class="name">SelectionState</span><wbr>(<span class="base">enum.Enum</span>):
+
+        
+    </div>
+    <a class="headerlink" href="#SelectionState"></a>
+    
+            <div class="docstring"><p>Enumeration for specifying selection durability</p>
+
+<ul>
+<li><code><a href="#SelectionState.TRANSIENT">TRANSIENT</a></code>: Selection is cleared after next operation</li>
+<li><code><a href="#SelectionState.DURABLE">DURABLE</a></code>: Selection persists until explicitly modified</li>
+</ul>
+</div>
+
+
+                            <div id="SelectionState.TRANSIENT" class="classattr">
+                                <div class="attr variable">
+            <span class="name">TRANSIENT</span>        =
+<span class="default_value">&lt;<a href="#SelectionState.TRANSIENT">SelectionState.TRANSIENT</a>: 0&gt;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#SelectionState.TRANSIENT"></a>
+    
+    
+
+                            </div>
+                            <div id="SelectionState.DURABLE" class="classattr">
+                                <div class="attr variable">
+            <span class="name">DURABLE</span>        =
+<span class="default_value">&lt;<a href="#SelectionState.DURABLE">SelectionState.DURABLE</a>: 1&gt;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#SelectionState.DURABLE"></a>
     
     
 

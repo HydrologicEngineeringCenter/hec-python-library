@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="generator" content="pdoc 15.0.0"/>
+    <meta name="generator" content="pdoc 15.0.1"/>
     <title>hec.parameter API documentation</title>
 
     <style>/*! * Bootstrap Reboot v5.0.0 (https://getbootstrap.com/) * Copyright 2011-2021 The Bootstrap Authors * Copyright 2011-2021 Twitter, Inc. * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE) * Forked from Normalize.css, licensed MIT (https://github.com/necolas/normalize.css/blob/master/LICENSE.md) */*,::after,::before{box-sizing:border-box}@media (prefers-reduced-motion:no-preference){:root{scroll-behavior:smooth}}body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans","Liberation Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";font-size:1rem;font-weight:400;line-height:1.5;color:#212529;background-color:#fff;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}hr{margin:1rem 0;color:inherit;background-color:currentColor;border:0;opacity:.25}hr:not([size]){height:1px}h1,h2,h3,h4,h5,h6{margin-top:0;margin-bottom:.5rem;font-weight:500;line-height:1.2}h1{font-size:calc(1.375rem + 1.5vw)}@media (min-width:1200px){h1{font-size:2.5rem}}h2{font-size:calc(1.325rem + .9vw)}@media (min-width:1200px){h2{font-size:2rem}}h3{font-size:calc(1.3rem + .6vw)}@media (min-width:1200px){h3{font-size:1.75rem}}h4{font-size:calc(1.275rem + .3vw)}@media (min-width:1200px){h4{font-size:1.5rem}}h5{font-size:1.25rem}h6{font-size:1rem}p{margin-top:0;margin-bottom:1rem}abbr[data-bs-original-title],abbr[title]{-webkit-text-decoration:underline dotted;text-decoration:underline dotted;cursor:help;-webkit-text-decoration-skip-ink:none;text-decoration-skip-ink:none}address{margin-bottom:1rem;font-style:normal;line-height:inherit}ol,ul{padding-left:2rem}dl,ol,ul{margin-top:0;margin-bottom:1rem}ol ol,ol ul,ul ol,ul ul{margin-bottom:0}dt{font-weight:700}dd{margin-bottom:.5rem;margin-left:0}blockquote{margin:0 0 1rem}b,strong{font-weight:bolder}small{font-size:.875em}mark{padding:.2em;background-color:#fcf8e3}sub,sup{position:relative;font-size:.75em;line-height:0;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}a{color:#0d6efd;text-decoration:underline}a:hover{color:#0a58ca}a:not([href]):not([class]),a:not([href]):not([class]):hover{color:inherit;text-decoration:none}code,kbd,pre,samp{font-family:SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;font-size:1em;direction:ltr;unicode-bidi:bidi-override}pre{display:block;margin-top:0;margin-bottom:1rem;overflow:auto;font-size:.875em}pre code{font-size:inherit;color:inherit;word-break:normal}code{font-size:.875em;color:#d63384;word-wrap:break-word}a>code{color:inherit}kbd{padding:.2rem .4rem;font-size:.875em;color:#fff;background-color:#212529;border-radius:.2rem}kbd kbd{padding:0;font-size:1em;font-weight:700}figure{margin:0 0 1rem}img,svg{vertical-align:middle}table{caption-side:bottom;border-collapse:collapse}caption{padding-top:.5rem;padding-bottom:.5rem;color:#6c757d;text-align:left}th{text-align:inherit;text-align:-webkit-match-parent}tbody,td,tfoot,th,thead,tr{border-color:inherit;border-style:solid;border-width:0}label{display:inline-block}button{border-radius:0}button:focus:not(:focus-visible){outline:0}button,input,optgroup,select,textarea{margin:0;font-family:inherit;font-size:inherit;line-height:inherit}button,select{text-transform:none}[role=button]{cursor:pointer}select{word-wrap:normal}select:disabled{opacity:1}[list]::-webkit-calendar-picker-indicator{display:none}[type=button],[type=reset],[type=submit],button{-webkit-appearance:button}[type=button]:not(:disabled),[type=reset]:not(:disabled),[type=submit]:not(:disabled),button:not(:disabled){cursor:pointer}::-moz-focus-inner{padding:0;border-style:none}textarea{resize:vertical}fieldset{min-width:0;padding:0;margin:0;border:0}legend{float:left;width:100%;padding:0;margin-bottom:.5rem;font-size:calc(1.275rem + .3vw);line-height:inherit}@media (min-width:1200px){legend{font-size:1.5rem}}legend+*{clear:left}::-webkit-datetime-edit-day-field,::-webkit-datetime-edit-fields-wrapper,::-webkit-datetime-edit-hour-field,::-webkit-datetime-edit-minute,::-webkit-datetime-edit-month-field,::-webkit-datetime-edit-text,::-webkit-datetime-edit-year-field{padding:0}::-webkit-inner-spin-button{height:auto}[type=search]{outline-offset:-2px;-webkit-appearance:textfield}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-color-swatch-wrapper{padding:0}::file-selector-button{font:inherit}::-webkit-file-upload-button{font:inherit;-webkit-appearance:button}output{display:inline-block}iframe{border:0}summary{display:list-item;cursor:pointer}progress{vertical-align:baseline}[hidden]{display:none!important}</style>
@@ -46,13 +46,16 @@
                                 <a class="function" href="#Parameter.__init__">Parameter</a>
                         </li>
                         <li>
-                                <a class="function" href="#Parameter.base_parameters">base_parameters</a>
-                        </li>
-                        <li>
                                 <a class="function" href="#Parameter.accumulatable_base_parameters">accumulatable_base_parameters</a>
                         </li>
                         <li>
-                                <a class="function" href="#Parameter.integrable_base_parameters">integrable_base_parameters</a>
+                                <a class="variable" href="#Parameter.base_parameter">base_parameter</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Parameter.base_parameters">base_parameters</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Parameter.basename">basename</a>
                         </li>
                         <li>
                                 <a class="function" href="#Parameter.differentiable_base_parameters">differentiable_base_parameters</a>
@@ -61,31 +64,28 @@
                                 <a class="function" href="#Parameter.differentiation_info">differentiation_info</a>
                         </li>
                         <li>
-                                <a class="variable" href="#Parameter.name">name</a>
+                                <a class="function" href="#Parameter.get_compatible_units">get_compatible_units</a>
                         </li>
                         <li>
-                                <a class="variable" href="#Parameter.basename">basename</a>
-                        </li>
-                        <li>
-                                <a class="variable" href="#Parameter.subname">subname</a>
-                        </li>
-                        <li>
-                                <a class="variable" href="#Parameter.base_parameter">base_parameter</a>
-                        </li>
-                        <li>
-                                <a class="variable" href="#Parameter.unit_name">unit_name</a>
-                        </li>
-                        <li>
-                                <a class="variable" href="#Parameter.unit">unit</a>
-                        </li>
-                        <li>
-                                <a class="function" href="#Parameter.to">to</a>
+                                <a class="function" href="#Parameter.integrable_base_parameters">integrable_base_parameters</a>
                         </li>
                         <li>
                                 <a class="function" href="#Parameter.ito">ito</a>
                         </li>
                         <li>
-                                <a class="function" href="#Parameter.get_compatible_units">get_compatible_units</a>
+                                <a class="variable" href="#Parameter.name">name</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Parameter.subname">subname</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Parameter.to">to</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Parameter.unit">unit</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Parameter.unit_name">unit_name</a>
                         </li>
                 </ul>
 
@@ -106,49 +106,49 @@
                                 <a class="function" href="#ElevParameter.clone">clone</a>
                         </li>
                         <li>
-                                <a class="variable" href="#ElevParameter.unit_name">unit_name</a>
-                        </li>
-                        <li>
-                                <a class="variable" href="#ElevParameter.unit">unit</a>
-                        </li>
-                        <li>
-                                <a class="variable" href="#ElevParameter.vertical_datum_info">vertical_datum_info</a>
-                        </li>
-                        <li>
-                                <a class="variable" href="#ElevParameter.vertical_datum_info_xml">vertical_datum_info_xml</a>
-                        </li>
-                        <li>
-                                <a class="variable" href="#ElevParameter.vertical_datum_info_dict">vertical_datum_info_dict</a>
+                                <a class="variable" href="#ElevParameter.current_datum">current_datum</a>
                         </li>
                         <li>
                                 <a class="variable" href="#ElevParameter.elevation">elevation</a>
                         </li>
                         <li>
+                                <a class="function" href="#ElevParameter.get_offset_to">get_offset_to</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#ElevParameter.ito">ito</a>
+                        </li>
+                        <li>
                                 <a class="variable" href="#ElevParameter.native_datum">native_datum</a>
-                        </li>
-                        <li>
-                                <a class="variable" href="#ElevParameter.current_datum">current_datum</a>
-                        </li>
-                        <li>
-                                <a class="variable" href="#ElevParameter.ngvd29_offset">ngvd29_offset</a>
                         </li>
                         <li>
                                 <a class="variable" href="#ElevParameter.navd88_offset">navd88_offset</a>
                         </li>
                         <li>
-                                <a class="variable" href="#ElevParameter.ngvd29_offset_is_estimate">ngvd29_offset_is_estimate</a>
-                        </li>
-                        <li>
                                 <a class="variable" href="#ElevParameter.navd88_offset_is_estimate">navd88_offset_is_estimate</a>
                         </li>
                         <li>
-                                <a class="function" href="#ElevParameter.get_offset_to">get_offset_to</a>
+                                <a class="variable" href="#ElevParameter.ngvd29_offset">ngvd29_offset</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#ElevParameter.ngvd29_offset_is_estimate">ngvd29_offset_is_estimate</a>
                         </li>
                         <li>
                                 <a class="function" href="#ElevParameter.to">to</a>
                         </li>
                         <li>
-                                <a class="function" href="#ElevParameter.ito">ito</a>
+                                <a class="variable" href="#ElevParameter.unit">unit</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#ElevParameter.unit_name">unit_name</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#ElevParameter.vertical_datum_info">vertical_datum_info</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#ElevParameter.vertical_datum_info_dict">vertical_datum_info_dict</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#ElevParameter.vertical_datum_info_xml">vertical_datum_info_xml</a>
                         </li>
                 </ul>
 
@@ -166,28 +166,28 @@
                                 <a class="function" href="#ParameterType.__init__">ParameterType</a>
                         </li>
                         <li>
-                                <a class="function" href="#ParameterType.parameterTypeNames">parameterTypeNames</a>
-                        </li>
-                        <li>
-                                <a class="function" href="#ParameterType.setDefaultContext">setDefaultContext</a>
-                        </li>
-                        <li>
                                 <a class="variable" href="#ParameterType.context">context</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#ParameterType.get_cwms_name">get_cwms_name</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#ParameterType.get_dss_name">get_dss_name</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#ParameterType.get_raw_name">get_raw_name</a>
                         </li>
                         <li>
                                 <a class="variable" href="#ParameterType.name">name</a>
                         </li>
                         <li>
-                                <a class="function" href="#ParameterType.setContext">setContext</a>
+                                <a class="function" href="#ParameterType.parameter_type_names">parameter_type_names</a>
                         </li>
                         <li>
-                                <a class="function" href="#ParameterType.getRawName">getRawName</a>
+                                <a class="function" href="#ParameterType.set_context">set_context</a>
                         </li>
                         <li>
-                                <a class="function" href="#ParameterType.getCwmsName">getCwmsName</a>
-                        </li>
-                        <li>
-                                <a class="function" href="#ParameterType.getDssName">getDssName</a>
+                                <a class="function" href="#ParameterType.set_default_context">set_default_context</a>
                         </li>
                 </ul>
 
@@ -217,6 +217,32 @@
 <li><a href="#ElevParameter">ElevParameter</a></li>
 <li><a href="#ParameterType">ParameterType</a></li>
 </ul>
+
+<p><a name="base_parameter_definitions"></a>
+<strong>Base Parameter Definitions</strong>
+The tab separated variable file <code>resources/base_parameters.tsv</code> in this module's installation provides the following information about base parameters.</p>
+
+<table>
+<tr><th>Field No.</th><th>Content</th><th>Type</th><th>Notes</th></tr>
+<tr><td>1</td><td>Base Parameter Identifier</td><td>String</td><td>Required</td></tr>
+<tr><td>2</td><td>Long Name</td><td>String</td><td>Required</td></tr>
+<tr><td>3</td><td>Description</td><td>String</td><td>Required</td></tr>
+<tr><td>4</td><td>Default English Unit</td><td>String</td><td>Required</td></tr>
+<tr><td>5</td><td>Default SI Unit</td><td>String</td><td>Required</td></tr>
+<tr><td>6</td><td>Parameter is Accumuatable Over Time</td><td>Boolean</td><td>Required</td></tr>
+<tr><td>7</td><td>Integrated Base Parameter</td><td>String</td><td>Optional. Base Parameter of integrating the base parameter in Field 1 over time</td></tr>
+<tr><td>8</td><td>Differentiated Base Parameter</td><td>String</td><td>Optional. Base Parameter of differentiating the base parameter in Field 1 with respect to time</td></tr>
+<tr><td>9</td><td>English Differentiation Conversion Factor</td><td>Numeric</td><td>Required if Field 8 is present. Factor to convert:
+    <ul>
+    <li><b>From</b> standard English unit of dividing the base parameter in Field 1 by a number of seconds</li>
+    <li><b>To</b> the standard English unit of the base parameter in Field 8</li>
+    </ul></td></tr>
+<tr><td>10</td><td>SI Differentiation Conversion Factor</td><td>Numeric</td><td>Required if Field 8 is present. Factor to convert:
+    <ul>
+    <li><b>From</b> standard SI unit of dividing the base parameter in Field 1 by a number of seconds</li>
+    <li><b>To</b> the standard SI unit of the base parameter in Field 8</li>
+    </ul></td></tr>
+</table>
 </div>
 
                 
@@ -275,7 +301,9 @@
     </div>
     <a class="headerlink" href="#Parameter"></a>
     
-            <div class="docstring"><p>Holds info (name and unit) for a parameter</p>
+            <div class="docstring"><p>Holds info (name and unit) for a parameter.</p>
+
+<p>See <a href="parameter.html#base_parameter_definitions">base_parameter_definitions</a> for information on base parameters and their conversions.</p>
 </div>
 
 
@@ -313,6 +341,62 @@ or if the specified unit is not valid for the parameter</li>
 
 
                             </div>
+                            <div id="Parameter.accumulatable_base_parameters" class="classattr">
+                                <div class="attr function">
+                    <div class="decorator decorator-staticmethod">@staticmethod</div>
+
+        <span class="def">def</span>
+        <span class="name">accumulatable_base_parameters</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">context</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;CWMS&#39;</span></span><span class="return-annotation">) -> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#Parameter.accumulatable_base_parameters"></a>
+    
+            <div class="docstring"><p>Returns a list of base parameter names that can be accumulated over time for the specified context</p>
+
+<p>See <a href="parameter.html#base_parameter_definitions">base_parameter_definitions</a> for information on base parameters and their conversions.</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>context (str):</strong>  The context for the base parameter names. Currently only "CWMS" is supported. Defaults to "CWMS"</li>
+</ul>
+
+<h6 id="raises">Raises:</h6>
+
+<ul>
+<li><strong>ParameterException:</strong>  If an invalid context is specified</li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>List[str]: A sorted list of names of base parameter that can be integrated over time for the context</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="Parameter.base_parameter" class="classattr">
+                                <div class="attr variable">
+            <span class="name">base_parameter</span><span class="annotation">: str</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Parameter.base_parameter"></a>
+    
+            <div class="docstring"><p>The actual base parameter used. Will be same as <code><a href="#Parameter.basename">basename</a></code> unless the
+parameter was created using a parameter alias</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read Only</p>
+</blockquote>
+</div>
+
+
+                            </div>
                             <div id="Parameter.base_parameters" class="classattr">
                                 <div class="attr function">
                     <div class="decorator decorator-staticmethod">@staticmethod</div>
@@ -325,6 +409,8 @@ or if the specified unit is not valid for the parameter</li>
     <a class="headerlink" href="#Parameter.base_parameters"></a>
     
             <div class="docstring"><p>Returns a list of valid base parameter names for the specified context</p>
+
+<p>See <a href="parameter.html#base_parameter_definitions">base_parameter_definitions</a> for information on base parameters and their conversions.</p>
 
 <h6 id="arguments">Arguments:</h6>
 
@@ -347,69 +433,20 @@ or if the specified unit is not valid for the parameter</li>
 
 
                             </div>
-                            <div id="Parameter.accumulatable_base_parameters" class="classattr">
-                                <div class="attr function">
-                    <div class="decorator decorator-staticmethod">@staticmethod</div>
-
-        <span class="def">def</span>
-        <span class="name">accumulatable_base_parameters</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">context</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;CWMS&#39;</span></span><span class="return-annotation">) -> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>:</span></span>
+                            <div id="Parameter.basename" class="classattr">
+                                <div class="attr variable">
+            <span class="name">basename</span><span class="annotation">: str</span>
 
         
     </div>
-    <a class="headerlink" href="#Parameter.accumulatable_base_parameters"></a>
+    <a class="headerlink" href="#Parameter.basename"></a>
     
-            <div class="docstring"><p>Returns a list of base parameter names that can be accumulated over time for the specified context</p>
+            <div class="docstring"><p>The name of the parameter as specified up to any initial '-' character</p>
 
-<h6 id="arguments">Arguments:</h6>
-
-<ul>
-<li><strong>context (str):</strong>  The context for the base parameter names. Currently only "CWMS" is supported. Defaults to "CWMS"</li>
-</ul>
-
-<h6 id="raises">Raises:</h6>
-
-<ul>
-<li><strong>ParameterException:</strong>  If an invalid context is specified</li>
-</ul>
-
-<h6 id="returns">Returns:</h6>
+<h6 id="operations">Operations:</h6>
 
 <blockquote>
-  <p>List[str]: A sorted list of names of base parameter that can be integrated over time for the context</p>
-</blockquote>
-</div>
-
-
-                            </div>
-                            <div id="Parameter.integrable_base_parameters" class="classattr">
-                                <div class="attr function">
-                    <div class="decorator decorator-staticmethod">@staticmethod</div>
-
-        <span class="def">def</span>
-        <span class="name">integrable_base_parameters</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">context</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;CWMS&#39;</span></span><span class="return-annotation">) -> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>:</span></span>
-
-        
-    </div>
-    <a class="headerlink" href="#Parameter.integrable_base_parameters"></a>
-    
-            <div class="docstring"><p>Returns a list of base parameter names that can be integrated over time for the specified context</p>
-
-<h6 id="arguments">Arguments:</h6>
-
-<ul>
-<li><strong>context (str):</strong>  The context for the base parameter names. Currently only "CWMS" is supported. Defaults to "CWMS"</li>
-</ul>
-
-<h6 id="raises">Raises:</h6>
-
-<ul>
-<li><strong>ParameterException:</strong>  If an invalid context is specified</li>
-</ul>
-
-<h6 id="returns">Returns:</h6>
-
-<blockquote>
-  <p>List[str]: A sorted list of names of base parameter that can be integrated over time for the context</p>
+  <p>Read Only</p>
 </blockquote>
 </div>
 
@@ -427,6 +464,8 @@ or if the specified unit is not valid for the parameter</li>
     <a class="headerlink" href="#Parameter.differentiable_base_parameters"></a>
     
             <div class="docstring"><p>Returns a list of base parameter names that can be differentiated with respect to time for the specified context</p>
+
+<p>See <a href="parameter.html#base_parameter_definitions">base_parameter_definitions</a> for information on base parameters and their conversions.</p>
 
 <h6 id="arguments">Arguments:</h6>
 
@@ -462,6 +501,8 @@ or if the specified unit is not valid for the parameter</li>
     
             <div class="docstring"><p>Returns differentiation information for a base parameter name</p>
 
+<p>See <a href="parameter.html#base_parameter_definitions">base_parameter_definitions</a> for information on base parameters and their conversions.</p>
+
 <h6 id="arguments">Arguments:</h6>
 
 <ul>
@@ -478,6 +519,103 @@ or if the specified unit is not valid for the parameter</li>
       "EN" : <floating point factor for converting original parameter unit/second to the differentiated parameter unit>,
       "SI" : <floating point factor for convertiig original parameter unit/second to the differentiated parameter unit>,
   }</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="Parameter.get_compatible_units" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">get_compatible_units</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span><span class="return-annotation">) -> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#Parameter.get_compatible_units"></a>
+    
+            <div class="docstring"><p>Returns the list of unit names compatible with this parameter's unit</p>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>list[str]: The list of compatible unit names</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="Parameter.integrable_base_parameters" class="classattr">
+                                <div class="attr function">
+                    <div class="decorator decorator-staticmethod">@staticmethod</div>
+
+        <span class="def">def</span>
+        <span class="name">integrable_base_parameters</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">context</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;CWMS&#39;</span></span><span class="return-annotation">) -> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#Parameter.integrable_base_parameters"></a>
+    
+            <div class="docstring"><p>Returns a list of base parameter names that can be integrated over time for the specified context</p>
+
+<p>See <a href="parameter.html#base_parameter_definitions">base_parameter_definitions</a> for information on base parameters and their conversions.</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>context (str):</strong>  The context for the base parameter names. Currently only "CWMS" is supported. Defaults to "CWMS"</li>
+</ul>
+
+<h6 id="raises">Raises:</h6>
+
+<ul>
+<li><strong>ParameterException:</strong>  If an invalid context is specified</li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>List[str]: A sorted list of names of base parameter that can be integrated over time for the context</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="Parameter.ito" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">ito</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">unit_or_system</span><span class="p">:</span> <span class="nb">str</span></span><span class="return-annotation">) -> <span class="n"><a href="#Parameter">Parameter</a></span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#Parameter.ito"></a>
+    
+            <div class="docstring"><p>Assigns a unit to this parameter.</p>
+
+<p>Identical to calling <a href="#Parameter.to">.to(unit_or_system, in_place=True)</a></p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>unit_or_system (str):</strong> <br>
+<ul>
+<li>If <code>EN</code>, the default English unit for the base parameter will be assigned</li>
+<li>if <code>SI</code>,  the default Système International unit for the base parameter will be assigned</li>
+<li>Otherwise the specified unit will be assigned</li>
+</ul></li>
+</ul>
+
+<h6 id="raises">Raises:</h6>
+
+<ul>
+<li><strong>ParameterException:</strong>  If the specified unit is not valid for the parameter</li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>Parameter: The converted object</p>
 </blockquote>
 </div>
 
@@ -502,25 +640,6 @@ or if the specified unit is not valid for the parameter</li>
 
 
                             </div>
-                            <div id="Parameter.basename" class="classattr">
-                                <div class="attr variable">
-            <span class="name">basename</span><span class="annotation">: str</span>
-
-        
-    </div>
-    <a class="headerlink" href="#Parameter.basename"></a>
-    
-            <div class="docstring"><p>The name of the parameter as specified up to any initial '-' character</p>
-
-<h6 id="operations">Operations:</h6>
-
-<blockquote>
-  <p>Read Only</p>
-</blockquote>
-</div>
-
-
-                            </div>
                             <div id="Parameter.subname" class="classattr">
                                 <div class="attr variable">
             <span class="name">subname</span><span class="annotation">: Optional[str]</span>
@@ -530,64 +649,6 @@ or if the specified unit is not valid for the parameter</li>
     <a class="headerlink" href="#Parameter.subname"></a>
     
             <div class="docstring"><p>The name of the parameter as specified after any initial '-' character</p>
-
-<h6 id="operations">Operations:</h6>
-
-<blockquote>
-  <p>Read Only</p>
-</blockquote>
-</div>
-
-
-                            </div>
-                            <div id="Parameter.base_parameter" class="classattr">
-                                <div class="attr variable">
-            <span class="name">base_parameter</span><span class="annotation">: str</span>
-
-        
-    </div>
-    <a class="headerlink" href="#Parameter.base_parameter"></a>
-    
-            <div class="docstring"><p>The actual base parameter used. Will be same as <code><a href="#Parameter.basename">basename</a></code> unless the
-parameter was created using a parameter alias</p>
-
-<h6 id="operations">Operations:</h6>
-
-<blockquote>
-  <p>Read Only</p>
-</blockquote>
-</div>
-
-
-                            </div>
-                            <div id="Parameter.unit_name" class="classattr">
-                                <div class="attr variable">
-            <span class="name">unit_name</span><span class="annotation">: str</span>
-
-        
-    </div>
-    <a class="headerlink" href="#Parameter.unit_name"></a>
-    
-            <div class="docstring"><p>The unit name assigned to the parameter</p>
-
-<h6 id="operations">Operations:</h6>
-
-<blockquote>
-  <p>Read Only</p>
-</blockquote>
-</div>
-
-
-                            </div>
-                            <div id="Parameter.unit" class="classattr">
-                                <div class="attr variable">
-            <span class="name">unit</span><span class="annotation">: pint.registry.Unit</span>
-
-        
-    </div>
-    <a class="headerlink" href="#Parameter.unit"></a>
-    
-            <div class="docstring"><p>The unit assigned to the parameter</p>
 
 <h6 id="operations">Operations:</h6>
 
@@ -638,62 +699,39 @@ or a copy of this object (False). Defaults to False.</li>
 
 
                             </div>
-                            <div id="Parameter.ito" class="classattr">
-                                <div class="attr function">
-            
-        <span class="def">def</span>
-        <span class="name">ito</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">unit_or_system</span><span class="p">:</span> <span class="nb">str</span></span><span class="return-annotation">) -> <span class="n"><a href="#Parameter">Parameter</a></span>:</span></span>
+                            <div id="Parameter.unit" class="classattr">
+                                <div class="attr variable">
+            <span class="name">unit</span><span class="annotation">: pint.registry.Unit</span>
 
         
     </div>
-    <a class="headerlink" href="#Parameter.ito"></a>
+    <a class="headerlink" href="#Parameter.unit"></a>
     
-            <div class="docstring"><p>Assigns a unit to this parameter.</p>
+            <div class="docstring"><p>The unit assigned to the parameter</p>
 
-<p>Identical to calling <a href="#Parameter.to">.to(unit_or_system, in_place=True)</a></p>
-
-<h6 id="arguments">Arguments:</h6>
-
-<ul>
-<li><strong>unit_or_system (str):</strong> <br>
-<ul>
-<li>If <code>EN</code>, the default English unit for the base parameter will be assigned</li>
-<li>if <code>SI</code>,  the default Système International unit for the base parameter will be assigned</li>
-<li>Otherwise the specified unit will be assigned</li>
-</ul></li>
-</ul>
-
-<h6 id="raises">Raises:</h6>
-
-<ul>
-<li><strong>ParameterException:</strong>  If the specified unit is not valid for the parameter</li>
-</ul>
-
-<h6 id="returns">Returns:</h6>
+<h6 id="operations">Operations:</h6>
 
 <blockquote>
-  <p>Parameter: The converted object</p>
+  <p>Read Only</p>
 </blockquote>
 </div>
 
 
                             </div>
-                            <div id="Parameter.get_compatible_units" class="classattr">
-                                <div class="attr function">
-            
-        <span class="def">def</span>
-        <span class="name">get_compatible_units</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span><span class="return-annotation">) -> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>:</span></span>
+                            <div id="Parameter.unit_name" class="classattr">
+                                <div class="attr variable">
+            <span class="name">unit_name</span><span class="annotation">: str</span>
 
         
     </div>
-    <a class="headerlink" href="#Parameter.get_compatible_units"></a>
+    <a class="headerlink" href="#Parameter.unit_name"></a>
     
-            <div class="docstring"><p>Returns the list of unit names compatible with this parameter's unit</p>
+            <div class="docstring"><p>The unit name assigned to the parameter</p>
 
-<h6 id="returns">Returns:</h6>
+<h6 id="operations">Operations:</h6>
 
 <blockquote>
-  <p>list[str]: The list of compatible unit names</p>
+  <p>Read Only</p>
 </blockquote>
 </div>
 
@@ -717,7 +755,7 @@ or a copy of this object (False). Defaults to False.</li>
                             <div id="ElevParameter.__init__" class="classattr">
                                 <div class="attr function">
             
-        <span class="name">ElevParameter</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">name</span><span class="p">:</span> <span class="nb">str</span>, </span><span class="param"><span class="n">verticalDatumInfo</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span></span>)</span>
+        <span class="name">ElevParameter</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">name</span><span class="p">:</span> <span class="nb">str</span>, </span><span class="param"><span class="n">vertical_datum_info</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span></span>)</span>
 
         
     </div>
@@ -729,7 +767,7 @@ or a copy of this object (False). Defaults to False.</li>
 
 <ul>
 <li><strong>name (str):</strong>  The full parameter name</li>
-<li><strong>verticalDatumInfo (Union[str, dict[str, Any]]):</strong>  The vertical datum info as an xml string or dictionary</li>
+<li><strong>vertical_datum_info (Union[str, dict[str, Any]]):</strong>  The vertical datum info as an xml string or dictionary</li>
 </ul>
 
 <h6 id="raises">Raises:</h6>
@@ -763,139 +801,6 @@ or a copy of this object (False). Defaults to False.</li>
 
 
                             </div>
-                            <div id="ElevParameter.unit_name" class="classattr">
-                                <div class="attr variable">
-            <span class="name">unit_name</span><span class="annotation">: str</span>
-
-        
-    </div>
-    <a class="headerlink" href="#ElevParameter.unit_name"></a>
-    
-            <div class="docstring"><p>The unit name of this object</p>
-
-<h6 id="operations">Operations:</h6>
-
-<blockquote>
-  <p>Read Only</p>
-</blockquote>
-</div>
-
-
-                            </div>
-                            <div id="ElevParameter.unit" class="classattr">
-                                <div class="attr variable">
-            <span class="name">unit</span><span class="annotation">: pint.registry.Unit</span>
-
-        
-    </div>
-    <a class="headerlink" href="#ElevParameter.unit"></a>
-    
-            <div class="docstring"><p>The unit of this object</p>
-
-<h6 id="operations">Operations:</h6>
-
-<blockquote>
-  <p>Read Only</p>
-</blockquote>
-</div>
-
-
-                            </div>
-                            <div id="ElevParameter.vertical_datum_info" class="classattr">
-                                <div class="attr variable">
-            <span class="name">vertical_datum_info</span><span class="annotation">: hec.parameter.ElevParameter._VerticalDatumInfo</span>
-
-        
-    </div>
-    <a class="headerlink" href="#ElevParameter.vertical_datum_info"></a>
-    
-            <div class="docstring"><p>The VerticalDatumInfo object of this parameter</p>
-
-<h6 id="operations">Operations:</h6>
-
-<blockquote>
-  <p>Read Only</p>
-</blockquote>
-</div>
-
-
-                            </div>
-                            <div id="ElevParameter.vertical_datum_info_xml" class="classattr">
-                                <div class="attr variable">
-            <span class="name">vertical_datum_info_xml</span><span class="annotation">: str</span>
-
-        
-    </div>
-    <a class="headerlink" href="#ElevParameter.vertical_datum_info_xml"></a>
-    
-            <div class="docstring"><p>The VerticalDatumInfo object of this parameter as an xml string</p>
-
-<h6 id="operations">Operations:</h6>
-
-<blockquote>
-  <p>Read Only</p>
-</blockquote>
-</div>
-
-
-                            </div>
-                            <div id="ElevParameter.vertical_datum_info_dict" class="classattr">
-                                <div class="attr variable">
-            <span class="name">vertical_datum_info_dict</span><span class="annotation">: dict[str, typing.Any]</span>
-
-        
-    </div>
-    <a class="headerlink" href="#ElevParameter.vertical_datum_info_dict"></a>
-    
-            <div class="docstring"><p>The VerticalDatumInfo object of this parameter as a dictionary</p>
-
-<h6 id="operations">Operations:</h6>
-
-<blockquote>
-  <p>Read Only</p>
-</blockquote>
-</div>
-
-
-                            </div>
-                            <div id="ElevParameter.elevation" class="classattr">
-                                <div class="attr variable">
-            <span class="name">elevation</span><span class="annotation">: Optional[<a href="unit.html#UnitQuantity">hec.unit.UnitQuantity</a>]</span>
-
-        
-    </div>
-    <a class="headerlink" href="#ElevParameter.elevation"></a>
-    
-            <div class="docstring"><p>The elevation of this object in the current datum and unit</p>
-
-<h6 id="operations">Operations:</h6>
-
-<blockquote>
-  <p>Read Only</p>
-</blockquote>
-</div>
-
-
-                            </div>
-                            <div id="ElevParameter.native_datum" class="classattr">
-                                <div class="attr variable">
-            <span class="name">native_datum</span><span class="annotation">: Optional[str]</span>
-
-        
-    </div>
-    <a class="headerlink" href="#ElevParameter.native_datum"></a>
-    
-            <div class="docstring"><p>The native datum of this object</p>
-
-<h6 id="operations">Operations:</h6>
-
-<blockquote>
-  <p>Read Only</p>
-</blockquote>
-</div>
-
-
-                            </div>
                             <div id="ElevParameter.current_datum" class="classattr">
                                 <div class="attr variable">
             <span class="name">current_datum</span><span class="annotation">: Optional[str]</span>
@@ -915,78 +820,15 @@ or a copy of this object (False). Defaults to False.</li>
 
 
                             </div>
-                            <div id="ElevParameter.ngvd29_offset" class="classattr">
+                            <div id="ElevParameter.elevation" class="classattr">
                                 <div class="attr variable">
-            <span class="name">ngvd29_offset</span><span class="annotation">: Optional[<a href="unit.html#UnitQuantity">hec.unit.UnitQuantity</a>]</span>
+            <span class="name">elevation</span><span class="annotation">: Optional[<a href="../hec.html#UnitQuantity">hec.UnitQuantity</a>]</span>
 
         
     </div>
-    <a class="headerlink" href="#ElevParameter.ngvd29_offset"></a>
+    <a class="headerlink" href="#ElevParameter.elevation"></a>
     
-            <div class="docstring"><p>The offset from the native datum of this object to NGVD-29, in the current unit, or <code>None</code> if<br>
-    * the native vertical datum is NGVD-29
-    * the native vertical datum is not NGVD-29, but the object does not have such an offset</p>
-
-<h6 id="operations">Operations:</h6>
-
-<blockquote>
-  <p>Read Only</p>
-</blockquote>
-</div>
-
-
-                            </div>
-                            <div id="ElevParameter.navd88_offset" class="classattr">
-                                <div class="attr variable">
-            <span class="name">navd88_offset</span><span class="annotation">: Optional[<a href="unit.html#UnitQuantity">hec.unit.UnitQuantity</a>]</span>
-
-        
-    </div>
-    <a class="headerlink" href="#ElevParameter.navd88_offset"></a>
-    
-            <div class="docstring"><p>The offset from the native datum of this object to NGVD-29, in the current unit, or <code>None</code> if<br>
-    * the native vertical datum is NGVD-29
-    * the native vertical datum is not NGVD-29, but the object does not have such an offset</p>
-
-<h6 id="operations">Operations:</h6>
-
-<blockquote>
-  <p>Read Only</p>
-</blockquote>
-</div>
-
-
-                            </div>
-                            <div id="ElevParameter.ngvd29_offset_is_estimate" class="classattr">
-                                <div class="attr variable">
-            <span class="name">ngvd29_offset_is_estimate</span><span class="annotation">: Optional[bool]</span>
-
-        
-    </div>
-    <a class="headerlink" href="#ElevParameter.ngvd29_offset_is_estimate"></a>
-    
-            <div class="docstring"><p>Whether the offset from the native vertical datum to NGVD-29 is an estimate (e.g, VERTCON)
-or <code>None</code> if the native vertical datum is NGVD-29 or the object does not have such and offset</p>
-
-<h6 id="operations">Operations:</h6>
-
-<blockquote>
-  <p>Read Only</p>
-</blockquote>
-</div>
-
-
-                            </div>
-                            <div id="ElevParameter.navd88_offset_is_estimate" class="classattr">
-                                <div class="attr variable">
-            <span class="name">navd88_offset_is_estimate</span><span class="annotation">: Optional[bool]</span>
-
-        
-    </div>
-    <a class="headerlink" href="#ElevParameter.navd88_offset_is_estimate"></a>
-    
-            <div class="docstring"><p>Whether the offset from the native vertical datum to NGVD-29 is an estimate (e.g, VERTCON)
-or <code>None</code> if the native vertical datum is NGVD-29 or the object does not have such and offset</p>
+            <div class="docstring"><p>The elevation of this object in the current datum and unit</p>
 
 <h6 id="operations">Operations:</h6>
 
@@ -1001,7 +843,7 @@ or <code>None</code> if the native vertical datum is NGVD-29 or the object does 
                                 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">get_offset_to</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">target_datum</span><span class="p">:</span> <span class="nb">str</span></span><span class="return-annotation">) -> <span class="n">Optional</span><span class="p">[</span><span class="n"><a href="unit.html#UnitQuantity">hec.unit.UnitQuantity</a></span><span class="p">]</span>:</span></span>
+        <span class="name">get_offset_to</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">target_datum</span><span class="p">:</span> <span class="nb">str</span></span><span class="return-annotation">) -> <span class="n">Optional</span><span class="p">[</span><span class="n"><a href="../hec.html#UnitQuantity">hec.UnitQuantity</a></span><span class="p">]</span>:</span></span>
 
         
     </div>
@@ -1027,36 +869,6 @@ object does not specify an offset to the target datum</li>
 <blockquote>
   <p>Optional[UnitQuantity]: The offset from the current datum to the target datum
       or <code>None</code> if the current and target datums are the same.</p>
-</blockquote>
-</div>
-
-
-                            </div>
-                            <div id="ElevParameter.to" class="classattr">
-                                <div class="attr function">
-            
-        <span class="def">def</span>
-        <span class="name">to</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="bp">self</span>,</span><span class="param">	<span class="n">unit_or_system_or_datum</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pint</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">Unit</span><span class="p">]</span>,</span><span class="param">	<span class="n">in_place</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></span><span class="return-annotation">) -> <span class="n"><a href="#ElevParameter">ElevParameter</a></span>:</span></span>
-
-        
-    </div>
-    <a class="headerlink" href="#ElevParameter.to"></a>
-    
-            <div class="docstring"><p>Converts either this object or a copy of it to the specified unit or vertical datum and returns it</p>
-
-<h6 id="arguments">Arguments:</h6>
-
-<ul>
-<li><strong>unit_or_system_or_datum (Union[str, Unit]):</strong>  The unit, unit_system, or vertical datum to convert to.
-If unit system ("EN" or "SI"), the default Elev unit for that system is used.</li>
-<li><strong>in_place (bool, optional):</strong>  If <code>True</code>, this object is converted and returned, otherwise a copy is
-converted and returned. Defaults to False.</li>
-</ul>
-
-<h6 id="returns">Returns:</h6>
-
-<blockquote>
-  <p>ElevParameter: The converted object, whether this object of a copy of it</p>
 </blockquote>
 </div>
 
@@ -1092,20 +904,246 @@ If unit system ("EN" or "SI"), the default Elev unit for that system is used.</l
 
 
                             </div>
+                            <div id="ElevParameter.native_datum" class="classattr">
+                                <div class="attr variable">
+            <span class="name">native_datum</span><span class="annotation">: Optional[str]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#ElevParameter.native_datum"></a>
+    
+            <div class="docstring"><p>The native datum of this object</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read Only</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="ElevParameter.navd88_offset" class="classattr">
+                                <div class="attr variable">
+            <span class="name">navd88_offset</span><span class="annotation">: Optional[<a href="../hec.html#UnitQuantity">hec.UnitQuantity</a>]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#ElevParameter.navd88_offset"></a>
+    
+            <div class="docstring"><p>The offset from the native datum of this object to NGVD-29, in the current unit, or <code>None</code> if<br>
+    * the native vertical datum is NGVD-29
+    * the native vertical datum is not NGVD-29, but the object does not have such an offset</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read Only</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="ElevParameter.navd88_offset_is_estimate" class="classattr">
+                                <div class="attr variable">
+            <span class="name">navd88_offset_is_estimate</span><span class="annotation">: Optional[bool]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#ElevParameter.navd88_offset_is_estimate"></a>
+    
+            <div class="docstring"><p>Whether the offset from the native vertical datum to NGVD-29 is an estimate (e.g, VERTCON)
+or <code>None</code> if the native vertical datum is NGVD-29 or the object does not have such and offset</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read Only</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="ElevParameter.ngvd29_offset" class="classattr">
+                                <div class="attr variable">
+            <span class="name">ngvd29_offset</span><span class="annotation">: Optional[<a href="../hec.html#UnitQuantity">hec.UnitQuantity</a>]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#ElevParameter.ngvd29_offset"></a>
+    
+            <div class="docstring"><p>The offset from the native datum of this object to NGVD-29, in the current unit, or <code>None</code> if<br>
+    * the native vertical datum is NGVD-29
+    * the native vertical datum is not NGVD-29, but the object does not have such an offset</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read Only</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="ElevParameter.ngvd29_offset_is_estimate" class="classattr">
+                                <div class="attr variable">
+            <span class="name">ngvd29_offset_is_estimate</span><span class="annotation">: Optional[bool]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#ElevParameter.ngvd29_offset_is_estimate"></a>
+    
+            <div class="docstring"><p>Whether the offset from the native vertical datum to NGVD-29 is an estimate (e.g, VERTCON)
+or <code>None</code> if the native vertical datum is NGVD-29 or the object does not have such and offset</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read Only</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="ElevParameter.to" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">to</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="bp">self</span>,</span><span class="param">	<span class="n">unit_or_system_or_datum</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pint</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">Unit</span><span class="p">]</span>,</span><span class="param">	<span class="n">in_place</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></span><span class="return-annotation">) -> <span class="n"><a href="#ElevParameter">ElevParameter</a></span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#ElevParameter.to"></a>
+    
+            <div class="docstring"><p>Converts either this object or a copy of it to the specified unit or vertical datum and returns it</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>unit_or_system_or_datum (Union[str, Unit]):</strong>  The unit, unit_system, or vertical datum to convert to.
+If unit system ("EN" or "SI"), the default Elev unit for that system is used.</li>
+<li><strong>in_place (bool, optional):</strong>  If <code>True</code>, this object is converted and returned, otherwise a copy is
+converted and returned. Defaults to False.</li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>ElevParameter: The converted object, whether this object of a copy of it</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="ElevParameter.unit" class="classattr">
+                                <div class="attr variable">
+            <span class="name">unit</span><span class="annotation">: pint.registry.Unit</span>
+
+        
+    </div>
+    <a class="headerlink" href="#ElevParameter.unit"></a>
+    
+            <div class="docstring"><p>The unit of this object</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read Only</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="ElevParameter.unit_name" class="classattr">
+                                <div class="attr variable">
+            <span class="name">unit_name</span><span class="annotation">: str</span>
+
+        
+    </div>
+    <a class="headerlink" href="#ElevParameter.unit_name"></a>
+    
+            <div class="docstring"><p>The unit name of this object</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read Only</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="ElevParameter.vertical_datum_info" class="classattr">
+                                <div class="attr variable">
+            <span class="name">vertical_datum_info</span><span class="annotation">: hec.parameter.ElevParameter._VerticalDatumInfo</span>
+
+        
+    </div>
+    <a class="headerlink" href="#ElevParameter.vertical_datum_info"></a>
+    
+            <div class="docstring"><p>The VerticalDatumInfo object of this parameter</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read Only</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="ElevParameter.vertical_datum_info_dict" class="classattr">
+                                <div class="attr variable">
+            <span class="name">vertical_datum_info_dict</span><span class="annotation">: dict[str, typing.Any]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#ElevParameter.vertical_datum_info_dict"></a>
+    
+            <div class="docstring"><p>The VerticalDatumInfo object of this parameter as a dictionary</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read Only</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="ElevParameter.vertical_datum_info_xml" class="classattr">
+                                <div class="attr variable">
+            <span class="name">vertical_datum_info_xml</span><span class="annotation">: str</span>
+
+        
+    </div>
+    <a class="headerlink" href="#ElevParameter.vertical_datum_info_xml"></a>
+    
+            <div class="docstring"><p>The VerticalDatumInfo object of this parameter as an xml string</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read Only</p>
+</blockquote>
+</div>
+
+
+                            </div>
                             <div class="inherited">
                                 <h5>Inherited Members</h5>
                                 <dl>
                                     <div><dt><a href="#Parameter">Parameter</a></dt>
-                                <dd id="ElevParameter.base_parameters" class="function"><a href="#Parameter.base_parameters">base_parameters</a></dd>
-                <dd id="ElevParameter.accumulatable_base_parameters" class="function"><a href="#Parameter.accumulatable_base_parameters">accumulatable_base_parameters</a></dd>
-                <dd id="ElevParameter.integrable_base_parameters" class="function"><a href="#Parameter.integrable_base_parameters">integrable_base_parameters</a></dd>
+                                <dd id="ElevParameter.accumulatable_base_parameters" class="function"><a href="#Parameter.accumulatable_base_parameters">accumulatable_base_parameters</a></dd>
+                <dd id="ElevParameter.base_parameter" class="variable"><a href="#Parameter.base_parameter">base_parameter</a></dd>
+                <dd id="ElevParameter.base_parameters" class="function"><a href="#Parameter.base_parameters">base_parameters</a></dd>
+                <dd id="ElevParameter.basename" class="variable"><a href="#Parameter.basename">basename</a></dd>
                 <dd id="ElevParameter.differentiable_base_parameters" class="function"><a href="#Parameter.differentiable_base_parameters">differentiable_base_parameters</a></dd>
                 <dd id="ElevParameter.differentiation_info" class="function"><a href="#Parameter.differentiation_info">differentiation_info</a></dd>
-                <dd id="ElevParameter.name" class="variable"><a href="#Parameter.name">name</a></dd>
-                <dd id="ElevParameter.basename" class="variable"><a href="#Parameter.basename">basename</a></dd>
-                <dd id="ElevParameter.subname" class="variable"><a href="#Parameter.subname">subname</a></dd>
-                <dd id="ElevParameter.base_parameter" class="variable"><a href="#Parameter.base_parameter">base_parameter</a></dd>
                 <dd id="ElevParameter.get_compatible_units" class="function"><a href="#Parameter.get_compatible_units">get_compatible_units</a></dd>
+                <dd id="ElevParameter.integrable_base_parameters" class="function"><a href="#Parameter.integrable_base_parameters">integrable_base_parameters</a></dd>
+                <dd id="ElevParameter.name" class="variable"><a href="#Parameter.name">name</a></dd>
+                <dd id="ElevParameter.subname" class="variable"><a href="#Parameter.subname">subname</a></dd>
 
             </div>
                                 </dl>
@@ -1199,16 +1237,128 @@ the CWMS or DSS context.</p>
 
 
                             </div>
-                            <div id="ParameterType.parameterTypeNames" class="classattr">
+                            <div id="ParameterType.context" class="classattr">
+                                <div class="attr variable">
+            <span class="name">context</span><span class="annotation">: str</span>
+
+        
+    </div>
+    <a class="headerlink" href="#ParameterType.context"></a>
+    
+            <div class="docstring"><p>The context of this object</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read Only</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="ParameterType.get_cwms_name" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">get_cwms_name</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span><span class="return-annotation">) -> <span class="nb">str</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#ParameterType.get_cwms_name"></a>
+    
+            <div class="docstring"><p>Returns the name of the parameter time for the CWMS context</p>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>str: The CWMS context name</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="ParameterType.get_dss_name" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">get_dss_name</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">is_precip</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></span><span class="return-annotation">) -> <span class="nb">str</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#ParameterType.get_dss_name"></a>
+    
+            <div class="docstring"><p>Returns the name of the parameter time for the DSS context</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>is_precip (bool, optional):</strong>  Whether the parameter type is for a precipitation parameter.
+This matters only for the <code>Instantaneous</code> parameter type (CWMS=<code>Inst</code>). Defaults to False.
+<ul>
+<li><code>False</code>: <code>INST-CUM</code></li>
+<li><code>True</code> : <code>INST-VAL</code></li>
+</ul></li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>str: The DSS context name</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="ParameterType.get_raw_name" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">get_raw_name</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span><span class="return-annotation">) -> <span class="nb">str</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#ParameterType.get_raw_name"></a>
+    
+            <div class="docstring"><p>Returns the name of the parameter time for the RAW context</p>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>str: The RAW context name</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="ParameterType.name" class="classattr">
+                                <div class="attr variable">
+            <span class="name">name</span><span class="annotation">: str</span>
+
+        
+    </div>
+    <a class="headerlink" href="#ParameterType.name"></a>
+    
+            <div class="docstring"><p>The context-specific name of the object</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read Only</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="ParameterType.parameter_type_names" class="classattr">
                                 <div class="attr function">
                     <div class="decorator decorator-staticmethod">@staticmethod</div>
 
         <span class="def">def</span>
-        <span class="name">parameterTypeNames</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">context</span><span class="p">:</span> <span class="nb">str</span></span><span class="return-annotation">) -> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>:</span></span>
+        <span class="name">parameter_type_names</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">context</span><span class="p">:</span> <span class="nb">str</span></span><span class="return-annotation">) -> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>:</span></span>
 
         
     </div>
-    <a class="headerlink" href="#ParameterType.parameterTypeNames"></a>
+    <a class="headerlink" href="#ParameterType.parameter_type_names"></a>
     
             <div class="docstring"><p>Returns a list of valid parameter type names for the context.</p>
 
@@ -1234,81 +1384,15 @@ the CWMS or DSS context.</p>
 
 
                             </div>
-                            <div id="ParameterType.setDefaultContext" class="classattr">
-                                <div class="attr function">
-                    <div class="decorator decorator-classmethod">@classmethod</div>
-
-        <span class="def">def</span>
-        <span class="name">setDefaultContext</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">cls</span>, </span><span class="param"><span class="n">context</span><span class="p">:</span> <span class="nb">str</span></span><span class="return-annotation">) -> <span class="kc">None</span>:</span></span>
-
-        
-    </div>
-    <a class="headerlink" href="#ParameterType.setDefaultContext"></a>
-    
-            <div class="docstring"><p>Sets the default context for new ParameterType objects</p>
-
-<h6 id="arguments">Arguments:</h6>
-
-<ul>
-<li><strong>context (str):</strong>  The default context (RAW, CWMS, or DSS)</li>
-</ul>
-
-<h6 id="raises">Raises:</h6>
-
-<ul>
-<li><strong>ParameterTypeException:</strong>  If an invalid context is specified</li>
-</ul>
-</div>
-
-
-                            </div>
-                            <div id="ParameterType.context" class="classattr">
-                                <div class="attr variable">
-            <span class="name">context</span><span class="annotation">: str</span>
-
-        
-    </div>
-    <a class="headerlink" href="#ParameterType.context"></a>
-    
-            <div class="docstring"><p>The context of this object</p>
-
-<h6 id="operations">Operations:</h6>
-
-<blockquote>
-  <p>Read Only</p>
-</blockquote>
-</div>
-
-
-                            </div>
-                            <div id="ParameterType.name" class="classattr">
-                                <div class="attr variable">
-            <span class="name">name</span><span class="annotation">: str</span>
-
-        
-    </div>
-    <a class="headerlink" href="#ParameterType.name"></a>
-    
-            <div class="docstring"><p>The context-specific name of the object</p>
-
-<h6 id="operations">Operations:</h6>
-
-<blockquote>
-  <p>Read Only</p>
-</blockquote>
-</div>
-
-
-                            </div>
-                            <div id="ParameterType.setContext" class="classattr">
+                            <div id="ParameterType.set_context" class="classattr">
                                 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">setContext</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">context</span><span class="p">:</span> <span class="nb">str</span></span><span class="return-annotation">) -> <span class="kc">None</span>:</span></span>
+        <span class="name">set_context</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">context</span><span class="p">:</span> <span class="nb">str</span></span><span class="return-annotation">) -> <span class="kc">None</span>:</span></span>
 
         
     </div>
-    <a class="headerlink" href="#ParameterType.setContext"></a>
+    <a class="headerlink" href="#ParameterType.set_context"></a>
     
             <div class="docstring"><p>Sets the context for this object</p>
 
@@ -1327,76 +1411,30 @@ the CWMS or DSS context.</p>
 
 
                             </div>
-                            <div id="ParameterType.getRawName" class="classattr">
+                            <div id="ParameterType.set_default_context" class="classattr">
                                 <div class="attr function">
-            
+                    <div class="decorator decorator-classmethod">@classmethod</div>
+
         <span class="def">def</span>
-        <span class="name">getRawName</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span><span class="return-annotation">) -> <span class="nb">str</span>:</span></span>
+        <span class="name">set_default_context</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">cls</span>, </span><span class="param"><span class="n">context</span><span class="p">:</span> <span class="nb">str</span></span><span class="return-annotation">) -> <span class="kc">None</span>:</span></span>
 
         
     </div>
-    <a class="headerlink" href="#ParameterType.getRawName"></a>
+    <a class="headerlink" href="#ParameterType.set_default_context"></a>
     
-            <div class="docstring"><p>Returns the name of the parameter time for the RAW context</p>
-
-<h6 id="returns">Returns:</h6>
-
-<blockquote>
-  <p>str: The RAW context name</p>
-</blockquote>
-</div>
-
-
-                            </div>
-                            <div id="ParameterType.getCwmsName" class="classattr">
-                                <div class="attr function">
-            
-        <span class="def">def</span>
-        <span class="name">getCwmsName</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span><span class="return-annotation">) -> <span class="nb">str</span>:</span></span>
-
-        
-    </div>
-    <a class="headerlink" href="#ParameterType.getCwmsName"></a>
-    
-            <div class="docstring"><p>Returns the name of the parameter time for the CWMS context</p>
-
-<h6 id="returns">Returns:</h6>
-
-<blockquote>
-  <p>str: The CWMS context name</p>
-</blockquote>
-</div>
-
-
-                            </div>
-                            <div id="ParameterType.getDssName" class="classattr">
-                                <div class="attr function">
-            
-        <span class="def">def</span>
-        <span class="name">getDssName</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">is_precip</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></span><span class="return-annotation">) -> <span class="nb">str</span>:</span></span>
-
-        
-    </div>
-    <a class="headerlink" href="#ParameterType.getDssName"></a>
-    
-            <div class="docstring"><p>Returns the name of the parameter time for the DSS context</p>
+            <div class="docstring"><p>Sets the default context for new ParameterType objects</p>
 
 <h6 id="arguments">Arguments:</h6>
 
 <ul>
-<li><strong>is_precip (bool, optional):</strong>  Whether the parameter type is for a precipitation parameter.
-This matters only for the <code>Instantaneous</code> parameter type (CWMS=<code>Inst</code>). Defaults to False.
-<ul>
-<li><code>False</code>: <code>INST-CUM</code></li>
-<li><code>True</code> : <code>INST-VAL</code></li>
-</ul></li>
+<li><strong>context (str):</strong>  The default context (RAW, CWMS, or DSS)</li>
 </ul>
 
-<h6 id="returns">Returns:</h6>
+<h6 id="raises">Raises:</h6>
 
-<blockquote>
-  <p>str: The DSS context name</p>
-</blockquote>
+<ul>
+<li><strong>ParameterTypeException:</strong>  If an invalid context is specified</li>
+</ul>
 </div>
 
 

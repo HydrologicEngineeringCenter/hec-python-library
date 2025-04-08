@@ -52,6 +52,30 @@ class QualityException(Exception):
 
 from typing import Any, Union
 
+__all__ = [
+    "changed_id",
+    "get_code_ids",
+    "get_component_codes",
+    "normalize_quality_code",
+    "protection_id",
+    "range_id",
+    "repl_cause_id",
+    "repl_method_id",
+    "screened_id",
+    "set_changed_code",
+    "set_protection_code",
+    "set_range_code",
+    "set_repl_cause_code",
+    "set_repl_method_code",
+    "set_screened_code",
+    "set_test_failed_code",
+    "set_validity_code",
+    "test_failed_id",
+    "validity_id",
+    "Quality",
+    "QualityException",
+]
+
 _NORMAL_QUALITY_MASK = 0b1000_0011_0101_1111_1111_1111_1111_1111
 
 (
@@ -687,25 +711,47 @@ class Quality:
 
     _return_signed_codes: bool = True
 
-    @classmethod
-    def setReturnSignedCodes(cls, state: bool = True) -> None:
-        """
-        Sets the type (signed or unsigned of the `code` property)
+    def __eq__(self, other: Any) -> bool:
+        if isinstance(other, Quality):
+            return self.score == other.score
+        elif isinstance(other, int):
+            return self.score == Quality(other).score
+        else:
+            return NotImplemented
 
-        Args:
-            state (bool, optional): Sets default type to signed if true, otherwise unsigned. Defaults to True.
-        """
-        cls._return_signed_codes = state
+    def __format__(self, format: str) -> str:
+        if format:
+            if format[-1] in "bBxX":
+                return self.unsigned.__format__(format)
+            else:
+                return self.code.__format__(format)
+        else:
+            return str(self)
 
-    @classmethod
-    def setReturnUnsignedCodes(cls, state: bool = True) -> None:
-        """
-        Sets the type (signed or unsigned of the `code` property)
+    def __gt__(self, other: Any) -> bool:
+        if isinstance(other, Quality):
+            return self.score > other.score
+        elif isinstance(other, int):
+            return self.score > Quality(other).score
+        else:
+            return NotImplemented
 
-        Args:
-            state (bool, optional): Sets default type to unsigned if true, otherwise signed. Defaults to True.
-        """
-        cls._return_signed_codes = not state
+    def __lt__(self, other: Any) -> bool:
+        if isinstance(other, Quality):
+            return self.score < other.score
+        elif isinstance(other, int):
+            return self.score < Quality(other).score
+        else:
+            return NotImplemented
+
+    def __int__(self) -> int:
+        return self.code
+
+    def __repr__(self) -> str:
+        return f"Quality({self.code})"
+
+    def __str__(self) -> str:
+        return str(self.symbol)
 
     def __init__(self, init_from: Any = 0):
         """
@@ -818,14 +864,81 @@ class Quality:
             self._protection,
         ) = get_component_codes(self._code)
 
+    def _validate(self) -> None:
+        (
+            self._screened,
+            self._validity,
+            self._value_range,
+            self._changed,
+            self._repl_cause,
+            self._repl_method,
+            self._test_failed,
+            self._protection,
+        ) = get_component_codes(self._code)
+        self._validated = True
+
+    def add_test_failed(self, value: Union[int, str]) -> "Quality":
+        """
+        Adds a failed test to the test failed component of this object from a code or identifier and returns the modified object
+
+        Args:
+            value (Union[int, str]): The test failed component code or identifier of the failed test to be added
+
+        Returns:
+            Quality: The modified object
+        """
+        if isinstance(value, int):
+            self._code |= set_test_failed_code(self._code, value)
+        else:
+            code = self._code
+            for failed_id in re.split(r"\W+", value.upper()):
+                code |= set_test_failed_code(0, _test_failed_values[failed_id])
+            self._code = code
+        self._validated = False
+        return self
+
+    @property
+    def changed(self) -> int:
+        """
+        The changed component code of the quality code
+
+        Operations:
+            Read-Write
+        """
+        if not self._validated:
+            self._validate()
+        return self._changed
+
+    @changed.setter
+    def changed(self, value: int) -> None:
+        self._code = set_changed_code(self._code, value)
+        self._validated = False
+
+    @property
+    def changed_id(self) -> str:
+        """
+        The changed component identifier of the quality code
+
+        Operations:
+            Read-Write
+        """
+        if not self._validated:
+            self._validate()
+        return changed_id(self._changed)
+
+    @changed_id.setter
+    def changed_id(self, id: str) -> None:
+        self._code = set_changed_code(self._code, _changed_values[id.upper()])
+        self._validated = False
+
     @property
     def code(self) -> int:
         """
         The internal quality code as a signed or unsigned integer depending on the default setting.<br>
 
         See
-        * [setReturnSignedCodes](#Quality.setReturnSignedCodes)
-        * [setReturnUnsignedCodes](#Quality.setReturnUnsignedCodes)
+        * [set_return_signed_codes](#Quality.set_return_signed_codes)
+        * [set_return_unsigned_codes](#Quality.set_return_unsigned_codes)
 
         Operations:
             Read Only
@@ -833,172 +946,37 @@ class Quality:
         return self.signed if Quality._return_signed_codes else self.unsigned
 
     @property
-    def signed(self) -> int:
+    def protection(self) -> int:
         """
-        The internal quality code as a signed integer.
-
-        Operations:
-            Read Only
-        """
-        if self._code > 0x7FFFFFFF:
-            code = self._code & 0xFFFFFFFF
-            code -= 0x100000000
-        else:
-            code = self._code
-        return code
-
-    @property
-    def unsigned(self) -> int:
-        """
-        The internal quality code as an unsigned integer.
-
-        Operations:
-            Read Only
-        """
-        return self._code + 0x100000000 if self._code < 0 else self._code
-
-    @property
-    def text(self) -> str:
-        """
-        The text description of the quality.
-
-        A space separated list of words specifying the state of the following, in order:
-        * Screened: ("Unscreened" or "Screened")
-        * Validity: ("Unknown", "Okay", "Missing", "Questionable", or "Rejected")
-        * Range: ("No_range", "Range_1", "Range_2", or "Range_3")
-        * Changed: ("Original" or "Modified")
-        * Replacement Cause: ("None", "Automatic", "Interactive", "Manual", "Restored")
-        * Replacement Method: ("None", "Lin_Interp", "Explicit", "Missing", "Graphical")
-        * Test Failed: ("None" or one or more of the following concatenated with "+"):
-            * "Absolute_Value"
-            * "Constant_Value"
-            * "Rate_Of_Change"
-            * "Relative_Value"
-            * "Duration_Value"
-            * "Neg_Increment"
-            * "Skip_List"
-            * "User_Defined"
-            * "Distribution"
-        * Protection: ("Unprotected" or "Protected")
-
-        Operations:
-            Read Only
-        """
-        (
-            _screened,
-            _validity,
-            _range,
-            _changed,
-            _repl_cause,
-            _repl_method,
-            _test_failed,
-            _protection,
-        ) = get_code_ids(self._code)
-        return f"{_screened} {_validity} {_range} {_changed} {_repl_cause} {_repl_method} {_test_failed} {_protection}".title()
-
-    @property
-    def symbol(self) -> str:
-        """
-        The text symbol of the quality.
-
-        The symbol will be one or two characters, with the first character being:
-        * `~`: Not screened
-        * `u` or 'U': Screened, validity is unknown
-        * `o` or `O`: Screened, validity is okay
-        * `m` or `M`: Screened, validity is missing
-        * `q` or `Q`: Screened, validity is questioned
-        * `r` or `R`: Screened, validity is rejected
-
-        If a screened quality has the protection bit set, the first chanacter will be uppercase; if not, it will be lowercase.
-
-        A second character of `+` signifies that the quality has additional information about one or more of the following:
-        * value range
-        * value replacement cause and method
-        * test(s) failed
-
-        This property is used when the quality is used in a string context (e.g., `print(q)`)
-
-        Operations:
-            Read Only
-        """
-        if not self._validated:
-            self._validate()
-        if not self._screened:
-            s = "~"
-        else:
-            s = _validity_ids[self._validity][0]
-            if self._value_range or self._changed or self._test_failed:
-                s += "+"
-            if not self.protection:
-                s = s.lower()
-        return s
-
-    @property
-    def screened(self) -> int:
-        """
-        The screened component code of the quality code
+        The protection component code of the quality code
 
         Operations:
             Read-Write
         """
         if not self._validated:
             self._validate()
-        return self._screened
+        return self._protection
 
-    @screened.setter
-    def screened(self, value: int) -> None:
-        self._code = set_screened_code(self._code, value)
+    @protection.setter
+    def protection(self, value: int) -> None:
+        self._code = set_protection_code(self._code, value)
         self._validated = False
 
     @property
-    def screened_id(self) -> str:
+    def protection_id(self) -> str:
         """
-        The screened component identifier of the quality code
+        The protection component identifier of the quality code
 
         Operations:
             Read-Write
         """
         if not self._validated:
             self._validate()
-        return screened_id(self._screened)
+        return protection_id(self._protection)
 
-    @screened_id.setter
-    def screened_id(self, id: str) -> None:
-        self._code = set_screened_code(self._code, _screened_values[id.upper()])
-        self._validated = False
-
-    @property
-    def validity(self) -> int:
-        """
-        The validity component code of the quality code
-
-        Operations:
-            Read-Write
-        """
-        if not self._validated:
-            self._validate()
-        return self._validity
-
-    @validity.setter
-    def validity(self, value: int) -> None:
-        self._code = set_validity_code(self._code, value)
-        self._validated = False
-
-    @property
-    def validity_id(self) -> str:
-        """
-        The validity component identifier of the quality code
-
-        Operations:
-            Read-Write
-        """
-        if not self._validated:
-            self._validate()
-        return validity_id(self._validity)
-
-    @validity_id.setter
-    def validity_id(self, id: str) -> None:
-        self._code = set_validity_code(self._code, _validity_values[id.upper()])
+    @protection_id.setter
+    def protection_id(self, id: str) -> None:
+        self._code = set_protection_code(self._code, _protection_values[id.upper()])
         self._validated = False
 
     @property
@@ -1035,39 +1013,26 @@ class Quality:
         self._code = set_range_code(self._code, _range_values[id.upper()])
         self._validated = False
 
-    @property
-    def changed(self) -> int:
+    def remove_test_failed(self, value: Union[int, str]) -> "Quality":
         """
-        The changed component code of the quality code
+        Removes a failed test from the test failed component of this object from a code or identifier and returns the modified object
 
-        Operations:
-            Read-Write
+        Args:
+            value (Union[int, str]): The test failed component code or identifier of the failed test to be removed
+
+        Returns:
+            Quality: The modified object
         """
-        if not self._validated:
-            self._validate()
-        return self._changed
-
-    @changed.setter
-    def changed(self, value: int) -> None:
-        self._code = set_changed_code(self._code, value)
+        if isinstance(value, int):
+            self._code &= ~set_test_failed_code(self._code, value)
+        else:
+            code = self._code
+            for failed_id in re.split(r"\W+", value.upper()):
+                test_code = set_test_failed_code(0, _test_failed_values[failed_id])
+                code &= ~test_code
+            self._code = code
         self._validated = False
-
-    @property
-    def changed_id(self) -> str:
-        """
-        The changed component identifier of the quality code
-
-        Operations:
-            Read-Write
-        """
-        if not self._validated:
-            self._validate()
-        return changed_id(self._changed)
-
-    @changed_id.setter
-    def changed_id(self, id: str) -> None:
-        self._code = set_changed_code(self._code, _changed_values[id.upper()])
-        self._validated = False
+        return self
 
     @property
     def repl_cause(self) -> int:
@@ -1166,6 +1131,252 @@ class Quality:
         )
 
     @property
+    def screened(self) -> int:
+        """
+        The screened component code of the quality code
+
+        Operations:
+            Read-Write
+        """
+        if not self._validated:
+            self._validate()
+        return self._screened
+
+    @screened.setter
+    def screened(self, value: int) -> None:
+        self._code = set_screened_code(self._code, value)
+        self._validated = False
+
+    @property
+    def screened_id(self) -> str:
+        """
+        The screened component identifier of the quality code
+
+        Operations:
+            Read-Write
+        """
+        if not self._validated:
+            self._validate()
+        return screened_id(self._screened)
+
+    @screened_id.setter
+    def screened_id(self, id: str) -> None:
+        self._code = set_screened_code(self._code, _screened_values[id.upper()])
+        self._validated = False
+
+    def set_changed(self, value: Union[int, str]) -> "Quality":
+        """
+        Sets the changed component of this object from a code or identifier and returns the modified object.
+
+        Using this method instead of setting the `changed` or `changed_id` properties allows chained operations.
+
+        Args:
+            value (Union[int, str]): The changed component code or identifier
+
+        Returns:
+            Quality: The modified object
+        """
+        val = value if isinstance(value, int) else _changed_values[value.upper()]
+        self._code = set_changed_code(self._code, val)
+        self._validated = False
+        return self
+
+    def set_protection(self, value: Union[int, str]) -> "Quality":
+        """
+        Sets the protection component of this object from a code or identifier and returns the modified object.
+
+        Using this method instead of setting the `protection` or `protection_id` properties allows chained operations.
+
+        Args:
+            value (Union[int, str]): The protection component code or identifier
+
+        Returns:
+            Quality: The modified object
+        """
+        val = value if isinstance(value, int) else _protection_values[value.upper()]
+        self._code = set_protection_code(self._code, val)
+        return self
+
+    def set_range(self, value: Union[int, str]) -> "Quality":
+        """
+        Sets the range component of this object from a code or identifier and returns the modified object.
+
+        Using this method instead of setting the `range` or `range_id` properties allows chained operations.
+
+        Args:
+            value (Union[int, str]): The range component code or identifier
+
+        Returns:
+            Quality: The modified object
+        """
+        val = value if isinstance(value, int) else _range_values[value.upper()]
+        self._code = set_range_code(self._code, val)
+        self._validated = False
+        return self
+
+    def set_repl_cause(self, value: Union[int, str]) -> "Quality":
+        """
+        Sets the replacement cause component of this object from a code or identifier and returns the modified object.
+
+        Using this method instead of setting the `repl_cause` or `repl_cause_id` properties allows chained operations.
+
+        Args:
+            value (Union[int, str]): The replacement cause component code or identifier
+
+        Returns:
+            Quality: The modified object
+        """
+        val = value if isinstance(value, int) else _repl_cause_values[value.upper()]
+        self._code = set_repl_cause_code(self._code, val)
+        self._validated = False
+        return self
+
+    def set_repl_method(self, value: Union[int, str]) -> "Quality":
+        """
+        Sets the replacement method component of this object from a code or identifier and returns the modified object.
+
+        Using this method instead of setting the `repl_method` or `repl_method_id` properties allows chained operations.
+
+        Args:
+            value (Union[int, str]): The replacement method component code or identifier
+
+        Returns:
+            Quality: The modified object
+        """
+        val = value if isinstance(value, int) else _repl_method_values[value.upper()]
+        self._code = set_repl_method_code(self._code, val)
+        self._validated = False
+        return self
+
+    def set_screened(self, value: Union[int, str]) -> "Quality":
+        """
+        Sets the screened component of this object from a code or identifier and returns the modified object.
+
+        Using this method instead of setting the `screened` or `screened_id` properties allows chained operations.
+
+        Args:
+            value (Union[int, str]): The screened component code or identifier
+
+        Returns:
+            Quality: The modified object
+        """
+        val = value if isinstance(value, int) else _screened_values[value.upper()]
+        self._code = set_screened_code(self._code, val)
+        self._validated = False
+        return self
+
+    def set_test_failed(self, value: Union[int, str]) -> "Quality":
+        """
+        Sets the test failed component of this object from a code or identifier and returns the modified object.
+
+        Using this method instead of setting the `test_failed` or `test_failed_id` properties allows chained operations.
+
+        Args:
+            value (Union[int, str]): The test failed component code or identifier
+
+        Returns:
+            Quality: The modified object
+        """
+        if isinstance(value, int):
+            self._code = set_test_failed_code(self._code, value)
+        else:
+            code = set_test_failed_code(self._code, 0)
+            for failed_id in re.split(r"\W+", value.upper()):
+                code |= set_test_failed_code(code, _test_failed_values[failed_id])
+            self._code = code
+        self._validated = False
+        return self
+
+    def set_validity(self, value: Union[int, str]) -> "Quality":
+        """
+        Sets the validity component of this object from a code or identifier and returns the modified object.
+
+        Using this method instead of setting the `validity` or `validity_id` properties allows chained operations.
+
+        Args:
+            value (Union[int, str]): The validity component code or identifier
+
+        Returns:
+            Quality: The modified object
+        """
+        val = value if isinstance(value, int) else _validity_values[value.upper()]
+        self._code = set_validity_code(self._code, val)
+        self._validated = False
+        return self
+
+    @classmethod
+    def set_return_signed_codes(cls, state: bool = True) -> None:
+        """
+        Sets the type (signed or unsigned of the `code` property)
+
+        Args:
+            state (bool, optional): Sets default type to signed if true, otherwise unsigned. Defaults to True.
+        """
+        cls._return_signed_codes = state
+
+    @classmethod
+    def set_return_unsigned_codes(cls, state: bool = True) -> None:
+        """
+        Sets the type (signed or unsigned of the `code` property)
+
+        Args:
+            state (bool, optional): Sets default type to unsigned if true, otherwise signed. Defaults to True.
+        """
+        cls._return_signed_codes = not state
+
+    @property
+    def signed(self) -> int:
+        """
+        The internal quality code as a signed integer.
+
+        Operations:
+            Read Only
+        """
+        if self._code > 0x7FFFFFFF:
+            code = self._code & 0xFFFFFFFF
+            code -= 0x100000000
+        else:
+            code = self._code
+        return code
+
+    @property
+    def symbol(self) -> str:
+        """
+        The text symbol of the quality.
+
+        The symbol will be one or two characters, with the first character being:
+        * `~`: Not screened
+        * `u` or 'U': Screened, validity is unknown
+        * `o` or `O`: Screened, validity is okay
+        * `m` or `M`: Screened, validity is missing
+        * `q` or `Q`: Screened, validity is questioned
+        * `r` or `R`: Screened, validity is rejected
+
+        If a screened quality has the protection bit set, the first chanacter will be uppercase; if not, it will be lowercase.
+
+        A second character of `+` signifies that the quality has additional information about one or more of the following:
+        * value range
+        * value replacement cause and method
+        * test(s) failed
+
+        This property is used when the quality is used in a string context (e.g., `print(q)`)
+
+        Operations:
+            Read Only
+        """
+        if not self._validated:
+            self._validate()
+        if not self._screened:
+            s = "~"
+        else:
+            s = _validity_ids[self._validity][0]
+            if self._value_range or self._changed or self._test_failed:
+                s += "+"
+            if not self.protection:
+                s = s.lower()
+        return s
+
+    @property
     def test_failed(self) -> int:
         """
         The test failed component code of the quality code
@@ -1203,271 +1414,84 @@ class Quality:
         self._validated = False
 
     @property
-    def protection(self) -> int:
+    def text(self) -> str:
         """
-        The protection component code of the quality code
+        The text description of the quality.
+
+        A space separated list of words specifying the state of the following, in order:
+        * Screened: ("Unscreened" or "Screened")
+        * Validity: ("Unknown", "Okay", "Missing", "Questionable", or "Rejected")
+        * Range: ("No_range", "Range_1", "Range_2", or "Range_3")
+        * Changed: ("Original" or "Modified")
+        * Replacement Cause: ("None", "Automatic", "Interactive", "Manual", "Restored")
+        * Replacement Method: ("None", "Lin_Interp", "Explicit", "Missing", "Graphical")
+        * Test Failed: ("None" or one or more of the following concatenated with "+"):
+            * "Absolute_Value"
+            * "Constant_Value"
+            * "Rate_Of_Change"
+            * "Relative_Value"
+            * "Duration_Value"
+            * "Neg_Increment"
+            * "Skip_List"
+            * "User_Defined"
+            * "Distribution"
+        * Protection: ("Unprotected" or "Protected")
+
+        Operations:
+            Read Only
+        """
+        (
+            _screened,
+            _validity,
+            _range,
+            _changed,
+            _repl_cause,
+            _repl_method,
+            _test_failed,
+            _protection,
+        ) = get_code_ids(self._code)
+        return f"{_screened} {_validity} {_range} {_changed} {_repl_cause} {_repl_method} {_test_failed} {_protection}".title()
+
+    @property
+    def unsigned(self) -> int:
+        """
+        The internal quality code as an unsigned integer.
+
+        Operations:
+            Read Only
+        """
+        return self._code + 0x100000000 if self._code < 0 else self._code
+
+    @property
+    def validity(self) -> int:
+        """
+        The validity component code of the quality code
 
         Operations:
             Read-Write
         """
         if not self._validated:
             self._validate()
-        return self._protection
+        return self._validity
 
-    @protection.setter
-    def protection(self, value: int) -> None:
-        self._code = set_protection_code(self._code, value)
+    @validity.setter
+    def validity(self, value: int) -> None:
+        self._code = set_validity_code(self._code, value)
         self._validated = False
 
     @property
-    def protection_id(self) -> str:
+    def validity_id(self) -> str:
         """
-        The protection component identifier of the quality code
+        The validity component identifier of the quality code
 
         Operations:
             Read-Write
         """
         if not self._validated:
             self._validate()
-        return protection_id(self._protection)
+        return validity_id(self._validity)
 
-    @protection_id.setter
-    def protection_id(self, id: str) -> None:
-        self._code = set_protection_code(self._code, _protection_values[id.upper()])
+    @validity_id.setter
+    def validity_id(self, id: str) -> None:
+        self._code = set_validity_code(self._code, _validity_values[id.upper()])
         self._validated = False
-
-    def _validate(self) -> None:
-        (
-            self._screened,
-            self._validity,
-            self._value_range,
-            self._changed,
-            self._repl_cause,
-            self._repl_method,
-            self._test_failed,
-            self._protection,
-        ) = get_component_codes(self._code)
-        self._validated = True
-
-    def __repr__(self) -> str:
-        return f"Quality({self.code})"
-
-    def __str__(self) -> str:
-        return str(self.symbol)
-
-    def __format__(self, format: str) -> str:
-        if format:
-            if format[-1] in "bBxX":
-                return self.unsigned.__format__(format)
-            else:
-                return self.code.__format__(format)
-        else:
-            return str(self)
-
-    def __int__(self) -> int:
-        return self.code
-
-    def __eq__(self, other: Any) -> bool:
-        if isinstance(other, Quality):
-            return self.score == other.score
-        elif isinstance(other, int):
-            return self.score == Quality(other).score
-        else:
-            return NotImplemented
-
-    def __lt__(self, other: Any) -> bool:
-        if isinstance(other, Quality):
-            return self.score < other.score
-        elif isinstance(other, int):
-            return self.score < Quality(other).score
-        else:
-            return NotImplemented
-
-    def __gt__(self, other: Any) -> bool:
-        if isinstance(other, Quality):
-            return self.score > other.score
-        elif isinstance(other, int):
-            return self.score > Quality(other).score
-        else:
-            return NotImplemented
-
-    def setScreened(self, value: Union[int, str]) -> "Quality":
-        """
-        Sets the screened component of this object from a code or identifier and returns the modified object.
-
-        Using this method instead of setting the `screened` or `screened_id` properties allows chained operations.
-
-        Args:
-            value (Union[int, str]): The screened component code or identifier
-
-        Returns:
-            Quality: The modified object
-        """
-        val = value if isinstance(value, int) else _screened_values[value.upper()]
-        self._code = set_screened_code(self._code, val)
-        self._validated = False
-        return self
-
-    def setValidity(self, value: Union[int, str]) -> "Quality":
-        """
-        Sets the validity component of this object from a code or identifier and returns the modified object.
-
-        Using this method instead of setting the `validity` or `validity_id` properties allows chained operations.
-
-        Args:
-            value (Union[int, str]): The validity component code or identifier
-
-        Returns:
-            Quality: The modified object
-        """
-        val = value if isinstance(value, int) else _validity_values[value.upper()]
-        self._code = set_validity_code(self._code, val)
-        self._validated = False
-        return self
-
-    def setRange(self, value: Union[int, str]) -> "Quality":
-        """
-        Sets the range component of this object from a code or identifier and returns the modified object.
-
-        Using this method instead of setting the `range` or `range_id` properties allows chained operations.
-
-        Args:
-            value (Union[int, str]): The range component code or identifier
-
-        Returns:
-            Quality: The modified object
-        """
-        val = value if isinstance(value, int) else _range_values[value.upper()]
-        self._code = set_range_code(self._code, val)
-        self._validated = False
-        return self
-
-    def setChanged(self, value: Union[int, str]) -> "Quality":
-        """
-        Sets the changed component of this object from a code or identifier and returns the modified object.
-
-        Using this method instead of setting the `changed` or `changed_id` properties allows chained operations.
-
-        Args:
-            value (Union[int, str]): The changed component code or identifier
-
-        Returns:
-            Quality: The modified object
-        """
-        val = value if isinstance(value, int) else _changed_values[value.upper()]
-        self._code = set_changed_code(self._code, val)
-        self._validated = False
-        return self
-
-    def setReplCause(self, value: Union[int, str]) -> "Quality":
-        """
-        Sets the replacement cause component of this object from a code or identifier and returns the modified object.
-
-        Using this method instead of setting the `repl_cause` or `repl_cause_id` properties allows chained operations.
-
-        Args:
-            value (Union[int, str]): The replacement cause component code or identifier
-
-        Returns:
-            Quality: The modified object
-        """
-        val = value if isinstance(value, int) else _repl_cause_values[value.upper()]
-        self._code = set_repl_cause_code(self._code, val)
-        self._validated = False
-        return self
-
-    def setReplMethod(self, value: Union[int, str]) -> "Quality":
-        """
-        Sets the replacement method component of this object from a code or identifier and returns the modified object.
-
-        Using this method instead of setting the `repl_method` or `repl_method_id` properties allows chained operations.
-
-        Args:
-            value (Union[int, str]): The replacement method component code or identifier
-
-        Returns:
-            Quality: The modified object
-        """
-        val = value if isinstance(value, int) else _repl_method_values[value.upper()]
-        self._code = set_repl_method_code(self._code, val)
-        self._validated = False
-        return self
-
-    def setTestFailed(self, value: Union[int, str]) -> "Quality":
-        """
-        Sets the test failed component of this object from a code or identifier and returns the modified object.
-
-        Using this method instead of setting the `test_failed` or `test_failed_id` properties allows chained operations.
-
-        Args:
-            value (Union[int, str]): The test failed component code or identifier
-
-        Returns:
-            Quality: The modified object
-        """
-        if isinstance(value, int):
-            self._code = set_test_failed_code(self._code, value)
-        else:
-            code = set_test_failed_code(self._code, 0)
-            for failed_id in re.split(r"\W+", value.upper()):
-                code |= set_test_failed_code(code, _test_failed_values[failed_id])
-            self._code = code
-        self._validated = False
-        return self
-
-    def setProtection(self, value: Union[int, str]) -> "Quality":
-        """
-        Sets the protection component of this object from a code or identifier and returns the modified object.
-
-        Using this method instead of setting the `protection` or `protection_id` properties allows chained operations.
-
-        Args:
-            value (Union[int, str]): The protection component code or identifier
-
-        Returns:
-            Quality: The modified object
-        """
-        val = value if isinstance(value, int) else _protection_values[value.upper()]
-        self._code = set_protection_code(self._code, val)
-        return self
-
-    def addTestFailed(self, value: Union[int, str]) -> "Quality":
-        """
-        Adds a failed test to the test failed component of this object from a code or identifier and returns the modified object
-
-        Args:
-            value (Union[int, str]): The test failed component code or identifier of the failed test to be added
-
-        Returns:
-            Quality: The modified object
-        """
-        if isinstance(value, int):
-            self._code |= set_test_failed_code(self._code, value)
-        else:
-            code = self._code
-            for failed_id in re.split(r"\W+", value.upper()):
-                code |= set_test_failed_code(0, _test_failed_values[failed_id])
-            self._code = code
-        self._validated = False
-        return self
-
-    def removeTestFailed(self, value: Union[int, str]) -> "Quality":
-        """
-        Removes a failed test from the test failed component of this object from a code or identifier and returns the modified object
-
-        Args:
-            value (Union[int, str]): The test failed component code or identifier of the failed test to be removed
-
-        Returns:
-            Quality: The modified object
-        """
-        if isinstance(value, int):
-            self._code &= ~set_test_failed_code(self._code, value)
-        else:
-            code = self._code
-            for failed_id in re.split(r"\W+", value.upper()):
-                test_code = set_test_failed_code(0, _test_failed_values[failed_id])
-                code &= ~test_code
-            self._code = code
-        self._validated = False
-        return self

@@ -3,7 +3,7 @@
 
 import pytest
 
-from hec.location import Location
+from hec import Location
 
 
 def test_without_name() -> None:

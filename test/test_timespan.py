@@ -5,7 +5,7 @@ from datetime import timedelta
 from fractions import Fraction
 from typing import Optional
 
-from hec.timespan import TimeSpan
+from hec import TimeSpan
 
 
 def test_creation() -> None:

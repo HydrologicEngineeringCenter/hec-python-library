@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="generator" content="pdoc 15.0.0"/>
+    <meta name="generator" content="pdoc 15.0.1"/>
     <title>hec.unit API documentation</title>
 
     <style>/*! * Bootstrap Reboot v5.0.0 (https://getbootstrap.com/) * Copyright 2011-2021 The Bootstrap Authors * Copyright 2011-2021 Twitter, Inc. * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE) * Forked from Normalize.css, licensed MIT (https://github.com/necolas/normalize.css/blob/master/LICENSE.md) */*,::after,::before{box-sizing:border-box}@media (prefers-reduced-motion:no-preference){:root{scroll-behavior:smooth}}body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans","Liberation Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";font-size:1rem;font-weight:400;line-height:1.5;color:#212529;background-color:#fff;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}hr{margin:1rem 0;color:inherit;background-color:currentColor;border:0;opacity:.25}hr:not([size]){height:1px}h1,h2,h3,h4,h5,h6{margin-top:0;margin-bottom:.5rem;font-weight:500;line-height:1.2}h1{font-size:calc(1.375rem + 1.5vw)}@media (min-width:1200px){h1{font-size:2.5rem}}h2{font-size:calc(1.325rem + .9vw)}@media (min-width:1200px){h2{font-size:2rem}}h3{font-size:calc(1.3rem + .6vw)}@media (min-width:1200px){h3{font-size:1.75rem}}h4{font-size:calc(1.275rem + .3vw)}@media (min-width:1200px){h4{font-size:1.5rem}}h5{font-size:1.25rem}h6{font-size:1rem}p{margin-top:0;margin-bottom:1rem}abbr[data-bs-original-title],abbr[title]{-webkit-text-decoration:underline dotted;text-decoration:underline dotted;cursor:help;-webkit-text-decoration-skip-ink:none;text-decoration-skip-ink:none}address{margin-bottom:1rem;font-style:normal;line-height:inherit}ol,ul{padding-left:2rem}dl,ol,ul{margin-top:0;margin-bottom:1rem}ol ol,ol ul,ul ol,ul ul{margin-bottom:0}dt{font-weight:700}dd{margin-bottom:.5rem;margin-left:0}blockquote{margin:0 0 1rem}b,strong{font-weight:bolder}small{font-size:.875em}mark{padding:.2em;background-color:#fcf8e3}sub,sup{position:relative;font-size:.75em;line-height:0;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}a{color:#0d6efd;text-decoration:underline}a:hover{color:#0a58ca}a:not([href]):not([class]),a:not([href]):not([class]):hover{color:inherit;text-decoration:none}code,kbd,pre,samp{font-family:SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;font-size:1em;direction:ltr;unicode-bidi:bidi-override}pre{display:block;margin-top:0;margin-bottom:1rem;overflow:auto;font-size:.875em}pre code{font-size:inherit;color:inherit;word-break:normal}code{font-size:.875em;color:#d63384;word-wrap:break-word}a>code{color:inherit}kbd{padding:.2rem .4rem;font-size:.875em;color:#fff;background-color:#212529;border-radius:.2rem}kbd kbd{padding:0;font-size:1em;font-weight:700}figure{margin:0 0 1rem}img,svg{vertical-align:middle}table{caption-side:bottom;border-collapse:collapse}caption{padding-top:.5rem;padding-bottom:.5rem;color:#6c757d;text-align:left}th{text-align:inherit;text-align:-webkit-match-parent}tbody,td,tfoot,th,thead,tr{border-color:inherit;border-style:solid;border-width:0}label{display:inline-block}button{border-radius:0}button:focus:not(:focus-visible){outline:0}button,input,optgroup,select,textarea{margin:0;font-family:inherit;font-size:inherit;line-height:inherit}button,select{text-transform:none}[role=button]{cursor:pointer}select{word-wrap:normal}select:disabled{opacity:1}[list]::-webkit-calendar-picker-indicator{display:none}[type=button],[type=reset],[type=submit],button{-webkit-appearance:button}[type=button]:not(:disabled),[type=reset]:not(:disabled),[type=submit]:not(:disabled),button:not(:disabled){cursor:pointer}::-moz-focus-inner{padding:0;border-style:none}textarea{resize:vertical}fieldset{min-width:0;padding:0;margin:0;border:0}legend{float:left;width:100%;padding:0;margin-bottom:.5rem;font-size:calc(1.275rem + .3vw);line-height:inherit}@media (min-width:1200px){legend{font-size:1.5rem}}legend+*{clear:left}::-webkit-datetime-edit-day-field,::-webkit-datetime-edit-fields-wrapper,::-webkit-datetime-edit-hour-field,::-webkit-datetime-edit-minute,::-webkit-datetime-edit-month-field,::-webkit-datetime-edit-text,::-webkit-datetime-edit-year-field{padding:0}::-webkit-inner-spin-button{height:auto}[type=search]{outline-offset:-2px;-webkit-appearance:textfield}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-color-swatch-wrapper{padding:0}::file-selector-button{font:inherit}::-webkit-file-upload-button{font:inherit;-webkit-appearance:button}output{display:inline-block}iframe{border:0}summary{display:list-item;cursor:pointer}progress{vertical-align:baseline}[hidden]{display:none!important}</style>
@@ -31,34 +31,34 @@
             <h2>API Documentation</h2>
                 <ul class="memberlist">
             <li>
-                    <a class="function" href="#get_unit_registry">get_unit_registry</a>
-            </li>
-            <li>
-                    <a class="function" href="#get_unit_context">get_unit_context</a>
-            </li>
-            <li>
-                    <a class="function" href="#get_pint_unit">get_pint_unit</a>
-            </li>
-            <li>
-                    <a class="function" href="#get_unit_name">get_unit_name</a>
-            </li>
-            <li>
-                    <a class="function" href="#get_unit_aliases">get_unit_aliases</a>
-            </li>
-            <li>
-                    <a class="function" href="#get_compatible_units">get_compatible_units</a>
+                    <a class="function" href="#convert_units">convert_units</a>
             </li>
             <li>
                     <a class="function" href="#get_compatible_base_parameters">get_compatible_base_parameters</a>
             </li>
             <li>
-                    <a class="function" href="#get_unit_system">get_unit_system</a>
+                    <a class="function" href="#get_compatible_units">get_compatible_units</a>
+            </li>
+            <li>
+                    <a class="function" href="#get_pint_unit">get_pint_unit</a>
+            </li>
+            <li>
+                    <a class="function" href="#get_unit_aliases">get_unit_aliases</a>
+            </li>
+            <li>
+                    <a class="function" href="#get_unit_context">get_unit_context</a>
+            </li>
+            <li>
+                    <a class="function" href="#get_unit_name">get_unit_name</a>
             </li>
             <li>
                     <a class="function" href="#get_unit_names_for_unit_system">get_unit_names_for_unit_system</a>
             </li>
             <li>
-                    <a class="function" href="#convert_units">convert_units</a>
+                    <a class="function" href="#get_unit_registry">get_unit_registry</a>
+            </li>
+            <li>
+                    <a class="function" href="#get_unit_system">get_unit_system</a>
             </li>
             <li>
                     <a class="class" href="#UnitException">UnitException</a>
@@ -73,46 +73,46 @@
                                 <a class="function" href="#UnitQuantity.__init__">UnitQuantity</a>
                         </li>
                         <li>
-                                <a class="function" href="#UnitQuantity.setDefaultOutputFormat">setDefaultOutputFormat</a>
+                                <a class="variable" href="#UnitQuantity.dimensionality">dimensionality</a>
                         </li>
                         <li>
-                                <a class="variable" href="#UnitQuantity.output_format">output_format</a>
+                                <a class="function" href="#UnitQuantity.get_compatible_base_parameters">get_compatible_base_parameters</a>
                         </li>
                         <li>
-                                <a class="variable" href="#UnitQuantity.magnitude">magnitude</a>
+                                <a class="function" href="#UnitQuantity.get_compatible_units">get_compatible_units</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#UnitQuantity.get_unit_aliases">get_unit_aliases</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#UnitQuantity.get_unit_systems">get_unit_systems</a>
                         </li>
                         <li>
                                 <a class="variable" href="#UnitQuantity.isnan">isnan</a>
                         </li>
                         <li>
-                                <a class="variable" href="#UnitQuantity.units">units</a>
+                                <a class="function" href="#UnitQuantity.ito">ito</a>
                         </li>
                         <li>
-                                <a class="variable" href="#UnitQuantity.dimensionality">dimensionality</a>
+                                <a class="variable" href="#UnitQuantity.magnitude">magnitude</a>
                         </li>
                         <li>
-                                <a class="variable" href="#UnitQuantity.specified_unit">specified_unit</a>
+                                <a class="variable" href="#UnitQuantity.output_format">output_format</a>
                         </li>
                         <li>
                                 <a class="function" href="#UnitQuantity.round">round</a>
                         </li>
                         <li>
+                                <a class="function" href="#UnitQuantity.set_default_output_format">set_default_output_format</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#UnitQuantity.specified_unit">specified_unit</a>
+                        </li>
+                        <li>
                                 <a class="function" href="#UnitQuantity.to">to</a>
                         </li>
                         <li>
-                                <a class="function" href="#UnitQuantity.ito">ito</a>
-                        </li>
-                        <li>
-                                <a class="function" href="#UnitQuantity.getUnitAliases">getUnitAliases</a>
-                        </li>
-                        <li>
-                                <a class="function" href="#UnitQuantity.getCompatibleUnits">getCompatibleUnits</a>
-                        </li>
-                        <li>
-                                <a class="function" href="#UnitQuantity.getCompatibleBaseParameters">getCompatibleBaseParameters</a>
-                        </li>
-                        <li>
-                                <a class="function" href="#UnitQuantity.getUnitSystems">getUnitSystems</a>
+                                <a class="variable" href="#UnitQuantity.unit">unit</a>
                         </li>
                 </ul>
 
@@ -232,280 +232,6 @@ cfs
                 
                 
             </section>
-                <section id="get_unit_registry">
-                    <div class="attr function">
-            
-        <span class="def">def</span>
-        <span class="name">get_unit_registry</span><span class="signature pdoc-code condensed">(<span class="return-annotation">) -> <span class="n">pint</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">UnitRegistry</span>:</span></span>
-
-        
-    </div>
-    <a class="headerlink" href="#get_unit_registry"></a>
-    
-            <div class="docstring"><p>Returns the Pint unit registry. Pint doesn't share unit information between
-registries so this registry must be used for any modification to the Pint behavior.
-See <a href="https://pint.readthedocs.io">Pint documentation</a> for more details.</p>
-
-<h6 id="returns">Returns:</h6>
-
-<blockquote>
-  <p>pint.registry.UnitRegistry: the Pint unit registry currently in use</p>
-</blockquote>
-</div>
-
-
-                </section>
-                <section id="get_unit_context">
-                    <div class="attr function">
-            
-        <span class="def">def</span>
-        <span class="name">get_unit_context</span><span class="signature pdoc-code condensed">(<span class="return-annotation">) -> <span class="n">pint</span><span class="o">.</span><span class="n">facets</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">Context</span>:</span></span>
-
-        
-    </div>
-    <a class="headerlink" href="#get_unit_context"></a>
-    
-            <div class="docstring"><p>Returns the Pint unit registry context.
-See <a href="https://pint.readthedocs.io">Pint documentation</a> for more details.</p>
-
-<h6 id="returns">Returns:</h6>
-
-<blockquote>
-  <p>pint.facets.context.objects.Context: The unit registry context</p>
-</blockquote>
-</div>
-
-
-                </section>
-                <section id="get_pint_unit">
-                    <div class="attr function">
-            
-        <span class="def">def</span>
-        <span class="name">get_pint_unit</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">unit</span><span class="p">:</span> <span class="nb">str</span></span><span class="return-annotation">) -> <span class="n">pint</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">Unit</span>:</span></span>
-
-        
-    </div>
-    <a class="headerlink" href="#get_pint_unit"></a>
-    
-            <div class="docstring"><p>Gets the Pint unit object for a specified unit string</p>
-
-<h6 id="arguments">Arguments:</h6>
-
-<ul>
-<li><strong>unit (str):</strong>  The specified unit. May be a unit name, unit alias, or a Pint unit string</li>
-</ul>
-
-<h6 id="raises">Raises:</h6>
-
-<ul>
-<li><strong>UnitException:</strong>  If the specified unit is not a valid unit name, unit alias, or Pint unit string</li>
-</ul>
-
-<h6 id="returns">Returns:</h6>
-
-<blockquote>
-  <p>pint.Unit: The Pint unit object</p>
-</blockquote>
-</div>
-
-
-                </section>
-                <section id="get_unit_name">
-                    <div class="attr function">
-            
-        <span class="def">def</span>
-        <span class="name">get_unit_name</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">name_alias_or_unit</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pint</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">Unit</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="nb">str</span>:</span></span>
-
-        
-    </div>
-    <a class="headerlink" href="#get_unit_name"></a>
-    
-            <div class="docstring"><p>Returns the unit name of unit name, unit alias, or Pint unit (string or object)</p>
-
-<h6 id="arguments">Arguments:</h6>
-
-<ul>
-<li><strong>name_alias_or_unit (Union[str, pint.Unit]):</strong>  A unit name, unit alias or a Pint unit</li>
-</ul>
-
-<h6 id="raises">Raises:</h6>
-
-<ul>
-<li><strong>KeyError:</strong>  If no unit name exists for the unit alias or Pint unit</li>
-</ul>
-
-<h6 id="returns">Returns:</h6>
-
-<blockquote>
-  <p>str: The unit_name</p>
-</blockquote>
-</div>
-
-
-                </section>
-                <section id="get_unit_aliases">
-                    <div class="attr function">
-            
-        <span class="def">def</span>
-        <span class="name">get_unit_aliases</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">unit</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pint</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">Unit</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>:</span></span>
-
-        
-    </div>
-    <a class="headerlink" href="#get_unit_aliases"></a>
-    
-            <div class="docstring"><p>Returns a list of aliases for the specified unit</p>
-
-<h6 id="arguments">Arguments:</h6>
-
-<ul>
-<li><strong>unit (Union[str, pint.Unit]):</strong>  A unit name, Pint Unit definition, or Pint Unit object</li>
-</ul>
-
-<h6 id="raises">Raises:</h6>
-
-<ul>
-<li><strong>KeyError:</strong>  if the specified unit is not an existing unit name or a Pint Unit
-(definition or object) referenced by a unit_name</li>
-</ul>
-
-<h6 id="returns">Returns:</h6>
-
-<blockquote>
-  <p>list[str]: A list of aliases for the specified unit</p>
-</blockquote>
-</div>
-
-
-                </section>
-                <section id="get_compatible_units">
-                    <div class="attr function">
-            
-        <span class="def">def</span>
-        <span class="name">get_compatible_units</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">unit</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pint</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">Unit</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>:</span></span>
-
-        
-    </div>
-    <a class="headerlink" href="#get_compatible_units"></a>
-    
-            <div class="docstring"><p>Returns a list of units names that are convertable to/from the specified unit</p>
-
-<h6 id="arguments">Arguments:</h6>
-
-<ul>
-<li><strong>unit (Union[str, pint.Unit]):</strong>  The unit to get compatible units for</li>
-</ul>
-
-<h6 id="returns">Returns:</h6>
-
-<blockquote>
-  <p>list[str]: The list of compatible unit names</p>
-</blockquote>
-</div>
-
-
-                </section>
-                <section id="get_compatible_base_parameters">
-                    <div class="attr function">
-            
-        <span class="def">def</span>
-        <span class="name">get_compatible_base_parameters</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">unit</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pint</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">Unit</span><span class="p">]</span>,</span><span class="param">	<span class="n">parameter_context</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;CWMS&#39;</span></span><span class="return-annotation">) -> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>:</span></span>
-
-        
-    </div>
-    <a class="headerlink" href="#get_compatible_base_parameters"></a>
-    
-            <div class="docstring"><p>Returns a list of base parameter names that are compatible with the specified unit</p>
-
-<h6 id="arguments">Arguments:</h6>
-
-<ul>
-<li><strong>unit (Union[str, pint.Unit]):</strong>  The unit object or unit name to retrieve the base parameter names for</li>
-<li><strong>parameter_context (str):</strong>  The parameter context, defaults to "CWMS" (currently only valid context)</li>
-</ul>
-
-<h6 id="raises">Raises:</h6>
-
-<ul>
-<li><strong>UnitException:</strong>  If an invalid context is specified</li>
-</ul>
-
-<h6 id="returns">Returns:</h6>
-
-<blockquote>
-  <p>list[str]: The compatible base parameter names</p>
-</blockquote>
-</div>
-
-
-                </section>
-                <section id="get_unit_system">
-                    <div class="attr function">
-            
-        <span class="def">def</span>
-        <span class="name">get_unit_system</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">unit</span><span class="p">:</span> <span class="nb">str</span></span><span class="return-annotation">) -> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>:</span></span>
-
-        
-    </div>
-    <a class="headerlink" href="#get_unit_system"></a>
-    
-            <div class="docstring"><p>Returns the unit system of a unit name or unit alias</p>
-
-<h6 id="arguments">Arguments:</h6>
-
-<ul>
-<li><strong>unit (str):</strong>  A unit name or unit alias</li>
-</ul>
-
-<h6 id="raises">Raises:</h6>
-
-<ul>
-<li><strong>KeyError:</strong>  if the specified unit is not an existing unit name or a Pint Unit
-(definition or object) referenced by a unit_name</li>
-</ul>
-
-<h6 id="returns">Returns:</h6>
-
-<blockquote>
-  <p>Optional[str]: "EN" if English, "SI" if Système International, or None if both</p>
-</blockquote>
-</div>
-
-
-                </section>
-                <section id="get_unit_names_for_unit_system">
-                    <div class="attr function">
-            
-        <span class="def">def</span>
-        <span class="name">get_unit_names_for_unit_system</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">unit_system</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>:</span></span>
-
-        
-    </div>
-    <a class="headerlink" href="#get_unit_names_for_unit_system"></a>
-    
-            <div class="docstring"><p>Returns a list of unit names for the specified unit system</p>
-
-<h6 id="arguments">Arguments:</h6>
-
-<ul>
-<li><strong>unit_system (Optional[str]):</strong>  "EN", "SI", or None</li>
-</ul>
-
-<h6 id="raises">Raises:</h6>
-
-<ul>
-<li><strong>KeyError:</strong>  if the specified unit system is not "EN", "SI", or None</li>
-</ul>
-
-<h6 id="returns">Returns:</h6>
-
-<blockquote>
-  <p>list[str]: A list of English unit names, Système International unit names,
-      or unit names used by both (if <code>unit_system</code> is None)</p>
-</blockquote>
-</div>
-
-
-                </section>
                 <section id="convert_units">
                     <div class="attr function">
             
@@ -598,6 +324,280 @@ unit is not the same as the <code>from_unit</code>.</li>
 
 
                 </section>
+                <section id="get_compatible_base_parameters">
+                    <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">get_compatible_base_parameters</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">unit</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pint</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">Unit</span><span class="p">]</span>,</span><span class="param">	<span class="n">parameter_context</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;CWMS&#39;</span></span><span class="return-annotation">) -> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#get_compatible_base_parameters"></a>
+    
+            <div class="docstring"><p>Returns a list of base parameter names that are compatible with the specified unit</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>unit (Union[str, pint.Unit]):</strong>  The unit object or unit name to retrieve the base parameter names for</li>
+<li><strong>parameter_context (str):</strong>  The parameter context, defaults to "CWMS" (currently only valid context)</li>
+</ul>
+
+<h6 id="raises">Raises:</h6>
+
+<ul>
+<li><strong>UnitException:</strong>  If an invalid context is specified</li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>list[str]: The compatible base parameter names</p>
+</blockquote>
+</div>
+
+
+                </section>
+                <section id="get_compatible_units">
+                    <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">get_compatible_units</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">unit</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pint</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">Unit</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#get_compatible_units"></a>
+    
+            <div class="docstring"><p>Returns a list of units names that are convertable to/from the specified unit</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>unit (Union[str, pint.Unit]):</strong>  The unit to get compatible units for</li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>list[str]: The list of compatible unit names</p>
+</blockquote>
+</div>
+
+
+                </section>
+                <section id="get_pint_unit">
+                    <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">get_pint_unit</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">unit</span><span class="p">:</span> <span class="nb">str</span></span><span class="return-annotation">) -> <span class="n">pint</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">Unit</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#get_pint_unit"></a>
+    
+            <div class="docstring"><p>Gets the Pint unit object for a specified unit string</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>unit (str):</strong>  The specified unit. May be a unit name, unit alias, or a Pint unit string</li>
+</ul>
+
+<h6 id="raises">Raises:</h6>
+
+<ul>
+<li><strong>UnitException:</strong>  If the specified unit is not a valid unit name, unit alias, or Pint unit string</li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>pint.Unit: The Pint unit object</p>
+</blockquote>
+</div>
+
+
+                </section>
+                <section id="get_unit_aliases">
+                    <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">get_unit_aliases</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">unit</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pint</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">Unit</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#get_unit_aliases"></a>
+    
+            <div class="docstring"><p>Returns a list of aliases for the specified unit</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>unit (Union[str, pint.Unit]):</strong>  A unit name, Pint Unit definition, or Pint Unit object</li>
+</ul>
+
+<h6 id="raises">Raises:</h6>
+
+<ul>
+<li><strong>KeyError:</strong>  if the specified unit is not an existing unit name or a Pint Unit
+(definition or object) referenced by a unit_name</li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>list[str]: A list of aliases for the specified unit</p>
+</blockquote>
+</div>
+
+
+                </section>
+                <section id="get_unit_context">
+                    <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">get_unit_context</span><span class="signature pdoc-code condensed">(<span class="return-annotation">) -> <span class="n">pint</span><span class="o">.</span><span class="n">facets</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">Context</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#get_unit_context"></a>
+    
+            <div class="docstring"><p>Returns the Pint unit registry context.
+See <a href="https://pint.readthedocs.io">Pint documentation</a> for more details.</p>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>pint.facets.context.objects.Context: The unit registry context</p>
+</blockquote>
+</div>
+
+
+                </section>
+                <section id="get_unit_name">
+                    <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">get_unit_name</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">name_alias_or_unit</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pint</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">Unit</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="nb">str</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#get_unit_name"></a>
+    
+            <div class="docstring"><p>Returns the unit name of unit name, unit alias, or Pint unit (string or object)</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>name_alias_or_unit (Union[str, pint.Unit]):</strong>  A unit name, unit alias or a Pint unit</li>
+</ul>
+
+<h6 id="raises">Raises:</h6>
+
+<ul>
+<li><strong>KeyError:</strong>  If no unit name exists for the unit alias or Pint unit</li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>str: The unit_name</p>
+</blockquote>
+</div>
+
+
+                </section>
+                <section id="get_unit_names_for_unit_system">
+                    <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">get_unit_names_for_unit_system</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">unit_system</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#get_unit_names_for_unit_system"></a>
+    
+            <div class="docstring"><p>Returns a list of unit names for the specified unit system</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>unit_system (Optional[str]):</strong>  "EN", "SI", or None</li>
+</ul>
+
+<h6 id="raises">Raises:</h6>
+
+<ul>
+<li><strong>KeyError:</strong>  if the specified unit system is not "EN", "SI", or None</li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>list[str]: A list of English unit names, Système International unit names,
+      or unit names used by both (if <code>unit_system</code> is None)</p>
+</blockquote>
+</div>
+
+
+                </section>
+                <section id="get_unit_registry">
+                    <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">get_unit_registry</span><span class="signature pdoc-code condensed">(<span class="return-annotation">) -> <span class="n">pint</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">UnitRegistry</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#get_unit_registry"></a>
+    
+            <div class="docstring"><p>Returns the Pint unit registry. Pint doesn't share unit information between
+registries so this registry must be used for any modification to the Pint behavior.
+See <a href="https://pint.readthedocs.io">Pint documentation</a> for more details.</p>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>pint.registry.UnitRegistry: the Pint unit registry currently in use</p>
+</blockquote>
+</div>
+
+
+                </section>
+                <section id="get_unit_system">
+                    <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">get_unit_system</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">unit</span><span class="p">:</span> <span class="nb">str</span></span><span class="return-annotation">) -> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#get_unit_system"></a>
+    
+            <div class="docstring"><p>Returns the unit system of a unit name or unit alias</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>unit (str):</strong>  A unit name or unit alias</li>
+</ul>
+
+<h6 id="raises">Raises:</h6>
+
+<ul>
+<li><strong>KeyError:</strong>  if the specified unit is not an existing unit name or a Pint Unit
+(definition or object) referenced by a unit_name</li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>Optional[str]: "EN" if English, "SI" if Système International, or None if both</p>
+</blockquote>
+</div>
+
+
+                </section>
                 <section id="UnitException">
                     <div class="attr class">
             
@@ -672,112 +672,6 @@ operators in conjuction with pint.UnitRegistry.Quantity objects and scalars (int
 
 
                             </div>
-                            <div id="UnitQuantity.setDefaultOutputFormat" class="classattr">
-                                <div class="attr function">
-                    <div class="decorator decorator-classmethod">@classmethod</div>
-
-        <span class="def">def</span>
-        <span class="name">setDefaultOutputFormat</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">cls</span>, </span><span class="param"><span class="nb">format</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="kc">None</span>:</span></span>
-
-        
-    </div>
-    <a class="headerlink" href="#UnitQuantity.setDefaultOutputFormat"></a>
-    
-            <div class="docstring"><p>Sets the default output format for new UnitQuantity objects</p>
-
-<h6 id="arguments">Arguments:</h6>
-
-<ul>
-<li><strong>format (Optional[str]):</strong>  <br>
-<ul>
-<li>None: (default value) outputs the units as specified when the UnitQuantity object was created</li>
-<li>Other: Must be a valid <a href="https://pint.readthedocs.io/en/stable/user/formatting.html">Pint format specification</a></li>
-</ul></li>
-</ul>
-</div>
-
-
-                            </div>
-                            <div id="UnitQuantity.output_format" class="classattr">
-                                <div class="attr variable">
-            <span class="name">output_format</span><span class="annotation">: Optional[str]</span>
-
-        
-    </div>
-    <a class="headerlink" href="#UnitQuantity.output_format"></a>
-    
-            <div class="docstring"><p>The output format used for this object if a format specifier is not used. Any format specifier used
-will override this property.</p>
-
-<p>If <code>None</code>, the unit name or alias specified when the object was creaed will be output (e.g., 10 dsf).
-See <a href="https://pint.readthedocs.io/en/stable/user/formatting.html">Pint format specification</a> for other formats.</p>
-
-<h6 id="operations">Operations:</h6>
-
-<blockquote>
-  <p>Read/Write</p>
-</blockquote>
-</div>
-
-
-                            </div>
-                            <div id="UnitQuantity.magnitude" class="classattr">
-                                <div class="attr variable">
-            <span class="name">magnitude</span><span class="annotation">: Any</span>
-
-        
-    </div>
-    <a class="headerlink" href="#UnitQuantity.magnitude"></a>
-    
-            <div class="docstring"><p>The magnitude of the object (unitless value)</p>
-
-<h6 id="operations">Operations:</h6>
-
-<blockquote>
-  <p>Read/Only</p>
-</blockquote>
-</div>
-
-
-                            </div>
-                            <div id="UnitQuantity.isnan" class="classattr">
-                                <div class="attr variable">
-            <span class="name">isnan</span><span class="annotation">: bool</span>
-
-        
-    </div>
-    <a class="headerlink" href="#UnitQuantity.isnan"></a>
-    
-            <div class="docstring"><p>Whether the magnitude of the objed is NaN</p>
-
-<h6 id="operations">Operations:</h6>
-
-<blockquote>
-  <p>Read/Only</p>
-</blockquote>
-</div>
-
-
-                            </div>
-                            <div id="UnitQuantity.units" class="classattr">
-                                <div class="attr variable">
-            <span class="name">units</span><span class="annotation">: pint.registry.Unit</span>
-
-        
-    </div>
-    <a class="headerlink" href="#UnitQuantity.units"></a>
-    
-            <div class="docstring"><p>The Pint unit of the object</p>
-
-<h6 id="operations">Operations:</h6>
-
-<blockquote>
-  <p>Read/Only</p>
-</blockquote>
-</div>
-
-
-                            </div>
                             <div id="UnitQuantity.dimensionality" class="classattr">
                                 <div class="attr variable">
             <span class="name">dimensionality</span><span class="annotation">: pint.util.UnitsContainer</span>
@@ -797,76 +691,111 @@ See <a href="https://pint.readthedocs.io/en/stable/user/formatting.html">Pint fo
 
 
                             </div>
-                            <div id="UnitQuantity.specified_unit" class="classattr">
-                                <div class="attr variable">
-            <span class="name">specified_unit</span><span class="annotation">: str</span>
+                            <div id="UnitQuantity.get_compatible_base_parameters" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">get_compatible_base_parameters</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">parameter_context</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;CWMS&#39;</span></span><span class="return-annotation">) -> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>:</span></span>
 
         
     </div>
-    <a class="headerlink" href="#UnitQuantity.specified_unit"></a>
+    <a class="headerlink" href="#UnitQuantity.get_compatible_base_parameters"></a>
     
-            <div class="docstring"><p>The unit specified when the object was created. May be a unit name, alias, or a pint unit definition</p>
+            <div class="docstring"><p>Returns a list of base parameter names that are compatible with this object.</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>parameter_context (str, optional):</strong>  Currently only "CWMS" is supported. Defaults to "CWMS".</li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>list[str]: _description_</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="UnitQuantity.get_compatible_units" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">get_compatible_units</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span><span class="return-annotation">) -> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#UnitQuantity.get_compatible_units"></a>
+    
+            <div class="docstring"><p>Returns a list of compatible unit unit names for the specified unit of this object.
+Compatible units are those that have the same dimensionality.</p>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>list[str]: The list of compatible unit names for this object's specified unit</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="UnitQuantity.get_unit_aliases" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">get_unit_aliases</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span><span class="return-annotation">) -> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#UnitQuantity.get_unit_aliases"></a>
+    
+            <div class="docstring"><p>Returns a list of unit aliases for the specified unit of this object</p>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>list[str]: The list of unit aliases for this object's specified unit</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="UnitQuantity.get_unit_systems" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">get_unit_systems</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span><span class="return-annotation">) -> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#UnitQuantity.get_unit_systems"></a>
+    
+            <div class="docstring"><p>Returns a list of unit systems that include the name of this unit.</p>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>list[str]: Will be [], ['EN'], ['SI'], or ['EN', 'SI']</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="UnitQuantity.isnan" class="classattr">
+                                <div class="attr variable">
+            <span class="name">isnan</span><span class="annotation">: bool</span>
+
+        
+    </div>
+    <a class="headerlink" href="#UnitQuantity.isnan"></a>
+    
+            <div class="docstring"><p>Whether the magnitude of the objed is NaN</p>
 
 <h6 id="operations">Operations:</h6>
 
 <blockquote>
   <p>Read/Only</p>
-</blockquote>
-</div>
-
-
-                            </div>
-                            <div id="UnitQuantity.round" class="classattr">
-                                <div class="attr function">
-            
-        <span class="def">def</span>
-        <span class="name">round</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">places</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span></span><span class="return-annotation">) -> <span class="n"><a href="#UnitQuantity">UnitQuantity</a></span>:</span></span>
-
-        
-    </div>
-    <a class="headerlink" href="#UnitQuantity.round"></a>
-    
-            <div class="docstring"><p>Returns a copy of this object with the magnitude rounded to the specified number of decimal places</p>
-
-<h6 id="arguments">Arguments:</h6>
-
-<ul>
-<li><strong>places (int):</strong>  The number of decimal places to round to. Default is 0.</li>
-</ul>
-
-<h6 id="returns">Returns:</h6>
-
-<blockquote>
-  <p>UnitQuantity: The rounded object</p>
-</blockquote>
-</div>
-
-
-                            </div>
-                            <div id="UnitQuantity.to" class="classattr">
-                                <div class="attr function">
-            
-        <span class="def">def</span>
-        <span class="name">to</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="bp">self</span>,</span><span class="param">	<span class="n">unit</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pint</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">Unit</span><span class="p">]</span>,</span><span class="param">	<span class="n">in_place</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></span><span class="return-annotation">) -> <span class="n"><a href="#UnitQuantity">UnitQuantity</a></span>:</span></span>
-
-        
-    </div>
-    <a class="headerlink" href="#UnitQuantity.to"></a>
-    
-            <div class="docstring"><p>Converts this object to a different unit</p>
-
-<h6 id="arguments">Arguments:</h6>
-
-<ul>
-<li><strong>unit (Union[str, pint.Unit]):</strong>  The unit to convert to</li>
-<li><strong>in_place (bool, optional):</strong>  If True, this object is modified and returned. Otherwise
-a new object is returned. Defaults to False.</li>
-</ul>
-
-<h6 id="returns">Returns:</h6>
-
-<blockquote>
-  <p>UnitQuantity: The converted object</p>
 </blockquote>
 </div>
 
@@ -901,92 +830,163 @@ a new object is returned. Defaults to False.</li>
 
 
                             </div>
-                            <div id="UnitQuantity.getUnitAliases" class="classattr">
-                                <div class="attr function">
-            
-        <span class="def">def</span>
-        <span class="name">getUnitAliases</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span><span class="return-annotation">) -> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>:</span></span>
+                            <div id="UnitQuantity.magnitude" class="classattr">
+                                <div class="attr variable">
+            <span class="name">magnitude</span><span class="annotation">: Any</span>
 
         
     </div>
-    <a class="headerlink" href="#UnitQuantity.getUnitAliases"></a>
+    <a class="headerlink" href="#UnitQuantity.magnitude"></a>
     
-            <div class="docstring"><p>Returns a list of unit aliases for the specified unit of this object</p>
+            <div class="docstring"><p>The magnitude of the object (unitless value)</p>
 
-<h6 id="returns">Returns:</h6>
+<h6 id="operations">Operations:</h6>
 
 <blockquote>
-  <p>list[str]: The list of unit aliases for this object's specified unit</p>
+  <p>Read/Only</p>
 </blockquote>
 </div>
 
 
                             </div>
-                            <div id="UnitQuantity.getCompatibleUnits" class="classattr">
-                                <div class="attr function">
-            
-        <span class="def">def</span>
-        <span class="name">getCompatibleUnits</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span><span class="return-annotation">) -> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>:</span></span>
+                            <div id="UnitQuantity.output_format" class="classattr">
+                                <div class="attr variable">
+            <span class="name">output_format</span><span class="annotation">: Optional[str]</span>
 
         
     </div>
-    <a class="headerlink" href="#UnitQuantity.getCompatibleUnits"></a>
+    <a class="headerlink" href="#UnitQuantity.output_format"></a>
     
-            <div class="docstring"><p>Returns a list of compatible unit unit names for the specified unit of this object.
-Compatible units are those that have the same dimensionality.</p>
+            <div class="docstring"><p>The output format used for this object if a format specifier is not used. Any format specifier used
+will override this property.</p>
 
-<h6 id="returns">Returns:</h6>
+<p>If <code>None</code>, the unit name or alias specified when the object was creaed will be output (e.g., 10 dsf).
+See <a href="https://pint.readthedocs.io/en/stable/user/formatting.html">Pint format specification</a> for other formats.</p>
+
+<h6 id="operations">Operations:</h6>
 
 <blockquote>
-  <p>list[str]: The list of compatible unit names for this object's specified unit</p>
+  <p>Read/Write</p>
 </blockquote>
 </div>
 
 
                             </div>
-                            <div id="UnitQuantity.getCompatibleBaseParameters" class="classattr">
+                            <div id="UnitQuantity.round" class="classattr">
                                 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">getCompatibleBaseParameters</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">parameter_context</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;CWMS&#39;</span></span><span class="return-annotation">) -> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>:</span></span>
+        <span class="name">round</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">places</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span></span><span class="return-annotation">) -> <span class="n"><a href="#UnitQuantity">UnitQuantity</a></span>:</span></span>
 
         
     </div>
-    <a class="headerlink" href="#UnitQuantity.getCompatibleBaseParameters"></a>
+    <a class="headerlink" href="#UnitQuantity.round"></a>
     
-            <div class="docstring"><p>Returns a list of base parameter names that are compatible with this object.</p>
+            <div class="docstring"><p>Returns a copy of this object with the magnitude rounded to the specified number of decimal places</p>
 
 <h6 id="arguments">Arguments:</h6>
 
 <ul>
-<li><strong>parameter_context (str, optional):</strong>  Currently only "CWMS" is supported. Defaults to "CWMS".</li>
+<li><strong>places (int):</strong>  The number of decimal places to round to. Default is 0.</li>
 </ul>
 
 <h6 id="returns">Returns:</h6>
 
 <blockquote>
-  <p>list[str]: _description_</p>
+  <p>UnitQuantity: The rounded object</p>
 </blockquote>
 </div>
 
 
                             </div>
-                            <div id="UnitQuantity.getUnitSystems" class="classattr">
+                            <div id="UnitQuantity.set_default_output_format" class="classattr">
                                 <div class="attr function">
-            
+                    <div class="decorator decorator-classmethod">@classmethod</div>
+
         <span class="def">def</span>
-        <span class="name">getUnitSystems</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span><span class="return-annotation">) -> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>:</span></span>
+        <span class="name">set_default_output_format</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">cls</span>, </span><span class="param"><span class="nb">format</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="kc">None</span>:</span></span>
 
         
     </div>
-    <a class="headerlink" href="#UnitQuantity.getUnitSystems"></a>
+    <a class="headerlink" href="#UnitQuantity.set_default_output_format"></a>
     
-            <div class="docstring"><p>Returns a list of unit systems that include the name of this unit.</p>
+            <div class="docstring"><p>Sets the default output format for new UnitQuantity objects</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>format (Optional[str]):</strong>  <br>
+<ul>
+<li>None: (default value) outputs the units as specified when the UnitQuantity object was created</li>
+<li>Other: Must be a valid <a href="https://pint.readthedocs.io/en/stable/user/formatting.html">Pint format specification</a></li>
+</ul></li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="UnitQuantity.specified_unit" class="classattr">
+                                <div class="attr variable">
+            <span class="name">specified_unit</span><span class="annotation">: str</span>
+
+        
+    </div>
+    <a class="headerlink" href="#UnitQuantity.specified_unit"></a>
+    
+            <div class="docstring"><p>The unit specified when the object was created. May be a unit name, alias, or a pint unit definition</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read/Only</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="UnitQuantity.to" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">to</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="bp">self</span>,</span><span class="param">	<span class="n">unit</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pint</span><span class="o">.</span><span class="n">registry</span><span class="o">.</span><span class="n">Unit</span><span class="p">]</span>,</span><span class="param">	<span class="n">in_place</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></span><span class="return-annotation">) -> <span class="n"><a href="#UnitQuantity">UnitQuantity</a></span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#UnitQuantity.to"></a>
+    
+            <div class="docstring"><p>Converts this object to a different unit</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>unit (Union[str, pint.Unit]):</strong>  The unit to convert to</li>
+<li><strong>in_place (bool, optional):</strong>  If True, this object is modified and returned. Otherwise
+a new object is returned. Defaults to False.</li>
+</ul>
 
 <h6 id="returns">Returns:</h6>
 
 <blockquote>
-  <p>list[str]: Will be [], ['EN'], ['SI'], or ['EN', 'SI']</p>
+  <p>UnitQuantity: The converted object</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="UnitQuantity.unit" class="classattr">
+                                <div class="attr variable">
+            <span class="name">unit</span><span class="annotation">: pint.registry.Unit</span>
+
+        
+    </div>
+    <a class="headerlink" href="#UnitQuantity.unit"></a>
+    
+            <div class="docstring"><p>The Pint unit of the object</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read/Only</p>
 </blockquote>
 </div>
 

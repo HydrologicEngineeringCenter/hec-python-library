@@ -104,36 +104,6 @@ class TimeSpan:
     </pre>
     """
 
-    @staticmethod
-    def _parsePossibleFraction(item: Any) -> Union[int, Fraction]:
-        parsed: Union[int, Fraction]
-        if isinstance(item, (int, Fraction)):
-            parsed = item
-        elif isinstance(item, str):
-            if item.isdigit():
-                parsed = int(item)
-            elif item.find("/") != -1:
-                parsed = Fraction(item)
-            else:
-                raise TimeSpanException(
-                    f'Expected "{item}" to be an integer, float, string, or fraction. got {item.__class__.__name__}'
-                )
-        elif isinstance(item, float):
-            f = Fraction(item).limit_denominator()
-            if f.denominator == 1:
-                parsed = f.numerator
-            elif f.denominator <= 16:
-                parsed = f
-            else:
-                raise TimeSpanException(
-                    f'Floating point "{item}" is not representable as a fraction with a denominator <= 16'
-                )
-        else:
-            raise TimeSpanException(
-                f'Expected "{item}" to be an integer, float, string, or fraction. got {item.__class__.__name__}'
-            )
-        return parsed
-
     def __init__(self, *args: Any, **kwargs: Any):
         """
         Initialiazes the object at construction.
@@ -190,146 +160,12 @@ class TimeSpan:
         else:
             return NotImplemented
 
-    def __iadd__(self, other: object) -> "TimeSpan":
-        if isinstance(other, TimeSpan):
-            values = []
-            values.append(self.values)
-            values.append(other.values)
-            self.values = list(map(sum, zip(*values)))
-            return self
-        elif isinstance(other, timedelta):
-            vals = cast(list[Union[int, Fraction]], self.values)
-            vals[S] += int(other.total_seconds())
-            self.values = vals
-            return self
-        else:
-            return NotImplemented
-
-    def __radd__(self, other: timedelta) -> Union["TimeSpan", timedelta]:
-        return timedelta(seconds=other.total_seconds() + self.total_seconds())
-
-    def __sub__(self, other: object) -> "TimeSpan":
-        if isinstance(other, TimeSpan):
-            values = []
-            values.append(self.values)
-            values.append(
-                list(map(lambda x: -x, cast(list[Union[int, Fraction]], other.values)))
-            )
-            return TimeSpan(list(map(sum, zip(*values))))
-        elif isinstance(other, timedelta):
-            vals = cast(list[Union[int, Fraction]], self.values)
-            vals[S] -= int(other.total_seconds())
-            return TimeSpan(vals)
-        else:
-            return NotImplemented
-
-    def __isub__(self, other: object) -> "TimeSpan":
-        if isinstance(other, TimeSpan):
-            values = []
-            values.append(self.values)
-            values.append(
-                list(map(lambda x: -x, cast(list[Union[int, Fraction]], other.values)))
-            )
-            self.values = list(map(sum, zip(*values)))
-            return self
-        elif isinstance(other, timedelta):
-            vals = cast(list[Union[int, Fraction]], self.values)
-            vals[S] -= int(other.total_seconds())
-            self.values = vals
-            return self
-        else:
-            return NotImplemented
-
-    def __rsub__(self, other: Any) -> Any:
-        if isinstance(other, timedelta):
-            return timedelta(seconds=other.total_seconds() - self.total_seconds())
-        return NotImplemented
-
-    def __mul__(self, other: object) -> "TimeSpan":
-        if isinstance(other, int):
-            values = list(
-                map(lambda v: v * other, cast(list[Union[int, Fraction]], self.values))
-            )
-            return TimeSpan(values)
-        else:
-            return NotImplemented
-
-    def __imul__(self, other: object) -> "TimeSpan":
-        if isinstance(other, int):
-            vals = list(
-                map(lambda v: v * other, cast(list[Union[int, Fraction]], self.values))
-            )
-            self.values = vals
-            return self
-        else:
-            return NotImplemented
-
-    def __rmul__(self, other: object) -> "TimeSpan":
-        if isinstance(other, int):
-            values = list(
-                map(lambda v: v * other, cast(list[Union[int, Fraction]], self.values))
-            )
-            return TimeSpan(values)
-        else:
-            return NotImplemented
-
     def __eq__(self, other: object) -> bool:
         if isinstance(other, TimeSpan):
             return self.values == other.values
         elif isinstance(other, timedelta):
             return self.total_seconds() == int(other.total_seconds())
         return NotImplemented
-
-    def __lt__(self, other: object) -> bool:
-        if isinstance(other, TimeSpan):
-            v1 = cast(list[Union[int, Fraction]], self.values)
-            v2 = cast(list[Union[int, Fraction]], other.values)
-            if (
-                cast(int, v1[Y])
-                and (abs(cast(int, v2[D]))) > 365
-                or cast(int, v2[Y])
-                and abs(cast(int, v1[D])) > 365
-                or isinstance(v1[M], int)
-                and abs(cast(int, v2[D])) > 28
-                or isinstance(v1[M], Fraction)
-                and abs(cast(int, v2[D])) > 30 / v1[M].denominator
-                or isinstance(v2[M], int)
-                and abs(cast(int, v1[D])) > 28
-                or isinstance(v2[M], Fraction)
-                and abs(cast(int, v1[D])) > 30 / v2[M].denominator
-            ):
-                raise TimeSpanException(
-                    "Cannot compare items due to calenar and non-calendar conflicts"
-                )
-            if v1[Y] < v2[Y]:
-                return True
-            if v1[Y] > v2[Y]:
-                return False
-            if v1[M] < v2[M]:
-                return True
-            if v1[M] > v2[M]:
-                return False
-            if v1[D] < v2[D]:
-                return True
-            if v1[D] > v2[D]:
-                return False
-            if v1[H] < v2[H]:
-                return True
-            if v1[H] > v2[H]:
-                return False
-            if v1[N] < v2[N]:
-                return True
-            if v1[N] > v2[N]:
-                return False
-            if v1[S] < v2[S]:
-                return True
-            if v1[S] > v2[S]:
-                return False
-            return False
-        elif isinstance(other, timedelta):
-            return self.total_seconds() < other.total_seconds()
-        else:
-            return NotImplemented
 
     def __gt__(self, other: object) -> bool:
         if isinstance(other, TimeSpan):
@@ -382,11 +218,130 @@ class TimeSpan:
         else:
             return NotImplemented
 
+    def __iadd__(self, other: object) -> "TimeSpan":
+        if isinstance(other, TimeSpan):
+            values = []
+            values.append(self.values)
+            values.append(other.values)
+            self.values = list(map(sum, zip(*values)))
+            return self
+        elif isinstance(other, timedelta):
+            vals = cast(list[Union[int, Fraction]], self.values)
+            vals[S] += int(other.total_seconds())
+            self.values = vals
+            return self
+        else:
+            return NotImplemented
+
+    def __imul__(self, other: object) -> "TimeSpan":
+        if isinstance(other, int):
+            vals = list(
+                map(lambda v: v * other, cast(list[Union[int, Fraction]], self.values))
+            )
+            self.values = vals
+            return self
+        else:
+            return NotImplemented
+
+    def __isub__(self, other: object) -> "TimeSpan":
+        if isinstance(other, TimeSpan):
+            values = []
+            values.append(self.values)
+            values.append(
+                list(map(lambda x: -x, cast(list[Union[int, Fraction]], other.values)))
+            )
+            self.values = list(map(sum, zip(*values)))
+            return self
+        elif isinstance(other, timedelta):
+            vals = cast(list[Union[int, Fraction]], self.values)
+            vals[S] -= int(other.total_seconds())
+            self.values = vals
+            return self
+        else:
+            return NotImplemented
+
+    def __lt__(self, other: object) -> bool:
+        if isinstance(other, TimeSpan):
+            v1 = cast(list[Union[int, Fraction]], self.values)
+            v2 = cast(list[Union[int, Fraction]], other.values)
+            if (
+                cast(int, v1[Y])
+                and (abs(cast(int, v2[D]))) > 365
+                or cast(int, v2[Y])
+                and abs(cast(int, v1[D])) > 365
+                or isinstance(v1[M], int)
+                and abs(cast(int, v2[D])) > 28
+                or isinstance(v1[M], Fraction)
+                and abs(cast(int, v2[D])) > 30 / v1[M].denominator
+                or isinstance(v2[M], int)
+                and abs(cast(int, v1[D])) > 28
+                or isinstance(v2[M], Fraction)
+                and abs(cast(int, v1[D])) > 30 / v2[M].denominator
+            ):
+                raise TimeSpanException(
+                    "Cannot compare items due to calenar and non-calendar conflicts"
+                )
+            if v1[Y] < v2[Y]:
+                return True
+            if v1[Y] > v2[Y]:
+                return False
+            if v1[M] < v2[M]:
+                return True
+            if v1[M] > v2[M]:
+                return False
+            if v1[D] < v2[D]:
+                return True
+            if v1[D] > v2[D]:
+                return False
+            if v1[H] < v2[H]:
+                return True
+            if v1[H] > v2[H]:
+                return False
+            if v1[N] < v2[N]:
+                return True
+            if v1[N] > v2[N]:
+                return False
+            if v1[S] < v2[S]:
+                return True
+            if v1[S] > v2[S]:
+                return False
+            return False
+        elif isinstance(other, timedelta):
+            return self.total_seconds() < other.total_seconds()
+        else:
+            return NotImplemented
+
+    def __mul__(self, other: object) -> "TimeSpan":
+        if isinstance(other, int):
+            values = list(
+                map(lambda v: v * other, cast(list[Union[int, Fraction]], self.values))
+            )
+            return TimeSpan(values)
+        else:
+            return NotImplemented
+
+    def __radd__(self, other: timedelta) -> Union["TimeSpan", timedelta]:
+        return timedelta(seconds=other.total_seconds() + self.total_seconds())
+
     def __repr__(self) -> str:
         return (
             f"TimeSpan([{self._years}, {str(self._months)}, {self._days}, "
             f"{self._hours}, {self._minutes}, {self._seconds}])"
         )
+
+    def __rmul__(self, other: object) -> "TimeSpan":
+        if isinstance(other, int):
+            values = list(
+                map(lambda v: v * other, cast(list[Union[int, Fraction]], self.values))
+            )
+            return TimeSpan(values)
+        else:
+            return NotImplemented
+
+    def __rsub__(self, other: Any) -> Any:
+        if isinstance(other, timedelta):
+            return timedelta(seconds=other.total_seconds() - self.total_seconds())
+        return NotImplemented
 
     def __str__(self) -> str:
         sign1 = sign2 = 0
@@ -417,57 +372,129 @@ class TimeSpan:
             string = "-" + string
         return string
 
-    @property
-    def values(self) -> Optional[list[Union[int, Fraction]]]:
-        """
-        A list of years, months, days, hours, minutes, and seconds in this time span.
-        On read, all values will be normalized:
-        - years and days are unconstrained in magnitude
-        - integer months will be in the range of ±0..12
-        - fractional months normalized
-        - hours will be in the range of ±0..23
-        - minutes and seconds will be in the range ±0..59
-        - calendar-based values (years, months) will have the same sign if not zero
-        - non-calendar-based values (days, hours, minutes, seconds) will have the same sign if not zero
-        - calendar- and non-calendar-based values may have different signs
-
-        Operations:
-            Read/Write
-        """
-        if not all(
-            map(
-                lambda x: x is not None,
-                [
-                    self._years,
-                    self._months,
-                    self._days,
-                    self._hours,
-                    self._minutes,
-                    self._seconds,
-                ],
+    def __sub__(self, other: object) -> "TimeSpan":
+        if isinstance(other, TimeSpan):
+            values = []
+            values.append(self.values)
+            values.append(
+                list(map(lambda x: -x, cast(list[Union[int, Fraction]], other.values)))
             )
-        ):
-            return None
-        return [
-            cast(int, self._years),
-            cast(Union[int, Fraction], self._months),
-            cast(int, self._days),
-            cast(int, self._hours),
-            cast(int, self._minutes),
-            cast(int, self._seconds),
-        ]
+            return TimeSpan(list(map(sum, zip(*values))))
+        elif isinstance(other, timedelta):
+            vals = cast(list[Union[int, Fraction]], self.values)
+            vals[S] -= int(other.total_seconds())
+            return TimeSpan(vals)
+        else:
+            return NotImplemented
 
-    @values.setter
-    def values(self, values: list[Union[int, Fraction]]) -> None:
-        original_values = self.values
-        try:
-            self.set(values)
-            error = False
-        except:
-            error = True
-        finally:
-            if error:
-                self.set(original_values)
+    def _normalize(self) -> None:
+
+        def put_in_range(
+            v1: Union[int, Fraction], v2: Union[int, Fraction], limit: int
+        ) -> tuple[Union[int, Fraction], ...]:
+            if isinstance(v2, Fraction):
+                div, mod = divmod(abs(v2.numerator), v2.denominator)
+                v1 += div * (-1 if v2 < 0 else 1)
+                v2 = Fraction(mod, v2.denominator) * (-1 if v2 < 0 else 1)
+            else:
+                v1 += int(v2 / limit)
+                v2 = cast(Union[int, Fraction], abs(v2)) % limit * (-1 if v2 < 0 else 1)
+            if v1 != 0 and v2 != 0 and (v2 < 0) != (v1 < 0):
+                v1 += -1 if v2 < 0 else 1
+                if isinstance(v2, Fraction):
+                    v2 += 1 if v2 < 0 else -1
+                else:
+                    v2 += limit if v2 < 0 else -limit
+            # v1 and v2 will always have same sign
+            return v1, v2
+
+        self._years = self._years if self._years is not None else 0
+        self._months = self._months if self._months is not None else 0
+        self._days = self._days if self._days is not None else 0
+        self._hours = self._hours if self._hours is not None else 0
+        self._minutes = self._minutes if self._minutes is not None else 0
+        self._seconds = self._seconds if self._seconds is not None else 0
+
+        original = [
+            self._years,
+            self._months,
+            self._days,
+            self._hours,
+            self._minutes,
+            self._seconds,
+        ]
+        if original != [0, 0, 0, 0, 0, 0]:
+            v: list[Union[int, Fraction]] = original[:]
+            # first the calendar-based values
+            v[Y], v[M] = put_in_range(v[Y], v[M], 12)
+            # next the non-calendar-based values
+            v[N], v[S] = put_in_range(v[N], v[S], 60)
+            v[H], v[N] = put_in_range(v[H], v[N], 60)
+            v[D], v[H] = put_in_range(v[D], v[H], 24)
+            le = all(map(lambda x: x <= 0, v[D:]))
+            ge = all(map(lambda x: x >= 0, v[D:]))
+            if not (le or ge):
+                v[D] += 1
+                v[S] -= 86400
+                v[N], v[S] = put_in_range(v[N], v[S], 60)
+                v[H], v[N] = put_in_range(v[H], v[N], 60)
+                v[D], v[H] = put_in_range(v[D], v[H], 24)
+                le = all(map(lambda x: x <= 0, v[D:]))
+                ge = all(map(lambda x: x >= 0, v[D:]))
+                if not (le or ge):
+                    v[D] -= 1
+                    v[S] += 86400
+                    v[N], v[S] = put_in_range(v[N], v[S], 60)
+                    v[H], v[N] = put_in_range(v[H], v[N], 60)
+                    v[D], v[H] = put_in_range(v[D], v[H], 24)
+                    le = all(map(lambda x: x <= 0, v[D:]))
+                    ge = all(map(lambda x: x >= 0, v[D:]))
+            assert le or ge
+            if v[M] != 0 and isinstance(v[M], Fraction):
+                # if any([v[i] for i in range(6) if i != M]):
+                #     raise TimeSpanException(
+                #         "Month cannot be fractional if years, days, hours, minutes, or seconds is non-zero"
+                #     )
+                if v[M].denominator > 3:
+                    raise TimeSpanException(
+                        f"Only fractions allowed for month are n/3, and  n/2, got {str(v[M])}"
+                    )
+            self._years = cast(int, v[Y])
+            self._months = v[M]
+            self._days = cast(int, v[D])
+            self._hours = cast(int, v[H])
+            self._minutes = cast(int, v[N])
+            self._seconds = cast(int, v[S])
+
+    @staticmethod
+    def _parse_possible_fraction(item: Any) -> Union[int, Fraction]:
+        parsed: Union[int, Fraction]
+        if isinstance(item, (int, Fraction)):
+            parsed = item
+        elif isinstance(item, str):
+            if item.isdigit():
+                parsed = int(item)
+            elif item.find("/") != -1:
+                parsed = Fraction(item)
+            else:
+                raise TimeSpanException(
+                    f'Expected "{item}" to be an integer, float, string, or fraction. got {item.__class__.__name__}'
+                )
+        elif isinstance(item, float):
+            f = Fraction(item).limit_denominator()
+            if f.denominator == 1:
+                parsed = f.numerator
+            elif f.denominator <= 16:
+                parsed = f
+            else:
+                raise TimeSpanException(
+                    f'Floating point "{item}" is not representable as a fraction with a denominator <= 16'
+                )
+        else:
+            raise TimeSpanException(
+                f'Expected "{item}" to be an integer, float, string, or fraction. got {item.__class__.__name__}'
+            )
+        return parsed
 
     def set(self, *args: Any, **kwargs: Any) -> None:
         """
@@ -502,7 +529,7 @@ class TimeSpan:
         # ----------------------- #
         # process positional args #
         # ----------------------- #
-        parse = TimeSpan._parsePossibleFraction
+        parse = TimeSpan._parse_possible_fraction
         if len(args) == 0:
             if len(kwargs) == 0:
                 self.set([0, 0, 0, 0, 0, 0])
@@ -608,84 +635,22 @@ class TimeSpan:
                 self._seconds = int(kwargs[key])
         self._normalize()
 
-    def _normalize(self) -> None:
+    def timedelta(self) -> timedelta:
+        """
+        Returns an equivalent `timedelta` object
 
-        def put_in_range(
-            v1: Union[int, Fraction], v2: Union[int, Fraction], limit: int
-        ) -> tuple[Union[int, Fraction], ...]:
-            if isinstance(v2, Fraction):
-                div, mod = divmod(abs(v2.numerator), v2.denominator)
-                v1 += div * (-1 if v2 < 0 else 1)
-                v2 = Fraction(mod, v2.denominator) * (-1 if v2 < 0 else 1)
-            else:
-                v1 += int(v2 / limit)
-                v2 = cast(Union[int, Fraction], abs(v2)) % limit * (-1 if v2 < 0 else 1)
-            if v1 != 0 and v2 != 0 and (v2 < 0) != (v1 < 0):
-                v1 += -1 if v2 < 0 else 1
-                if isinstance(v2, Fraction):
-                    v2 += 1 if v2 < 0 else -1
-                else:
-                    v2 += limit if v2 < 0 else -limit
-            # v1 and v2 will always have same sign
-            return v1, v2
+        Raises:
+            TimeSpanException: if the object contains any calendar-based values
 
-        self._years = self._years if self._years is not None else 0
-        self._months = self._months if self._months is not None else 0
-        self._days = self._days if self._days is not None else 0
-        self._hours = self._hours if self._hours is not None else 0
-        self._minutes = self._minutes if self._minutes is not None else 0
-        self._seconds = self._seconds if self._seconds is not None else 0
-
-        original = [
-            self._years,
-            self._months,
-            self._days,
-            self._hours,
-            self._minutes,
-            self._seconds,
-        ]
-        if original != [0, 0, 0, 0, 0, 0]:
-            v: list[Union[int, Fraction]] = original[:]
-            # first the calendar-based values
-            v[Y], v[M] = put_in_range(v[Y], v[M], 12)
-            # next the non-calendar-based values
-            v[N], v[S] = put_in_range(v[N], v[S], 60)
-            v[H], v[N] = put_in_range(v[H], v[N], 60)
-            v[D], v[H] = put_in_range(v[D], v[H], 24)
-            le = all(map(lambda x: x <= 0, v[D:]))
-            ge = all(map(lambda x: x >= 0, v[D:]))
-            if not (le or ge):
-                v[D] += 1
-                v[S] -= 86400
-                v[N], v[S] = put_in_range(v[N], v[S], 60)
-                v[H], v[N] = put_in_range(v[H], v[N], 60)
-                v[D], v[H] = put_in_range(v[D], v[H], 24)
-                le = all(map(lambda x: x <= 0, v[D:]))
-                ge = all(map(lambda x: x >= 0, v[D:]))
-                if not (le or ge):
-                    v[D] -= 1
-                    v[S] += 86400
-                    v[N], v[S] = put_in_range(v[N], v[S], 60)
-                    v[H], v[N] = put_in_range(v[H], v[N], 60)
-                    v[D], v[H] = put_in_range(v[D], v[H], 24)
-                    le = all(map(lambda x: x <= 0, v[D:]))
-                    ge = all(map(lambda x: x >= 0, v[D:]))
-            assert le or ge
-            if v[M] != 0 and isinstance(v[M], Fraction):
-                # if any([v[i] for i in range(6) if i != M]):
-                #     raise TimeSpanException(
-                #         "Month cannot be fractional if years, days, hours, minutes, or seconds is non-zero"
-                #     )
-                if v[M].denominator > 3:
-                    raise TimeSpanException(
-                        f"Only fractions allowed for month are n/3, and  n/2, got {str(v[M])}"
-                    )
-            self._years = cast(int, v[Y])
-            self._months = v[M]
-            self._days = cast(int, v[D])
-            self._hours = cast(int, v[H])
-            self._minutes = cast(int, v[N])
-            self._seconds = cast(int, v[S])
+        Returns:
+            timedelta: The equivalent `timedelta` object
+        """
+        v = cast(list[Union[int, Fraction]], self.values)
+        if v[Y] or v[M]:
+            raise TimeSpanException(
+                "Object with calendar-based values is not convertable to timedelta"
+            )
+        return timedelta(seconds=self.total_seconds())
 
     def total_seconds(self) -> int:
         """
@@ -709,19 +674,54 @@ class TimeSpan:
             + cast(int, v[S])
         )
 
-    def timedelta(self) -> timedelta:
+    @property
+    def values(self) -> Optional[list[Union[int, Fraction]]]:
         """
-        Returns an equivalent `timedelta` object
+        A list of years, months, days, hours, minutes, and seconds in this time span.
+        On read, all values will be normalized:
+        - years and days are unconstrained in magnitude
+        - integer months will be in the range of ±0..12
+        - fractional months normalized
+        - hours will be in the range of ±0..23
+        - minutes and seconds will be in the range ±0..59
+        - calendar-based values (years, months) will have the same sign if not zero
+        - non-calendar-based values (days, hours, minutes, seconds) will have the same sign if not zero
+        - calendar- and non-calendar-based values may have different signs
 
-        Raises:
-            TimeSpanException: if the object contains any calendar-based values
-
-        Returns:
-            timedelta: The equivalent `timedelta` object
+        Operations:
+            Read/Write
         """
-        v = cast(list[Union[int, Fraction]], self.values)
-        if v[Y] or v[M]:
-            raise TimeSpanException(
-                "Object with calendar-based values is not convertable to timedelta"
+        if not all(
+            map(
+                lambda x: x is not None,
+                [
+                    self._years,
+                    self._months,
+                    self._days,
+                    self._hours,
+                    self._minutes,
+                    self._seconds,
+                ],
             )
-        return timedelta(seconds=self.total_seconds())
+        ):
+            return None
+        return [
+            cast(int, self._years),
+            cast(Union[int, Fraction], self._months),
+            cast(int, self._days),
+            cast(int, self._hours),
+            cast(int, self._minutes),
+            cast(int, self._seconds),
+        ]
+
+    @values.setter
+    def values(self, values: list[Union[int, Fraction]]) -> None:
+        original_values = self.values
+        try:
+            self.set(values)
+            error = False
+        except:
+            error = True
+        finally:
+            if error:
+                self.set(original_values)

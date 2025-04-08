@@ -42,7 +42,7 @@ def test_db_conversions(from_unit: str, to_unit: str, _expected: str) -> None:
 # ----------------------------------- #
 def test_convert_timeseries() -> None:
     if cwms_imported:
-        elevData = cwms.cwms_types.Data(
+        elev_data = cwms.cwms_types.Data(
             {
                 "begin": "2024-10-01T12:54:22+0000[Z]",
                 "end": "2024-10-01T18:54:22+0000[UTC]",
@@ -84,14 +84,14 @@ def test_convert_timeseries() -> None:
                 },
             }
         )
-        unit.convert_units(elevData, "m", "ft", in_place=True)
-        assert elevData.json["units"] == "ft"
+        unit.convert_units(elev_data, "m", "ft", in_place=True)
+        assert elev_data.json["units"] == "ft"
         for i in range(0, 4):
-            assert elevData.json["values"][i][1] == pytest.approx(720.03)
+            assert elev_data.json["values"][i][1] == pytest.approx(720.03)
         for i in range(4, 6):
-            assert elevData.json["values"][i][1] == pytest.approx(720.02)
-        assert elevData.json["vertical-datum-info"]["unit"] == "ft"
-        assert elevData.json["vertical-datum-info"]["offsets"][0][
+            assert elev_data.json["values"][i][1] == pytest.approx(720.02)
+        assert elev_data.json["vertical-datum-info"]["unit"] == "ft"
+        assert elev_data.json["vertical-datum-info"]["offsets"][0][
             "value"
         ] == pytest.approx(0.1105 / 0.3048)
     else:
