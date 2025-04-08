@@ -2,7 +2,6 @@
 Provides location info
 """
 
-
 import warnings
 from typing import Any, Optional, cast
 

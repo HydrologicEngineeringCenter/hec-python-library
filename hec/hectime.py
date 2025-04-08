@@ -6,6 +6,7 @@ Module to provide native python compatibility for the `hec.heclib.util.HecTime` 
 Jump to [**`class HecTime`**](#HecTime)
 """
 
+import datetime as dt
 import math
 import re
 import warnings
