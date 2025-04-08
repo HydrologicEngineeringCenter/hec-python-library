@@ -2,14 +2,6 @@
 Provides location info
 """
 
-__all__ = ["LocationException", "Location"]
-
-import os
-import sys
-
-_import_dir = os.path.abspath(".")
-if not _import_dir in sys.path:
-    sys.path.append(_import_dir)
 
 import warnings
 from typing import Any, Optional, cast

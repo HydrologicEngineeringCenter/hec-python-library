@@ -33,12 +33,6 @@ The tab separated variable file `resources/base_parameters.tsv` in this module's
 """
 
 import os
-import sys
-
-_import_dir = os.path.abspath(".")
-if not _import_dir in sys.path:
-    sys.path.append(_import_dir)
-
 import re
 import xml.etree.ElementTree as ET
 from io import StringIO

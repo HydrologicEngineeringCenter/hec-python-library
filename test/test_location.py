@@ -1,13 +1,6 @@
 """Module for testing hec.location module
 """
 
-import os
-import sys
-
-_import_dir = os.path.abspath(".")
-if not _import_dir in sys.path:
-    sys.path.append(_import_dir)
-
 import pytest
 
 from hec import Location

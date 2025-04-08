@@ -6,17 +6,8 @@ Module to provide native python compatibility for the `hec.heclib.util.HecTime` 
 Jump to [**`class HecTime`**](#HecTime)
 """
 
-import os
-import sys
-
-_import_dir = os.path.abspath(".")
-if not _import_dir in sys.path:
-    sys.path.append(_import_dir)
-
-import datetime as dt
 import math
 import re
-import traceback
 import warnings
 import zoneinfo
 from datetime import datetime, timedelta, timezone, tzinfo

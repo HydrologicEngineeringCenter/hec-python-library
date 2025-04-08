@@ -99,20 +99,11 @@ __all__ = [
 ]
 import copy
 import math
-import os
-import sys
-
-import pint.facets
-
-import_dir = os.path.abspath(".")
-if not import_dir in sys.path:
-    sys.path.append(import_dir)
-
-from fractions import Fraction
 from functools import total_ordering
 from typing import Any, Optional, Union, cast
 
 import pint
+import pint.facets
 from pint.errors import UndefinedUnitError
 
 try:
