@@ -36,6 +36,9 @@ Quick links to Exceptions:
 
 __all__ = [
     "Combine",
+    "CwmsDataStore",
+    "DataStore",
+    "DssDataStore",
     "Duration",
     "DurationException",
     "ElevParameter",
@@ -62,6 +65,7 @@ __all__ = [
     "UnitQuantity",
     "UnitException",
     "const",
+    "datastore"
     "duration",
     "hectime",
     "interval",
@@ -74,6 +78,7 @@ __all__ = [
 ]
 
 from .const import Combine, Safety, Select, SelectionState
+from .datastore import CwmsDataStore, DataStore, DssDataStore
 from .duration import Duration, DurationException
 from .hectime import HecTime, HecTimeException
 from .interval import Interval, IntervalException
