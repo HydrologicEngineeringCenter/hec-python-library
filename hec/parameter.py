@@ -469,7 +469,7 @@ class ElevParameter(Parameter):
                 vertical_datum_info (Union[str, dict[str, Any]]): An xml string or a dictionary:
                     * `str`: An xml vertical datum string as returned by the CWMS database or HEC-DSS for elevations.
                     * `dict`: The value of the "vertical-datum-info" key in the dictionary returned by the `.json`
-                        attribute of a timeseires retrieved by cwms-python.
+                        attribute of a timeseries retrieved by cwms-python.
 
             Raises:
                 ElevParameter.VerticalDatumException: If no unit is present in the vertical datum info
@@ -508,7 +508,7 @@ class ElevParameter(Parameter):
                     self._current_datum = self._native_datum
                     if "elevation" in vertical_datum_info:
                         self._elevation = UnitQuantity(
-                            vertical_datum_info["elevation"], self._unit
+                            vertical_datum_info["elevation"], self._unit_name
                         )
                     if "offsets" in vertical_datum_info:
                         for offset_props in vertical_datum_info["offsets"]:
@@ -527,61 +527,69 @@ class ElevParameter(Parameter):
                                     "estimate"
                                 ]
                 elif isinstance(vertical_datum_info, str):
-                    # ------------------------------------- #
-                    # XML string as from CWMS db or HEC-DSS #
-                    # ------------------------------------- #
-                    root = ET.fromstring(vertical_datum_info)
-                    if root.tag != "vertical-datum-info":
-                        raise ElevParameter.VerticalDatumException(
-                            f"Expected root element of <vertical-datum-info>, got <{root.tag}>"
-                        )
-                    if "unit" in root.attrib:
-                        self._unit_name = root.attrib["unit"]
-                        self._unit = unit.get_pint_unit(self._unit_name)
-                    else:
-                        raise ElevParameter.VerticalDatumException(
-                            f"No unit attribute on root element"
-                        )
-                    elem = root.find("native-datum")
-                    if elem is not None and elem.text:
-                        if _ngvd29_pattern.match(elem.text):
-                            self._native_datum = _NGVD29
-                        elif _navd88_pattern.match(elem.text):
-                            self._native_datum = _NAVD88
-                        elif _other_datum_pattern.match(elem.text):
-                            self._native_datum = _OTHER_DATUM
+                    vertical_datum_info = vertical_datum_info.strip()
+                    if vertical_datum_info.startswith("{"):
+                        # ----------------------- #
+                        # JSON string as from CDA #
+                        # ----------------------- #
+                        s = re.sub(r"\b(true|false)\b", lambda m: m.group(0).title(), vertical_datum_info)
+                        self = ElevParameter._VerticalDatumInfo(eval(s))
+                    elif vertical_datum_info.startswith("<"):
+                        # ------------------------------------- #
+                        # XML string as from CWMS db or HEC-DSS #
+                        # ------------------------------------- #
+                        root = ET.fromstring(vertical_datum_info)
+                        if root.tag != "vertical-datum-info":
+                            raise ElevParameter.VerticalDatumException(
+                                f"Expected root element of <vertical-datum-info>, got <{root.tag}>"
+                            )
+                        if "unit" in root.attrib:
+                            self._unit_name = root.attrib["unit"]
+                            self._unit = unit.get_pint_unit(self._unit_name)
                         else:
-                            self._native_datum = elem.text
-                        if self._native_datum == _OTHER_DATUM:
-                            elem = root.find("local-datum-name")
-                            if elem is not None:
+                            raise ElevParameter.VerticalDatumException(
+                                f"No unit attribute on root element"
+                            )
+                        elem = root.find("native-datum")
+                        if elem is not None and elem.text:
+                            if _ngvd29_pattern.match(elem.text):
+                                self._native_datum = _NGVD29
+                            elif _navd88_pattern.match(elem.text):
+                                self._native_datum = _NAVD88
+                            elif _other_datum_pattern.match(elem.text):
+                                self._native_datum = _OTHER_DATUM
+                            else:
                                 self._native_datum = elem.text
-                    self._current_datum = self._native_datum
-                    elem = root.find("elevation")
-                    if elem is not None and elem.text:
-                        self._elevation = UnitQuantity(float(elem.text), self._unit)
-                    for elem in root.findall("offset"):
-                        estimate = elem.attrib["estimate"] == "true"
-                        datum_elem = elem.find("to-datum")
-                        value_elem = elem.find("value")
-                        if (
-                            datum_elem is not None
-                            and datum_elem.text
-                            and value_elem is not None
-                            and value_elem.text
-                        ):
-                            datum = datum_elem.text
-                            value = float(value_elem.text)
-                            if datum == _NGVD29:
-                                self._ngvd29_offset = unit.UnitQuantity(
-                                    value, self._unit
-                                )
-                                self._ngvd29_offset_is_estimate = estimate
-                            elif datum == _NAVD88:
-                                self._navd88_offset = unit.UnitQuantity(
-                                    value, self._unit
-                                )
-                                self._navd88_offset_is_estimate = estimate
+                            if self._native_datum == _OTHER_DATUM:
+                                elem = root.find("local-datum-name")
+                                if elem is not None:
+                                    self._native_datum = elem.text
+                        self._current_datum = self._native_datum
+                        elem = root.find("elevation")
+                        if elem is not None and elem.text:
+                            self._elevation = UnitQuantity(float(elem.text), self._unit_name)
+                        for elem in root.findall("offset"):
+                            estimate = elem.attrib["estimate"] == "true"
+                            datum_elem = elem.find("to-datum")
+                            value_elem = elem.find("value")
+                            if (
+                                datum_elem is not None
+                                and datum_elem.text
+                                and value_elem is not None
+                                and value_elem.text
+                            ):
+                                datum = datum_elem.text
+                                value = float(value_elem.text)
+                                if datum == _NGVD29:
+                                    self._ngvd29_offset = unit.UnitQuantity(
+                                        value, self._unit
+                                    )
+                                    self._ngvd29_offset_is_estimate = estimate
+                                elif datum == _NAVD88:
+                                    self._navd88_offset = unit.UnitQuantity(
+                                        value, self._unit
+                                    )
+                                    self._navd88_offset_is_estimate = estimate
 
         def __str__(self) -> str:
             if (
@@ -935,7 +943,7 @@ class ElevParameter(Parameter):
     def __init__(
         self,
         name: str,
-        vertical_datum_info: Union[str, dict[str, Any]],
+        vertical_datum_info: Optional[Union[str, dict[str, Any]]] = None,
     ):
         """
         Initializes the ElevParameter object
@@ -948,8 +956,12 @@ class ElevParameter(Parameter):
             ElevParameter.VerticalDatumException: If `vertical datum` info is invalid
             ParameterException: If the base parameter is not 'Elev'
         """
-        _vertical_datum_info = ElevParameter._VerticalDatumInfo(vertical_datum_info)
-        super().__init__(name, _vertical_datum_info.unit_name)
+        if vertical_datum_info:
+            _vertical_datum_info = ElevParameter._VerticalDatumInfo(vertical_datum_info)
+            unit_name = _vertical_datum_info.unit_name
+        else:
+            unit_name = None
+        super().__init__(name, unit_name)
         if self.base_parameter != "Elev":
             raise ParameterException(
                 f"Cannot instantiate an ElevParameter object with base parameter of {self.base_parameter}"

@@ -46,6 +46,33 @@
                                 <a class="variable" href="#Interval.MINUTES">MINUTES</a>
                         </li>
                         <li>
+                                <a class="variable" href="#Interval.context">context</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Interval.get_all">get_all</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Interval.get_all_cwms">get_all_cwms</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Interval.get_all_cwms_names">get_all_cwms_names</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Interval.get_all_dss">get_all_dss</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Interval.get_all_dss_block_names">get_all_dss_block_names</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Interval.get_all_dss_blocks">get_all_dss_blocks</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Interval.get_all_dss_names">get_all_dss_names</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Interval.get_all_names">get_all_names</a>
+                        </li>
+                        <li>
                                 <a class="function" href="#Interval.get_any">get_any</a>
                         </li>
                         <li>
@@ -73,40 +100,16 @@
                                 <a class="function" href="#Interval.get_cwms">get_cwms</a>
                         </li>
                         <li>
+                                <a class="function" href="#Interval.get_datetime_index">get_datetime_index</a>
+                        </li>
+                        <li>
                                 <a class="function" href="#Interval.get_default_exception_on_not_found">get_default_exception_on_not_found</a>
                         </li>
                         <li>
                                 <a class="function" href="#Interval.get_dss">get_dss</a>
                         </li>
                         <li>
-                                <a class="function" href="#Interval.set_default_exception_on_not_found">set_default_exception_on_not_found</a>
-                        </li>
-                        <li>
-                                <a class="function" href="#Interval.get_all">get_all</a>
-                        </li>
-                        <li>
-                                <a class="function" href="#Interval.get_all_cwms">get_all_cwms</a>
-                        </li>
-                        <li>
-                                <a class="function" href="#Interval.get_all_cwms_names">get_all_cwms_names</a>
-                        </li>
-                        <li>
-                                <a class="function" href="#Interval.get_all_dss">get_all_dss</a>
-                        </li>
-                        <li>
-                                <a class="function" href="#Interval.get_all_dss_block_names">get_all_dss_block_names</a>
-                        </li>
-                        <li>
-                                <a class="function" href="#Interval.get_all_dss_blocks">get_all_dss_blocks</a>
-                        </li>
-                        <li>
-                                <a class="function" href="#Interval.get_all_dss_names">get_all_dss_names</a>
-                        </li>
-                        <li>
-                                <a class="function" href="#Interval.get_all_names">get_all_names</a>
-                        </li>
-                        <li>
-                                <a class="variable" href="#Interval.context">context</a>
+                                <a class="function" href="#Interval.get_dss_block_for_interval">get_dss_block_for_interval</a>
                         </li>
                         <li>
                                 <a class="variable" href="#Interval.is_any_irregular">is_any_irregular</a>
@@ -131,6 +134,9 @@
                         </li>
                         <li>
                                 <a class="variable" href="#Interval.name">name</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Interval.set_default_exception_on_not_found">set_default_exception_on_not_found</a>
                         </li>
                 </ul>
 
@@ -257,7 +263,7 @@ created during initialization of the interval module:</p>
                                 <div class="attr variable">
             <span class="name">MINUTES</span><span class="annotation">: dict[str, int]</span>        =
 <input id="Interval.MINUTES-view-value" class="view-value-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
-            <label class="view-value-button pdoc-button" for="Interval.MINUTES-view-value"></label><span class="default_value">{&#39;0&#39;: 0, &#39;Irr&#39;: 0, &#39;~1Minute&#39;: 0, &#39;~2Minutes&#39;: 2, &#39;~3Minutes&#39;: 3, &#39;~4Minutes&#39;: 4, &#39;~5Minutes&#39;: 5, &#39;~6Minutes&#39;: 6, &#39;~10Minutes&#39;: 10, &#39;~12Minutes&#39;: 12, &#39;~15Minutes&#39;: 15, &#39;~20Minutes&#39;: 20, &#39;~30Minutes&#39;: 30, &#39;~1Hour&#39;: 0, &#39;~2Hours&#39;: 120, &#39;~3Hours&#39;: 180, &#39;~4Hours&#39;: 240, &#39;~6Hours&#39;: 360, &#39;~8Hours&#39;: 480, &#39;~12Hours&#39;: 720, &#39;~1Day&#39;: 0, &#39;~2Days&#39;: 2880, &#39;~3Days&#39;: 4320, &#39;~4Days&#39;: 5760, &#39;~5Days&#39;: 7200, &#39;~6Days&#39;: 8640, &#39;~1Week&#39;: 0, &#39;~1Month&#39;: 0, &#39;~1Year&#39;: 0, &#39;1Minute&#39;: 1, &#39;2Minutes&#39;: 2, &#39;3Minutes&#39;: 3, &#39;4Minutes&#39;: 4, &#39;5Minutes&#39;: 5, &#39;6Minutes&#39;: 6, &#39;10Minutes&#39;: 10, &#39;12Minutes&#39;: 12, &#39;15Minutes&#39;: 15, &#39;20Minutes&#39;: 20, &#39;30Minutes&#39;: 30, &#39;1Hour&#39;: 60, &#39;2Hours&#39;: 120, &#39;3Hours&#39;: 180, &#39;4Hours&#39;: 240, &#39;6Hours&#39;: 360, &#39;8Hours&#39;: 480, &#39;12Hours&#39;: 720, &#39;1Day&#39;: 1440, &#39;2Days&#39;: 2880, &#39;3Days&#39;: 4320, &#39;4Days&#39;: 5760, &#39;5Days&#39;: 7200, &#39;6Days&#39;: 8640, &#39;1Week&#39;: 10080, &#39;1Month&#39;: 43200, &#39;1Year&#39;: 525600, &#39;Ir-Day&#39;: 0, &#39;Ir-Month&#39;: 0, &#39;Ir-Year&#39;: 0, &#39;Ir-Decade&#39;: 0, &#39;Ir-Century&#39;: 0, &#39;~2Minute&#39;: 0, &#39;~3Minute&#39;: 0, &#39;~4Minute&#39;: 0, &#39;~5Minute&#39;: 0, &#39;~6Minute&#39;: 0, &#39;~10Minute&#39;: 0, &#39;~12Minute&#39;: 0, &#39;~15Minute&#39;: 0, &#39;~20Minute&#39;: 0, &#39;~30Minute&#39;: 0, &#39;~2Hour&#39;: 0, &#39;~3Hour&#39;: 0, &#39;~4Hour&#39;: 0, &#39;~6Hour&#39;: 0, &#39;~8Hour&#39;: 0, &#39;~12Hour&#39;: 0, &#39;~2Day&#39;: 0, &#39;~3Day&#39;: 0, &#39;~4Day&#39;: 0, &#39;~5Day&#39;: 0, &#39;~6Day&#39;: 0, &#39;2Minute&#39;: 2, &#39;3Minute&#39;: 3, &#39;4Minute&#39;: 4, &#39;5Minute&#39;: 5, &#39;6Minute&#39;: 6, &#39;10Minute&#39;: 10, &#39;12Minute&#39;: 12, &#39;15Minute&#39;: 15, &#39;20Minute&#39;: 20, &#39;30Minute&#39;: 30, &#39;2Hour&#39;: 120, &#39;3Hour&#39;: 180, &#39;4Hour&#39;: 240, &#39;6Hour&#39;: 360, &#39;8Hour&#39;: 480, &#39;12Hour&#39;: 720, &#39;2Day&#39;: 2880, &#39;3Day&#39;: 4320, &#39;4Day&#39;: 5760, &#39;5Day&#39;: 7200, &#39;6Day&#39;: 8640, &#39;Tri-Month&#39;: 14400, &#39;Semi-Month&#39;: 21600, &#39;1Decade&#39;: 5256000, &#39;1Century&#39;: 52560000}</span>
+            <label class="view-value-button pdoc-button" for="Interval.MINUTES-view-value"></label><span class="default_value">{&#39;0&#39;: 0, &#39;Irr&#39;: 0, &#39;~1Minute&#39;: 0, &#39;~2Minutes&#39;: 2, &#39;~3Minutes&#39;: 3, &#39;~4Minutes&#39;: 4, &#39;~5Minutes&#39;: 5, &#39;~6Minutes&#39;: 6, &#39;~10Minutes&#39;: 10, &#39;~12Minutes&#39;: 12, &#39;~15Minutes&#39;: 15, &#39;~20Minutes&#39;: 20, &#39;~30Minutes&#39;: 30, &#39;~1Hour&#39;: 0, &#39;~2Hours&#39;: 120, &#39;~3Hours&#39;: 180, &#39;~4Hours&#39;: 240, &#39;~6Hours&#39;: 360, &#39;~8Hours&#39;: 480, &#39;~12Hours&#39;: 720, &#39;~1Day&#39;: 0, &#39;~2Days&#39;: 2880, &#39;~3Days&#39;: 4320, &#39;~4Days&#39;: 5760, &#39;~5Days&#39;: 7200, &#39;~6Days&#39;: 8640, &#39;~1Week&#39;: 0, &#39;~1Month&#39;: 0, &#39;~1Year&#39;: 0, &#39;1Minute&#39;: 1, &#39;2Minutes&#39;: 2, &#39;3Minutes&#39;: 3, &#39;4Minutes&#39;: 4, &#39;5Minutes&#39;: 5, &#39;6Minutes&#39;: 6, &#39;10Minutes&#39;: 10, &#39;12Minutes&#39;: 12, &#39;15Minutes&#39;: 15, &#39;20Minutes&#39;: 20, &#39;30Minutes&#39;: 30, &#39;1Hour&#39;: 60, &#39;2Hours&#39;: 120, &#39;3Hours&#39;: 180, &#39;4Hours&#39;: 240, &#39;6Hours&#39;: 360, &#39;8Hours&#39;: 480, &#39;12Hours&#39;: 720, &#39;1Day&#39;: 1440, &#39;2Days&#39;: 2880, &#39;3Days&#39;: 4320, &#39;4Days&#39;: 5760, &#39;5Days&#39;: 7200, &#39;6Days&#39;: 8640, &#39;1Week&#39;: 10080, &#39;1Month&#39;: 43200, &#39;1Year&#39;: 525600, &#39;IR-Day&#39;: 0, &#39;IR-Month&#39;: 0, &#39;IR-Year&#39;: 0, &#39;IR-Decade&#39;: 0, &#39;IR-Century&#39;: 0, &#39;~2Minute&#39;: 0, &#39;~3Minute&#39;: 0, &#39;~4Minute&#39;: 0, &#39;~5Minute&#39;: 0, &#39;~6Minute&#39;: 0, &#39;~10Minute&#39;: 0, &#39;~12Minute&#39;: 0, &#39;~15Minute&#39;: 0, &#39;~20Minute&#39;: 0, &#39;~30Minute&#39;: 0, &#39;~2Hour&#39;: 0, &#39;~3Hour&#39;: 0, &#39;~4Hour&#39;: 0, &#39;~6Hour&#39;: 0, &#39;~8Hour&#39;: 0, &#39;~12Hour&#39;: 0, &#39;~2Day&#39;: 0, &#39;~3Day&#39;: 0, &#39;~4Day&#39;: 0, &#39;~5Day&#39;: 0, &#39;~6Day&#39;: 0, &#39;2Minute&#39;: 2, &#39;3Minute&#39;: 3, &#39;4Minute&#39;: 4, &#39;5Minute&#39;: 5, &#39;6Minute&#39;: 6, &#39;10Minute&#39;: 10, &#39;12Minute&#39;: 12, &#39;15Minute&#39;: 15, &#39;20Minute&#39;: 20, &#39;30Minute&#39;: 30, &#39;2Hour&#39;: 120, &#39;3Hour&#39;: 180, &#39;4Hour&#39;: 240, &#39;6Hour&#39;: 360, &#39;8Hour&#39;: 480, &#39;12Hour&#39;: 720, &#39;2Day&#39;: 2880, &#39;3Day&#39;: 4320, &#39;4Day&#39;: 5760, &#39;5Day&#39;: 7200, &#39;6Day&#39;: 8640, &#39;Tri-Month&#39;: 14400, &#39;Semi-Month&#39;: 21600, &#39;1Decade&#39;: 5256000, &#39;1Century&#39;: 52560000}</span>
 
         
     </div>
@@ -271,11 +277,11 @@ created during initialization of the interval module:</p>
 <tr><th>Name</th><th>Minutes</th><th>Context(s)</th></tr>
 <tr><td>0</td><td>0</td><td>CWMS</td></tr>
 <tr><td>Irr</td><td>0</td><td>CWMS</td></tr>
-<tr><td>Ir-Century</td><td>0</td><td>DSS</td></tr>
-<tr><td>Ir-Day</td><td>0</td><td>DSS</td></tr>
-<tr><td>Ir-Decade</td><td>0</td><td>DSS</td></tr>
-<tr><td>Ir-Month</td><td>0</td><td>DSS</td></tr>
-<tr><td>Ir-Year</td><td>0</td><td>DSS</td></tr>
+<tr><td>IR-Century</td><td>0</td><td>DSS</td></tr>
+<tr><td>IR-Day</td><td>0</td><td>DSS</td></tr>
+<tr><td>IR-Decade</td><td>0</td><td>DSS</td></tr>
+<tr><td>IR-Month</td><td>0</td><td>DSS</td></tr>
+<tr><td>IR-Year</td><td>0</td><td>DSS</td></tr>
 <tr><td>1Minute</td><td>1</td><td>CWMS, DSS</td></tr>
 <tr><td>2Minute</td><td>2</td><td>DSS</td></tr>
 <tr><td>2Minutes</td><td>2</td><td>CWMS</td></tr>
@@ -331,6 +337,323 @@ created during initialization of the interval module:</p>
 </table></pre>
 
 <p></details></p>
+</div>
+
+
+                            </div>
+                            <div id="Interval.context" class="classattr">
+                                <div class="attr variable">
+            <span class="name">context</span><span class="annotation">: str</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Interval.context"></a>
+    
+            <div class="docstring"><p>The context of this object ("Cwms", "Dss", or "DssBlock")</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read-only</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="Interval.get_all" class="classattr">
+                                <div class="attr function">
+                    <div class="decorator decorator-staticmethod">@staticmethod</div>
+
+        <span class="def">def</span>
+        <span class="name">get_all</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">matcher</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="n"><a href="#Interval">Interval</a></span><span class="p">],</span> <span class="nb">bool</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">exception_on_not_found</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></span><span class="return-annotation">) -> <span class="nb">list</span><span class="p">[</span><span class="n"><a href="#Interval">Interval</a></span><span class="p">]</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#Interval.get_all"></a>
+    
+            <div class="docstring"><p>Retuns list of matched <code><a href="#Interval">Interval</a></code> objects in the any context</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>matcher (Optional[Callable[[Interval], bool]]):</strong>  A function that returns True or False when passed an <code><a href="#Interval">Interval</a></code> object parameter. Defaults to None.
+If None, all <code><a href="#Interval">Interval</a></code> objects in all contexts are matched.<br>
+Examples:
+<ul>
+<li><code>lambda i : i.is_irregular</code></li>
+<li><code>lambda i : i.minutes &lt; 60</code></li>
+<li><code>lambda i : i.name.find("Week") != -1</code></li>
+</ul></li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>List[Interval]: A list of matched <code><a href="#Interval">Interval</a></code> objects (may be empty)</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="Interval.get_all_cwms" class="classattr">
+                                <div class="attr function">
+                    <div class="decorator decorator-staticmethod">@staticmethod</div>
+
+        <span class="def">def</span>
+        <span class="name">get_all_cwms</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">matcher</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="n"><a href="#Interval">Interval</a></span><span class="p">],</span> <span class="nb">bool</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">exception_on_not_found</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></span><span class="return-annotation">) -> <span class="nb">list</span><span class="p">[</span><span class="n"><a href="#Interval">Interval</a></span><span class="p">]</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#Interval.get_all_cwms"></a>
+    
+            <div class="docstring"><p>Retuns list of matched <code><a href="#Interval">Interval</a></code> objects in the CWMS context</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>matcher (Optional[Callable[[Interval], bool]]):</strong>  A function that returns True or False when passed an <code><a href="#Interval">Interval</a></code> object parameter. Defaults to None.
+If None, all <code><a href="#Interval">Interval</a></code> objects in the context are matched.<br>
+Examples:
+<ul>
+<li><code>lambda i : i.is_irregular</code></li>
+<li><code>lambda i : i.minutes &lt; 60</code></li>
+<li><code>lambda i : i.name.find("Week") != -1</code></li>
+</ul></li>
+<li><strong>exception_on_not_found (bool):</strong>  Specifies whether to raise an exception if no Intervals are found. If None, the default
+behavior is used. Optional. Defaults to None. See <a href="#Interval.set_default_exception_on_not_found">set_default_exception_on_not_found</a> and
+<a href="#Interval.get_default_exception_on_not_found">get_default_exception_on_not_found</a></li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>List[Interval]: A list of matched <code><a href="#Interval">Interval</a></code> objects (may be empty)</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="Interval.get_all_cwms_names" class="classattr">
+                                <div class="attr function">
+                    <div class="decorator decorator-staticmethod">@staticmethod</div>
+
+        <span class="def">def</span>
+        <span class="name">get_all_cwms_names</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">matcher</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="n"><a href="#Interval">Interval</a></span><span class="p">],</span> <span class="nb">bool</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">exception_on_not_found</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></span><span class="return-annotation">) -> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#Interval.get_all_cwms_names"></a>
+    
+            <div class="docstring"><p>Retuns list of names of matched <code><a href="#Interval">Interval</a></code> objects in the CWMS context</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>matcher (Optional[Callable[[Interval], bool]]):</strong>  A function that returns True or False when passed an <code><a href="#Interval">Interval</a></code> object parameter. Defaults to None.
+If None, all <code><a href="#Interval">Interval</a></code> objects in the context are matched.<br>
+Examples:
+<ul>
+<li><code>lambda i : i.is_irregular</code></li>
+<li><code>lambda i : i.minutes &lt; 60</code></li>
+<li><code>lambda i : i.name.find("Week") != -1</code></li>
+</ul></li>
+<li><strong>exception_on_not_found (bool):</strong>  Specifies whether to raise an exception if no Intervals are found. If None, the default
+behavior is used. Optional. Defaults to None. See <a href="#Interval.set_default_exception_on_not_found">set_default_exception_on_not_found</a> and
+<a href="#Interval.get_default_exception_on_not_found">get_default_exception_on_not_found</a></li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>List[str]: A list of names of matched <code><a href="#Interval">Interval</a></code> objects (may be empty)</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="Interval.get_all_dss" class="classattr">
+                                <div class="attr function">
+                    <div class="decorator decorator-staticmethod">@staticmethod</div>
+
+        <span class="def">def</span>
+        <span class="name">get_all_dss</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">matcher</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="n"><a href="#Interval">Interval</a></span><span class="p">],</span> <span class="nb">bool</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">exception_on_not_found</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></span><span class="return-annotation">) -> <span class="nb">list</span><span class="p">[</span><span class="n"><a href="#Interval">Interval</a></span><span class="p">]</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#Interval.get_all_dss"></a>
+    
+            <div class="docstring"><p>Retuns list of matched <code><a href="#Interval">Interval</a></code> objects in the DSS context</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>matcher (Optional[Callable[[Interval], bool]]):</strong>  A function that returns True or False when passed an <code><a href="#Interval">Interval</a></code> object parameter. Defaults to None.
+If None, all <code><a href="#Interval">Interval</a></code> objects in the context are matched.<br>
+Examples:
+<ul>
+<li><code>lambda i : i.is_irregular</code></li>
+<li><code>lambda i : i.minutes &lt; 60</code></li>
+<li><code>lambda i : i.name.find("Week") != -1</code></li>
+</ul></li>
+<li><strong>exception_on_not_found (bool):</strong>  Specifies whether to raise an exception if no Intervals are found. If None, the default
+behavior is used. Optional. Defaults to None. See <a href="#Interval.set_default_exception_on_not_found">set_default_exception_on_not_found</a> and
+<a href="#Interval.get_default_exception_on_not_found">get_default_exception_on_not_found</a></li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>List[Interval]: A list of matched <code><a href="#Interval">Interval</a></code> objects (may be empty)</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="Interval.get_all_dss_block_names" class="classattr">
+                                <div class="attr function">
+                    <div class="decorator decorator-staticmethod">@staticmethod</div>
+
+        <span class="def">def</span>
+        <span class="name">get_all_dss_block_names</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">matcher</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="n"><a href="#Interval">Interval</a></span><span class="p">],</span> <span class="nb">bool</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">exception_on_not_found</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></span><span class="return-annotation">) -> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#Interval.get_all_dss_block_names"></a>
+    
+            <div class="docstring"><p>Retuns list of names of matched <code><a href="#Interval">Interval</a></code> objects in the DSS block size context</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>matcher (Optional[Callable[[Interval], bool]]):</strong>  A function that returns True or False when passed an <code><a href="#Interval">Interval</a></code> object parameter. Defaults to None.
+If None, all <code><a href="#Interval">Interval</a></code> objects in the context are matched.<br>
+Examples:
+<ul>
+<li><code>lambda i : i.is_irregular</code></li>
+<li><code>lambda i : i.minutes &lt; 60</code></li>
+<li><code>lambda i : i.name.find("Week") != -1</code></li>
+</ul></li>
+<li><strong>exception_on_not_found (bool):</strong>  Specifies whether to raise an exception if no Intervals are found. If None, the default
+behavior is used. Optional. Defaults to None. See <a href="#Interval.set_default_exception_on_not_found">set_default_exception_on_not_found</a> and
+<a href="#Interval.get_default_exception_on_not_found">get_default_exception_on_not_found</a></li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>List[str]: A list of names of matched <code><a href="#Interval">Interval</a></code> objects (may be empty)</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="Interval.get_all_dss_blocks" class="classattr">
+                                <div class="attr function">
+                    <div class="decorator decorator-staticmethod">@staticmethod</div>
+
+        <span class="def">def</span>
+        <span class="name">get_all_dss_blocks</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">matcher</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="n"><a href="#Interval">Interval</a></span><span class="p">],</span> <span class="nb">bool</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">exception_on_not_found</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></span><span class="return-annotation">) -> <span class="nb">list</span><span class="p">[</span><span class="n"><a href="#Interval">Interval</a></span><span class="p">]</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#Interval.get_all_dss_blocks"></a>
+    
+            <div class="docstring"><p>Retuns list of matched <code><a href="#Interval">Interval</a></code> objects in the DSS block size context</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>matcher (Optional[Callable[[Interval], bool]]):</strong>  A function that returns True or False when passed an <code><a href="#Interval">Interval</a></code> object parameter. Defaults to None.
+If None, all <code><a href="#Interval">Interval</a></code> objects in the context are matched.<br>
+Examples:
+<ul>
+<li><code>lambda i : i.is_irregular</code></li>
+<li><code>lambda i : i.minutes &lt; 60</code></li>
+<li><code>lambda i : i.name.find("Week") != -1</code></li>
+</ul></li>
+<li><strong>exception_on_not_found (bool):</strong>  Specifies whether to raise an exception if no Intervals are found. If None, the default
+behavior is used. Optional. Defaults to None. See <a href="#Interval.set_default_exception_on_not_found">set_default_exception_on_not_found</a> and
+<a href="#Interval.get_default_exception_on_not_found">get_default_exception_on_not_found</a></li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>List[Interval]: A list of matched <code><a href="#Interval">Interval</a></code> objects (may be empty)</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="Interval.get_all_dss_names" class="classattr">
+                                <div class="attr function">
+                    <div class="decorator decorator-staticmethod">@staticmethod</div>
+
+        <span class="def">def</span>
+        <span class="name">get_all_dss_names</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">matcher</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="n"><a href="#Interval">Interval</a></span><span class="p">],</span> <span class="nb">bool</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">exception_on_not_found</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></span><span class="return-annotation">) -> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#Interval.get_all_dss_names"></a>
+    
+            <div class="docstring"><p>Retuns list of names of matched <code><a href="#Interval">Interval</a></code> objects in the DSS context</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>matcher (Optional[Callable[[Interval], bool]]):</strong>  A function that returns True or False when passed an <code><a href="#Interval">Interval</a></code> object parameter. Defaults to None.
+If None, all <code><a href="#Interval">Interval</a></code> objects in the context are matched.<br>
+Examples:
+<ul>
+<li><code>lambda i : i.is_irregular</code></li>
+<li><code>lambda i : i.minutes &lt; 60</code></li>
+<li><code>lambda i : i.name.find("Week") != -1</code></li>
+</ul></li>
+<li><strong>exception_on_not_found (bool):</strong>  Specifies whether to raise an exception if no Intervals are found. If None, the default
+behavior is used. Optional. Defaults to None. See <a href="#Interval.set_default_exception_on_not_found">set_default_exception_on_not_found</a> and
+<a href="#Interval.get_default_exception_on_not_found">get_default_exception_on_not_found</a></li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>List[str]: A list of names of matched <code><a href="#Interval">Interval</a></code> objects (may be empty)</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="Interval.get_all_names" class="classattr">
+                                <div class="attr function">
+                    <div class="decorator decorator-staticmethod">@staticmethod</div>
+
+        <span class="def">def</span>
+        <span class="name">get_all_names</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">matcher</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="n"><a href="#Interval">Interval</a></span><span class="p">],</span> <span class="nb">bool</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">exception_on_not_found</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></span><span class="return-annotation">) -> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#Interval.get_all_names"></a>
+    
+            <div class="docstring"><p>Retuns list of names of matched <code><a href="#Interval">Interval</a></code> objects in the any context</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>matcher (Optional[Callable[[Interval], bool]]):</strong>  A function that returns True or False when passed an <code><a href="#Interval">Interval</a></code> object parameter. Defaults to None.
+If None, all <code><a href="#Interval">Interval</a></code> objects in all contexts are matched.<br>
+Examples:
+<ul>
+<li><code>lambda i : i.is_irregular</code></li>
+<li><code>lambda i : i.minutes &lt; 60</code></li>
+<li><code>lambda i : i.name.find("Week") != -1</code></li>
+</ul></li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>List[str]: A list of names of matched <code><a href="#Interval">Interval</a></code> objects (may be empty)</p>
+</blockquote>
 </div>
 
 
@@ -666,6 +989,105 @@ behavior is used. Optional. Defaults to None. See <a href="#Interval.set_default
 
 
                             </div>
+                            <div id="Interval.get_datetime_index" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">get_datetime_index</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="bp">self</span>,</span><span class="param">	<span class="n">start_time</span><span class="p">:</span> <span class="n">Any</span>,</span><span class="param">	<span class="n">end_time</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">count</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">offset</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">time_zone</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></span><span class="return-annotation">) -> <span class="n">pandas</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">indexes</span><span class="o">.</span><span class="n">datetimes</span><span class="o">.</span><span class="n">DatetimeIndex</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#Interval.get_datetime_index"></a>
+    
+            <div class="docstring"><p>Generates a pandas DatetimeIndex from this interval.</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>start_time (Any):</strong>  A time in the first interval. If <code>offset</code> is None, this will be the first time, otherwise the first time will be the top of the interval
+containing this time plus the specified <code>offset</code>. If the time includes no time zone, it will be assumed to be in <code>time_zone</code>, if specified, if any.
+Must be an <a href="hectime.html#HecTime"><code>HecTime</code></a> object or an object suitable for the <a href="hectime.html#HecTime.__init__"><code>HecTime</code> constructor</a></li>
+<li><strong>end_time (Optional[Any]):</strong>  The generated series will end on or before this time, if specified. If the time includes no time zone, it will be assumed to be in <code>time_zone</code>, if specified.
+If specified, must be an <a href="hectime.html#HecTime"><code>HecTime</code></a> object or an object suitable for the <a href="hectime.html#HecTime.__init__"><code>HecTime</code> constructor</a>. Either <code>end_time</code> or
+<code>count</code>, but not both, must be specified. Defaults to None.</li>
+<li><strong>count (Optional[int]):</strong>  The number of times in the index. Either <code>end_time</code> or <code>count</code>, but not both, must be specified. Defaults to None.</li>
+<li><strong>offset (Optional[Any]):</strong>  The offset of each time into the interval. If None, the offset is determined from <code>start_time</code>. If specified, must be an
+<a href="timespan.html#TimeSpan"><code>TimeSpan</code></a> object or an object suitable for the <a href="timespan.html#TimeSpan.__init__"><code>TimeSpan</code> constructor</a>. Defaults to None.</li>
+<li><strong>time_zone (Optional[Any]):</strong>  The time zone of the generated times. Must be specified if the interval is a local-regular interval. Defaults to None.</li>
+<li><strong>name (Optional[str]):</strong>  The name of the index. If the generated index is to be used in a <a href="timeseries.html#TimeSeries"><code>TimeSeries</code></a> object, specify the name as "name". Defaults to None.</li>
+</ul>
+
+<h6 id="raises">Raises:</h6>
+
+<ul>
+<li><strong>IntervalException:</strong>  If invalid parameters are specified</li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>pd.DatetimeIndex: The generated index.</p>
+</blockquote>
+
+<h6 id="notes">Notes:</h6>
+
+<blockquote>
+  <p>There is a somewhat subtle interplay between <code>start_time</code> and <code>offset</code>. If <code>offset</code> is None or not specified, the index is generated as follows:</p>
+  
+  <p><ul>
+<li>The offset used is the offset of <code>start_time</code> into the Interval object being used</li>
+<li>The offset handles end-of-month dates and leap years by adjusting the actual offset at each time to keep dates as aligned as possible</li>
+</ul></p>
+  
+  <p>Otherwise the offset is used literally.<br>
+  See the following examples:</p>
+</blockquote>
+
+<table style="font-size: 14px;">
+<pre>
+<tr><th colspan="5">Index on 1Month interval<br>Values in <span style="color: red;">red</span> exceed the end of the month</th><tr>
+<tr><th>start_time</th><th colspan="2">"2025&#8209;01&#8209;31 08:00:00"</th><th colspan="2">"2025&#8209;01&#8209;01 00:00:00"</th></tr>
+<tr><th>offset</th><th>None</th><th colspan="2">TimeSpan("P30DT8H")</th><th>timedelta(<br>&nbsp;&nbsp;days=30,<br>&nbsp;&nbsp;hours=8,<br>)</th></tr>
+<tr><th rowspan="13">index</th>
+<tr><td>2025&#8209;01&#8209;31&nbsp;08:00:00</td><td>2025&#8209;01&#8209;31&nbsp;08:00:00</td><td>2025&#8209;01&#8209;31&nbsp;08:00:00</td><td>2025&#8209;01&#8209;31&nbsp;08:00:00</td></tr>
+<tr><td>2025&#8209;02&#8209;28&nbsp;08:00:00</td><td style="color: red;">2025&#8209;03&#8209;03&nbsp;08:00:00</td><td style="color: red;">2025&#8209;03&#8209;03&nbsp;08:00:00</td><td style="color: red;">2025&#8209;03&#8209;03&nbsp;08:00:00</td></tr>
+<tr><td>2025&#8209;03&#8209;31&nbsp;08:00:00</td><td>2025&#8209;03&#8209;31&nbsp;08:00:00</td><td>2025&#8209;03&#8209;31&nbsp;08:00:00</td><td>2025&#8209;03&#8209;31&nbsp;08:00:00</td></tr>
+<tr><td>2025&#8209;04&#8209;30&nbsp;08:00:00</td><td style="color: red;">2025&#8209;05&#8209;01&nbsp;08:00:00</td><td style="color: red;">2025&#8209;05&#8209;01&nbsp;08:00:00</td><td style="color: red;">2025&#8209;05&#8209;01&nbsp;08:00:00</td></tr>
+<tr><td>2025&#8209;05&#8209;31&nbsp;08:00:00</td><td>2025&#8209;05&#8209;31&nbsp;08:00:00</td><td>2025&#8209;05&#8209;31&nbsp;08:00:00</td><td>2025&#8209;05&#8209;31&nbsp;08:00:00</td></tr>
+<tr><td>2025&#8209;06&#8209;30&nbsp;08:00:00</td><td style="color: red;">2025&#8209;07&#8209;01&nbsp;08:00:00</td><td style="color: red;">2025&#8209;07&#8209;01&nbsp;08:00:00</td><td style="color: red;">2025&#8209;07&#8209;01&nbsp;08:00:00</td></tr>
+<tr><td>2025&#8209;07&#8209;31&nbsp;08:00:00</td><td>2025&#8209;07&#8209;31&nbsp;08:00:00</td><td>2025&#8209;07&#8209;31&nbsp;08:00:00</td><td>2025&#8209;07&#8209;31&nbsp;08:00:00</td></tr>
+<tr><td>2025&#8209;08&#8209;31&nbsp;08:00:00</td><td>2025&#8209;08&#8209;31&nbsp;08:00:00</td><td>2025&#8209;08&#8209;31&nbsp;08:00:00</td><td>2025&#8209;08&#8209;31&nbsp;08:00:00</td></tr>
+<tr><td>2025&#8209;09&#8209;30&nbsp;08:00:00</td><td style="color: red;">2025&#8209;10&#8209;01&nbsp;08:00:00</td><td style="color: red;">2025&#8209;10&#8209;01&nbsp;08:00:00</td><td style="color: red;">2025&#8209;10&#8209;01&nbsp;08:00:00</td></tr>
+<tr><td>2025&#8209;10&#8209;31&nbsp;08:00:00</td><td>2025&#8209;10&#8209;31&nbsp;08:00:00</td><td>2025&#8209;10&#8209;31&nbsp;08:00:00</td><td>2025&#8209;10&#8209;31&nbsp;08:00:00</td></tr>
+<tr><td>2025&#8209;11&#8209;30&nbsp;08:00:00</td><td style="color: red;">2025&#8209;12&#8209;01&nbsp;08:00:00</td><td style="color: red;">2025&#8209;12&#8209;01&nbsp;08:00:00</td><td style="color: red;">2025&#8209;12&#8209;01&nbsp;08:00:00</td></tr>
+<tr><td>2025&#8209;12&#8209;31&nbsp;08:00:00</td><td>2025&#8209;12&#8209;31&nbsp;08:00:00</td><td>2025&#8209;12&#8209;31&nbsp;08:00:00</td><td>2025&#8209;12&#8209;31&nbsp;08:00:00</td></tr>
+</pre>
+</table>
+
+<table style="font-size: 14px;">
+<pre>
+<tr><th colspan="5">Index on 1Year interval<br>Values in <span style="color: red;">red</span> don't match the starting day-of-month</th><tr>
+<tr><th>start_time</th><th colspan="2">"2025&#8209;05&#8209;11 00:00:00"</th><th colspan="2">"2025&#8209;01&#8209;01 00:00:00"</th></tr>
+<tr><th>offset</th><th>None</th><th colspan="2">TimeSpan("P1M10D")</th><th>timedelta(<br>&nbsp;&nbsp;days=130,<br>)</th></tr>
+<tr><th rowspan="13">index</th>
+<tr><td>2025&#8209;05&#8209;11&nbsp;00:00:00</td><td>2025&#8209;05&#8209;11&nbsp;00:00:00</td><td>2025&#8209;05&#8209;11&nbsp;00:00:00</td><td>2025&#8209;05&#8209;11&nbsp;00:00:00</td></tr>
+<tr><td>2026&#8209;05&#8209;11&nbsp;00:00:00</td><td>2026&#8209;05&#8209;11&nbsp;00:00:00</td><td>2026&#8209;05&#8209;11&nbsp;00:00:00</td><td>2026&#8209;05&#8209;11&nbsp;00:00:00</td></tr>
+<tr><td>2027&#8209;05&#8209;11&nbsp;00:00:00</td><td>2027&#8209;05&#8209;11&nbsp;00:00:00</td><td>2027&#8209;05&#8209;11&nbsp;00:00:00</td><td>2027&#8209;05&#8209;11&nbsp;00:00:00</td></tr>
+<tr><td>2028&#8209;05&#8209;11&nbsp;00:00:00</td><td>2028&#8209;05&#8209;11&nbsp;00:00:00</td><td>2028&#8209;05&#8209;11&nbsp;00:00:00</td><td style="color: red;">2028&#8209;05&#8209;10&nbsp;00:00:00</td></tr>
+<tr><td>2029&#8209;05&#8209;11&nbsp;00:00:00</td><td>2029&#8209;05&#8209;11&nbsp;00:00:00</td><td>2029&#8209;05&#8209;11&nbsp;00:00:00</td><td>2029&#8209;05&#8209;11&nbsp;00:00:00</td></tr>
+<tr><td>2030&#8209;05&#8209;11&nbsp;00:00:00</td><td>2030&#8209;05&#8209;11&nbsp;00:00:00</td><td>2030&#8209;05&#8209;11&nbsp;00:00:00</td><td>2030&#8209;05&#8209;11&nbsp;00:00:00</td></tr>
+<tr><td>2031&#8209;05&#8209;11&nbsp;00:00:00</td><td>2031&#8209;05&#8209;11&nbsp;00:00:00</td><td>2031&#8209;05&#8209;11&nbsp;00:00:00</td><td>2031&#8209;05&#8209;11&nbsp;00:00:00</td></tr>
+<tr><td>2032&#8209;05&#8209;11&nbsp;00:00:00</td><td>2032&#8209;05&#8209;11&nbsp;00:00:00</td><td>2032&#8209;05&#8209;11&nbsp;00:00:00</td><td style="color: red;">2032&#8209;05&#8209;10&nbsp;00:00:00</td></tr>
+<tr><td>2033&#8209;05&#8209;11&nbsp;00:00:00</td><td>2033&#8209;05&#8209;11&nbsp;00:00:00</td><td>2033&#8209;05&#8209;11&nbsp;00:00:00</td><td>2033&#8209;05&#8209;11&nbsp;00:00:00</td></tr>
+<tr><td>2034&#8209;05&#8209;11&nbsp;00:00:00</td><td>2034&#8209;05&#8209;11&nbsp;00:00:00</td><td>2034&#8209;05&#8209;11&nbsp;00:00:00</td><td>2034&#8209;05&#8209;11&nbsp;00:00:00</td></tr>
+<tr><td>2035&#8209;05&#8209;11&nbsp;00:00:00</td><td>2035&#8209;05&#8209;11&nbsp;00:00:00</td><td>2035&#8209;05&#8209;11&nbsp;00:00:00</td><td>2035&#8209;05&#8209;11&nbsp;00:00:00</td></tr>
+<tr><td>2036&#8209;05&#8209;11&nbsp;00:00:00</td><td>2036&#8209;05&#8209;11&nbsp;00:00:00</td><td>2036&#8209;05&#8209;11&nbsp;00:00:00</td><td style="color: red;">2036&#8209;05&#8209;10&nbsp;00:00:00</td></tr>
+</pre>
+</table>
+</div>
+
+
+                            </div>
                             <div id="Interval.get_default_exception_on_not_found" class="classattr">
                                 <div class="attr function">
                     <div class="decorator decorator-staticmethod">@staticmethod</div>
@@ -724,340 +1146,30 @@ behavior is used. Optional. Defaults to None. See <a href="#Interval.set_default
 
 
                             </div>
-                            <div id="Interval.set_default_exception_on_not_found" class="classattr">
+                            <div id="Interval.get_dss_block_for_interval" class="classattr">
                                 <div class="attr function">
                     <div class="decorator decorator-staticmethod">@staticmethod</div>
 
         <span class="def">def</span>
-        <span class="name">set_default_exception_on_not_found</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">state</span><span class="p">:</span> <span class="nb">bool</span></span><span class="return-annotation">) -> <span class="kc">None</span>:</span></span>
+        <span class="name">get_dss_block_for_interval</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">interval</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n"><a href="#Interval">Interval</a></span><span class="p">]</span></span><span class="return-annotation">) -> <span class="n"><a href="#Interval">Interval</a></span>:</span></span>
 
         
     </div>
-    <a class="headerlink" href="#Interval.set_default_exception_on_not_found"></a>
+    <a class="headerlink" href="#Interval.get_dss_block_for_interval"></a>
     
-            <div class="docstring"><p>Sets the default behavior if any of the get... methods do not find an Interval object to return.</p>
+            <div class="docstring"><p>Returns the HEC-DSS block size for a specified interval.</p>
 
 <h6 id="arguments">Arguments:</h6>
 
 <ul>
-<li><strong>state (bool):</strong>  Whether to raise an exception if no Interval is found (True) or return None (False)</li>
-</ul>
-</div>
-
-
-                            </div>
-                            <div id="Interval.get_all" class="classattr">
-                                <div class="attr function">
-                    <div class="decorator decorator-staticmethod">@staticmethod</div>
-
-        <span class="def">def</span>
-        <span class="name">get_all</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">matcher</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="n"><a href="#Interval">Interval</a></span><span class="p">],</span> <span class="nb">bool</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">exception_on_not_found</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></span><span class="return-annotation">) -> <span class="nb">list</span><span class="p">[</span><span class="n"><a href="#Interval">Interval</a></span><span class="p">]</span>:</span></span>
-
-        
-    </div>
-    <a class="headerlink" href="#Interval.get_all"></a>
-    
-            <div class="docstring"><p>Retuns list of matched <code><a href="#Interval">Interval</a></code> objects in the any context</p>
-
-<h6 id="arguments">Arguments:</h6>
-
-<ul>
-<li><strong>matcher (Optional[Callable[[Interval], bool]]):</strong>  A function that returns True or False when passed an <code><a href="#Interval">Interval</a></code> object parameter. Defaults to None.
-If None, all <code><a href="#Interval">Interval</a></code> objects in all contexts are matched.<br>
-Examples:
-<ul>
-<li><code>lambda i : i.is_irregular</code></li>
-<li><code>lambda i : i.minutes &lt; 60</code></li>
-<li><code>lambda i : i.name.find("Week") != -1</code></li>
-</ul></li>
+<li><strong>interval (Union[str, int, &quot;Interval&quot;]):</strong>  The interval to return the block size for. May be an Interval object,
+or its name or (actual or characteristic) minutes.</li>
 </ul>
 
 <h6 id="returns">Returns:</h6>
 
 <blockquote>
-  <p>List[Interval]: A list of matched <code><a href="#Interval">Interval</a></code> objects (may be empty)</p>
-</blockquote>
-</div>
-
-
-                            </div>
-                            <div id="Interval.get_all_cwms" class="classattr">
-                                <div class="attr function">
-                    <div class="decorator decorator-staticmethod">@staticmethod</div>
-
-        <span class="def">def</span>
-        <span class="name">get_all_cwms</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">matcher</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="n"><a href="#Interval">Interval</a></span><span class="p">],</span> <span class="nb">bool</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">exception_on_not_found</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></span><span class="return-annotation">) -> <span class="nb">list</span><span class="p">[</span><span class="n"><a href="#Interval">Interval</a></span><span class="p">]</span>:</span></span>
-
-        
-    </div>
-    <a class="headerlink" href="#Interval.get_all_cwms"></a>
-    
-            <div class="docstring"><p>Retuns list of matched <code><a href="#Interval">Interval</a></code> objects in the CWMS context</p>
-
-<h6 id="arguments">Arguments:</h6>
-
-<ul>
-<li><strong>matcher (Optional[Callable[[Interval], bool]]):</strong>  A function that returns True or False when passed an <code><a href="#Interval">Interval</a></code> object parameter. Defaults to None.
-If None, all <code><a href="#Interval">Interval</a></code> objects in the context are matched.<br>
-Examples:
-<ul>
-<li><code>lambda i : i.is_irregular</code></li>
-<li><code>lambda i : i.minutes &lt; 60</code></li>
-<li><code>lambda i : i.name.find("Week") != -1</code></li>
-</ul></li>
-<li><strong>exception_on_not_found (bool):</strong>  Specifies whether to raise an exception if no Intervals are found. If None, the default
-behavior is used. Optional. Defaults to None. See <a href="#Interval.set_default_exception_on_not_found">set_default_exception_on_not_found</a> and
-<a href="#Interval.get_default_exception_on_not_found">get_default_exception_on_not_found</a></li>
-</ul>
-
-<h6 id="returns">Returns:</h6>
-
-<blockquote>
-  <p>List[Interval]: A list of matched <code><a href="#Interval">Interval</a></code> objects (may be empty)</p>
-</blockquote>
-</div>
-
-
-                            </div>
-                            <div id="Interval.get_all_cwms_names" class="classattr">
-                                <div class="attr function">
-                    <div class="decorator decorator-staticmethod">@staticmethod</div>
-
-        <span class="def">def</span>
-        <span class="name">get_all_cwms_names</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">matcher</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="n"><a href="#Interval">Interval</a></span><span class="p">],</span> <span class="nb">bool</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">exception_on_not_found</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></span><span class="return-annotation">) -> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>:</span></span>
-
-        
-    </div>
-    <a class="headerlink" href="#Interval.get_all_cwms_names"></a>
-    
-            <div class="docstring"><p>Retuns list of names of matched <code><a href="#Interval">Interval</a></code> objects in the CWMS context</p>
-
-<h6 id="arguments">Arguments:</h6>
-
-<ul>
-<li><strong>matcher (Optional[Callable[[Interval], bool]]):</strong>  A function that returns True or False when passed an <code><a href="#Interval">Interval</a></code> object parameter. Defaults to None.
-If None, all <code><a href="#Interval">Interval</a></code> objects in the context are matched.<br>
-Examples:
-<ul>
-<li><code>lambda i : i.is_irregular</code></li>
-<li><code>lambda i : i.minutes &lt; 60</code></li>
-<li><code>lambda i : i.name.find("Week") != -1</code></li>
-</ul></li>
-<li><strong>exception_on_not_found (bool):</strong>  Specifies whether to raise an exception if no Intervals are found. If None, the default
-behavior is used. Optional. Defaults to None. See <a href="#Interval.set_default_exception_on_not_found">set_default_exception_on_not_found</a> and
-<a href="#Interval.get_default_exception_on_not_found">get_default_exception_on_not_found</a></li>
-</ul>
-
-<h6 id="returns">Returns:</h6>
-
-<blockquote>
-  <p>List[str]: A list of names of matched <code><a href="#Interval">Interval</a></code> objects (may be empty)</p>
-</blockquote>
-</div>
-
-
-                            </div>
-                            <div id="Interval.get_all_dss" class="classattr">
-                                <div class="attr function">
-                    <div class="decorator decorator-staticmethod">@staticmethod</div>
-
-        <span class="def">def</span>
-        <span class="name">get_all_dss</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">matcher</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="n"><a href="#Interval">Interval</a></span><span class="p">],</span> <span class="nb">bool</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">exception_on_not_found</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></span><span class="return-annotation">) -> <span class="nb">list</span><span class="p">[</span><span class="n"><a href="#Interval">Interval</a></span><span class="p">]</span>:</span></span>
-
-        
-    </div>
-    <a class="headerlink" href="#Interval.get_all_dss"></a>
-    
-            <div class="docstring"><p>Retuns list of matched <code><a href="#Interval">Interval</a></code> objects in the DSS context</p>
-
-<h6 id="arguments">Arguments:</h6>
-
-<ul>
-<li><strong>matcher (Optional[Callable[[Interval], bool]]):</strong>  A function that returns True or False when passed an <code><a href="#Interval">Interval</a></code> object parameter. Defaults to None.
-If None, all <code><a href="#Interval">Interval</a></code> objects in the context are matched.<br>
-Examples:
-<ul>
-<li><code>lambda i : i.is_irregular</code></li>
-<li><code>lambda i : i.minutes &lt; 60</code></li>
-<li><code>lambda i : i.name.find("Week") != -1</code></li>
-</ul></li>
-<li><strong>exception_on_not_found (bool):</strong>  Specifies whether to raise an exception if no Intervals are found. If None, the default
-behavior is used. Optional. Defaults to None. See <a href="#Interval.set_default_exception_on_not_found">set_default_exception_on_not_found</a> and
-<a href="#Interval.get_default_exception_on_not_found">get_default_exception_on_not_found</a></li>
-</ul>
-
-<h6 id="returns">Returns:</h6>
-
-<blockquote>
-  <p>List[Interval]: A list of matched <code><a href="#Interval">Interval</a></code> objects (may be empty)</p>
-</blockquote>
-</div>
-
-
-                            </div>
-                            <div id="Interval.get_all_dss_block_names" class="classattr">
-                                <div class="attr function">
-                    <div class="decorator decorator-staticmethod">@staticmethod</div>
-
-        <span class="def">def</span>
-        <span class="name">get_all_dss_block_names</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">matcher</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="n"><a href="#Interval">Interval</a></span><span class="p">],</span> <span class="nb">bool</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">exception_on_not_found</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></span><span class="return-annotation">) -> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>:</span></span>
-
-        
-    </div>
-    <a class="headerlink" href="#Interval.get_all_dss_block_names"></a>
-    
-            <div class="docstring"><p>Retuns list of names of matched <code><a href="#Interval">Interval</a></code> objects in the DSS block size context</p>
-
-<h6 id="arguments">Arguments:</h6>
-
-<ul>
-<li><strong>matcher (Optional[Callable[[Interval], bool]]):</strong>  A function that returns True or False when passed an <code><a href="#Interval">Interval</a></code> object parameter. Defaults to None.
-If None, all <code><a href="#Interval">Interval</a></code> objects in the context are matched.<br>
-Examples:
-<ul>
-<li><code>lambda i : i.is_irregular</code></li>
-<li><code>lambda i : i.minutes &lt; 60</code></li>
-<li><code>lambda i : i.name.find("Week") != -1</code></li>
-</ul></li>
-<li><strong>exception_on_not_found (bool):</strong>  Specifies whether to raise an exception if no Intervals are found. If None, the default
-behavior is used. Optional. Defaults to None. See <a href="#Interval.set_default_exception_on_not_found">set_default_exception_on_not_found</a> and
-<a href="#Interval.get_default_exception_on_not_found">get_default_exception_on_not_found</a></li>
-</ul>
-
-<h6 id="returns">Returns:</h6>
-
-<blockquote>
-  <p>List[str]: A list of names of matched <code><a href="#Interval">Interval</a></code> objects (may be empty)</p>
-</blockquote>
-</div>
-
-
-                            </div>
-                            <div id="Interval.get_all_dss_blocks" class="classattr">
-                                <div class="attr function">
-                    <div class="decorator decorator-staticmethod">@staticmethod</div>
-
-        <span class="def">def</span>
-        <span class="name">get_all_dss_blocks</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">matcher</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="n"><a href="#Interval">Interval</a></span><span class="p">],</span> <span class="nb">bool</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">exception_on_not_found</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></span><span class="return-annotation">) -> <span class="nb">list</span><span class="p">[</span><span class="n"><a href="#Interval">Interval</a></span><span class="p">]</span>:</span></span>
-
-        
-    </div>
-    <a class="headerlink" href="#Interval.get_all_dss_blocks"></a>
-    
-            <div class="docstring"><p>Retuns list of matched <code><a href="#Interval">Interval</a></code> objects in the DSS block size context</p>
-
-<h6 id="arguments">Arguments:</h6>
-
-<ul>
-<li><strong>matcher (Optional[Callable[[Interval], bool]]):</strong>  A function that returns True or False when passed an <code><a href="#Interval">Interval</a></code> object parameter. Defaults to None.
-If None, all <code><a href="#Interval">Interval</a></code> objects in the context are matched.<br>
-Examples:
-<ul>
-<li><code>lambda i : i.is_irregular</code></li>
-<li><code>lambda i : i.minutes &lt; 60</code></li>
-<li><code>lambda i : i.name.find("Week") != -1</code></li>
-</ul></li>
-<li><strong>exception_on_not_found (bool):</strong>  Specifies whether to raise an exception if no Intervals are found. If None, the default
-behavior is used. Optional. Defaults to None. See <a href="#Interval.set_default_exception_on_not_found">set_default_exception_on_not_found</a> and
-<a href="#Interval.get_default_exception_on_not_found">get_default_exception_on_not_found</a></li>
-</ul>
-
-<h6 id="returns">Returns:</h6>
-
-<blockquote>
-  <p>List[Interval]: A list of matched <code><a href="#Interval">Interval</a></code> objects (may be empty)</p>
-</blockquote>
-</div>
-
-
-                            </div>
-                            <div id="Interval.get_all_dss_names" class="classattr">
-                                <div class="attr function">
-                    <div class="decorator decorator-staticmethod">@staticmethod</div>
-
-        <span class="def">def</span>
-        <span class="name">get_all_dss_names</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">matcher</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="n"><a href="#Interval">Interval</a></span><span class="p">],</span> <span class="nb">bool</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">exception_on_not_found</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></span><span class="return-annotation">) -> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>:</span></span>
-
-        
-    </div>
-    <a class="headerlink" href="#Interval.get_all_dss_names"></a>
-    
-            <div class="docstring"><p>Retuns list of names of matched <code><a href="#Interval">Interval</a></code> objects in the DSS context</p>
-
-<h6 id="arguments">Arguments:</h6>
-
-<ul>
-<li><strong>matcher (Optional[Callable[[Interval], bool]]):</strong>  A function that returns True or False when passed an <code><a href="#Interval">Interval</a></code> object parameter. Defaults to None.
-If None, all <code><a href="#Interval">Interval</a></code> objects in the context are matched.<br>
-Examples:
-<ul>
-<li><code>lambda i : i.is_irregular</code></li>
-<li><code>lambda i : i.minutes &lt; 60</code></li>
-<li><code>lambda i : i.name.find("Week") != -1</code></li>
-</ul></li>
-<li><strong>exception_on_not_found (bool):</strong>  Specifies whether to raise an exception if no Intervals are found. If None, the default
-behavior is used. Optional. Defaults to None. See <a href="#Interval.set_default_exception_on_not_found">set_default_exception_on_not_found</a> and
-<a href="#Interval.get_default_exception_on_not_found">get_default_exception_on_not_found</a></li>
-</ul>
-
-<h6 id="returns">Returns:</h6>
-
-<blockquote>
-  <p>List[str]: A list of names of matched <code><a href="#Interval">Interval</a></code> objects (may be empty)</p>
-</blockquote>
-</div>
-
-
-                            </div>
-                            <div id="Interval.get_all_names" class="classattr">
-                                <div class="attr function">
-                    <div class="decorator decorator-staticmethod">@staticmethod</div>
-
-        <span class="def">def</span>
-        <span class="name">get_all_names</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">matcher</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="n"><a href="#Interval">Interval</a></span><span class="p">],</span> <span class="nb">bool</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">exception_on_not_found</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></span><span class="return-annotation">) -> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>:</span></span>
-
-        
-    </div>
-    <a class="headerlink" href="#Interval.get_all_names"></a>
-    
-            <div class="docstring"><p>Retuns list of names of matched <code><a href="#Interval">Interval</a></code> objects in the any context</p>
-
-<h6 id="arguments">Arguments:</h6>
-
-<ul>
-<li><strong>matcher (Optional[Callable[[Interval], bool]]):</strong>  A function that returns True or False when passed an <code><a href="#Interval">Interval</a></code> object parameter. Defaults to None.
-If None, all <code><a href="#Interval">Interval</a></code> objects in all contexts are matched.<br>
-Examples:
-<ul>
-<li><code>lambda i : i.is_irregular</code></li>
-<li><code>lambda i : i.minutes &lt; 60</code></li>
-<li><code>lambda i : i.name.find("Week") != -1</code></li>
-</ul></li>
-</ul>
-
-<h6 id="returns">Returns:</h6>
-
-<blockquote>
-  <p>List[str]: A list of names of matched <code><a href="#Interval">Interval</a></code> objects (may be empty)</p>
-</blockquote>
-</div>
-
-
-                            </div>
-                            <div id="Interval.context" class="classattr">
-                                <div class="attr variable">
-            <span class="name">context</span><span class="annotation">: str</span>
-
-        
-    </div>
-    <a class="headerlink" href="#Interval.context"></a>
-    
-            <div class="docstring"><p>The context of this object ("Cwms", "Dss", or "DssBlock")</p>
-
-<h6 id="operations">Operations:</h6>
-
-<blockquote>
-  <p>Read-only</p>
+  <p>Interval: An interval object representing the HEC-DSS block size</p>
 </blockquote>
 </div>
 
@@ -1211,6 +1323,28 @@ Examples:
 <blockquote>
   <p>Read-only</p>
 </blockquote>
+</div>
+
+
+                            </div>
+                            <div id="Interval.set_default_exception_on_not_found" class="classattr">
+                                <div class="attr function">
+                    <div class="decorator decorator-staticmethod">@staticmethod</div>
+
+        <span class="def">def</span>
+        <span class="name">set_default_exception_on_not_found</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">state</span><span class="p">:</span> <span class="nb">bool</span></span><span class="return-annotation">) -> <span class="kc">None</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#Interval.set_default_exception_on_not_found"></a>
+    
+            <div class="docstring"><p>Sets the default behavior if any of the get... methods do not find an Interval object to return.</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>state (bool):</strong>  Whether to raise an exception if no Interval is found (True) or return None (False)</li>
+</ul>
 </div>
 
 

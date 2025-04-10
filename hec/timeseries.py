@@ -21,7 +21,7 @@ from pint import Unit
 import hec.hectime
 import hec.parameter
 import hec.unit
-from hec.const import Combine, Select, SelectionState
+from hec.const import CWMS, DSS, Combine, Select, SelectionState
 from hec.duration import Duration
 from hec.hectime import HecTime
 from hec.interval import Interval
@@ -40,9 +40,6 @@ try:
     cwms_imported = True
 except ImportError:
     cwms_imported = False
-
-_CWMS = "CWMS"
-_DSS = "DSS"
 
 _RESAMPLE_OP_ACCUMULATE = "ACCUMULATE"
 _RESAMPLE_OP_AVERAGE = "AVERAGE"
@@ -74,6 +71,56 @@ _resample_operations = {
 _resample_before = (_RESAMPLE_FIRST, _RESAMPLE_MISSING)
 
 _resample_after = (_RESAMPLE_LAST, _RESAMPLE_MISSING)
+
+pd.set_option("future.no_silent_downcasting", True)
+
+def _is_cwms_tsid(id: str) -> bool:
+    parts = id.split(".")
+    if len(parts) != 6:
+        return False
+    if len(parts[0]) > 57 or len(parts[0].split("-")[0]) > 24:
+        return False
+    if len(parts[1]) > 49 or len(parts[1].split("-")[0]) > 16:
+        return False
+    if len(parts[2]) > 16:
+        return False
+    if len(parts[3]) > 16:
+        return False
+    if len(parts[4]) > 16:
+        return False
+    if len(parts[5]) > 32:
+        return False
+    if parts[1].split("-")[0].upper() not in map(
+        str.upper, Parameter.base_parameters("CWMS")
+    ):
+        return False
+    if parts[2].upper() not in map(
+        str.upper, ParameterType.parameter_type_names("CWMS")
+    ):
+        return False
+    if parts[3].upper() not in map(str.upper, Interval.get_all_cwms_names()):
+        return False
+    if parts[4].upper() not in set(
+        [Duration.for_interval(i).name.upper() for i in Interval.get_all_cwms_names()]
+    ):
+        return False
+    return True
+
+
+def _is_dss_ts_pathname(id: str) -> bool:
+    A, B, C, D, E, F = 1, 2, 3, 4, 5, 6
+    parts = id.split("/")
+    if len(parts) != 8:
+        return False
+    if not parts[E].upper() in map(str.upper, Interval.get_all_dss_names()):
+        return False
+    if parts[D]:
+        time_parts = parts[D].split("-")
+        try:
+            [HecTime(time_part) for time_part in time_parts]
+        except:
+            return False
+    return True
 
 
 class TimeSeriesException(Exception):
@@ -354,12 +401,14 @@ class TimeSeries:
                             * C => parameter
                             * E => interval
                             * F => version
+                        * The following components are set by default:
+                            * parameter type:
+                                * INST_CUM if C includes "Precip" (case insensitive)
+                                * INST_VAL otherwise
                         * The following compents are not set:
-                            * parameter type
                             * duration
                     * The parameter unit is set to the default English unit
                     * No vertical datum information is set for elevation parameter
-                * **cwms.cwms_types.Data**: A CWMS time series as returned from CDA using `cwms.get_timeseries()`
         """
         self._slice_stop_exclusive = TimeSeries._default_slice_stop_exclusive
         self._context: Optional[str] = None
@@ -370,39 +419,16 @@ class TimeSeries:
         self._interval: Interval
         self._duration: Optional[Duration] = None
         self._version: Optional[str] = None
+        self._version_time: Optional[HecTime] = None
         self._timezone: Optional[str] = None
         self._data: Optional[pd.DataFrame] = None
         self._midnight_as_2400: bool = False
         self._selection_state: SelectionState = SelectionState.TRANSIENT
         self._expanded = False
+        self._skip_validation = False
 
         if isinstance(init_from, str):
             self.name = init_from.strip()
-        elif cwms_imported and isinstance(init_from, cwms.cwms_types.Data):
-            self._context = _CWMS
-            props = init_from.json
-            df = init_from.df
-            self.name = props["name"]
-            self.location.office = props["office-id"]
-            # props["time-zone"] is time zone of request time window, actual times are in epoch milliseconds
-            self._timezone = "UTC"
-            if self.parameter.base_parameter == "Elev":
-                elev_param = ElevParameter(
-                    self.parameter.name, props["vertical-datum-info"]
-                )
-                if elev_param.elevation:
-                    self.location.elevation = elev_param.elevation.magnitude
-                    self.location.elevation_unit = elev_param.elevation.specified_unit
-                self.location.vertical_datum = elev_param.native_datum
-                self.set_parameter(elev_param)
-            else:
-                self.set_parameter(Parameter(self.parameter.name, props["units"]))
-            if df is not None and len(df):
-                self._data = init_from.df.copy(deep=True)
-                self._data.columns = ["time", "value", "quality"]
-                self._data.set_index("time", inplace=True)
-                self._validate()
-            self.expand()
         else:
             raise TypeError(type(init_from))
 
@@ -1276,16 +1302,12 @@ class TimeSeries:
             return 0
         if self._expanded:
             shape = self._data.shape
-            if len(shape) == 1:
-                return 1
-            return shape[0]
+            return 1 if len(shape) == 1 else shape[0]
         else:
             copy = self.clone()
             copy.iexpand()
             shape = cast(pd.DataFrame, copy._data).shape
-            if len(shape) == 1:
-                return 1
-            return shape[0]
+            return 1 if len(shape) == 1 else shape[0]
 
     def __lshift__(self, amount: Union[TimeSpan, timedelta, int]) -> "TimeSeries":
         # ---------------------------- #
@@ -1583,7 +1605,10 @@ class TimeSeries:
             return NotImplemented
 
     def __repr__(self) -> str:
-        return f"<TimeSeries({self.name}) unit={self.parameter._unit_name} {len(self)} values>"
+        if self._version_time:
+            return f"<TimeSeries('{self.name}'): {len(self)} values, version_time={self._version_time}, unit={self.parameter._unit_name}>"
+        else:
+            return f"<TimeSeries('{self.name}'): {len(self)} values, unit={self.parameter._unit_name}>"
 
     def __rshift__(self, amount: Union[TimeSpan, timedelta, int]) -> "TimeSeries":
         # -------------------------- #
@@ -1613,7 +1638,10 @@ class TimeSeries:
         return other
 
     def __str__(self) -> str:
-        return f"{self.name} {len(self)} values in {self.parameter.unit_name}"
+        if self._version_time:
+            return f"{self.name} @{self._version_time} {len(self)} values in {self.parameter.unit_name}"
+        else:
+            return f"{self.name} {len(self)} values in {self.parameter.unit_name}"
 
     def __sub__(
         self, amount: Union["TimeSeries", UnitQuantity, float, int]
@@ -1801,6 +1829,97 @@ class TimeSeries:
         else:
             return NotImplemented
 
+    def _convert_to_context(self, ctx: str) -> None:
+        if ctx not in (CWMS, DSS):
+            raise TimeSeriesException(f"Invalid context: {ctx}")
+        if self.parameter_type is None:
+            raise TimeSeriesException(
+                "Cannot change context of time series with unknown parameter type"
+            )
+        if self._context is None:
+            self._context = ctx
+        elif self._context == ctx:
+            pass
+        elif ctx == CWMS:
+            # ----------- #
+            # dss to cwms #
+            # ----------- #
+            self._skip_validation = True
+            self._context = ctx
+            if self._watershed is not None:
+                self._watershed = self._watershed.title()
+            self._location.name = self._location.name.title().replace(" ", "_")
+            bn = self.parameter.basename
+            sn = self.parameter.subname
+            bpnu = bn.upper()
+            for bp in Parameter.base_parameters("CWMS"):
+                if bp.upper() == bpnu:
+                    bn = bp
+                    break
+            pn = bn
+            if sn:
+                sn = sn.title().replace(" ", "_")
+                pn += f"-{sn}"
+            self.iset_parameter(Parameter(pn, self.parameter.unit_name))
+            intvl = Interval.get_any_cwms(
+                lambda i: i.is_regular == self.is_regular
+                and i.minutes == self.interval.minutes
+            )
+            if intvl is None:
+                raise TimeSeriesException(
+                    f"Could not find CWMS equivalent of DSS interval {self._interval}"
+                )
+            self.iset_interval(intvl)
+            if self.parameter_type.get_cwms_name() == "Inst":
+                self.iset_duration(0)
+            else:
+                self.iset_duration(Duration.for_interval(self.interval))
+            if self._version:
+                self._version = self._version.title().replace(" ", "_")
+            else:
+                self._version = "None"
+            self._skip_validation = False
+            self._validate()
+        elif ctx == DSS:
+            # ----------- #
+            # cwms to dss #
+            # ----------- #
+            self._skip_validation = True
+            self._context = ctx
+            if self.is_irregular:
+                number_values = (
+                    0
+                    if not self.data
+                    else 1 if len(self.data.shape) == 1 else self.data.shape[0]
+                )
+                seconds_per_year = timedelta(days=365).total_seconds()
+                time_range = cast(
+                    TimeSpan, (HecTime(self.times[-1]) - HecTime(self.times[0]))
+                ).total_seconds()
+                values_per_year = number_values / time_range * seconds_per_year
+                if values_per_year > 1000:
+                    intvl = Interval.get_any_dss(lambda i: i.name == "Ir-Decade")
+                elif values_per_year > 100:
+                    intvl = Interval.get_any_dss(lambda i: i.name == "Ir-Year")
+                elif values_per_year > 100.0 / 12:
+                    intvl = Interval.get_any_dss(lambda i: i.name == "Ir-Month")
+                else:
+                    intvl = Interval.get_any_dss(lambda i: i.name == "Ir-Day")
+            else:
+                intvl = Interval.get_any_dss(
+                    lambda i: i.is_regular == True
+                    and i.minutes == self.interval.minutes
+                )
+            if intvl is None:
+                raise TimeSeriesException(
+                    f"Could not find CWMS equivalent of DSS interval {self._interval}"
+                )
+            self.iset_interval(intvl)
+            if self.version == "None":
+                self._version = None
+            self._skip_validation = False
+            self._validate()
+
     def _diff(self, time_based: bool, in_place: bool = False) -> "TimeSeries":
         target = self if in_place else self.clone()
         if target._data is None:
@@ -1951,7 +2070,7 @@ class TimeSeries:
                 (df["value"].isna())
                 | (np.isinf(df["value"]))
                 | (df["quality"] == 5)
-                | ((df["quality"].astype(int) & 0b1_0000) != 0)
+                | ((df["quality"].astype("int64") & 0b1_0000) != 0)
             ],
         )
 
@@ -2046,7 +2165,7 @@ class TimeSeries:
         is_total = cast(ParameterType, self.parameter_type).get_raw_name() == "Total"
         is_accum = (
             cast(ParameterType, self.parameter_type).name == "INST-CUM"
-            if self.context == _DSS
+            if self.context == DSS
             else is_inst and self.parameter.base_parameter == "Precip"
         )
         prev_lo: Optional[int] = None
@@ -3032,7 +3151,7 @@ class TimeSeries:
                     (df["value"].isna())
                     | (np.isinf(df["value"]))
                     | (df["quality"] == 5)
-                    | ((df["quality"].astype(int) & 0b1_0000) != 0)
+                    | ((df["quality"].astype("int64") & 0b1_0000) != 0)
                 )
             ],
         )
@@ -3041,27 +3160,21 @@ class TimeSeries:
         # ------------------------------- #
         # validate times against interval #
         # ------------------------------- #
-        if len(self) < 2:
+        if self._skip_validation:
             return
-        if self.is_any_regular:
-            time_strings = list(
-                map(lambda s: s[:19], self.times)
-            )  # remove any time zone infoself.times
-            lasttime = HecTime(time_strings[0])
-            if self._timezone is not None:
-                lasttime = lasttime.label_as_time_zone(self._timezone)
-            for i in range(1, len(self)):
-                try:
-                    thistime = HecTime(time_strings[i])
-                except:
-                    raise
-                if self._timezone is not None:
-                    thistime = thistime.label_as_time_zone(self._timezone)
-                while thistime > lasttime:
-                    lasttime += self.interval
-                if lasttime > thistime:
-                    raise TimeSeriesException(
-                        f"Times do not match interval of {self.interval.name}"
+        if self.is_any_regular and self._data is not None and not self._data.empty:
+            my_datetimes = self._data.index.to_list()
+            interval_times = self.interval.get_datetime_index(
+                start_time=my_datetimes[0],
+                count=len(my_datetimes),
+                time_zone=self.time_zone,
+            ).to_list()
+            for dt in my_datetimes:
+                if not dt in interval_times:
+                    raise (
+                        TimeSeriesException(
+                            f"Time {dt} is not consistent with interval {self.interval.name} beginning at {my_datetimes[0]}"
+                        )
                     )
 
     def accum(self, in_place: bool = False) -> "TimeSeries":
@@ -3385,6 +3498,11 @@ class TimeSeries:
         other._interval = deepcopy(self._interval)
         other._duration = deepcopy(self._duration)
         other._version = self._version
+        other._version_time = (
+            None
+            if self._version_time is None
+            else cast(HecTime, self._version_time.clone())
+        )
         other._timezone = self._timezone
         if include_data and self._data is not None:
             other._data = self._data.copy()
@@ -3445,10 +3563,7 @@ class TimeSeries:
 
     @context.setter
     def context(self, ctx: str) -> None:
-        if ctx in (_CWMS, _DSS):
-            self._context = ctx
-        else:
-            raise TimeSeriesException(f"Invalid context: {ctx}")
+        self._convert_to_context(ctx)
 
     def convert_to_time_zone(
         self,
@@ -3489,6 +3604,11 @@ class TimeSeries:
                     localzone_name, ambiguous=False, nonexistent="NaT"
                 )
             target._data = target._data.tz_convert(tz)
+            if target._version_time is not None:
+                if target._version_time.tzinfo is None:
+                    target._version_time = target._version_time.label_as_time_zone(tz)
+                else:
+                    target._version_time = target._version_time.convert_to_time_zone(tz)
         target._timezone = str(tz)
         return target
 
@@ -3699,10 +3819,10 @@ class TimeSeries:
         selected after expansion even though their location in the data may change.
 
         Args:
-            start_time (Optional[Union[str, datetime, HecTime]], optional): The beginning of the timespan before the first time
+            start_time (Optional[Union[str, datetime, HecTime]]): The beginning of the timespan before the first time
                 to fill with missing values. Does not need to fall on the time series interval. If not at least one full
                 interval prior to the first time, no missing values will be inserted before the first time. Defaults to None.
-            end_time (Optional[Union[str, datetime, HecTime]], optional): The end of the timespan after the last time to fill
+            end_time (Optional[Union[str, datetime, HecTime]]): The end of the timespan after the last time to fill
                 with missing values. Does not need to fall on the time series interval. If not at least one full interval after
                 the last time, no missing values will be inserted after the last time. Defaults to None.
             in_place (bool, optional): Specifies whether to expand this time series (True) or a copy of this time series (False).
@@ -3711,148 +3831,56 @@ class TimeSeries:
         Returns:
             TimeSeries: The expanded time series
         """
-        # --------------------------------------- #
-        # short circuit for irregular time series #
-        # --------------------------------------- #
-        if self.is_any_irregular:
-            return self if in_place else self.clone()
-        # ------------------------------------------------------- #
-        # recurse if have timezone but not local-regular interval #
-        # ------------------------------------------------------- #
-        if self.time_zone and self.time_zone != "UTC" and not self.is_local_regular:
-            utc = self.convert_to_time_zone("UTC")
-            if start_time is None:
-                utc_start_time = None
-            else:
-                utc_start_time = HecTime(start_time)
-                if utc_start_time._tz is None:
-                    utc_start_time.label_as_time_zone("UTC")
-                else:
-                    utc_start_time = utc_start_time.convert_to_time_zone("UTC")
-            if end_time is None:
-                utc_end_time = None
-            else:
-                utc_end_time = HecTime(end_time)
-                if utc_end_time._tz is None:
-                    utc_end_time.label_as_time_zone("UTC")
-                else:
-                    utc_end_time = utc_end_time.convert_to_time_zone("UTC")
-            utc.iexpand(utc_start_time, utc_end_time)
-            local = utc.convert_to_time_zone(self.time_zone)
-            if in_place:
-                self._data = cast(pd.DataFrame, local.data).copy()
-                return self
-            else:
-                return local
-        # ---------------- #
-        # set up variables #
-        # ---------------- #
-        if start_time and not isinstance(start_time, HecTime):
-            start_time = HecTime(start_time)
-        if end_time and not isinstance(end_time, HecTime):
-            end_time = HecTime(end_time)
-        tsvs = self.tsv
-        expanded_tsvs = []
-        missing_quantity = UnitQuantity(math.nan, self.unit)
-        missing_quality = Quality("Missing")
-        selected = self.selected
-        selected_indices = [i for i in range(len(selected)) if selected[i]]
-        # ------------------------------ #
-        # get the DataFrame to work with #
-        # ------------------------------ #
-        if (
-            not self._expanded
-            or start_time
-            and start_time < tsvs[0].time
-            or end_time
-            and end_time > tsvs[-1].time
-        ):
-            target = self.clone()
-            # ---------------- #
-            # do the expansion #
-            # ---------------- #
-            offset = 0
-            if start_time and start_time < tsvs[0].time:
-                last_time = cast(HecTime, tsvs[0].time.clone())
-                while last_time > cast(HecTime, start_time):
-                    last_time -= self.interval
-                while last_time < tsvs[0].time:
-                    tsv = TimeSeriesValue(
-                        last_time.clone(), missing_quantity, missing_quality
+        target = self if in_place else self.clone()
+        if self.is_any_regular and not target._expanded:
+            if target._data is None or target._data.empty:
+                if start_time and end_time:
+                    index = target.interval.get_datetime_index(
+                        start_time, end_time, None, None, self.time_zone, "times"
                     )
-                    expanded_tsvs.append(tsv)
-                    last_time += self.interval
-                    offset += 1
-                selected_indices = [i + offset for i in selected_indices]
-            offsets = {}
-            for i in range(1, len(tsvs)):
-                offsets[i] = 0
-                expanded_tsvs.append(tsvs[i - 1])
-                last_time = tsvs[i - 1].time + self.interval
-                if last_time < tsvs[i].time:
-                    while last_time < tsvs[i].time:
-                        tsv = TimeSeriesValue(
-                            last_time.clone(), missing_quantity, missing_quality
-                        )
-                        expanded_tsvs.append(tsv)
-                        last_time += self.interval
-                        offsets[i] += 1
-            for idx in sorted(offsets):
-                offset = offsets[idx]
-                selected_indices = [
-                    i if i < idx else i + offset for i in selected_indices
-                ]
-            expanded_tsvs.append(tsvs[-1])
-            if end_time and end_time > tsvs[-1].time:
-                last_time = tsvs[-1].time + self.interval
-                while last_time <= end_time:
-                    tsv = TimeSeriesValue(
-                        last_time.clone(), missing_quantity, missing_quality
+                    self._data = pd.DataFrame(
+                        {"value": len(index) * [math.nan], "quality": len(index * [5])},
+                        index=index,
                     )
-                    expanded_tsvs.append(tsv)
-                    last_time += self.interval
-            # --------------- #
-            # set the results #
-            # --------------- #
-            if expanded_tsvs and expanded_tsvs[0].time._tz is not None:
-                times = []
-                for tsv in expanded_tsvs:
-                    ts = pd.Timestamp(self.format_time_for_index(tsv.time)[:19])
-                    ts = ts.tz_localize(str(tsv.time._tz), ambiguous=False)
-                    times.append(ts)
             else:
-                times = [
-                    pd.Timestamp(self.format_time_for_index(tsv.time)[:19])
-                    for tsv in expanded_tsvs
-                ]
-            if any(selected):
-                target._data = pd.DataFrame(
-                    {
-                        "value": [tsv.value.magnitude for tsv in expanded_tsvs],
-                        "quality": [tsv.quality.code for tsv in expanded_tsvs],
-                        "selected": [
-                            True if i in selected_indices else False
-                            for i in range(len(expanded_tsvs))
-                        ],
-                    },
-                    index=pd.DatetimeIndex(times, name="time"),
+                start = None if start_time is None else HecTime(start_time).datetime()
+                end = None if end_time is None else HecTime(end_time).datetime()
+                if self._data is not None and not self._data.empty:
+                    my_datetimes = self._data.index.to_list()
+                    first, last = my_datetimes[0], my_datetimes[-1]
+                else:
+                    first, last = None, None
+                if start is None and first is None:
+                    raise TimeSeriesException(
+                        "Cannot expand an empty time series without a valid start time"
+                    )
+                if end is None and last is None:
+                    raise TimeSeriesException(
+                        "Cannot expand an empty time series without a valid end time"
+                    )
+                _start_time = (
+                    start
+                    if first is None
+                    else first if start is None else min(start, first)
                 )
-            else:
-                target._data = pd.DataFrame(
-                    {
-                        "value": [tsv.value.magnitude for tsv in expanded_tsvs],
-                        "quality": [tsv.quality.code for tsv in expanded_tsvs],
-                    },
-                    index=pd.DatetimeIndex(times, name="time"),
+                _end_time = (
+                    end if last is None else last if end is None else max(end, last)
                 )
+                offset = HecTime(_start_time) - HecTime(
+                    _start_time
+                ).adjust_to_interval_offset(self.interval, 0)
+                interval_times = self.interval.get_datetime_index(
+                    start_time=_start_time,
+                    end_time=_end_time,
+                    time_zone=self.time_zone,
+                    offset=offset,
+                )
+                target._data = target._data.reindex(interval_times)
+                target._data.fillna({"quality": 5}, inplace=True)
+                target._data["quality"] = target._data["quality"].astype("int64")
+                if "selected" in target._data.columns:
+                    target._data.fillna({"selected": False}, inplace=True)
             target._expanded = True
-            # target._validate()
-            if in_place:
-                self._data = target._data.copy()
-                self._expanded = True
-                target = self
-        else:
-            target = self
         return target
 
     def filter(self, unselected: bool = False, in_place: bool = False) -> "TimeSeries":
@@ -4340,6 +4368,32 @@ class TimeSeries:
         """
         return self.interval.is_any_regular
 
+    @staticmethod
+    def is_cwms_ts_id(identifier: str) -> bool:
+        """
+        Returns whether the specified identifier is a valid CWMS time series identifier
+
+        Args:
+            identifier (str): The identifier
+
+        Returns:
+            bool: Whether the identifier is a valid CWMS time series identifier
+        """
+        return _is_cwms_tsid(identifier)
+
+    @staticmethod
+    def is_dss_ts_pathname(identifier: str) -> bool:
+        """
+        Returns whether the specified identifier is a valid HEC-DSS time series pathname
+
+        Args:
+            identifier (str): The identifier
+
+        Returns:
+            bool: Whether the identifier is a valid HEC-DSS time series pathname
+        """
+        return _is_dss_ts_pathname(identifier)
+
     @property
     def is_english(self) -> bool:
         """
@@ -4665,67 +4719,11 @@ class TimeSeries:
         """
         return self.to(unit_parameter_or_datum, True)
 
-    def to_irregular(
-        self, interval: Union[Interval, str], in_place: bool = False
-    ) -> "TimeSeries":
+    def ito_irregular(self, interval: Union[Interval, str]) -> "TimeSeries":
         """
-        Sets a time series (either this one or a copy of this one) to a specified irregular interval, and returns
-        the modified time series. The times of the data values are not changed.
-
-        Args:
-            interval (Union[Interval, str]): The irregular interval to set the time series to.
-            in_place (bool, optional): Specifies whether to modify this time series (True) or a copy of it (False).
-                Defaults to False.
-
-        Raises:
-            TimeSeriesException: If the specified interval is not a valid irregular interval for the
-                context of the time series (e.g., a regular interval or a DSS-only irregular interval
-                for a CWMS time series)
-
-        Returns:
-            TimeSeries: The modified time series
+        Convenience method for executing [to_irregular(...)](#TimeSeries.to_irregular) with `in_place=True`.
         """
-        target = self if in_place else self.clone()
-        intvl: Optional[Interval] = None
-        if isinstance(interval, str):
-            if self._context == _DSS:
-                if interval not in Interval.get_all_dss_names(
-                    lambda i: i.is_any_irregular
-                ):
-                    raise TimeSeriesException(
-                        f"Interval '{interval}' is not a valid DSS irregular interval"
-                    )
-                intvl = Interval.get_any_dss(lambda i: i.name == interval)
-            elif self._context == _CWMS:
-                if interval not in Interval.get_all_cwms_names(
-                    lambda i: i.is_any_irregular
-                ):
-                    raise TimeSeriesException(
-                        f"Interval '{interval}' is not a valid CWMS irregular interval"
-                    )
-                intvl = Interval.get_any_cwms(lambda i: i.name == interval)
-        elif isinstance(interval, Interval):
-            if self._context == _DSS:
-                if interval.name not in Interval.get_all_dss_names(
-                    lambda i: i.is_any_irregular
-                ):
-                    raise TimeSeriesException(
-                        f"Interval '{interval.name}' is not a valid DSS irregular interval"
-                    )
-                intvl = interval
-            elif self._context == _CWMS:
-                if interval.name not in Interval.get_all_cwms_names(
-                    lambda i: i.is_any_irregular
-                ):
-                    raise TimeSeriesException(
-                        f"Interval '{interval.name}' is not a valid CWMS irregular interval"
-                    )
-                intvl = interval
-        else:
-            raise TypeError(f"Expected Interval or str, got '{type(interval)}'")
-        assert intvl is not None, f"Unable to retrieve Interval with name '{interval}'"
-        target.set_interval(intvl)
-        return target
+        return self.to_irregular(interval, in_place=True)
 
     def itrim(self) -> "TimeSeries":
         """
@@ -4984,6 +4982,7 @@ class TimeSeries:
         # ----------------- #
         # perform the merge #
         # ----------------- #
+        all_times = set() if data is None or data.empty else set(data.index.to_list())
         for ts in others:
             if data is None:
                 if ts._data is None:
@@ -4994,35 +4993,39 @@ class TimeSeries:
             else:
                 data2 = ts._data
                 # Align data2 with data by reindexing
-                aligned_data2 = data2.reindex(data.index.union(data2.index))
-                # Convert 'quality' column in aligned_data2 to integers
-                # NOTE:
-                # This method of converting to ints in 2 stages is required because:
-                # 1. Converting directly to int causes loss of precision on very large positive or negative quality values.
-                # 2. Leaving the column as "Int64" causes the creation of the overwrite mask to issue a FutureWarning
+                #
+                # Moved to using sets becuase data.index.union(data2.index) didn't always work
+                all_times |= set(data2.index.to_list())
+                aligned_data2 = data2.reindex(pd.Index(sorted(all_times), name="time"))
                 aligned_data2["quality"] = (
                     pd.to_numeric(aligned_data2["quality"], errors="coerce")
                     .fillna(5)
                     .astype("Int64")  # set to missing quality
                 )
-                aligned_data2["quality"] = (
-                    pd.to_numeric(aligned_data2["quality"], errors="coerce")
-                    .fillna(5)
-                    .astype(int)  # set to missing quality
-                )
                 # Create overwrite_mask
                 overwrite_mask = (
                     (data["value"].isna() | np.isinf(data["value"]))  # NaN or infinite
-                    & ~((data["quality"] & (1 << 31)) != 0)  # Bit 31 not set in data
+                    & ~(
+                        (data["quality"].astype(int) & (1 << 31)) != 0
+                    )  # Bit 31 not set in data
                 ) | (
-                    ((aligned_data2["quality"] & (1 << 31)) != 0)  # Bit 31 set in data2
+                    (
+                        (aligned_data2["quality"].astype(int) & (1 << 31)) != 0
+                    )  # Bit 31 set in data2
                 )
                 # Update rows in data where overwrite_mask is True
                 updated_data = data.copy()
                 updated_data.loc[overwrite_mask] = aligned_data2.loc[overwrite_mask]
                 # Add rows from data2 not in data
                 data = pd.concat(
-                    [updated_data, aligned_data2[~aligned_data2.index.isin(data.index)]]
+                    [
+                        df
+                        for df in (
+                            updated_data,
+                            aligned_data2[~aligned_data2.index.isin(data.index)],
+                        )
+                        if not df.empty
+                    ]
                 )
             target._data = data
         target._validate()
@@ -5096,17 +5099,17 @@ class TimeSeries:
             Read/Write
         """
         parts = []
-        if self._context == _CWMS:
-            parts.append(str(self._location))
+        if self._context == CWMS:
+            parts.append(str(self._location.name))
             parts.append(self._parameter.name)
             parts.append(cast(ParameterType, self._parameter_type).get_cwms_name())
             parts.append(self._interval.name)
             parts.append(cast(Duration, self._duration).name)
             parts.append(cast(str, self._version))
             return ".".join(parts)
-        elif self._context == _DSS:
+        elif self._context == DSS:
             parts.append("")
-            parts.append("")
+            parts.append(self.watershed if self.watershed else "")
             parts.append(self._location.name)
             parts.append(self._parameter.name)
             parts.append("")
@@ -5120,40 +5123,43 @@ class TimeSeries:
     @name.setter
     def name(self, value: str) -> None:
         try:
-            parts = value.split(".")
-            if len(parts) == 6:
-                self._context = _CWMS
+            if _is_cwms_tsid(value):
+                parts = value.split(".")
+                self._context = CWMS
                 self.iset_location(parts[0])
                 self.iset_parameter(parts[1])
                 self.iset_parameter_type(parts[2])
                 self.iset_interval(parts[3])
                 self.iset_duration(parts[4])
                 self.version = parts[5]
-            else:
+            elif _is_dss_ts_pathname(value):
                 parts = value.split("/")
-                if len(parts) == 8:
-                    A, B, C, E, F = 1, 2, 3, 5, 6
-                    self._context = _DSS
-                    self.watershed = parts[A]
-                    self.iset_location(parts[B])
-                    self.iset_parameter(parts[C])
-                    self.iset_interval(parts[E])
-                    self.version = parts[F]
-                else:
-                    raise TimeSeriesException(
-                        "Expected valid CWMS time series identifier or HEC-DSS time series pathname"
-                    )
+                A, B, C, E, F = 1, 2, 3, 5, 6
+                self._context = DSS
+                self.watershed = parts[A]
+                self.iset_location(parts[B])
+                self.iset_parameter(parts[C])
+                self.iset_parameter_type(
+                    "INST-CUM" if "PRECIP" in parts[C].upper() else "INST-VAL"
+                )
+                self.iset_interval(parts[E])
+                self.version = parts[F]
+
+            else:
+                raise TimeSeriesException(
+                    "Expected valid CWMS time series identifier or HEC-DSS time series pathname"
+                )
             if not self._location:
                 raise TimeSeriesException("Location must be specified")
             if not self._parameter:
                 raise TimeSeriesException("Parameter must be specified")
-            if not self._parameter_type and self._context == _CWMS:
+            if not self._parameter_type and self._context == CWMS:
                 raise TimeSeriesException("Parameter type must be specified")
             if not self._interval:
                 raise TimeSeriesException("Interval must be specified")
-            if not self._duration and self._context == _CWMS:
+            if not self._duration and self._context == CWMS:
                 raise TimeSeriesException("Duration must be specified")
-            if not self._version and self._context == _CWMS:
+            if not self._version and self._context == CWMS:
                 raise TimeSeriesException("Version must be specified")
 
         except Exception as e:
@@ -5167,7 +5173,8 @@ class TimeSeries:
         start: Union[HecTime, datetime, str],
         end: Union[HecTime, datetime, str, int],
         interval: Union[Interval, timedelta, str],
-        offset: Union[TimeSpan, timedelta, str, int] = 0,
+        offset: Optional[Union[TimeSpan, timedelta, str, int]] = None,
+        time_zone: Optional[str] = None,
         value: Union[List[float], float] = 0.0,
         quality: Union[List[Quality], List[int], Quality, int] = 0,
     ) -> "TimeSeries":
@@ -5176,13 +5183,15 @@ class TimeSeries:
         specified times, values, and qualities.
 
         Args:
-            name (str): The name of the time seires. The interval portion will be overwritten by the `interval` if they don't agree
+            name (str): The name of the time series. The interval portion will be overwritten by the `interval` if they don't agree
             start (Union[HecTime, datetime, str]): The specified start time. The actual start time may be later than this, depending on `interval` and `offset`
-            end (Union[HecTime, datetime, str, int]): Either the specified end time or, if int, the number of intervals in the time seires.
+            end (Union[HecTime, datetime, str, int]): Either the specified end time or, if int, the number of intervals in the time series.
                 The actual end time may be earlier than the specified end time, depending on `interval` and `offset`
-            interval (Union[Interval, timedelta, str]): The interval of the time seires. Will overwrite the interval portion of `name`. If it
+            interval (Union[Interval, timedelta, str]): The interval of the time series. Will overwrite the interval portion of `name`. If it
                 is a local regular interval and `start` includes a time zone, then the time series will be a local regular time series
-            offset (Union[TimeSpan, timedelta, str, int], optional): The interval offset. If int, then number of minutes. Defaults to 0.
+            offset (Optional[Union[TimeSpan, timedelta, str, int]]): The interval offset. If int, then number of minutes. If none, then the
+                offset is determined from `start` (it's offset into the specified interval). Defaults to None.
+            time_zone (Optional[str]): The time zone. Must be specified if `interval` is a local-regular interval.
             value (Union[List[float], float], optional): The value(s) to populate the time series with. If float, it specifies all values.
                 If list, the list is repeated as many whole and/or partial time as necessary to fill the time series Defaults to 0.0.
             quality (Union[List[Quality], List[int], Quality, int], optional): The qualities to fill the time series with. If Quality or int,
@@ -5207,13 +5216,13 @@ class TimeSeries:
                 lambda i: i.minutes == int(interval.total_seconds() // 60)
                 and i.is_regular
             )
-            if ts._context == _DSS:
+            if ts._context == DSS:
                 intvl = cast(Interval, Interval.get_any_dss(matcher, True))
             else:
                 intvl = cast(Interval, Interval.get_any_cwms(matcher, True))
         elif isinstance(interval, str):
             matcher = lambda i: i.name == interval and i.is_regular
-            if ts._context == _DSS:
+            if ts._context == DSS:
                 intvl = cast(Interval, Interval.get_any_dss(matcher, True))
             else:
                 intvl = cast(Interval, Interval.get_any_cwms(matcher, True))
@@ -5226,45 +5235,42 @@ class TimeSeries:
                 f"Cannot generate a regular time series with the specified interval {intvl}"
             )
         ts.iset_interval(intvl)
-        specified_start_time = start_time.clone()
-        if isinstance(offset, int):
-            interval_offset = TimeSpan(minutes=offset)
-        elif isinstance(offset, TimeSpan):
-            interval_offset = offset
+        specified_start_time: HecTime = cast(HecTime, start_time.clone())
+        interval_offset: TimeSpan
+        if offset is None:
+            interval_offset = cast(
+                TimeSpan,
+                specified_start_time
+                - specified_start_time.adjust_to_interval_offset(intvl, 0),
+            )
         else:
-            interval_offset = TimeSpan(offset)
-        start_time -= TimeSpan(
-            minutes=cast(int, start_time.get_interval_offset(intvl))
-            - interval_offset.total_seconds() // 60
-        )
+            if isinstance(offset, int):
+                interval_offset = TimeSpan(minutes=offset)
+            elif isinstance(offset, TimeSpan):
+                interval_offset = offset
+            else:
+                interval_offset = TimeSpan(offset)
+        start_time.adjust_to_interval_offset(intvl, 0)
+        start_time += interval_offset
         if start_time < specified_start_time:
             start_time += intvl
         # ---------- #
         # handle end #
         # ---------- #
-        times: List[HecTime]
         if isinstance(end, (HecTime, datetime, str)):
             # -------- #
             # end time #
             # -------- #
-            end_time = HecTime(end)
-            times = []
-            t = start_time
-            while t <= end_time:
-                times.append(cast(HecTime, t.clone()))
-                t += intvl
+            times = intvl.get_datetime_index(
+                start_time=start_time, end_time=end, time_zone=time_zone, name="time"
+            )
         elif isinstance(end, int):
             # ------------------- #
             # number of intervals #
             # ------------------- #
-            if end < 1:
-                times = []
-            elif intvl.is_local_regular:
-                times = [start_time]
-                while len(times) < end:
-                    times.append(times[-1] + intvl)
-            else:
-                times = [start_time + i * TimeSpan(intvl.values) for i in range(end)]
+            times = intvl.get_datetime_index(
+                start_time=start_time, count=end, time_zone=time_zone, name="time"
+            )
         # ------------ #
         # handle value #
         # ------------ #
@@ -5298,14 +5304,14 @@ class TimeSeries:
         # ----------------- #
         # populate the data #
         # ----------------- #
-        # ts._expanded = True
+        ts._expanded = True
         ts._timezone = None if start_time._tz is None else str(start_time._tz)
         ts._data = pd.DataFrame(
             {
                 "value": values,
                 "quality": qualities,
             },
-            index=list(map(lambda t: pd.Timestamp(str(t)[:19], tz=t.tzinfo), times)),
+            index=times,
         )
         return ts
 
@@ -5332,7 +5338,7 @@ class TimeSeries:
                 (df["value"].isna())
                 | (np.isinf(df["value"]))
                 | (df["quality"] == 5)
-                | ((df["quality"].astype(int) & 0b1_0000) != 0)
+                | ((df["quality"].astype("int64") & 0b1_0000) != 0)
             ].shape[0]
         )
 
@@ -5368,7 +5374,7 @@ class TimeSeries:
         df = data[data["selected"]] if self.has_selection else data
         if self.selection_state == SelectionState.TRANSIENT:
             self.iselect(Select.ALL)
-        return df[((df["quality"].astype(int) & 0b1000) != 0)].shape[0]
+        return df[((df["quality"].astype("int64") & 0b1000) != 0)].shape[0]
 
     @property
     def number_rejected_values(self) -> int:
@@ -5384,7 +5390,7 @@ class TimeSeries:
         df = data[data["selected"]] if self.has_selection else data
         if self.selection_state == SelectionState.TRANSIENT:
             self.iselect(Select.ALL)
-        return df[((df["quality"].astype(int) & 0b1_0000) != 0)].shape[0]
+        return df[((df["quality"].astype("int64") & 0b1_0000) != 0)].shape[0]
 
     @property
     def number_valid_values(self) -> int:
@@ -5410,7 +5416,7 @@ class TimeSeries:
                     (df["value"].isna())
                     | (np.isinf(df["value"]))
                     | (df["quality"] == 5)
-                    | ((df["quality"].astype(int) & 0b1_0000) != 0)
+                    | ((df["quality"].astype("int64") & 0b1_0000) != 0)
                 )
             ].shape[0]
         )
@@ -5596,7 +5602,7 @@ class TimeSeries:
         """
         return (
             []
-            if self._data is None
+            if self._data is None or cast(pd.DataFrame, self.data).empty
             else (
                 [tsv.quality.signed for tsv in self.tsv]
                 if Quality._return_signed_codes
@@ -5675,7 +5681,7 @@ class TimeSeries:
 
         **Parameters, Units, and Parameter Types**
 
-        The new time seires may have different parameter, unit, and/or parameter than the old time series:
+        The new time series may have different parameter, unit, and/or parameter than the old time series:
         * `Count`:
             * **Parameter**: will be "Count-&lt;old_parameter&gt;"
             * **Unit**: will be "unit"
@@ -5711,20 +5717,20 @@ class TimeSeries:
         Args:
             operation (str): The resample operation to perform. Must be one of `Count`, `Maximum`, `Minimum`, `Previous`, `Interpolate`, `Integrate`, `Average`, `Accumulate`, or `Volume` or a unique
                 beginning portion (case insensitive). 'c' is interpeted as `Count`, but 'INT' is ambiguous between `Interpolate` and `Integrate`.
-            interval (Optional[Union[&quot;TimeSeries&quot;, TimeSpan, timedelta]], optional): The interval or time pattern to resample onto. If None, the old interval is used. Otherwise the following
+            interval (Optional[Union[&quot;TimeSeries&quot;, TimeSpan, timedelta]]): The interval or time pattern to resample onto. If None, the old interval is used. Otherwise the following
                 can be used:
                 * [`Interval`](interval.html#Interval): resample onto a standard regular or local-regular interval
                 * [`TimeSpan`](timespan.html#TimeSpan) or `timedelta`: resample onto non-standard regular interval
                 * [`TimeSeries`](#TimeSeries): resample onto an irregular time interval
                 Defaults to None.
-            offset (Optional[Union[int, TimeSpan, timedelta]], optional): Offset into `interval` for each new time. If specified as an int, the value is in minutes. None is the
+            offset (Optional[Union[int, TimeSpan, timedelta]]): Offset into `interval` for each new time. If specified as an int, the value is in minutes. None is the
                 same as specifying `0`, `TimeSpan("PT0S")`, or `timedelta(seconds=0)`. Defaults to None
-            start_time (Optional[Union[HecTime, datetime, str]], optional): Start time of the new time series. None specifies the same start time as the old time sereies. Defaults to None.
-            end_time (Optional[Union[HecTime, datetime, str]], optional): End time of the new time series. None specifies the same end time as the old time sereies. Defaults to None.
+            start_time (Optional[Union[HecTime, datetime, str]]): Start time of the new time series. None specifies the same start time as the old time sereies. Defaults to None.
+            end_time (Optional[Union[HecTime, datetime, str]]): End time of the new time series. None specifies the same end time as the old time sereies. Defaults to None.
             max_missing_percent (float, optional): The maximum amount of time in each new interval that can be invalid or missing and still perform the resample operation for that interval.
                 If the old time series is regular interval, this is approximately equivalent to the max percent of points that can be invalid or missing. If more than this amount of time
                 is invalid or missing in any new interval, the value for that interval will be set to missing. Defaults to 25.0.
-            entire_interval (Optional[bool], optional): *Used only for discreet resample operations (except `Previous`)*. Specifies whether to require each old interval to begin and end in the new
+            entire_interval (Optional[bool]): *Used only for discreet resample operations (except `Previous`)*. Specifies whether to require each old interval to begin and end in the new
                 interval in order to be considered (True) or to allow all old intervals that end in the new interval (False). If None, each old interval is required toe begin and end in the new interval
                 for all data types except Instantaneous (CWMS: Inst, DSS: INST-VAL, INST-CUM). Defaults to None.
             before (Union[str, float], optional): *Used only for time patterns*. Specfies the value for new points (points in the time pattern) that are prior to the beginning of the old time series.
@@ -5743,7 +5749,7 @@ class TimeSeries:
 
         Raises:
             TimeSeriesException:<br>
-                * on time seires with no data
+                * on time series with no data
                 * on time series with no parameter type
                 * on invalid `operation` parameter (matches zero or more than one)
                 * on invalid `before` paremeter
@@ -5998,7 +6004,7 @@ class TimeSeries:
         elif isinstance(interval, Interval):
             target.iset_interval(interval)
         else:
-            if target.context == _DSS:
+            if target.context == DSS:
                 times_per_year = len(new_tsvs) / (
                     (
                         cast(datetime, new_tsvs[-1].time.datetime())
@@ -6513,10 +6519,8 @@ class TimeSeries:
         df.loc[
             df.index.isin(reject_indices) & ~df.index.isin(protected_indices), "quality"
         ] |= reject_code
-        data.update(df)
-        data.drop(
-            columns=["value_diff", "minutes_diff", "rate_of_change"], inplace=True
-        )
+        data.loc[df.index, "value"] = df["value"]
+        data.loc[df.index, "quality"] = df["quality"]
         return target
 
     def screen_with_value_range(
@@ -6652,7 +6656,8 @@ class TimeSeries:
         df.loc[
             df.index.isin(reject_indices) & ~df.index.isin(protected_indices), "quality"
         ] |= reject_code
-        data.update(df)
+        data.loc[df.index, "value"] = df["value"]
+        data.loc[df.index, "quality"] = df["quality"]
         return target
 
     def screen_with_value_range_or_change(
@@ -7075,7 +7080,7 @@ class TimeSeries:
         if isinstance(value, Interval):
             target._interval = value
         else:
-            if target._context == _CWMS:
+            if target._context == CWMS:
                 target._interval = Interval.get_cwms(value)
             else:
                 target._interval = Interval.get_dss(value)
@@ -7102,13 +7107,13 @@ class TimeSeries:
         if isinstance(value, Location):
             target._location = value
         else:
-            if target._context == _CWMS:
+            if target._context == CWMS:
                 try:
                     office, location = value.split("/")
                     target._location = Location(location, office)
                 except:
                     target._location = Location(value)
-            elif target._context == _DSS:
+            elif target._context == DSS:
                 target._location = Location(value)
             else:
                 raise TimeSeriesException(f"Invalid context: {target._context}")
@@ -7187,7 +7192,7 @@ class TimeSeries:
         # set the protection bit of selected qualities #
         # -------------------------------------------- #
         df.loc[:, "quality"] |= 0b1000_0000_0000_0000_0000_0000_0000_0001
-        cast(pd.DataFrame, target._data).update(df)
+        data.loc[df.index, "quality"] = df["quality"]
         if self.selection_state == SelectionState.TRANSIENT:
             self.iselect(Select.ALL)
             if target is not self:
@@ -7441,10 +7446,10 @@ class TimeSeries:
 
         Args:
             interval (Union[Interval, str]): The new interval
-            offset (Optional[Union[TimeSpan, timedelta, str]], optional): The offset into the interval to snap the vlues to. Defaults to None.
-            backward (Optional[Union[TimeSpan, timedelta, str]], optional): The time span prior to the interval/offset to accept values from.
+            offset (Optional[Union[TimeSpan, timedelta, str]]): The offset into the interval to snap the vlues to. Defaults to None.
+            backward (Optional[Union[TimeSpan, timedelta, str]]): The time span prior to the interval/offset to accept values from.
                 Defaults to None.
-            forward (Optional[Union[TimeSpan, timedelta, str]], optional): The time span after the interval/offset to accept values from.
+            forward (Optional[Union[TimeSpan, timedelta, str]]): The time span after the interval/offset to accept values from.
                 Defaults to None.
             in_place (bool, optional): Specifies whether to modify this time series (True) or a copy of it (False). Defaults to False.
 
@@ -7464,7 +7469,7 @@ class TimeSeries:
         back: Optional[TimeSpan] = None
         ahead: Optional[TimeSpan] = None
         if isinstance(interval, str):
-            if self._context == _DSS:
+            if self._context == DSS:
                 if interval not in Interval.get_all_dss_names(
                     lambda i: i.is_any_regular
                 ):
@@ -7472,7 +7477,7 @@ class TimeSeries:
                         f"Interval '{interval}' is not a valid DSS regular interval"
                     )
                 intvl = Interval.get_any_dss(lambda i: i.name == interval)
-            elif self._context == _CWMS:
+            elif self._context == CWMS:
                 if interval not in Interval.get_all_cwms_names(
                     lambda i: i.is_any_regular
                 ):
@@ -7481,7 +7486,7 @@ class TimeSeries:
                     )
                 intvl = Interval.get_any_cwms(lambda i: i.name == interval)
         elif isinstance(interval, Interval):
-            if self._context == _DSS:
+            if self._context == DSS:
                 if interval.name not in Interval.get_all_dss_names(
                     lambda i: i.is_any_regular
                 ):
@@ -7489,7 +7494,7 @@ class TimeSeries:
                         f"Interval '{interval.name}' is not a valid DSS regular interval"
                     )
                 intvl = interval
-            elif self._context == _CWMS:
+            elif self._context == CWMS:
                 if interval.name not in Interval.get_all_cwms_names(
                     lambda i: i.is_any_regular
                 ):
@@ -7754,11 +7759,67 @@ class TimeSeries:
                 )
         return target
 
-    def ito_irregular(self, interval: Union[Interval, str]) -> "TimeSeries":
+    def to_irregular(
+        self, interval: Union[Interval, str], in_place: bool = False
+    ) -> "TimeSeries":
         """
-        Convenience method for executing [to_irregular(...)](#TimeSeries.to_irregular) with `in_place=True`.
+        Sets a time series (either this one or a copy of this one) to a specified irregular interval, and returns
+        the modified time series. The times of the data values are not changed.
+
+        Args:
+            interval (Union[Interval, str]): The irregular interval to set the time series to.
+            in_place (bool, optional): Specifies whether to modify this time series (True) or a copy of it (False).
+                Defaults to False.
+
+        Raises:
+            TimeSeriesException: If the specified interval is not a valid irregular interval for the
+                context of the time series (e.g., a regular interval or a DSS-only irregular interval
+                for a CWMS time series)
+
+        Returns:
+            TimeSeries: The modified time series
         """
-        return self.to_irregular(interval, in_place=True)
+        target = self if in_place else self.clone()
+        intvl: Optional[Interval] = None
+        if isinstance(interval, str):
+            if self._context == DSS:
+                if interval not in Interval.get_all_dss_names(
+                    lambda i: i.is_any_irregular
+                ):
+                    raise TimeSeriesException(
+                        f"Interval '{interval}' is not a valid DSS irregular interval"
+                    )
+                intvl = Interval.get_any_dss(lambda i: i.name == interval)
+            elif self._context == CWMS:
+                if interval not in Interval.get_all_cwms_names(
+                    lambda i: i.is_any_irregular
+                ):
+                    raise TimeSeriesException(
+                        f"Interval '{interval}' is not a valid CWMS irregular interval"
+                    )
+                intvl = Interval.get_any_cwms(lambda i: i.name == interval)
+        elif isinstance(interval, Interval):
+            if self._context == DSS:
+                if interval.name not in Interval.get_all_dss_names(
+                    lambda i: i.is_any_irregular
+                ):
+                    raise TimeSeriesException(
+                        f"Interval '{interval.name}' is not a valid DSS irregular interval"
+                    )
+                intvl = interval
+            elif self._context == CWMS:
+                if interval.name not in Interval.get_all_cwms_names(
+                    lambda i: i.is_any_irregular
+                ):
+                    raise TimeSeriesException(
+                        f"Interval '{interval.name}' is not a valid CWMS irregular interval"
+                    )
+                intvl = interval
+        else:
+            raise TypeError(f"Expected Interval or str, got '{type(interval)}'")
+        assert intvl is not None, f"Unable to retrieve Interval with name '{interval}'"
+        target.set_interval(intvl)
+        return target
 
     def trim(self, in_place: bool = False) -> "TimeSeries":
         """
@@ -7797,7 +7858,9 @@ class TimeSeries:
                 | df["selected"]
             )
         else:
-            condition = ~df["value"].isna() | ((df["quality"] & (1 << 31)) != 0)
+            condition = ~df["value"].isna() | (
+                (df["quality"].astype("int64") & (1 << 31)) != 0
+            )
         first_valid = condition.idxmax()  # First index where condition is True
         last_valid = condition[::-1].idxmax()  # Last index where condition is True
         target._data = df.loc[first_valid:last_valid]  # type: ignore
@@ -7870,6 +7933,20 @@ class TimeSeries:
     @version.setter
     def version(self, value: str) -> None:
         self._version = value
+
+    @property
+    def version_time(self) -> Optional[HecTime]:
+        """
+        The version date/time
+
+        Operations:
+            Read/Write
+        """
+        return self._version_time
+
+    @version_time.setter
+    def version_time(self, version_time: Union[HecTime, datetime, str]) -> None:
+        self._version_time = HecTime(version_time)
 
     @property
     def vertical_datum_info(self) -> Optional[ElevParameter._VerticalDatumInfo]:

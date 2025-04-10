@@ -688,7 +688,7 @@ convertable to datetime objects (between 01Jan0001, 00:00 and 31Dec9999, 23:59).
 <li><strong>hectime (HecTime):</strong>  The HecTime object to convert</li>
 <li><strong>from_time_zone (ZoneInfo):</strong>  The time zone that the object is currently in</li>
 <li><strong>to_time_zone (ZoneInfo):</strong>  The target time</li>
-<li><strong>respect_daylight_savings (Optional[bool], optional):</strong>  Specifies whether the target time zone.
+<li><strong>respect_daylight_savings (Optional[bool]):</strong>  Specifies whether the target time zone.
 should observe DST. Defaults to True.
 <ul>
 <li>If <code>True</code>, the target time zone is used as specified</li>
@@ -2632,7 +2632,7 @@ object are not supported in this implementation. The <code><a href="#HecTime.ast
 <ul>
 <li><strong>from_time_zone (Union[ZoneInfo, str]):</strong>  The time zone to convert from</li>
 <li><strong>to_time_zone (Union[ZoneInfo, str]):</strong>  The target time zone</li>
-<li><strong>respect_daylight_saving (Optional[bool], optional):</strong>  Specifies whether the target time zone.
+<li><strong>respect_daylight_saving (Optional[bool]):</strong>  Specifies whether the target time zone.
 should observe DST. Defaults to True.
 <ul>
 <li>If <code>True</code>, the target time zone is used as specified</li>
@@ -2665,7 +2665,7 @@ time zone could be found that does not observer DST
                                 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">convert_to_time_zone</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="bp">self</span>,</span><span class="param">	<span class="n">time_zone</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n"><a href="#HecTime">HecTime</a></span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">,</span> <span class="n">zoneinfo</span><span class="o">.</span><span class="n">ZoneInfo</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timezone</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>,</span><span class="param">	<span class="n">on_tz_not_set</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span></span><span class="return-annotation">) -> <span class="n"><a href="#HecTime">HecTime</a></span>:</span></span>
+        <span class="name">convert_to_time_zone</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="bp">self</span>,</span><span class="param">	<span class="n">time_zone</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n"><a href="#HecTime">HecTime</a></span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">,</span> <span class="n">zoneinfo</span><span class="o">.</span><span class="n">ZoneInfo</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timezone</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="n">NoneType</span><span class="p">]</span>,</span><span class="param">	<span class="n">on_tz_not_set</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span></span><span class="return-annotation">) -> <span class="n"><a href="#HecTime">HecTime</a></span>:</span></span>
 
         
     </div>
@@ -2676,8 +2676,11 @@ time zone could be found that does not observer DST
 <h6 id="arguments">Arguments:</h6>
 
 <ul>
-<li><strong>time_zone (Union["HecTime", datetime, ZoneInfo, timezone, str]):</strong>  The target time zone or object containg the target time zone.
-Use <code>"local"</code> to specify the system time zone.</li>
+<li><strong>time_zone (Optional[Union["HecTime", datetime, ZoneInfo, timezone, str]]):</strong>  The target time zone or object containg the target time zone.
+<ul>
+<li>Use <code>None</code> to remove time zone information without time conversion.</li>
+<li>Use <code>"local"</code> to specify the system time zone.</li>
+</ul></li>
 <li><strong>on_tz_not_set (int, optional):</strong>  Specifies behavior if this object has no time zone attached. Defaults to 1.
 <ul>
 <li><code>0</code>: Quietly behave as if this object had the local time zone attached.</li>
@@ -3129,7 +3132,7 @@ Other formats will continue to show only the last two digits of the year. In all
 <h6 id="arguments">Arguments:</h6>
 
 <ul>
-<li><strong>with_colons (Optional[bool], optional):</strong>  Specifies with or without colons. Defaults to <code>True</code>.</li>
+<li><strong>with_colons (Optional[bool]):</strong>  Specifies with or without colons. Defaults to <code>True</code>.</li>
 </ul>
 
 <h6 id="deprecated">Deprecated:</h6>
@@ -4028,8 +4031,8 @@ attached. Defaults to 1.
 
 <ul>
 <li><strong>julian (int):</strong>  The number of days since 1899</li>
-<li><strong>minutes_since_midnight (Optional[int], optional):</strong>  The number of minutes past midnight for the time portion. Defaults to None.</li>
-<li><strong>seconds_since_midnight (Optional[int], optional):</strong>  The number of seconds past the minute for the time portion. Defaults to None.</li>
+<li><strong>minutes_since_midnight (Optional[int]):</strong>  The number of minutes past midnight for the time portion. Defaults to None.</li>
+<li><strong>seconds_since_midnight (Optional[int]):</strong>  The number of seconds past the minute for the time portion. Defaults to None.</li>
 </ul>
 
 <h6 id="returns">Returns:</h6>
@@ -4057,7 +4060,7 @@ attached. Defaults to 1.
 
 <ul>
 <li><strong>total_minutes (int):</strong>  The number of minutes since 1899</li>
-<li><strong>time_zone_offset (Optional[Union[int, &quot;ZoneInfo&quot;]], optional):</strong>  The time zone to represent this object in. Defaults to None.
+<li><strong>time_zone_offset (Optional[Union[int, &quot;ZoneInfo&quot;]]):</strong>  The time zone to represent this object in. Defaults to None.
 If <code>int</code>, the number of minutes <em>behind</em> UTC (positive for western longitudes)</li>
 </ul>
 
@@ -4196,7 +4199,7 @@ determed for the <code>ZoneInfo</code> object</li>
 
 <ul>
 <li><strong>milliseconds (int):</strong>  The number of seconds since 1970-01-01T00:00:00Z (same as Java milliseconds and milliseconds of Unix Epoch)</li>
-<li><strong>time_zone_offset (Optional[Union[int, &quot;ZoneInfo&quot;]], optional):</strong>  The time zone to represent this object in. Defaults to None.
+<li><strong>time_zone_offset (Optional[Union[int, &quot;ZoneInfo&quot;]]):</strong>  The time zone to represent this object in. Defaults to None.
 If <code>int</code>, the number of minutes <em>behind</em> UTC (positive for western longitudes)</li>
 </ul>
 
@@ -4560,7 +4563,7 @@ Format specfics can be found <a href="https://docs.python.org/3/library/datetime
 <h6 id="arguments">Arguments:</h6>
 
 <ul>
-<li><strong>with_colons (Optional[bool], optional):</strong>  Specifies with or without colons. Defaults to <code>True</code>.</li>
+<li><strong>with_colons (Optional[bool]):</strong>  Specifies with or without colons. Defaults to <code>True</code>.</li>
 </ul>
 
 <h6 id="returns">Returns:</h6>

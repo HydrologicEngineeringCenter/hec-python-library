@@ -3003,12 +3003,8 @@ def test_expand_collapse_trim() -> None:
         1330,
         1300,
     ]
-    times = pd.Index(  # type: ignore
-        [
-            (start_time + i * TimeSpan(intvl.values)).datetime()
-            for i in range(len(values))
-        ],
-        name="time",
+    times = intvl.get_datetime_index(
+        start_time=start_time, count=len(values), name="time"
     )
     ts = TimeSeries(f"Loc1.Flow.Inst.{intvl.name}.0.Computed")
     ts._data = pd.DataFrame(
@@ -3208,20 +3204,15 @@ def test_merge() -> None:
         1330,
         1300,
     ]
-    times = pd.Index(  # type: ignore
-        [
-            (start_time + i * TimeSpan(intvl.values)).datetime()
-            for i in range(len(values1))
-        ],
-        name="time",
-    )
     ts1 = TimeSeries(f"Loc1.Flow.Inst.{intvl.name}.0.Computed")
     ts1._data = pd.DataFrame(
         {
             "value": values1,
             "quality": 5 * [0] + 6 * [5] + 13 * [0],
         },
-        index=times,
+        index=intvl.get_datetime_index(
+            start_time=start_time, count=len(values1), name="time"
+        ),
     )
     values2 = [
         2000,
@@ -3249,20 +3240,15 @@ def test_merge() -> None:
         2330,
         2300,
     ]
-    times = pd.Index(
-        [
-            (start_time + i * TimeSpan(intvl.values)).datetime()
-            for i in range(len(values1))
-        ],
-        name="time",
-    )
     ts2 = TimeSeries(f"Loc1.Flow.Inst.{intvl.name}.0.Computed")
     ts2._data = pd.DataFrame(
         {
             "value": values2,
             "quality": 20 * [0] + 2 * [5] + 2 * [0],
         },
-        index=times,
+        index=intvl.get_datetime_index(
+            start_time=start_time, count=len(values2), name="time"
+        ),
     )
     # ------------------------------------- #
     # same time window, no protected values #
@@ -3377,25 +3363,20 @@ def test_merge() -> None:
     # test mixing intervals #
     # --------------------- #
     intvl = Interval.get_cwms("12Hours")
-    times = pd.Index(
-        [
-            (start_time + i * TimeSpan(intvl.values)).datetime()
-            for i in range(len(values1))
-        ],
-        name="time",
-    )
     ts4 = TimeSeries(f"Loc1.Flow.Inst.{intvl.name}.0.Computed")
     ts4._data = pd.DataFrame(
         {
             "value": values2,
             "quality": 20 * [0] + 2 * [5] + 2 * [0],
         },
-        index=times,
+        index=intvl.get_datetime_index(
+            start_time=start_time, count=len(values1), name="time"
+        ),
     )
     try:
         ts1.merge(ts4)
     except TimeSeriesException as tse:
-        assert str(tse).find("Times do not match interval") != -1
+        assert str(tse).find("is not consistent with interval") != -1
 
 
 def test_to_irregular() -> None:
@@ -3547,8 +3528,9 @@ def test_snap_to_regular() -> None:
 
 def test_new_regular_time_series() -> None:
     name = "Loc1.Flow.Inst.0.0.Computed"
+    time_zone = "US/Pacific"
     start_times = [
-        HecTime(s).label_as_time_zone("US/Pacific")
+        HecTime(s).label_as_time_zone(time_zone)
         for s in ("2025-02-15T15:30:00", "2025-10-15T15:30:00")
     ]
     matchers = [
@@ -3708,10 +3690,11 @@ def test_new_regular_time_series() -> None:
 
                             ts = TimeSeries.new_regular_time_series(
                                 name,
-                                HecTime(start_time).label_as_time_zone("US/Pacific"),
+                                start_time,
                                 end,
                                 intvl,
                                 offset,
+                                time_zone,
                                 value,
                                 quality,
                             )
@@ -3756,6 +3739,7 @@ def test_resample() -> None:
         30,
         intvl_1_hour,
         offset,
+        None,
         [100 + i for i in range(30)],
     )
     expected_values = {
@@ -3995,6 +3979,7 @@ def test_resample() -> None:
         30,
         intvl_1_hour,
         offset,
+        None,
         [100 + i for i in range(30)],
     )
     expected_values = {
@@ -4237,6 +4222,7 @@ def test_resample() -> None:
         30,
         intvl_1_hour,
         offset,
+        None,
         [100 + i for i in range(30)],
     )
     expected_values = {
@@ -4479,6 +4465,7 @@ def test_resample() -> None:
         5,
         intvl_6_hours,
         offset,
+        None,
         [100 + 6 * i for i in range(5)],
     )
     expected_values = {
@@ -4720,6 +4707,7 @@ def test_resample() -> None:
         30,
         intvl_1_hour,
         offset,
+        None,
         [100 + i for i in range(30)],
     )
     expected_values = {
@@ -4961,6 +4949,7 @@ def test_resample() -> None:
         5,
         intvl_6_hours,
         offset,
+        None,
         [100 + 6 * i for i in range(5)],
     )
     expected_values = {
@@ -5201,6 +5190,7 @@ def test_resample() -> None:
         5,
         intvl_6_hours,
         offset,
+        None,
         [100 + 6 * i for i in range(5)],
     )
     tsvs = [
@@ -5219,7 +5209,7 @@ def test_resample() -> None:
             "value": [tsv.value.magnitude for tsv in tsvs],
             "quality": [tsv.quality.code for tsv in tsvs],
         },
-        index=pd.Index([tsv.time for tsv in tsvs], name="times"),
+        index=pd.Index([tsv.time for tsv in tsvs], name="time"),
     )
 
     expected_values = {
@@ -5263,9 +5253,9 @@ if __name__ == "__main__":
     # test_screen_with_constant_value()
     # test_screen_with_forward_moving_average()
     # test_estimate_missing_values()
-    test_expand_collapse_trim()
+    # test_expand_collapse_trim()
     # test_merge()
     # test_to_irregular()
     # test_snap_to_regular()
-    # test_new_regular_time_series()
+    test_new_regular_time_series()
     # test_resample()

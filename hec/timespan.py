@@ -3,11 +3,14 @@ Provides basic time span functionality.
 Like timedelta, but with calendar capabilities and without sub-second resolution.
 """
 
+import hec
 import re
 from datetime import timedelta
 from fractions import Fraction
 from functools import total_ordering
 from typing import Any, Optional, Union, cast
+
+import hec.shared
 
 __all__ = ["TimeSpanException", "TimeSpan"]
 Y, M, D, H, N, S = 0, 1, 2, 3, 4, 5
@@ -159,6 +162,9 @@ class TimeSpan:
             return TimeSpan(vals)
         else:
             return NotImplemented
+        
+    def __bool__(self) -> bool:
+        return any(self.values)
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, TimeSpan):
@@ -389,25 +395,6 @@ class TimeSpan:
 
     def _normalize(self) -> None:
 
-        def put_in_range(
-            v1: Union[int, Fraction], v2: Union[int, Fraction], limit: int
-        ) -> tuple[Union[int, Fraction], ...]:
-            if isinstance(v2, Fraction):
-                div, mod = divmod(abs(v2.numerator), v2.denominator)
-                v1 += div * (-1 if v2 < 0 else 1)
-                v2 = Fraction(mod, v2.denominator) * (-1 if v2 < 0 else 1)
-            else:
-                v1 += int(v2 / limit)
-                v2 = cast(Union[int, Fraction], abs(v2)) % limit * (-1 if v2 < 0 else 1)
-            if v1 != 0 and v2 != 0 and (v2 < 0) != (v1 < 0):
-                v1 += -1 if v2 < 0 else 1
-                if isinstance(v2, Fraction):
-                    v2 += 1 if v2 < 0 else -1
-                else:
-                    v2 += limit if v2 < 0 else -limit
-            # v1 and v2 will always have same sign
-            return v1, v2
-
         self._years = self._years if self._years is not None else 0
         self._months = self._months if self._months is not None else 0
         self._days = self._days if self._days is not None else 0
@@ -415,7 +402,7 @@ class TimeSpan:
         self._minutes = self._minutes if self._minutes is not None else 0
         self._seconds = self._seconds if self._seconds is not None else 0
 
-        original = [
+        v: list[Union[int, Fraction]] = [
             self._years,
             self._months,
             self._days,
@@ -423,48 +410,39 @@ class TimeSpan:
             self._minutes,
             self._seconds,
         ]
-        if original != [0, 0, 0, 0, 0, 0]:
-            v: list[Union[int, Fraction]] = original[:]
-            # first the calendar-based values
-            v[Y], v[M] = put_in_range(v[Y], v[M], 12)
-            # next the non-calendar-based values
-            v[N], v[S] = put_in_range(v[N], v[S], 60)
-            v[H], v[N] = put_in_range(v[H], v[N], 60)
-            v[D], v[H] = put_in_range(v[D], v[H], 24)
-            le = all(map(lambda x: x <= 0, v[D:]))
-            ge = all(map(lambda x: x >= 0, v[D:]))
-            if not (le or ge):
+        if any(v[D:]):
+            while v[S] > 59:
+                v[N] += 1
+                v[S] -= 60
+            while v[S] < 0:
+                v[N] -= 1
+                v[S] += 60
+            while v[N] > 59:
+                v[H] += 1
+                v[N] -= 60
+            while v[N] < 0:
+                v[H] -= 1
+                v[N] += 60
+            while v[H] > 23:
                 v[D] += 1
-                v[S] -= 86400
-                v[N], v[S] = put_in_range(v[N], v[S], 60)
-                v[H], v[N] = put_in_range(v[H], v[N], 60)
-                v[D], v[H] = put_in_range(v[D], v[H], 24)
-                le = all(map(lambda x: x <= 0, v[D:]))
-                ge = all(map(lambda x: x >= 0, v[D:]))
-                if not (le or ge):
-                    v[D] -= 1
-                    v[S] += 86400
-                    v[N], v[S] = put_in_range(v[N], v[S], 60)
-                    v[H], v[N] = put_in_range(v[H], v[N], 60)
-                    v[D], v[H] = put_in_range(v[D], v[H], 24)
-                    le = all(map(lambda x: x <= 0, v[D:]))
-                    ge = all(map(lambda x: x >= 0, v[D:]))
-            assert le or ge
-            if v[M] != 0 and isinstance(v[M], Fraction):
-                # if any([v[i] for i in range(6) if i != M]):
-                #     raise TimeSpanException(
-                #         "Month cannot be fractional if years, days, hours, minutes, or seconds is non-zero"
-                #     )
-                if v[M].denominator > 3:
-                    raise TimeSpanException(
-                        f"Only fractions allowed for month are n/3, and  n/2, got {str(v[M])}"
-                    )
-            self._years = cast(int, v[Y])
-            self._months = v[M]
-            self._days = cast(int, v[D])
-            self._hours = cast(int, v[H])
-            self._minutes = cast(int, v[N])
-            self._seconds = cast(int, v[S])
+                v[H] -= 24
+            while v[H] < 0:
+                v[D] -= 1
+                v[H] += 24
+        if any(v[:D]):
+            while v[M] > 12:
+                v[Y] += 1
+                v[M] -= 12
+            while v[M] < 0:
+                v[Y] -= 1
+                v[M] += 12
+
+        self._years = cast(int, v[Y])
+        self._months = v[M]
+        self._days = cast(int, v[D])
+        self._hours = cast(int, v[H])
+        self._minutes = cast(int, v[N])
+        self._seconds = cast(int, v[S])
 
     @staticmethod
     def _parse_possible_fraction(item: Any) -> Union[int, Fraction]:
@@ -534,7 +512,9 @@ class TimeSpan:
             if len(kwargs) == 0:
                 self.set([0, 0, 0, 0, 0, 0])
         elif len(args) == 1:
-            if isinstance(args[0], timedelta):
+            if isinstance(args[0], TimeSpan):
+                self.set(args[0].values)
+            elif isinstance(args[0], timedelta):
                 self._seconds = int(args[0].total_seconds())
             elif isinstance(args[0], int):
                 self.set([int(args[0]), 0, 0, 0, 0, 0])
