@@ -201,7 +201,7 @@ class Duration(TimeSpan):
             raise TypeError(
                 f"Expected Interval, str, or int, got {interval.__class__.__name__}"
             )
-        if not intvl:
+        if intvl is None:
             raise DurationException(
                 f"Cannot create Duration from invalid Interval: {interval}"
             )

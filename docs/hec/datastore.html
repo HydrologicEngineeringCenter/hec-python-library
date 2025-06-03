@@ -1,0 +1,1667 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="generator" content="pdoc 15.0.1"/>
+    <title>hec.datastore API documentation</title>
+
+    <style>/*! * Bootstrap Reboot v5.0.0 (https://getbootstrap.com/) * Copyright 2011-2021 The Bootstrap Authors * Copyright 2011-2021 Twitter, Inc. * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE) * Forked from Normalize.css, licensed MIT (https://github.com/necolas/normalize.css/blob/master/LICENSE.md) */*,::after,::before{box-sizing:border-box}@media (prefers-reduced-motion:no-preference){:root{scroll-behavior:smooth}}body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans","Liberation Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";font-size:1rem;font-weight:400;line-height:1.5;color:#212529;background-color:#fff;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}hr{margin:1rem 0;color:inherit;background-color:currentColor;border:0;opacity:.25}hr:not([size]){height:1px}h1,h2,h3,h4,h5,h6{margin-top:0;margin-bottom:.5rem;font-weight:500;line-height:1.2}h1{font-size:calc(1.375rem + 1.5vw)}@media (min-width:1200px){h1{font-size:2.5rem}}h2{font-size:calc(1.325rem + .9vw)}@media (min-width:1200px){h2{font-size:2rem}}h3{font-size:calc(1.3rem + .6vw)}@media (min-width:1200px){h3{font-size:1.75rem}}h4{font-size:calc(1.275rem + .3vw)}@media (min-width:1200px){h4{font-size:1.5rem}}h5{font-size:1.25rem}h6{font-size:1rem}p{margin-top:0;margin-bottom:1rem}abbr[data-bs-original-title],abbr[title]{-webkit-text-decoration:underline dotted;text-decoration:underline dotted;cursor:help;-webkit-text-decoration-skip-ink:none;text-decoration-skip-ink:none}address{margin-bottom:1rem;font-style:normal;line-height:inherit}ol,ul{padding-left:2rem}dl,ol,ul{margin-top:0;margin-bottom:1rem}ol ol,ol ul,ul ol,ul ul{margin-bottom:0}dt{font-weight:700}dd{margin-bottom:.5rem;margin-left:0}blockquote{margin:0 0 1rem}b,strong{font-weight:bolder}small{font-size:.875em}mark{padding:.2em;background-color:#fcf8e3}sub,sup{position:relative;font-size:.75em;line-height:0;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}a{color:#0d6efd;text-decoration:underline}a:hover{color:#0a58ca}a:not([href]):not([class]),a:not([href]):not([class]):hover{color:inherit;text-decoration:none}code,kbd,pre,samp{font-family:SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;font-size:1em;direction:ltr;unicode-bidi:bidi-override}pre{display:block;margin-top:0;margin-bottom:1rem;overflow:auto;font-size:.875em}pre code{font-size:inherit;color:inherit;word-break:normal}code{font-size:.875em;color:#d63384;word-wrap:break-word}a>code{color:inherit}kbd{padding:.2rem .4rem;font-size:.875em;color:#fff;background-color:#212529;border-radius:.2rem}kbd kbd{padding:0;font-size:1em;font-weight:700}figure{margin:0 0 1rem}img,svg{vertical-align:middle}table{caption-side:bottom;border-collapse:collapse}caption{padding-top:.5rem;padding-bottom:.5rem;color:#6c757d;text-align:left}th{text-align:inherit;text-align:-webkit-match-parent}tbody,td,tfoot,th,thead,tr{border-color:inherit;border-style:solid;border-width:0}label{display:inline-block}button{border-radius:0}button:focus:not(:focus-visible){outline:0}button,input,optgroup,select,textarea{margin:0;font-family:inherit;font-size:inherit;line-height:inherit}button,select{text-transform:none}[role=button]{cursor:pointer}select{word-wrap:normal}select:disabled{opacity:1}[list]::-webkit-calendar-picker-indicator{display:none}[type=button],[type=reset],[type=submit],button{-webkit-appearance:button}[type=button]:not(:disabled),[type=reset]:not(:disabled),[type=submit]:not(:disabled),button:not(:disabled){cursor:pointer}::-moz-focus-inner{padding:0;border-style:none}textarea{resize:vertical}fieldset{min-width:0;padding:0;margin:0;border:0}legend{float:left;width:100%;padding:0;margin-bottom:.5rem;font-size:calc(1.275rem + .3vw);line-height:inherit}@media (min-width:1200px){legend{font-size:1.5rem}}legend+*{clear:left}::-webkit-datetime-edit-day-field,::-webkit-datetime-edit-fields-wrapper,::-webkit-datetime-edit-hour-field,::-webkit-datetime-edit-minute,::-webkit-datetime-edit-month-field,::-webkit-datetime-edit-text,::-webkit-datetime-edit-year-field{padding:0}::-webkit-inner-spin-button{height:auto}[type=search]{outline-offset:-2px;-webkit-appearance:textfield}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-color-swatch-wrapper{padding:0}::file-selector-button{font:inherit}::-webkit-file-upload-button{font:inherit;-webkit-appearance:button}output{display:inline-block}iframe{border:0}summary{display:list-item;cursor:pointer}progress{vertical-align:baseline}[hidden]{display:none!important}</style>
+    <style>/*! syntax-highlighting.css */pre{line-height:125%;}span.linenos{color:inherit; background-color:transparent; padding-left:5px; padding-right:20px;}.pdoc-code .hll{background-color:#ffffcc}.pdoc-code{background:#f8f8f8;}.pdoc-code .c{color:#3D7B7B; font-style:italic}.pdoc-code .err{border:1px solid #FF0000}.pdoc-code .k{color:#008000; font-weight:bold}.pdoc-code .o{color:#666666}.pdoc-code .ch{color:#3D7B7B; font-style:italic}.pdoc-code .cm{color:#3D7B7B; font-style:italic}.pdoc-code .cp{color:#9C6500}.pdoc-code .cpf{color:#3D7B7B; font-style:italic}.pdoc-code .c1{color:#3D7B7B; font-style:italic}.pdoc-code .cs{color:#3D7B7B; font-style:italic}.pdoc-code .gd{color:#A00000}.pdoc-code .ge{font-style:italic}.pdoc-code .gr{color:#E40000}.pdoc-code .gh{color:#000080; font-weight:bold}.pdoc-code .gi{color:#008400}.pdoc-code .go{color:#717171}.pdoc-code .gp{color:#000080; font-weight:bold}.pdoc-code .gs{font-weight:bold}.pdoc-code .gu{color:#800080; font-weight:bold}.pdoc-code .gt{color:#0044DD}.pdoc-code .kc{color:#008000; font-weight:bold}.pdoc-code .kd{color:#008000; font-weight:bold}.pdoc-code .kn{color:#008000; font-weight:bold}.pdoc-code .kp{color:#008000}.pdoc-code .kr{color:#008000; font-weight:bold}.pdoc-code .kt{color:#B00040}.pdoc-code .m{color:#666666}.pdoc-code .s{color:#BA2121}.pdoc-code .na{color:#687822}.pdoc-code .nb{color:#008000}.pdoc-code .nc{color:#0000FF; font-weight:bold}.pdoc-code .no{color:#880000}.pdoc-code .nd{color:#AA22FF}.pdoc-code .ni{color:#717171; font-weight:bold}.pdoc-code .ne{color:#CB3F38; font-weight:bold}.pdoc-code .nf{color:#0000FF}.pdoc-code .nl{color:#767600}.pdoc-code .nn{color:#0000FF; font-weight:bold}.pdoc-code .nt{color:#008000; font-weight:bold}.pdoc-code .nv{color:#19177C}.pdoc-code .ow{color:#AA22FF; font-weight:bold}.pdoc-code .w{color:#bbbbbb}.pdoc-code .mb{color:#666666}.pdoc-code .mf{color:#666666}.pdoc-code .mh{color:#666666}.pdoc-code .mi{color:#666666}.pdoc-code .mo{color:#666666}.pdoc-code .sa{color:#BA2121}.pdoc-code .sb{color:#BA2121}.pdoc-code .sc{color:#BA2121}.pdoc-code .dl{color:#BA2121}.pdoc-code .sd{color:#BA2121; font-style:italic}.pdoc-code .s2{color:#BA2121}.pdoc-code .se{color:#AA5D1F; font-weight:bold}.pdoc-code .sh{color:#BA2121}.pdoc-code .si{color:#A45A77; font-weight:bold}.pdoc-code .sx{color:#008000}.pdoc-code .sr{color:#A45A77}.pdoc-code .s1{color:#BA2121}.pdoc-code .ss{color:#19177C}.pdoc-code .bp{color:#008000}.pdoc-code .fm{color:#0000FF}.pdoc-code .vc{color:#19177C}.pdoc-code .vg{color:#19177C}.pdoc-code .vi{color:#19177C}.pdoc-code .vm{color:#19177C}.pdoc-code .il{color:#666666}</style>
+    <style>/*! theme.css */:root{--pdoc-background:#fff;}.pdoc{--text:#212529;--muted:#6c757d;--link:#3660a5;--link-hover:#1659c5;--code:#f8f8f8;--active:#fff598;--accent:#eee;--accent2:#c1c1c1;--nav-hover:rgba(255, 255, 255, 0.5);--name:#0066BB;--def:#008800;--annotation:#007020;}</style>
+    <style>/*! layout.css */html, body{width:100%;height:100%;}html, main{scroll-behavior:smooth;}body{background-color:var(--pdoc-background);}@media (max-width:769px){#navtoggle{cursor:pointer;position:absolute;width:50px;height:40px;top:1rem;right:1rem;border-color:var(--text);color:var(--text);display:flex;opacity:0.8;z-index:999;}#navtoggle:hover{opacity:1;}#togglestate + div{display:none;}#togglestate:checked + div{display:inherit;}main, header{padding:2rem 3vw;}header + main{margin-top:-3rem;}.git-button{display:none !important;}nav input[type="search"]{max-width:77%;}nav input[type="search"]:first-child{margin-top:-6px;}nav input[type="search"]:valid ~ *{display:none !important;}}@media (min-width:770px){:root{--sidebar-width:clamp(12.5rem, 28vw, 22rem);}nav{position:fixed;overflow:auto;height:100vh;width:var(--sidebar-width);}main, header{padding:3rem 2rem 3rem calc(var(--sidebar-width) + 3rem);width:calc(54rem + var(--sidebar-width));max-width:100%;}header + main{margin-top:-4rem;}#navtoggle{display:none;}}#togglestate{position:absolute;height:0;opacity:0;}nav.pdoc{--pad:clamp(0.5rem, 2vw, 1.75rem);--indent:1.5rem;background-color:var(--accent);border-right:1px solid var(--accent2);box-shadow:0 0 20px rgba(50, 50, 50, .2) inset;padding:0 0 0 var(--pad);overflow-wrap:anywhere;scrollbar-width:thin; scrollbar-color:var(--accent2) transparent; z-index:1}nav.pdoc::-webkit-scrollbar{width:.4rem; }nav.pdoc::-webkit-scrollbar-thumb{background-color:var(--accent2); }nav.pdoc > div{padding:var(--pad) 0;}nav.pdoc .module-list-button{display:inline-flex;align-items:center;color:var(--text);border-color:var(--muted);margin-bottom:1rem;}nav.pdoc .module-list-button:hover{border-color:var(--text);}nav.pdoc input[type=search]{display:block;outline-offset:0;width:calc(100% - var(--pad));}nav.pdoc .logo{max-width:calc(100% - var(--pad));max-height:35vh;display:block;margin:0 auto 1rem;transform:translate(calc(-.5 * var(--pad)), 0);}nav.pdoc ul{list-style:none;padding-left:0;}nav.pdoc > div > ul{margin-left:calc(0px - var(--pad));}nav.pdoc li a{padding:.2rem 0 .2rem calc(var(--pad) + var(--indent));}nav.pdoc > div > ul > li > a{padding-left:var(--pad);}nav.pdoc li{transition:all 100ms;}nav.pdoc li:hover{background-color:var(--nav-hover);}nav.pdoc a, nav.pdoc a:hover{color:var(--text);}nav.pdoc a{display:block;}nav.pdoc > h2:first-of-type{margin-top:1.5rem;}nav.pdoc .class:before{content:"class ";color:var(--muted);}nav.pdoc .function:after{content:"()";color:var(--muted);}nav.pdoc footer:before{content:"";display:block;width:calc(100% - var(--pad));border-top:solid var(--accent2) 1px;margin-top:1.5rem;padding-top:.5rem;}nav.pdoc footer{font-size:small;}</style>
+    <style>/*! content.css */.pdoc{color:var(--text);box-sizing:border-box;line-height:1.5;background:none;}.pdoc .pdoc-button{cursor:pointer;display:inline-block;border:solid black 1px;border-radius:2px;font-size:.75rem;padding:calc(0.5em - 1px) 1em;transition:100ms all;}.pdoc .alert{padding:1rem 1rem 1rem calc(1.5rem + 24px);border:1px solid transparent;border-radius:.25rem;background-repeat:no-repeat;background-position:.75rem center;margin-bottom:1rem;}.pdoc .alert > em{display:none;}.pdoc .alert > *:last-child{margin-bottom:0;}.pdoc .alert.note {color:#084298;background-color:#cfe2ff;border-color:#b6d4fe;background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2224%22%20height%3D%2224%22%20fill%3D%22%23084298%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M8%2016A8%208%200%201%200%208%200a8%208%200%200%200%200%2016zm.93-9.412-1%204.705c-.07.34.029.533.304.533.194%200%20.487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703%200-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381%202.29-.287zM8%205.5a1%201%200%201%201%200-2%201%201%200%200%201%200%202z%22/%3E%3C/svg%3E");}.pdoc .alert.warning{color:#664d03;background-color:#fff3cd;border-color:#ffecb5;background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2224%22%20height%3D%2224%22%20fill%3D%22%23664d03%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M8.982%201.566a1.13%201.13%200%200%200-1.96%200L.165%2013.233c-.457.778.091%201.767.98%201.767h13.713c.889%200%201.438-.99.98-1.767L8.982%201.566zM8%205c.535%200%20.954.462.9.995l-.35%203.507a.552.552%200%200%201-1.1%200L7.1%205.995A.905.905%200%200%201%208%205zm.002%206a1%201%200%201%201%200%202%201%201%200%200%201%200-2z%22/%3E%3C/svg%3E");}.pdoc .alert.danger{color:#842029;background-color:#f8d7da;border-color:#f5c2c7;background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2224%22%20height%3D%2224%22%20fill%3D%22%23842029%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M5.52.359A.5.5%200%200%201%206%200h4a.5.5%200%200%201%20.474.658L8.694%206H12.5a.5.5%200%200%201%20.395.807l-7%209a.5.5%200%200%201-.873-.454L6.823%209.5H3.5a.5.5%200%200%201-.48-.641l2.5-8.5z%22/%3E%3C/svg%3E");}.pdoc .visually-hidden{position:absolute !important;width:1px !important;height:1px !important;padding:0 !important;margin:-1px !important;overflow:hidden !important;clip:rect(0, 0, 0, 0) !important;white-space:nowrap !important;border:0 !important;}.pdoc h1, .pdoc h2, .pdoc h3{font-weight:300;margin:.3em 0;padding:.2em 0;}.pdoc > section:not(.module-info) h1{font-size:1.5rem;font-weight:500;}.pdoc > section:not(.module-info) h2{font-size:1.4rem;font-weight:500;}.pdoc > section:not(.module-info) h3{font-size:1.3rem;font-weight:500;}.pdoc > section:not(.module-info) h4{font-size:1.2rem;}.pdoc > section:not(.module-info) h5{font-size:1.1rem;}.pdoc a{text-decoration:none;color:var(--link);}.pdoc a:hover{color:var(--link-hover);}.pdoc blockquote{margin-left:2rem;}.pdoc pre{border-top:1px solid var(--accent2);border-bottom:1px solid var(--accent2);margin-top:0;margin-bottom:1em;padding:.5rem 0 .5rem .5rem;overflow-x:auto;background-color:var(--code);}.pdoc code{color:var(--text);padding:.2em .4em;margin:0;font-size:85%;background-color:var(--accent);border-radius:6px;}.pdoc a > code{color:inherit;}.pdoc pre > code{display:inline-block;font-size:inherit;background:none;border:none;padding:0;}.pdoc > section:not(.module-info){margin-bottom:1.5rem;}.pdoc .modulename{margin-top:0;font-weight:bold;}.pdoc .modulename a{color:var(--link);transition:100ms all;}.pdoc .git-button{float:right;border:solid var(--link) 1px;}.pdoc .git-button:hover{background-color:var(--link);color:var(--pdoc-background);}.view-source-toggle-state,.view-source-toggle-state ~ .pdoc-code{display:none;}.view-source-toggle-state:checked ~ .pdoc-code{display:block;}.view-source-button{display:inline-block;float:right;font-size:.75rem;line-height:1.5rem;color:var(--muted);padding:0 .4rem 0 1.3rem;cursor:pointer;text-indent:-2px;}.view-source-button > span{visibility:hidden;}.module-info .view-source-button{float:none;display:flex;justify-content:flex-end;margin:-1.2rem .4rem -.2rem 0;}.view-source-button::before{position:absolute;content:"View Source";display:list-item;list-style-type:disclosure-closed;}.view-source-toggle-state:checked ~ .attr .view-source-button::before,.view-source-toggle-state:checked ~ .view-source-button::before{list-style-type:disclosure-open;}.pdoc .docstring{margin-bottom:1.5rem;}.pdoc section:not(.module-info) .docstring{margin-left:clamp(0rem, 5vw - 2rem, 1rem);}.pdoc .docstring .pdoc-code{margin-left:1em;margin-right:1em;}.pdoc h1:target,.pdoc h2:target,.pdoc h3:target,.pdoc h4:target,.pdoc h5:target,.pdoc h6:target,.pdoc .pdoc-code > pre > span:target{background-color:var(--active);box-shadow:-1rem 0 0 0 var(--active);}.pdoc .pdoc-code > pre > span:target{display:block;}.pdoc div:target > .attr,.pdoc section:target > .attr,.pdoc dd:target > a{background-color:var(--active);}.pdoc *{scroll-margin:2rem;}.pdoc .pdoc-code .linenos{user-select:none;}.pdoc .attr:hover{filter:contrast(0.95);}.pdoc section, .pdoc .classattr{position:relative;}.pdoc .headerlink{--width:clamp(1rem, 3vw, 2rem);position:absolute;top:0;left:calc(0rem - var(--width));transition:all 100ms ease-in-out;opacity:0;}.pdoc .headerlink::before{content:"#";display:block;text-align:center;width:var(--width);height:2.3rem;line-height:2.3rem;font-size:1.5rem;}.pdoc .attr:hover ~ .headerlink,.pdoc *:target > .headerlink,.pdoc .headerlink:hover{opacity:1;}.pdoc .attr{display:block;margin:.5rem 0 .5rem;padding:.4rem .4rem .4rem 1rem;background-color:var(--accent);overflow-x:auto;}.pdoc .classattr{margin-left:2rem;}.pdoc .decorator-deprecated{color:#842029;}.pdoc .decorator-deprecated ~ span{filter:grayscale(1) opacity(0.8);}.pdoc .name{color:var(--name);font-weight:bold;}.pdoc .def{color:var(--def);font-weight:bold;}.pdoc .signature{background-color:transparent;}.pdoc .param, .pdoc .return-annotation{white-space:pre;}.pdoc .signature.multiline .param{display:block;}.pdoc .signature.condensed .param{display:inline-block;}.pdoc .annotation{color:var(--annotation);}.pdoc .view-value-toggle-state,.pdoc .view-value-toggle-state ~ .default_value{display:none;}.pdoc .view-value-toggle-state:checked ~ .default_value{display:inherit;}.pdoc .view-value-button{font-size:.5rem;vertical-align:middle;border-style:dashed;margin-top:-0.1rem;}.pdoc .view-value-button:hover{background:white;}.pdoc .view-value-button::before{content:"show";text-align:center;width:2.2em;display:inline-block;}.pdoc .view-value-toggle-state:checked ~ .view-value-button::before{content:"hide";}.pdoc .inherited{margin-left:2rem;}.pdoc .inherited dt{font-weight:700;}.pdoc .inherited dt, .pdoc .inherited dd{display:inline;margin-left:0;margin-bottom:.5rem;}.pdoc .inherited dd:not(:last-child):after{content:", ";}.pdoc .inherited .class:before{content:"class ";}.pdoc .inherited .function a:after{content:"()";}.pdoc .search-result .docstring{overflow:auto;max-height:25vh;}.pdoc .search-result.focused > .attr{background-color:var(--active);}.pdoc .attribution{margin-top:2rem;display:block;opacity:0.5;transition:all 200ms;filter:grayscale(100%);}.pdoc .attribution:hover{opacity:1;filter:grayscale(0%);}.pdoc .attribution img{margin-left:5px;height:35px;vertical-align:middle;width:70px;transition:all 200ms;}.pdoc table{display:block;width:max-content;max-width:100%;overflow:auto;margin-bottom:1rem;}.pdoc table th{font-weight:600;}.pdoc table th, .pdoc table td{padding:6px 13px;border:1px solid var(--accent2);}</style>
+    <style>/*! custom.css */</style></head>
+<body>
+    <nav class="pdoc">
+        <label id="navtoggle" for="togglestate" class="pdoc-button"><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'><path stroke-linecap='round' stroke="currentColor" stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/></svg></label>
+        <input id="togglestate" type="checkbox" aria-hidden="true" tabindex="-1">
+        <div>            <a class="pdoc-button module-list-button" href="../hec.html">
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-in-left" viewBox="0 0 16 16">
+  <path fill-rule="evenodd" d="M10 3.5a.5.5 0 0 0-.5-.5h-8a.5.5 0 0 0-.5.5v9a.5.5 0 0 0 .5.5h8a.5.5 0 0 0 .5-.5v-2a.5.5 0 0 1 1 0v2A1.5 1.5 0 0 1 9.5 14h-8A1.5 1.5 0 0 1 0 12.5v-9A1.5 1.5 0 0 1 1.5 2h8A1.5 1.5 0 0 1 11 3.5v2a.5.5 0 0 1-1 0v-2z"/>
+  <path fill-rule="evenodd" d="M4.146 8.354a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H14.5a.5.5 0 0 1 0 1H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3z"/>
+</svg>                &nbsp;hec</a>
+
+
+            <input type="search" placeholder="Search..." role="searchbox" aria-label="search"
+                   pattern=".+" required>
+
+
+
+            <h2>API Documentation</h2>
+                <ul class="memberlist">
+            <li>
+                    <a class="class" href="#DataStoreException">DataStoreException</a>
+                            <ul class="memberlist">
+                </ul>
+
+            </li>
+            <li>
+                    <a class="class" href="#CwmsDataStore">CwmsDataStore</a>
+                            <ul class="memberlist">
+                        <li>
+                                <a class="function" href="#CwmsDataStore.__init__">CwmsDataStore</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#CwmsDataStore.catalog">catalog</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#CwmsDataStore.close">close</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#CwmsDataStore.delete">delete</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#CwmsDataStore.get_extents">get_extents</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#CwmsDataStore.get_vertical_datum_info">get_vertical_datum_info</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#CwmsDataStore.is_open">is_open</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#CwmsDataStore.native_data_store">native_data_store</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#CwmsDataStore.open">open</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#CwmsDataStore.retrieve">retrieve</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#CwmsDataStore.store">store</a>
+                        </li>
+                </ul>
+
+            </li>
+            <li>
+                    <a class="class" href="#DssDataStore">DssDataStore</a>
+                            <ul class="memberlist">
+                        <li>
+                                <a class="function" href="#DssDataStore.__init__">DssDataStore</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#DssDataStore.catalog">catalog</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#DssDataStore.close">close</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#DssDataStore.delete">delete</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#DssDataStore.get_extents">get_extents</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#DssDataStore.is_open">is_open</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#DssDataStore.native_data_store">native_data_store</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#DssDataStore.open">open</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#DssDataStore.retrieve">retrieve</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#DssDataStore.set_message_level">set_message_level</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#DssDataStore.store">store</a>
+                        </li>
+                </ul>
+
+            </li>
+            <li>
+                    <a class="class" href="#AbstractDataStore">AbstractDataStore</a>
+                            <ul class="memberlist">
+                        <li>
+                                <a class="function" href="#AbstractDataStore.catalog">catalog</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#AbstractDataStore.close">close</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#AbstractDataStore.delete">delete</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#AbstractDataStore.end_time">end_time</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#AbstractDataStore.get_extents">get_extents</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#AbstractDataStore.native_data_store">native_data_store</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#AbstractDataStore.name">name</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#AbstractDataStore.office">office</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#AbstractDataStore.open">open</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#AbstractDataStore.is_open">is_open</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#AbstractDataStore.is_read_only">is_read_only</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#AbstractDataStore.retrieve">retrieve</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#AbstractDataStore.start_time">start_time</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#AbstractDataStore.store">store</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#AbstractDataStore.time_window">time_window</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#AbstractDataStore.time_zone">time_zone</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#AbstractDataStore.trim">trim</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#AbstractDataStore.units">units</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#AbstractDataStore.vertical_datum">vertical_datum</a>
+                        </li>
+                </ul>
+
+            </li>
+    </ul>
+
+
+
+        <a class="attribution" title="pdoc: Python API documentation generator" href="https://pdoc.dev" target="_blank">
+            built with <span class="visually-hidden">pdoc</span><img
+                alt="pdoc logo"
+                src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20role%3D%22img%22%20aria-label%3D%22pdoc%20logo%22%20width%3D%22300%22%20height%3D%22150%22%20viewBox%3D%22-1%200%2060%2030%22%3E%3Ctitle%3Epdoc%3C/title%3E%3Cpath%20d%3D%22M29.621%2021.293c-.011-.273-.214-.475-.511-.481a.5.5%200%200%200-.489.503l-.044%201.393c-.097.551-.695%201.215-1.566%201.704-.577.428-1.306.486-2.193.182-1.426-.617-2.467-1.654-3.304-2.487l-.173-.172a3.43%203.43%200%200%200-.365-.306.49.49%200%200%200-.286-.196c-1.718-1.06-4.931-1.47-7.353.191l-.219.15c-1.707%201.187-3.413%202.131-4.328%201.03-.02-.027-.49-.685-.141-1.763.233-.721.546-2.408.772-4.076.042-.09.067-.187.046-.288.166-1.347.277-2.625.241-3.351%201.378-1.008%202.271-2.586%202.271-4.362%200-.976-.272-1.935-.788-2.774-.057-.094-.122-.18-.184-.268.033-.167.052-.339.052-.516%200-1.477-1.202-2.679-2.679-2.679-.791%200-1.496.352-1.987.9a6.3%206.3%200%200%200-1.001.029c-.492-.564-1.207-.929-2.012-.929-1.477%200-2.679%201.202-2.679%202.679A2.65%202.65%200%200%200%20.97%206.554c-.383.747-.595%201.572-.595%202.41%200%202.311%201.507%204.29%203.635%205.107-.037.699-.147%202.27-.423%203.294l-.137.461c-.622%202.042-2.515%208.257%201.727%2010.643%201.614.908%203.06%201.248%204.317%201.248%202.665%200%204.492-1.524%205.322-2.401%201.476-1.559%202.886-1.854%206.491.82%201.877%201.393%203.514%201.753%204.861%201.068%202.223-1.713%202.811-3.867%203.399-6.374.077-.846.056-1.469.054-1.537zm-4.835%204.313c-.054.305-.156.586-.242.629-.034-.007-.131-.022-.307-.157-.145-.111-.314-.478-.456-.908.221.121.432.25.675.355.115.039.219.051.33.081zm-2.251-1.238c-.05.33-.158.648-.252.694-.022.001-.125-.018-.307-.157-.217-.166-.488-.906-.639-1.573.358.344.754.693%201.198%201.036zm-3.887-2.337c-.006-.116-.018-.231-.041-.342.635.145%201.189.368%201.599.625.097.231.166.481.174.642-.03.049-.055.101-.067.158-.046.013-.128.026-.298.004-.278-.037-.901-.57-1.367-1.087zm-1.127-.497c.116.306.176.625.12.71-.019.014-.117.045-.345.016-.206-.027-.604-.332-.986-.695.41-.051.816-.056%201.211-.031zm-4.535%201.535c.209.22.379.47.358.598-.006.041-.088.138-.351.234-.144.055-.539-.063-.979-.259a11.66%2011.66%200%200%200%20.972-.573zm.983-.664c.359-.237.738-.418%201.126-.554.25.237.479.548.457.694-.006.042-.087.138-.351.235-.174.064-.694-.105-1.232-.375zm-3.381%201.794c-.022.145-.061.29-.149.401-.133.166-.358.248-.69.251h-.002c-.133%200-.306-.26-.45-.621.417.091.854.07%201.291-.031zm-2.066-8.077a4.78%204.78%200%200%201-.775-.584c.172-.115.505-.254.88-.378l-.105.962zm-.331%202.302a10.32%2010.32%200%200%201-.828-.502c.202-.143.576-.328.984-.49l-.156.992zm-.45%202.157l-.701-.403c.214-.115.536-.249.891-.376a11.57%2011.57%200%200%201-.19.779zm-.181%201.716c.064.398.194.702.298.893-.194-.051-.435-.162-.736-.398.061-.119.224-.3.438-.495zM8.87%204.141c0%20.152-.123.276-.276.276s-.275-.124-.275-.276.123-.276.276-.276.275.124.275.276zm-.735-.389a1.15%201.15%200%200%200-.314.783%201.16%201.16%200%200%200%201.162%201.162c.457%200%20.842-.27%201.032-.653.026.117.042.238.042.362a1.68%201.68%200%200%201-1.679%201.679%201.68%201.68%200%200%201-1.679-1.679c0-.843.626-1.535%201.436-1.654zM5.059%205.406A1.68%201.68%200%200%201%203.38%207.085a1.68%201.68%200%200%201-1.679-1.679c0-.037.009-.072.011-.109.21.3.541.508.935.508a1.16%201.16%200%200%200%201.162-1.162%201.14%201.14%200%200%200-.474-.912c.015%200%20.03-.005.045-.005.926.001%201.679.754%201.679%201.68zM3.198%204.141c0%20.152-.123.276-.276.276s-.275-.124-.275-.276.123-.276.276-.276.275.124.275.276zM1.375%208.964c0-.52.103-1.035.288-1.52.466.394%201.06.64%201.717.64%201.144%200%202.116-.725%202.499-1.738.383%201.012%201.355%201.738%202.499%201.738.867%200%201.631-.421%202.121-1.062.307.605.478%201.267.478%201.942%200%202.486-2.153%204.51-4.801%204.51s-4.801-2.023-4.801-4.51zm24.342%2019.349c-.985.498-2.267.168-3.813-.979-3.073-2.281-5.453-3.199-7.813-.705-1.315%201.391-4.163%203.365-8.423.97-3.174-1.786-2.239-6.266-1.261-9.479l.146-.492c.276-1.02.395-2.457.444-3.268a6.11%206.11%200%200%200%201.18.115%206.01%206.01%200%200%200%202.536-.562l-.006.175c-.802.215-1.848.612-2.021%201.25-.079.295.021.601.274.837.219.203.415.364.598.501-.667.304-1.243.698-1.311%201.179-.02.144-.022.507.393.787.213.144.395.26.564.365-1.285.521-1.361.96-1.381%201.126-.018.142-.011.496.427.746l.854.489c-.473.389-.971.914-.999%201.429-.018.278.095.532.316.713.675.556%201.231.721%201.653.721.059%200%20.104-.014.158-.02.207.707.641%201.64%201.513%201.64h.013c.8-.008%201.236-.345%201.462-.626.173-.216.268-.457.325-.692.424.195.93.374%201.372.374.151%200%20.294-.021.423-.068.732-.27.944-.704.993-1.021.009-.061.003-.119.002-.179.266.086.538.147.789.147.15%200%20.294-.021.423-.069.542-.2.797-.489.914-.754.237.147.478.258.704.288.106.014.205.021.296.021.356%200%20.595-.101.767-.229.438.435%201.094.992%201.656%201.067.106.014.205.021.296.021a1.56%201.56%200%200%200%20.323-.035c.17.575.453%201.289.866%201.605.358.273.665.362.914.362a.99.99%200%200%200%20.421-.093%201.03%201.03%200%200%200%20.245-.164c.168.428.39.846.68%201.068.358.273.665.362.913.362a.99.99%200%200%200%20.421-.093c.317-.148.512-.448.639-.762.251.157.495.257.726.257.127%200%20.25-.024.37-.071.427-.17.706-.617.841-1.314.022-.015.047-.022.068-.038.067-.051.133-.104.196-.159-.443%201.486-1.107%202.761-2.086%203.257zM8.66%209.925a.5.5%200%201%200-1%200c0%20.653-.818%201.205-1.787%201.205s-1.787-.552-1.787-1.205a.5.5%200%201%200-1%200c0%201.216%201.25%202.205%202.787%202.205s2.787-.989%202.787-2.205zm4.4%2015.965l-.208.097c-2.661%201.258-4.708%201.436-6.086.527-1.542-1.017-1.88-3.19-1.844-4.198a.4.4%200%200%200-.385-.414c-.242-.029-.406.164-.414.385-.046%201.249.367%203.686%202.202%204.896.708.467%201.547.7%202.51.7%201.248%200%202.706-.392%204.362-1.174l.185-.086a.4.4%200%200%200%20.205-.527c-.089-.204-.326-.291-.527-.206zM9.547%202.292c.093.077.205.114.317.114a.5.5%200%200%200%20.318-.886L8.817.397a.5.5%200%200%200-.703.068.5.5%200%200%200%20.069.703l1.364%201.124zm-7.661-.065c.086%200%20.173-.022.253-.068l1.523-.893a.5.5%200%200%200-.506-.863l-1.523.892a.5.5%200%200%200-.179.685c.094.158.261.247.432.247z%22%20transform%3D%22matrix%28-1%200%200%201%2058%200%29%22%20fill%3D%22%233bb300%22/%3E%3Cpath%20d%3D%22M.3%2021.86V10.18q0-.46.02-.68.04-.22.18-.5.28-.54%201.34-.54%201.06%200%201.42.28.38.26.44.78.76-1.04%202.38-1.04%201.64%200%203.1%201.54%201.46%201.54%201.46%203.58%200%202.04-1.46%203.58-1.44%201.54-3.08%201.54-1.64%200-2.38-.92v4.04q0%20.46-.04.68-.02.22-.18.5-.14.3-.5.42-.36.12-.98.12-.62%200-1-.12-.36-.12-.52-.4-.14-.28-.18-.5-.02-.22-.02-.68zm3.96-9.42q-.46.54-.46%201.18%200%20.64.46%201.18.48.52%201.2.52.74%200%201.24-.52.52-.52.52-1.18%200-.66-.48-1.18-.48-.54-1.26-.54-.76%200-1.22.54zm14.741-8.36q.16-.3.54-.42.38-.12%201-.12.64%200%201.02.12.38.12.52.42.16.3.18.54.04.22.04.68v11.94q0%20.46-.04.7-.02.22-.18.5-.3.54-1.7.54-1.38%200-1.54-.98-.84.96-2.34.96-1.8%200-3.28-1.56-1.48-1.58-1.48-3.66%200-2.1%201.48-3.68%201.5-1.58%203.28-1.58%201.48%200%202.3%201v-4.2q0-.46.02-.68.04-.24.18-.52zm-3.24%2010.86q.52.54%201.26.54.74%200%201.22-.54.5-.54.5-1.18%200-.66-.48-1.22-.46-.56-1.26-.56-.8%200-1.28.56-.48.54-.48%201.2%200%20.66.52%201.2zm7.833-1.2q0-2.4%201.68-3.96%201.68-1.56%203.84-1.56%202.16%200%203.82%201.56%201.66%201.54%201.66%203.94%200%201.66-.86%202.96-.86%201.28-2.1%201.9-1.22.6-2.54.6-1.32%200-2.56-.64-1.24-.66-2.1-1.92-.84-1.28-.84-2.88zm4.18%201.44q.64.48%201.3.48.66%200%201.32-.5.66-.5.66-1.48%200-.98-.62-1.46-.62-.48-1.34-.48-.72%200-1.34.5-.62.5-.62%201.48%200%20.96.64%201.46zm11.412-1.44q0%20.84.56%201.32.56.46%201.18.46.64%200%201.18-.36.56-.38.9-.38.6%200%201.46%201.06.46.58.46%201.04%200%20.76-1.1%201.42-1.14.8-2.8.8-1.86%200-3.58-1.34-.82-.64-1.34-1.7-.52-1.08-.52-2.36%200-1.3.52-2.34.52-1.06%201.34-1.7%201.66-1.32%203.54-1.32.76%200%201.48.22.72.2%201.06.4l.32.2q.36.24.56.38.52.4.52.92%200%20.5-.42%201.14-.72%201.1-1.38%201.1-.38%200-1.08-.44-.36-.34-1.04-.34-.66%200-1.24.48-.58.48-.58%201.34z%22%20fill%3D%22green%22/%3E%3C/svg%3E"/>
+        </a>
+</div>
+    </nav>
+    <main class="pdoc">
+            <section class="module-info">
+                    <h1 class="modulename">
+<a href="./../hec.html">hec</a><wbr>.datastore    </h1>
+
+                        <div class="docstring"><p>Provides classes for cataloging, storing, retrieving, and deleting data using various types of data stores.</p>
+
+<p>Comprises the classes:</p>
+
+<ul>
+<li><a href="#CwmsDataStore">CwmsDataStore</a>: Accesses CWMS databases via CDA</li>
+<li><a href="#DssDataStore">DssDataStore</a>: Accesses HEC-DSS files</li>
+</ul>
+</div>
+
+                
+                
+                
+            </section>
+                <section id="DataStoreException">
+                    <div class="attr class">
+            
+    <span class="def">class</span>
+    <span class="name">DataStoreException</span><wbr>(<span class="base">builtins.Exception</span>):
+
+        
+    </div>
+    <a class="headerlink" href="#DataStoreException"></a>
+    
+            <div class="docstring"><p>Base class for all data store exceptions</p>
+</div>
+
+
+                </section>
+                <section id="CwmsDataStore">
+                    <div class="attr class">
+            
+    <span class="def">class</span>
+    <span class="name">CwmsDataStore</span><wbr>(<span class="base"><a href="#AbstractDataStore">AbstractDataStore</a></span>):
+
+        
+    </div>
+    <a class="headerlink" href="#CwmsDataStore"></a>
+    
+            <div class="docstring"><p>Class to facilitate cataloging, storing, retrieving, and deleting data in CWMS databases.</p>
+
+<p>Requires installation of the <a href="https://pypi.org/project/cwms-python/">cwms-python</a> &gt;= '0.6.0'.</p>
+</div>
+
+
+                            <div id="CwmsDataStore.__init__" class="classattr">
+                                <div class="attr function">
+            
+        <span class="name">CwmsDataStore</span><span class="signature pdoc-code condensed">(<span class="param"><span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span></span>)</span>
+
+        
+    </div>
+    <a class="headerlink" href="#CwmsDataStore.__init__"></a>
+    
+            <div class="docstring"><p>Creates and returns a new CwmsDataStore object.</p>
+
+<p>Equivalent of calling <a href="#CwmsDataStore.open"><code><a href="#CwmsDataStore.open">CwmsDataStore.open</a>(name, **kwargs)</code></a></p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>api_key (Optional[str], must be passed by name):</strong>  The API key for this data store. Must be specified to write to or delete from this data store. Defaults to None. If None:
+<ul>
+<li>The value of environment variable "cda_api_key" is used, if it exists.</li>
+</ul></li>
+<li><strong>description (Optional[str], must be passed by name):</strong>  The description assocaited with the data store. Defaults to None</li>
+<li><strong>end_time (Optional[Any], must be passed by name):</strong>  Specifies the end time of the data store's time window. Must be an <a href="hectime.html#HecTime"><code>HecTime</code></a> object or a valid input to the <code>HecTime</code> constructor. Defaults to None</li>
+<li><strong>name (Optional[str], must be passed by name):</strong>  The API root (base URL). Defaults to None. If None:
+<ul>
+<li>The value of environment variable "cda_api_root" is used, if it exists.</li>
+<li>If the environment variable "cda_api_root" is not set, the default, the default value used in <code>cwms.api.init_session(api_root=None)</code> is used.</li>
+</ul></li>
+<li><strong>office (Optional[str], must be passed by name):</strong>  The default CWMS office for the data store. If None or not specified, each access method will have to have an office specified.</li>
+<li><strong>read_only (Optional[bool], must be passed by name):</strong>  Specifies whether to open the data store in read-only mode. Defaults to True</li>
+<li><strong>start_time (Optional[Any], must be passed by name):</strong>  Specifies the start time of the data store's time window. Must be an <a href="hectime.html#HecTime"><code>HecTime</code></a> object or a valid input to the <code>HecTime</code> constructor. Defaults to None</li>
+<li><strong>store_rule (Optional[str], must be passed by name):</strong>  Specifies the default behavior to use when storing data. If specified, it must be one of the following (case insensitive). Defaults to 'REPLACE_ALL'.
+<ul>
+<li>'DELETE_INSERT' - delete all existing data in the incoming time window, then store the incoming data</li>
+<li>'DO_NOT_REPLACE' - store only non-existing data</li>
+<li>'REPLACE_ALL' - store existing and non-existing data</li>
+<li>'REPLACE_MISSING_VALUES_ONLY' - store incoming data only where existing data is missing</li>
+<li>'REPLACE_WITH_NON_MISSING' - store only non-missing incoming data</li>
+</ul></li>
+<li><strong>time_zone (Optional[str], must be passed by name):</strong>  The default time zone for the data store. Defaults to the local time zone.</li>
+<li><strong>trim (Optional[bool], must be passed by name):</strong>  Specifies the data store's default setting to trim missing values from the beginning and end of any regular time series data set retrieved.
+Defaults to True.</li>
+<li><strong>units:</strong>  (Optional[str], must be passed by name): "EN" or "SI", specifying English or metric unit system as the default unit system for the data store. Defaults to "EN"</li>
+<li><strong>vertical_datum:</strong>  (Optional[str], must be passed by name): "NGVD29", "NAVD88", or "NATIVE", specifying the data store's default vertical datum for retrieving elevation data. Defaults to "NATIVE"</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="CwmsDataStore.catalog" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">catalog</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">data_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>, </span><span class="param"><span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span></span><span class="return-annotation">) -> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#CwmsDataStore.catalog"></a>
+    
+            <div class="docstring"><p>Retrieves CWMS identifiers for the specified data type, optionally with extents for specific data types.</p>
+
+<p>Currently only time series objects may be cataloged.</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>data_type (str):</strong>  Must be one of the following (case insensitive):
+<ul>
+<li><strong>'TIMESERIES'</strong>: specifies cataloging CWMS time series objects in the data store</li>
+<li><strong>'LOCATION'</strong>: specfies catalog CWMS locations in the data store</li>
+</ul></li>
+<li><p><strong>pattern (Optional[str], must be passed by name):</strong>  An extended wildcard pattern to use for matching identifiers. <code>regex</code> takes precedence if both are specified. Defaults to None.</p>
+
+<table>
+<pre>
+<tr><th colspan="2">Pattern Examples</th></tr>
+<tr><th>pattern</th><th>matches</th></tr>
+<tr><td><code>abc</code></td><td>the literal string "abc"</td></tr>
+<tr><td><code>ab{2,3}c{2}</code></td><td>1 "a" followed by 2 or 3 "b" followed by 2 "c"</td></tr>
+<tr><td><code>a*b?c</code></td><td>1 "a" followed by zero or more characters followed by "b" followed by 1 character followed by 1 "c"</td></tr>
+<tr><td><code>[abc]</code></td><td>1 "a" or "b" or "c"</td></tr>
+<tr><td><code>^[abc]$</code></td><td>beginning of string followed by 1 "a" or "b" or "c" followed by end of string</td></tr>
+<tr><td><code>[!abc]</code></td><td>1 character other than "a" or "b" or "c"</td></tr>
+<tr><td><code>[_a-z0-9]*</code></td><td>zero or more of characters "_" or "a" through "z" or "0" through "9"</td></tr>
+<tr><td><code style="white-space: nowrap;">[!a-z0-9]{1,5}</code></td><td>1..5 characters other than "a" through "z" or "0" through "9"</td></tr>
+<tr><td><code>(abc|def)</code></td><td>either "abc" or "def"</td></tr>
+</pre>
+</table></li>
+<li><p><strong>regex (Optional[str], must be passed by name):</strong>  Regular expression to use for matching identifiers. Takes precedence over <code>pattern</code> if both are specified. Defaults to None.</p></li>
+<li><strong>bounding_office (Optional[str]), must be passed by name):</strong>  Specifies cataloging only identifiers that are physically located within the boundaries of the specified office.
+Can be a wildcard pattern. Matching is affected by <code>case_sensitive</code>.</li>
+<li><strong>case_sensitive (Optional[bool], must be passed by name):</strong>  Specifies whether and pattern or regular expression matching is case-sensitive.</li>
+<li><strong>category (Optional[str], must be passed by name, LOCATION only):</strong>  Specifies cataloging only locations in a location group belonging to the specified catgory(ies). Can be a wildcard pattern.
+Matching is affected by <code>case_sensitive</code>. Note that specifying <code>category</code> or <code>group</code>, or including "aliases" in <code>fields</code> will slow down the catalog operation.</li>
+<li><strong>fields (Optional[str]), must be passed by name):</strong>  A comma-separated list of fields to include in the catalog. Valid fields for <code>data_type</code> are listed below.
+The catalog will include the fields in the order specified. Defaults to <code>identifier</code>.
+<ul>
+<li><strong><code>TIMESERIES</code></strong>:
+<ul>
+<li><code>identifier</code>: The time series identifier</li>
+<li><code><a href="#CwmsDataStore.office">office</a></code>: The CWMS office for the time series</li>
+<li><code><a href="#CwmsDataStore.name">name</a></code>: Same as <code>identifier</code></li>
+<li><code>time-zone</code>: The time zone of the location of the time seroies</li>
+<li><code>interval</code>: The interval of the time series</li>
+<li><code>offset</code>:  The offset into each interval of regular time series (in minutes), or <N/A> if interval is irregular</li>
+<li><code>earliest-time</code>: The earliest time in the database for this time series, or <None> if no data</li>
+<li><code>latest-time</code>: The latest time in the database for this time seires of <None> if no data</li>
+<li><code>last-update</code>: The most recent time this time series has been updated, or <None> of no data</li>
+</ul></li>
+<li><strong><code>LOCATION</code></strong>:
+<ul>
+<li><code>identifier</code>: The location identifier</li>
+<li><code><a href="#CwmsDataStore.office">office</a></code>: The CWMS office for the location</li>
+<li><code><a href="#CwmsDataStore.name">name</a></code>: Same as <code>identifier</code></li>
+<li><code>nearest-city</code>: The name of the city or town closest to the location</li>
+<li><code>public-name</code>: The public name of the location</li>
+<li><code>long-name</code>: The long name of the location</li>
+<li><code>kind</code>: The kind of location - constrained to:
+<ul>
+<li>SITE</li>
+<li>EMBANKMENT</li>
+<li>OVERFLOW</li>
+<li>TURBINE</li>
+<li>STREAM</li>
+<li>PROJECT</li>
+<li>STREAMGAGE</li>
+<li>BASIN</li>
+<li>OUTLET</li>
+<li>LOCK</li>
+<li>GATE</li>
+</ul></li>
+<li><code>time-zone</code>: The time zone of the location</li>
+<li><code>latitude</code>: The latitude of the location</li>
+<li><code>longitude</code>: The latitude of the location</li>
+<li><code>published-latitude</code>: The published latitude of the location</li>
+<li><code>published-longitude</code>: The published longitude of the location</li>
+<li><code>horizontal-datum</code>: The horizontal datum associated with the latitude and longitude</li>
+<li><code>elevation</code>: The elevation of the location</li>
+<li><code>unit</code>: The unit of the elevation</li>
+<li><code>vertical-datum</code>: The vertical datum of the elevation</li>
+<li><code>nation</code>: The nation containing the location</li>
+<li><code>state</code>: The state/province containing the location</li>
+<li><code>county</code>: The county containing the location</li>
+<li><code>bounding-office</code>: The CWMS office whose boundary includes the location</li>
+<li><code>map-label</code>: The map label of the location</li>
+<li><code>active</code>: Whether the location is active</li>
+<li><code>aliases</code>: The aliases associated with the location. Note that including this slows down the catalog operation. The aliases are specified as the string
+representation of a dictionary (i.e., an actual dictionary can be obtained by passing this field to <code>eval()</code>). The dictionary keys are the location
+categories and groups for each alias, and the values are the aliases. The keys are of the form {category}-{group} (e.g., "Angency Aliases-NWS Handbook 5 ID")</li>
+<li><code>description</code>: The description of the location</li>
+<li><code>type</code>: The unconstrained type of the location (cf <code>kind</code>)</li>
+</ul></li>
+</ul></li>
+<li><strong>group (Optional[str], must be passed by name, LOCATION only):</strong>  Specifies cataloging only locations in the specivied location group(s). Can be a wildcard pattern.
+Matching is affected by <code>case_sensitive</code>. Note that specifying <code>category</code> or <code>group</code>, or including "aliases" in <code>fields</code> will slow down the catalog operation.</li>
+<li><strong>header (Optional[bool], must be passed by name):</strong>  Specifies whether to include a header line in the catalog that identifies the fields</li>
+<li><strong>kind (Optional[str], must be passed by name, LOCATION only):</strong>  Specifies cataloging only locations of the specified location kind. Can be a wildcard pattern.
+Matching is affected by <code>case_sensitive</code>.</li>
+<li><strong>limit (Optional[int], must be passed by name):</strong>  The maximum number of identifiers to return. If None, no limit is imposed. Defaults to None.</li>
+<li><strong>office (Optional[str], must be passed by name):</strong>  The CWMS office to generate the catalog for. Defaults to None, which uses the data store's default office.</li>
+<li><strong>units (Optional[str], must be passed by name):</strong>  The unit system ("EN" or "SI") to return the elevation values in. Defaults to None.</li>
+<li><strong>vertical_datum (Optional[str], must be passed by name):</strong>  The vertical datum ("NGVD29", "NAVD88", or "LOCAL") to return the elevation values in. Defaults to None (Native datum).</li>
+</ul>
+
+<h6 id="raises">Raises:</h6>
+
+<ul>
+<li><strong>DataStoreException:</strong>  if the data store is not open or an invalid <code>data_type</code> is specified</li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>List[str]: The CWMS identifiers that match the specified parameters, up to the specified limit, if any</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="CwmsDataStore.close" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">close</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span><span class="return-annotation">) -> <span class="kc">None</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#CwmsDataStore.close"></a>
+    
+            <div class="docstring"><p>Explicitly closes the data store, preventing further access.</p>
+
+<p>The data store is implicitly closed upon deletion or exiting a context manager ('with' block)</p>
+</div>
+
+
+                            </div>
+                            <div id="CwmsDataStore.delete" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">delete</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">identifier</span><span class="p">:</span> <span class="nb">str</span>, </span><span class="param"><span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span></span><span class="return-annotation">) -> <span class="kc">None</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#CwmsDataStore.delete"></a>
+    
+            <div class="docstring"><p>Deletes a data set from the data store.</p>
+
+<p>Currently only time series data may be deleted.</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>identifier (str):</strong>  The name of the data set to delete. Must be a valid one of the following:
+<ul>
+<li><strong>time series identifier</strong>: start and end times specify the time window of time series values to delete, inclusive</li>
+</ul></li>
+<li><strong>delete_action (Optional[str], must be passed by name):</strong>  Defaults to None. If specified, any time window is ignored and it must be one of (case insensitive):
+<ul>
+<li>'DELETE_ALL': delete all data and the identifier for the object</li>
+<li>'DELETE_DATA': delete all data for the identifier but does not delete the identifier</li>
+<li>'DELETE_KEY': delete only the object identifier - will fail if any data is associated with the identifier</li>
+</ul></li>
+<li><strong>end_time (Optional[Any], must be passed by name):</strong>  Specifies the end of the time window to delete data. Ignored if <code>delete_action</code> is specified. Must be an <a href="hectime.html#HecTime"><code>HecTime</code></a> object or a valid input to the <code>HecTime</code> constructor.
+Defaults to the end of the data store's time window.</li>
+<li><strong>office (Optional[str], must be passed by name):</strong>  The CWMS office to delete data for. Defaults to None, which uses the data store's default office.</li>
+<li><strong>start_time (Optional[Any], must be passed by name):</strong>  Specifies the start of the time window to delete data. Ignored if <code>delete_action</code> is specified. Must be an <a href="hectime.html#HecTime"><code>HecTime</code></a> object or a valid input to the <code>HecTime</code> constructor.
+Defaults to the start of the data store's time window.</li>
+<li><strong>version_time (Optional[Any], must be passed by name):</strong>  Specifies the version date/time of the data to delete (time series types only). Must be an <a href="hectime.html#HecTime"><code>HecTime</code></a> object or a valid input to the <code>HecTime</code> constructor.
+Defaults to the None, meaning non-versioned data.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="CwmsDataStore.get_extents" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">get_extents</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">identifier</span><span class="p">:</span> <span class="nb">str</span>, </span><span class="param"><span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span></span><span class="return-annotation">) -> <span class="n">List</span><span class="p">[</span><span class="n"><a href="../hec.html#HecTime">hec.HecTime</a></span><span class="p">]</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#CwmsDataStore.get_extents"></a>
+    
+            <div class="docstring"><p>Retrieves the data extents for the specified identifier</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>identifier (str):</strong>  The identifier to retrieve the extents for</li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>List[HecTime]: The earliest time, latest time, and latest update time</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="CwmsDataStore.get_vertical_datum_info" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">get_vertical_datum_info</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">identifier</span><span class="p">:</span> <span class="nb">str</span>, </span><span class="param"><span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span></span><span class="return-annotation">) -> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#CwmsDataStore.get_vertical_datum_info"></a>
+    
+            <div class="docstring"><p>Retrieves the vertical datum information for a CWMS location</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>identifier (str):</strong>  The location identifier</li>
+<li><strong>office (Optional[str]):</strong>  The CWMS office for the location. Defaults to the data store's default office.</li>
+<li><strong>format (Optional[str]):</strong>  The output format for the information. Must be one of 'JSON' or 'XML' (case insensitive). Defaults to 'JSON'</li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>Optional[str]: The vertical datum information in the specified format</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="CwmsDataStore.is_open" class="classattr">
+                                <div class="attr variable">
+            <span class="name">is_open</span><span class="annotation">: bool</span>
+
+        
+    </div>
+    <a class="headerlink" href="#CwmsDataStore.is_open"></a>
+    
+            <div class="docstring"><p>Whether this data store is open for cataloging and reading.</p>
+
+<p>A data store is open from its construction or call to <code><a href="#CwmsDataStore.open">open()</a></code> until a call to <code><a href="#CwmsDataStore.close">close()</a></code> or deletiion</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read Only</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="CwmsDataStore.native_data_store" class="classattr">
+                                <div class="attr variable">
+            <span class="name">native_data_store</span><span class="annotation">: Any</span>
+
+        
+    </div>
+    <a class="headerlink" href="#CwmsDataStore.native_data_store"></a>
+    
+            <div class="docstring"><p>The cwms module imported by this data store</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read-Only</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="CwmsDataStore.open" class="classattr">
+                                <div class="attr function">
+                    <div class="decorator decorator-staticmethod">@staticmethod</div>
+
+        <span class="def">def</span>
+        <span class="name">open</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>, </span><span class="param"><span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span></span><span class="return-annotation">) -> <span class="n"><a href="#CwmsDataStore">CwmsDataStore</a></span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#CwmsDataStore.open"></a>
+    
+            <div class="docstring"><p>Creates and returns a new CwmsDataStore object.</p>
+
+<p>Equivalent of calling <a href="#CwmsDataStore"><code>CwmsDataStore(**kwargs)</code></a> with <code><a href="#CwmsDataStore.name">name</a></code> in <code>kwargs</code></p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>name (Optional[str]):</strong>  The API root (base URL). Defaults to None. If None:
+<ul>
+<li>The value of environment variable "cda_api_root" is used, if it exists.</li>
+<li>If the environment variable "cda_api_root" is not set, the default, the default value used in <code>cwms.api.init_session()</code> is used.</li>
+</ul></li>
+<li><strong>api_key (Optional[str], must be passed by name):</strong>  The API key for this data store. Must be specified to write to or delete from this data store. Defaults to None. If None:
+<ul>
+<li>The value of environment variable "cda_api_key" is used, if it exists.</li>
+</ul></li>
+<li><strong>description (Optional[str], must be passed by name):</strong>  The description assocaited with the data store. Defaults to None</li>
+<li><strong>end_time (Optional[Any], must be passed by name):</strong>  Specifies the end time of the data store's time window. Must be an <a href="hectime.html#HecTime"><code>HecTime</code></a> object or a valid input to the <code>HecTime</code> constructor. Defaults to None</li>
+<li><strong>office (Optional[str], must be passed by name):</strong>  The default CWMS office for the data store. If None or not specified, each access method will have to have an office specified.</li>
+<li><strong>read_only (Optional[bool], must be passed by name):</strong>  Specifies whether to open the data store in read-only mode. Defaults to True</li>
+<li><strong>start_time (Optional[Any], must be passed by name):</strong>  Specifies the start time of the data store's time window. Must be an <a href="hectime.html#HecTime"><code>HecTime</code></a> object or a valid input to the <code>HecTime</code> constructor. Defaults to None</li>
+<li><strong>store_rule (Optional[str], must be passed by name):</strong>  Specifies the default behavior to use when storing data. If specified, it must be one of the following (case insensitive). Defaults to 'REPLACE_ALL'.
+<ul>
+<li>'DELETE_INSERT' - delete all existing data in the incoming time window, then store the incoming data</li>
+<li>'DO_NOT_REPLACE' - store only non-existing data</li>
+<li>'REPLACE_ALL' - store existing and non-existing data</li>
+<li>'REPLACE_MISSING_VALUES_ONLY' - store incoming data only where existing data is missing</li>
+<li>'REPLACE_WITH_NON_MISSING' - store only non-missing incoming data</li>
+</ul></li>
+<li><strong>time_zone (Optional[str], must be passed by name):</strong>  The default time zone for the data store. Defaults to the local time zone.</li>
+<li><strong>trim (Optional[bool], must be passed by name):</strong>  Specifies the data store's default setting to trim missing values from the beginning and end of any regular time series data set retrieved.
+Defaults to True.</li>
+<li><strong>units (Optional[str], must be passed by name):</strong>  "EN" or "SI", specifying English or metric unit system as the default unit system for the data store. Defaults to "EN"</li>
+<li><strong>vertical_datum (Optional[str], must be passed by name):</strong>  "NGVD29", "NAVD88", or "NATIVE", specifying the data store's default vertical datum for retrieving elevation data. Defaults to "NATIVE"</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="CwmsDataStore.retrieve" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">retrieve</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">identifier</span><span class="p">:</span> <span class="nb">str</span>, </span><span class="param"><span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span></span><span class="return-annotation">) -> <span class="n">Any</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#CwmsDataStore.retrieve"></a>
+    
+            <div class="docstring"><p>Retrieves a data set from the data store.</p>
+
+<p>Currently only locations and time series may be retrieved. To retrieve all data for a time series, specifiy <code>start_time=None</code> and <code>end_time=None</code></p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>office (Optional[str], must be passed by name):</strong>  The CWMS office to retrieve data for. Defaults to None, which uses the data store's default office.</li>
+<li><strong>identifier (str):</strong>  The name of the data set to retrieve:</li>
+<li><strong>Location Arguments:</strong> <br>
+<ul>
+<li><b>units (Optional[str], must be passed by name):</b> "EN" or "SI", specifying to retrieve data in English or metric units. Defaults to None, which uses the default unit system for the data store</li>
+<li><b>vertical_datum (Optional[str], must be passed by name):</b> "NGVD29", "NAVD88", or "NATIVE", specifying the vertical datum to retrieve elevation data for. Defaults to None, which uses the data store's default vertical datum</li>
+</ul></li>
+<li><strong>TimeSeries Arguments:</strong> <br>
+<ul>
+<li><b>start_time (Optional[Any], must be passed by name):</b> Specifies the start of the time window to retrieve data. Must be an <a href="hectime.html#HecTime"><code>HecTime</code></a> object or a valid input to the <code>HecTime</code> constructor.
+Defaults to the start of the data store's time window. If None or not specified and the data store's time window doesn't have a start time, the current time minus 24 hours is used</li>
+<li><b>end_time (Optional[Any], must be passed by name):</b> Specifies the end of the time window to retrieve data. Must be an <a href="hectime.html#HecTime"><code>HecTime</code></a> object or a valid input to the <code>HecTime</code> constructor.
+Defaults to the end of the data store's time window. If None or not specified and the data store's time window doesn't have an end time, the current time is used</li>
+<li><b>trim (Optional[bool], must be passed by name):</b> Specifies whether to trim missing values from the beginning and end of any regular time series data set retrieved.
+Defaults to the data store's trim setting.</li>
+<li><b>units (Optional[str], must be passed by name):</b> "EN" or "SI", specifying to retrieve data in English or metric units. Defaults to None, which uses the default unit system for the data store</li>
+<li><b>version_time (Optional[Any], must be passed by name):</b> Specifies the version date/time of the data to retrieve (time series types only). Must be an <a href="hectime.html#HecTime"><code>HecTime</code></a> object or a valid input to the <code>HecTime</code> constructor.
+Defaults to the None, which uses the data store's default vertical datum.</li>
+<li><b>vertical_datum (Optional[str], must be passed by name):</b> "NGVD29", "NAVD88", or "NATIVE", specifying the vertical datum to retrieve elevation data for. Defaults to None, which uses the data store's default vertical datum</li>
+</ul></li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>Any: The <a href="location.html#Location"><code>Location</code></a> or <a href="timeseries.html#TimeSeries"><code>TimeSeries</code></a> object</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="CwmsDataStore.store" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">store</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">obj</span><span class="p">:</span> <span class="nb">object</span>, </span><span class="param"><span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span></span><span class="return-annotation">) -> <span class="kc">None</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#CwmsDataStore.store"></a>
+    
+            <div class="docstring"><p>Stores a data set to the data store.</p>
+
+<p>Currently only locations and time series data may be stored.</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>obj (object):</strong>  The data set to store.
+<ul>
+<li>For locations, must be a Location object or the name of the location</li>
+</ul></li>
+<li><p><strong>Location Arguments:</strong> <br></p>
+
+<ul>
+<li><b>name (Optional[str], must be passed by name):</b> The location's name, Defaults to the Location object's name</li>
+<li><b>office (Optional[str], must be passed by name):</b> The location's office. Defaults to the Location object's office</li>
+<li><b>kind (str, must be passed by name):</b> The location's kind. Must be on of:
+<ul>
+<li>SITE</li>
+<li>EMBANKMENT</li>
+<li>OVERFLOW</li>
+<li>TURBINE</li>
+<li>STREAM</li>
+<li>PROJECT</li>
+<li>STREAMGAGE</li>
+<li>BASIN</li>
+<li>OUTLET</li>
+<li>LOCK</li>
+<li>GATE</li>
+</ul></li>
+<li><b>active (Optional[bool], must be passed by name):</b> Whether the location is active in the datbase. Defaults to True</li>
+<li><b>latitude (Optional[float], must be passed by name):</b> The location's latitude. Defaults to the Location object's latitude.</li>
+<li><b>longitude (Optional[float], must be passed by name):</b> The location's longitude. Defaults to the Location object's longitude</li>
+<li><b>horizontal_datum (Optional[str], must be passed by name):</b> The location's horizontal datum</li>
+<li><b>elevation (Optional[float], must be passed by name):</b> The location's elevation. Defaults to the Location object's elevation</li>
+<li><b>elevation_unit (Optional[str], must be passed by name):</b> The unit of the location's elevation. Defaults to the Location object's elevation unit</li>
+<li><b>vertical_datum (Optional[str], must be passed by name):</b> The location's vertical datum. Defaults to the location's vertical datum</li>
+<li><b>nation (Optional[str], must be passed by name):</b> The location's nation. Defaults to "US"</li>
+<li><b>state (Optional[str], must be passed by name):</b> The location's state. Defaults to None</li>
+<li><b>county (Optional[str], must be passed by name):</b> The locations's county. Defaults to None</li>
+<li><b>bounding_office (Optional[str], must be passed by name):</b> The CWMS office whose boundar includes the location. Defaults to None</li>
+<li><b>nearest_city (Optional[str], must be passed by name):</b> The city nearest the location. Defaults to None</li>
+<li><b>time_zone (Optional[str], must be passed by name):</b> The location's time zone. Defaults to the location's time zone</li>
+<li><b>public_name (Optional[str], must be passed by name):</b> The location's public name. Defaults to None</li>
+<li><b>long_name (Optional[str], must be passed by name):</b> The location's long name. Defaults to None</li>
+<li><b>description (Optional[str], must be passed by name):</b> The location's description. Defaults to None</li>
+<li><b>map_label (Optional[str], must be passed by name):</b> The location's map label. Defaults to None</li>
+<li><b>published_latitude (Optional[float], must be passed by name):</b> The published latitude of the location. Defaults to None</li>
+<li><b>published_longitude (Optional[float], must be passed by name):</b> The published longitude of the location. Defaults to None</li>
+<li><b>type (Optional[str], must be passed by name):</b> An unconstrained type for the location. Defaults to None
+<br>&nbsp;</li>
+</ul>
+
+<div>The following items are required to be specified either in the Location object or arguments:
+    <ul>
+    <li>name</li>
+    <li>office</li>
+    <li>kind</li>
+    <li>latitude</li>
+    <li>longitude</li>
+    <li>horizontal_datum</li>
+    <li>time_zone</li>
+    </ul>
+</div>
+
+<p><p></p></li>
+<li><strong>TimeSeries Arguments:</strong> <br>
+<ul>
+<li><b>as_lrts (Optional[bool], must be passed by name):</b> Specifies whether to store the time series as LRTS is its interval starts with "~". Defaults to whether the time series is a local regular time series</li>
+<li><b>override_protecteion (Optional[bool], must be passed by name):</b> Specifies whether to store non-protected values over existing protected values. (Protected values always overwrite existing values and non-protected existing values are alway overwritten) Defaults to False</li>
+<li><b>store_rule (Optional[str], must be passed by name):</b> Specifies the default behavior to use when storing data. If specified, it must be one of the following (case insensitive). Defaults to 'REPLACE_ALL'.
+<ul>
+<li><b>'DELETE_INSERT'</b> - delete all existing data in the incoming time window, then store the incoming data</li>
+<li><b>'DO_NOT_REPLACE'</b> - store only non-existing data</li>
+<li><b>'REPLACE_ALL'</b> - store existing and non-existing data</li>
+<li><b>'REPLACE_MISSING_VALUES_ONLY'</b> - store incoming data only where existing data is missing</li>
+<li><b>'REPLACE_WITH_NON_MISSING'</b> - store only non-missing incoming data</li>
+</ul></li>
+</ul></li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div class="inherited">
+                                <h5>Inherited Members</h5>
+                                <dl>
+                                    <div><dt><a href="#AbstractDataStore">AbstractDataStore</a></dt>
+                                <dd id="CwmsDataStore.end_time" class="variable"><a href="#AbstractDataStore.end_time">end_time</a></dd>
+                <dd id="CwmsDataStore.name" class="variable"><a href="#AbstractDataStore.name">name</a></dd>
+                <dd id="CwmsDataStore.office" class="variable"><a href="#AbstractDataStore.office">office</a></dd>
+                <dd id="CwmsDataStore.is_read_only" class="variable"><a href="#AbstractDataStore.is_read_only">is_read_only</a></dd>
+                <dd id="CwmsDataStore.start_time" class="variable"><a href="#AbstractDataStore.start_time">start_time</a></dd>
+                <dd id="CwmsDataStore.time_window" class="variable"><a href="#AbstractDataStore.time_window">time_window</a></dd>
+                <dd id="CwmsDataStore.time_zone" class="variable"><a href="#AbstractDataStore.time_zone">time_zone</a></dd>
+                <dd id="CwmsDataStore.trim" class="variable"><a href="#AbstractDataStore.trim">trim</a></dd>
+                <dd id="CwmsDataStore.units" class="variable"><a href="#AbstractDataStore.units">units</a></dd>
+                <dd id="CwmsDataStore.vertical_datum" class="variable"><a href="#AbstractDataStore.vertical_datum">vertical_datum</a></dd>
+
+            </div>
+                                </dl>
+                            </div>
+                </section>
+                <section id="DssDataStore">
+                    <div class="attr class">
+            
+    <span class="def">class</span>
+    <span class="name">DssDataStore</span><wbr>(<span class="base"><a href="#AbstractDataStore">AbstractDataStore</a></span>):
+
+        
+    </div>
+    <a class="headerlink" href="#DssDataStore"></a>
+    
+            <div class="docstring"><p>Class to facilitate cataloging, storing, retrieving, and deleting data in HEC-DSS files.</p>
+
+<p>Requires installation of the 'hecdss' package &gt; '0.1.21'.</p>
+</div>
+
+
+                            <div id="DssDataStore.__init__" class="classattr">
+                                <div class="attr function">
+            
+        <span class="name">DssDataStore</span><span class="signature pdoc-code condensed">(<span class="param"><span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span></span>)</span>
+
+        
+    </div>
+    <a class="headerlink" href="#DssDataStore.__init__"></a>
+    
+            <div class="docstring"><p>Creates and returns a new DssDataStore object.</p>
+
+<p>Equivalent of calling <a href="#DssDataStore.open"><code><a href="#DssDataStore.open">DssDataStore.open</a>(name, **kwargs)</code></a></p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>description (Optional[str], must be passed by name):</strong>  The description assocaited with the data store. Defaults to None</li>
+<li><strong>end_time (Optional[Any], must be passed by name):</strong>  Specifies the end time of the data store's time window. Must be an <a href="hectime.html#HecTime"><code>HecTime</code></a> object or a valid input to the <code>HecTime</code> constructor. Defaults to None</li>
+<li><strong>name (str, must be passed by name):</strong>  The name of the HEC-DSS file to open.</li>
+<li><strong>read_only (Optional[bool], must be passed by name):</strong>  Specifies whether to open the data store in read-only mode. Defaults to True</li>
+<li><strong>start_time (Optional[Any], must be passed by name):</strong>  Specifies the start time of the data store's time window. Must be an <a href="hectime.html#HecTime"><code>HecTime</code></a> object or a valid input to the <code>HecTime</code> constructor. Defaults to None</li>
+<li><strong>store_rule (Optional[str], must be passed by name):</strong>  Must be one of the following (case insensitive). Defaults to 'REPLACE_ALL'.
+<ul>
+<li>'DELETE_INSERT'</li>
+<li>'DO_NOT_REPLACE'</li>
+<li>'REPLACE_ALL'</li>
+<li>'REPLACE_MISSING_VALUES_ONLY'</li>
+<li>'REPLACE_WITH_NON_MISSING'</li>
+</ul></li>
+<li><strong>trim (Optional[bool], must be passed by name):</strong>  Specifies the data store's default setting to trim missing values from the beginning and end of any regular time series data set retrieved.
+Defaults to True.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="DssDataStore.catalog" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">catalog</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">data_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>, </span><span class="param"><span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span></span><span class="return-annotation">) -> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#DssDataStore.catalog"></a>
+    
+            <div class="docstring"><p>Retrieves pathnames that match specified conditions</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>data_type (Optional[str]):</strong>  The type of data to retrieve pathnames for. Defaults to None, which specifies all data types.
+If specified, must be one of (case insensitive):
+<ul>
+<li>'ARRAY'</li>
+<li>'GRID'</li>
+<li>'LOCATION'</li>
+<li>'PAIRED_DATA'</li>
+<li>'TEXT'</li>
+<li>'TIMESERIES'</li>
+<li>'TIMESERIES_PROFILE'</li>
+<li>'TIN'</li>
+</ul></li>
+<li><strong>pattern (Optional[str], must be passed by name):</strong>  Wildcard pattern (using <code>*</code> and <code>?</code>) to use for matching pathnames. <code>regex</code> takes precedence if both are specified. Defaults to None.</li>
+<li><strong>regex (Optional[str], must be passed by name):</strong>  Regular expression to use for matching pathnames. Takes precedence over <code>pattern</code> if both are specified. Defaults to None.</li>
+<li><strong>case_sensitive (Optional[bool], must be passed by name):</strong>  Specifies whether <code>pattern</code> or <code>regex</code> matching is case-sensitive.</li>
+<li><strong>condensed (Optional[bool], must be passed by name):</strong>  Specifies whether to return a condensed catalog (D-part = time range for time series). Defaults to True</li>
+</ul>
+
+<h6 id="raises">Raises:</h6>
+
+<ul>
+<li><strong>DataStoreException:</strong>  if the data store is not open or an invalid <code>data_type</code> is specified</li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>List[str]: The pathnames that match the specified parameters</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="DssDataStore.close" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">close</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span><span class="return-annotation">) -> <span class="kc">None</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#DssDataStore.close"></a>
+    
+            <div class="docstring"><p>Explicitly closes the data store, preventing further access.</p>
+
+<p>The data store is implicitly closed upon deletion or exiting a context manager ('with' block)</p>
+</div>
+
+
+                            </div>
+                            <div id="DssDataStore.delete" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">delete</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">identifier</span><span class="p">:</span> <span class="nb">str</span>, </span><span class="param"><span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span></span><span class="return-annotation">) -> <span class="kc">None</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#DssDataStore.delete"></a>
+    
+            <div class="docstring"><p>Deletes a data set from the data store.</p>
+
+<p>Currently only time series data may be deleted. To delete all data for a time series, specifiy <code>start_time=None</code> and <code>end_time=None</code></p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>identifier (str):</strong>  The name of the data set to delete:
+<ul>
+<li><strong>TIMESERIES</strong>: A pathname in the dataset. The D part (block start date) is ignored.</li>
+</ul></li>
+<li><strong>end_time (Optional[Any], must be passed by name):</strong>  Specifies the end of the time window to delete data. Must be an <a href="hectime.html#HecTime"><code>HecTime</code></a> object or a valid input to the <code>HecTime</code> constructor.
+Defaults to the end of the data store's time window. If None or not specified and the data store's time window doesn't have an end time, all data on or after the start time will be deleted.</li>
+<li><strong>start_time (Optional[Any], must be passed by name):</strong>  Specifies the start of the time window to delete data. Must be an <a href="hectime.html#HecTime"><code>HecTime</code></a> object or a valid input to the <code>HecTime</code> constructor.
+Defaults to the start of the data store's time window. If None or not specified and the data store's time window doesn't have a start time, all data up to and on the end time will be deleted.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="DssDataStore.get_extents" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">get_extents</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">identifier</span><span class="p">:</span> <span class="nb">str</span>, </span><span class="param"><span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span></span><span class="return-annotation">) -> <span class="n">List</span><span class="p">[</span><span class="n"><a href="../hec.html#HecTime">hec.HecTime</a></span><span class="p">]</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#DssDataStore.get_extents"></a>
+    
+            <div class="docstring"><p>Retrieves the data extents for the specified identifier</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>identifier (str):</strong>  The identifier to retrieve the extents for</li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>List[HecTime]: The earliest time and latest time for the identifier</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="DssDataStore.is_open" class="classattr">
+                                <div class="attr variable">
+            <span class="name">is_open</span><span class="annotation">: bool</span>
+
+        
+    </div>
+    <a class="headerlink" href="#DssDataStore.is_open"></a>
+    
+            <div class="docstring"><p>Whether this data store is open for cataloging and reading.</p>
+
+<p>A data store is open from its construction or call to <code><a href="#DssDataStore.open">open()</a></code> until a call to <code><a href="#DssDataStore.close">close()</a></code> or deletiion</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read Only</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="DssDataStore.native_data_store" class="classattr">
+                                <div class="attr variable">
+            <span class="name">native_data_store</span><span class="annotation">: Any</span>
+
+        
+    </div>
+    <a class="headerlink" href="#DssDataStore.native_data_store"></a>
+    
+            <div class="docstring"><p>The underlying HecDss object from the imported library used by this data store</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read-Only</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="DssDataStore.open" class="classattr">
+                                <div class="attr function">
+                    <div class="decorator decorator-staticmethod">@staticmethod</div>
+
+        <span class="def">def</span>
+        <span class="name">open</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>, </span><span class="param"><span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span></span><span class="return-annotation">) -> <span class="n"><a href="#DssDataStore">DssDataStore</a></span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#DssDataStore.open"></a>
+    
+            <div class="docstring"><p>Creates and returns a new DssDataStore object.</p>
+
+<p>Equivalent of calling <a href="#DssDataStore"><code>DssDataStore(**kwargs)</code></a> with <code><a href="#DssDataStore.name">name</a></code> in <code>kwargs</code></p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>name (str):</strong>  The name of the HEC-DSS file to open.</li>
+<li><strong>description (Optional[str], must be passed by name):</strong>  The description assocaited with the data store. Defaults to None</li>
+<li><strong>end_time (Optional[Any], must be passed by name):</strong>  Specifies the end time of the data store's time window. Must be an <a href="hectime.html#HecTime"><code>HecTime</code></a> object or a valid input to the <code>HecTime</code> constructor. Defaults to None</li>
+<li><strong>read_only (Optional[bool], must be passed by name):</strong>  Specifies whether to open the data store in read-only mode. Defaults to True</li>
+<li><strong>start_time (Optional[Any], must be passed by name):</strong>  Specifies the start time of the data store's time window. Must be an <a href="hectime.html#HecTime"><code>HecTime</code></a> object or a valid input to the <code>HecTime</code> constructor. Defaults to None</li>
+<li><strong>store_rule (Optional[str], must be passed by name):</strong>  Must be one of the following (case insensitive). Defaults to 'REPLACE_ALL'.
+<ul>
+<li>'DELETE_INSERT'</li>
+<li>'DO_NOT_REPLACE'</li>
+<li>'REPLACE_ALL'</li>
+<li>'REPLACE_MISSING_VALUES_ONLY'</li>
+<li>'REPLACE_WITH_NON_MISSING'</li>
+</ul></li>
+<li><strong>trim (Optional[bool], must be passed by name):</strong>  Specifies the data store's default setting to trim missing values from the beginning and end of any regular time series data set retrieved.
+Defaults to True.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="DssDataStore.retrieve" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">retrieve</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">identifier</span><span class="p">:</span> <span class="nb">str</span>, </span><span class="param"><span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span></span><span class="return-annotation">) -> <span class="n">Any</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#DssDataStore.retrieve"></a>
+    
+            <div class="docstring"><p>Retrieves a data set from the data store.</p>
+
+<p>Currently only time series data may be retrieved. To retrieve all data for a time series, specifiy <code>start_time=None</code> and <code>end_time=None</code></p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>identifier (str):</strong>  The name of the data set to retrieve:
+<ul>
+<li><strong>TIMESERIES</strong>: A pathname in the dataset. The D part (block start date) is ignored.</li>
+</ul></li>
+<li><strong>end_time (Optional[Any], must be passed by name):</strong>  Specifies the end of the time window to retrieve data. Must be an <a href="hectime.html#HecTime"><code>HecTime</code></a> object or a valid input to the <code>HecTime</code> constructor.
+Defaults to the end of the data store's time window. If None or not specified and the data store's time window doesn't have an end time, all data on or after the start time will be retrieved.</li>
+<li><strong>start_time (Optional[Any], must be passed by name):</strong>  Specifies the start of the time window to retrieve data. Must be an <a href="hectime.html#HecTime"><code>HecTime</code></a> object or a valid input to the <code>HecTime</code> constructor.
+Defaults to the start of the data store's time window. If None or not specified and the data store's time window doesn't have a start time, all data up to and on the end time will be retrieved.</li>
+<li><strong>trim (Optional[bool], must be passed by name):</strong>  Specifies whether to trim missing values from the beginning and end of any regular time series data set retrieved.
+Defaults to the data store's trim setting.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="DssDataStore.set_message_level" class="classattr">
+                                <div class="attr function">
+                    <div class="decorator decorator-staticmethod">@staticmethod</div>
+
+        <span class="def">def</span>
+        <span class="name">set_message_level</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">level</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span></span><span class="return-annotation">) -> <span class="kc">None</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#DssDataStore.set_message_level"></a>
+    
+            <div class="docstring"><p>Sets the HEC-DSS message level for all <code><a href="#DssDataStore">DssDataStore</a></code> objects</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>level (int, optional):</strong>  Defaults to 4
+<ul>
+<li><strong>0</strong>: No output</li>
+<li><strong>1</strong>: Critcal output only</li>
+<li><strong>2</strong>: Terse (includes file open and close)</li>
+<li><strong>4</strong>: General (includes read and write)</li>
+<li><strong>5</strong>: User Diagnostic</li>
+<li><strong>11</strong>: Internal Diagnostic</li>
+<li><strong>13</strong>: Internal Debug</li>
+</ul></li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="DssDataStore.store" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">store</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">obj</span><span class="p">:</span> <span class="nb">object</span>, </span><span class="param"><span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span></span><span class="return-annotation">) -> <span class="kc">None</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#DssDataStore.store"></a>
+    
+            <div class="docstring"><p>Stores a data set to the data store.</p>
+
+<p>Currently only time series data may be stored.</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>obj (object):</strong>  The data set to store</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div class="inherited">
+                                <h5>Inherited Members</h5>
+                                <dl>
+                                    <div><dt><a href="#AbstractDataStore">AbstractDataStore</a></dt>
+                                <dd id="DssDataStore.end_time" class="variable"><a href="#AbstractDataStore.end_time">end_time</a></dd>
+                <dd id="DssDataStore.name" class="variable"><a href="#AbstractDataStore.name">name</a></dd>
+                <dd id="DssDataStore.office" class="variable"><a href="#AbstractDataStore.office">office</a></dd>
+                <dd id="DssDataStore.is_read_only" class="variable"><a href="#AbstractDataStore.is_read_only">is_read_only</a></dd>
+                <dd id="DssDataStore.start_time" class="variable"><a href="#AbstractDataStore.start_time">start_time</a></dd>
+                <dd id="DssDataStore.time_window" class="variable"><a href="#AbstractDataStore.time_window">time_window</a></dd>
+                <dd id="DssDataStore.time_zone" class="variable"><a href="#AbstractDataStore.time_zone">time_zone</a></dd>
+                <dd id="DssDataStore.trim" class="variable"><a href="#AbstractDataStore.trim">trim</a></dd>
+                <dd id="DssDataStore.units" class="variable"><a href="#AbstractDataStore.units">units</a></dd>
+                <dd id="DssDataStore.vertical_datum" class="variable"><a href="#AbstractDataStore.vertical_datum">vertical_datum</a></dd>
+
+            </div>
+                                </dl>
+                            </div>
+                </section>
+                <section id="AbstractDataStore">
+                    <div class="attr class">
+            
+    <span class="def">class</span>
+    <span class="name">AbstractDataStore</span><wbr>(<span class="base">abc.ABC</span>):
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractDataStore"></a>
+    
+            <div class="docstring"><p>Abstract base class for data store classes</p>
+</div>
+
+
+                            <div id="AbstractDataStore.catalog" class="classattr">
+                                <div class="attr function">
+                    <div class="decorator decorator-abstractmethod">@abstractmethod</div>
+
+        <span class="def">def</span>
+        <span class="name">catalog</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">data_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>, </span><span class="param"><span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span></span><span class="return-annotation">) -> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractDataStore.catalog"></a>
+    
+    
+
+                            </div>
+                            <div id="AbstractDataStore.close" class="classattr">
+                                <div class="attr function">
+                    <div class="decorator decorator-abstractmethod">@abstractmethod</div>
+
+        <span class="def">def</span>
+        <span class="name">close</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span><span class="return-annotation">) -> <span class="kc">None</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractDataStore.close"></a>
+    
+            <div class="docstring"><p>Explicitly closes the data store, preventing further access.</p>
+
+<p>The data store is implicitly closed upon deletion or exiting a context manager ('with' block)</p>
+</div>
+
+
+                            </div>
+                            <div id="AbstractDataStore.delete" class="classattr">
+                                <div class="attr function">
+                    <div class="decorator decorator-abstractmethod">@abstractmethod</div>
+
+        <span class="def">def</span>
+        <span class="name">delete</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">identifier</span><span class="p">:</span> <span class="nb">str</span>, </span><span class="param"><span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span></span><span class="return-annotation">) -> <span class="kc">None</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractDataStore.delete"></a>
+    
+    
+
+                            </div>
+                            <div id="AbstractDataStore.end_time" class="classattr">
+                                <div class="attr variable">
+            <span class="name">end_time</span><span class="annotation">: Optional[<a href="../hec.html#HecTime">hec.HecTime</a>]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractDataStore.end_time"></a>
+    
+            <div class="docstring"><p>The end time of the data store's time window (if any)</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read/Write</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="AbstractDataStore.get_extents" class="classattr">
+                                <div class="attr function">
+                    <div class="decorator decorator-abstractmethod">@abstractmethod</div>
+
+        <span class="def">def</span>
+        <span class="name">get_extents</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">identifier</span><span class="p">:</span> <span class="nb">str</span>, </span><span class="param"><span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span></span><span class="return-annotation">) -> <span class="n">List</span><span class="p">[</span><span class="n"><a href="../hec.html#HecTime">hec.HecTime</a></span><span class="p">]</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractDataStore.get_extents"></a>
+    
+    
+
+                            </div>
+                            <div id="AbstractDataStore.native_data_store" class="classattr">
+                                <div class="attr variable">
+            <span class="name">native_data_store</span><span class="annotation">: Any</span>
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractDataStore.native_data_store"></a>
+    
+    
+
+                            </div>
+                            <div id="AbstractDataStore.name" class="classattr">
+                                <div class="attr variable">
+            <span class="name">name</span><span class="annotation">: str</span>
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractDataStore.name"></a>
+    
+            <div class="docstring"><p>The name of the data store as provided in the constructor or <code><a href="#AbstractDataStore.open">open()</a></code> method</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read Only</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="AbstractDataStore.office" class="classattr">
+                                <div class="attr variable">
+            <span class="name">office</span><span class="annotation">: Optional[str]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractDataStore.office"></a>
+    
+            <div class="docstring"><p>The office associated with the data store, if any</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read/Write</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="AbstractDataStore.open" class="classattr">
+                                <div class="attr function">
+                    <div class="decorator decorator-staticmethod">@staticmethod</div>
+        <div class="decorator decorator-abstractmethod">@abstractmethod</div>
+
+        <span class="def">def</span>
+        <span class="name">open</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span></span><span class="return-annotation">) -> <span class="n"><a href="#AbstractDataStore">AbstractDataStore</a></span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractDataStore.open"></a>
+    
+    
+
+                            </div>
+                            <div id="AbstractDataStore.is_open" class="classattr">
+                                <div class="attr variable">
+            <span class="name">is_open</span><span class="annotation">: bool</span>
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractDataStore.is_open"></a>
+    
+            <div class="docstring"><p>Whether this data store is open for cataloging and reading.</p>
+
+<p>A data store is open from its construction or call to <code><a href="#AbstractDataStore.open">open()</a></code> until a call to <code><a href="#AbstractDataStore.close">close()</a></code> or deletiion</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read Only</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="AbstractDataStore.is_read_only" class="classattr">
+                                <div class="attr variable">
+            <span class="name">is_read_only</span><span class="annotation">: bool</span>
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractDataStore.is_read_only"></a>
+    
+            <div class="docstring"><p>Whether this data store is open for storing and deleting. Meaningless if <code><a href="#AbstractDataStore.is_open">is_open</a></code> is False</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read/Write</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="AbstractDataStore.retrieve" class="classattr">
+                                <div class="attr function">
+                    <div class="decorator decorator-abstractmethod">@abstractmethod</div>
+
+        <span class="def">def</span>
+        <span class="name">retrieve</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">identifier</span><span class="p">:</span> <span class="nb">str</span>, </span><span class="param"><span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span></span><span class="return-annotation">) -> <span class="n">Any</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractDataStore.retrieve"></a>
+    
+    
+
+                            </div>
+                            <div id="AbstractDataStore.start_time" class="classattr">
+                                <div class="attr variable">
+            <span class="name">start_time</span><span class="annotation">: Optional[<a href="../hec.html#HecTime">hec.HecTime</a>]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractDataStore.start_time"></a>
+    
+            <div class="docstring"><p>The start time of the data store's time window (if any)</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read/Write</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="AbstractDataStore.store" class="classattr">
+                                <div class="attr function">
+                    <div class="decorator decorator-abstractmethod">@abstractmethod</div>
+
+        <span class="def">def</span>
+        <span class="name">store</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">obj</span><span class="p">:</span> <span class="nb">object</span>, </span><span class="param"><span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span></span><span class="return-annotation">) -> <span class="kc">None</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractDataStore.store"></a>
+    
+    
+
+                            </div>
+                            <div id="AbstractDataStore.time_window" class="classattr">
+                                <div class="attr variable">
+            <span class="name">time_window</span><span class="annotation">: Tuple[Optional[<a href="../hec.html#HecTime">hec.HecTime</a>], Optional[<a href="../hec.html#HecTime">hec.HecTime</a>]]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractDataStore.time_window"></a>
+    
+            <div class="docstring"><p>The data store's time window (if any)</p>
+
+<ul>
+<li><strong>Getting</strong>: same as (ds.start_time, ds.end_time)</li>
+<li><strong>Setting</strong>: same as ds.start_time, ds.end_time = tw</li>
+</ul>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read/Write</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="AbstractDataStore.time_zone" class="classattr">
+                                <div class="attr variable">
+            <span class="name">time_zone</span><span class="annotation">: str</span>
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractDataStore.time_zone"></a>
+    
+            <div class="docstring"><p>The time zone associated with the data store</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read/Write</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="AbstractDataStore.trim" class="classattr">
+                                <div class="attr variable">
+            <span class="name">trim</span><span class="annotation">: bool</span>
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractDataStore.trim"></a>
+    
+            <div class="docstring"><p>Whether the datastore will trim missing values from the edges of retrieved regular time series</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read/Write</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="AbstractDataStore.units" class="classattr">
+                                <div class="attr variable">
+            <span class="name">units</span><span class="annotation">: str</span>
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractDataStore.units"></a>
+    
+            <div class="docstring"><p>The unit system ('EN' or 'SI') associated with the data store</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read/Write</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="AbstractDataStore.vertical_datum" class="classattr">
+                                <div class="attr variable">
+            <span class="name">vertical_datum</span><span class="annotation">: Optional[str]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractDataStore.vertical_datum"></a>
+    
+            <div class="docstring"><p>The vertical datum ('NGVD29', 'NAVD88', 'OTHER') associated with the data store</p>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>Optional[str]: _description_</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                </section>
+    </main>
+<script>
+    function escapeHTML(html) {
+        return document.createElement('div').appendChild(document.createTextNode(html)).parentNode.innerHTML;
+    }
+
+    const originalContent = document.querySelector("main.pdoc");
+    let currentContent = originalContent;
+
+    function setContent(innerHTML) {
+        let elem;
+        if (innerHTML) {
+            elem = document.createElement("main");
+            elem.classList.add("pdoc");
+            elem.innerHTML = innerHTML;
+        } else {
+            elem = originalContent;
+        }
+        if (currentContent !== elem) {
+            currentContent.replaceWith(elem);
+            currentContent = elem;
+        }
+    }
+
+    function getSearchTerm() {
+        return (new URL(window.location)).searchParams.get("search");
+    }
+
+    const searchBox = document.querySelector(".pdoc input[type=search]");
+    searchBox.addEventListener("input", function () {
+        let url = new URL(window.location);
+        if (searchBox.value.trim()) {
+            url.hash = "";
+            url.searchParams.set("search", searchBox.value);
+        } else {
+            url.searchParams.delete("search");
+        }
+        history.replaceState("", "", url.toString());
+        onInput();
+    });
+    window.addEventListener("popstate", onInput);
+
+
+    let search, searchErr;
+
+    async function initialize() {
+        try {
+            search = await new Promise((resolve, reject) => {
+                const script = document.createElement("script");
+                script.type = "text/javascript";
+                script.async = true;
+                script.onload = () => resolve(window.pdocSearch);
+                script.onerror = (e) => reject(e);
+                script.src = "../search.js";
+                document.getElementsByTagName("head")[0].appendChild(script);
+            });
+        } catch (e) {
+            console.error("Cannot fetch pdoc search index");
+            searchErr = "Cannot fetch search index.";
+        }
+        onInput();
+
+        document.querySelector("nav.pdoc").addEventListener("click", e => {
+            if (e.target.hash) {
+                searchBox.value = "";
+                searchBox.dispatchEvent(new Event("input"));
+            }
+        });
+    }
+
+    function onInput() {
+        setContent((() => {
+            const term = getSearchTerm();
+            if (!term) {
+                return null
+            }
+            if (searchErr) {
+                return `<h3>Error: ${searchErr}</h3>`
+            }
+            if (!search) {
+                return "<h3>Searching...</h3>"
+            }
+
+            window.scrollTo({top: 0, left: 0, behavior: 'auto'});
+
+            const results = search(term);
+
+            let html;
+            if (results.length === 0) {
+                html = `No search results for '${escapeHTML(term)}'.`
+            } else {
+                html = `<h4>${results.length} search result${results.length > 1 ? "s" : ""} for '${escapeHTML(term)}'.</h4>`;
+            }
+            for (let result of results.slice(0, 10)) {
+                let doc = result.doc;
+                let url = `../${doc.modulename.replaceAll(".", "/")}.html`;
+                if (doc.qualname) {
+                    url += `#${doc.qualname}`;
+                }
+
+                let heading;
+                switch (result.doc.kind) {
+                    case "function":
+                        if (doc.fullname.endsWith(".__init__")) {
+                            heading = `<span class="name">${doc.fullname.replace(/\.__init__$/, "")}</span>${doc.signature}`;
+                        } else {
+                            heading = `<span class="def">${doc.funcdef}</span> <span class="name">${doc.fullname}</span>${doc.signature}`;
+                        }
+                        break;
+                    case "class":
+                        heading = `<span class="def">class</span> <span class="name">${doc.fullname}</span>`;
+                        if (doc.bases)
+                            heading += `<wbr>(<span class="base">${doc.bases}</span>)`;
+                        heading += `:`;
+                        break;
+                    case "variable":
+                        heading = `<span class="name">${doc.fullname}</span>`;
+                        if (doc.annotation)
+                            heading += `<span class="annotation">${doc.annotation}</span>`;
+                        if (doc.default_value)
+                            heading += `<span class="default_value"> = ${doc.default_value}</span>`;
+                        break;
+                    default:
+                        heading = `<span class="name">${doc.fullname}</span>`;
+                        break;
+                }
+                html += `
+                        <section class="search-result">
+                        <a href="${url}" class="attr ${doc.kind}">${heading}</a>
+                        <div class="docstring">${doc.doc}</div>
+                        </section>
+                    `;
+
+            }
+            return html;
+        })());
+    }
+
+    if (getSearchTerm()) {
+        initialize();
+        searchBox.value = getSearchTerm();
+        onInput();
+    } else {
+        searchBox.addEventListener("focus", initialize, {once: true});
+    }
+
+    searchBox.addEventListener("keydown", e => {
+        if (["ArrowDown", "ArrowUp", "Enter"].includes(e.key)) {
+            let focused = currentContent.querySelector(".search-result.focused");
+            if (!focused) {
+                currentContent.querySelector(".search-result").classList.add("focused");
+            } else if (
+                e.key === "ArrowDown"
+                && focused.nextElementSibling
+                && focused.nextElementSibling.classList.contains("search-result")
+            ) {
+                focused.classList.remove("focused");
+                focused.nextElementSibling.classList.add("focused");
+                focused.nextElementSibling.scrollIntoView({
+                    behavior: "smooth",
+                    block: "nearest",
+                    inline: "nearest"
+                });
+            } else if (
+                e.key === "ArrowUp"
+                && focused.previousElementSibling
+                && focused.previousElementSibling.classList.contains("search-result")
+            ) {
+                focused.classList.remove("focused");
+                focused.previousElementSibling.classList.add("focused");
+                focused.previousElementSibling.scrollIntoView({
+                    behavior: "smooth",
+                    block: "nearest",
+                    inline: "nearest"
+                });
+            } else if (
+                e.key === "Enter"
+            ) {
+                focused.querySelector("a").click();
+            }
+        }
+    });
+</script></body>
+</html>

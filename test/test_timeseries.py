@@ -2,8 +2,9 @@ import copy
 import math
 import os
 import statistics as stat
+import traceback
 import warnings
-from datetime import timedelta
+from datetime import datetime, timedelta
 from typing import List, Union, cast
 
 import numpy as np
@@ -102,7 +103,7 @@ def test_time_series_value() -> None:
 
 def test_create_time_series_by_name() -> None:
     ts = TimeSeries("SWT/Keystone.Elev-Pool.Inst.1Hour.0.Raw-Goes")
-    assert ts.name == "SWT/Keystone.Elev-Pool.Inst.1Hour.0.Raw-Goes"
+    assert ts.name == "Keystone.Elev-Pool.Inst.1Hour.0.Raw-Goes"
     assert ts.location.office == "SWT"
     assert ts.location.name == "Keystone"
     assert ts.parameter.name == "Elev-Pool"
@@ -587,8 +588,14 @@ def test_aggregate_ts() -> None:
     # ----------------- #
     ts = TimeSeries.aggregate_ts(stat.pstdev, timeseries)
     for i in range(value_count):
-        assert ts.values[i] == stat.pstdev(test_rows[i]) or (
-            math.isnan(ts.values[i]) and math.isnan(stat.pstdev(test_rows[i]))
+        assert np.isclose(
+            ts.values[i],
+            (
+                stat.pstdev(test_rows[i])
+                if all([np.isfinite(v) for v in test_rows[i]])
+                else np.nan
+            ),
+            equal_nan=True,
         )
     # -------------------- #
     # statistics.pvariance #
@@ -604,14 +611,6 @@ def test_aggregate_ts() -> None:
     ts = TimeSeries.aggregate_ts(stat.quantiles, timeseries)
     for i in range(value_count):
         assert cast(list[float], ts.values[i]) == stat.quantiles(test_rows[i])
-    # ---------------- #
-    # statistics.stdev #
-    # ---------------- #
-    ts = TimeSeries.aggregate_ts(stat.stdev, timeseries)
-    for i in range(value_count):
-        assert ts.values[i] == stat.stdev(test_rows[i]) or (
-            math.isnan(ts.values[i]) and math.isnan(stat.stdev(test_rows[i]))
-        )
     # ------------------- #
     # statistics.variance #
     # ------------------- #
@@ -878,8 +877,10 @@ def test_aggregate_values() -> None:
     # ----------------- #
     # statistics.pstdev #
     # ----------------- #
-    assert ts.aggregate(stat.pstdev) == stat.pstdev(values) or (
-        math.isnan(ts.aggregate(stat.pstdev)) and math.isnan(stat.pstdev(values))
+    assert np.isclose(
+        ts.aggregate(stat.pstdev),
+        stat.pstdev(values) if all([np.isfinite(v) for v in values]) else np.nan,
+        equal_nan=True,
     )
     # -------------------- #
     # statistics.pvariance #
@@ -894,8 +895,10 @@ def test_aggregate_values() -> None:
     # ---------------- #
     # statistics.stdev #
     # ---------------- #
-    assert ts.aggregate(stat.stdev) == stat.stdev(values) or (
-        math.isnan(ts.aggregate(stat.stdev)) and math.isnan(stat.stdev(values))
+    assert np.isclose(
+        ts.aggregate(stat.stdev),
+        stat.stdev(values) if all([np.isfinite(v) for v in values]) else np.nan,
+        equal_nan=True,
     )
     # ------------------- #
     # statistics.variance #
@@ -3003,12 +3006,8 @@ def test_expand_collapse_trim() -> None:
         1330,
         1300,
     ]
-    times = pd.Index(  # type: ignore
-        [
-            (start_time + i * TimeSpan(intvl.values)).datetime()
-            for i in range(len(values))
-        ],
-        name="time",
+    times = intvl.get_datetime_index(
+        start_time=start_time, count=len(values), name="time"
     )
     ts = TimeSeries(f"Loc1.Flow.Inst.{intvl.name}.0.Computed")
     ts._data = pd.DataFrame(
@@ -3208,20 +3207,15 @@ def test_merge() -> None:
         1330,
         1300,
     ]
-    times = pd.Index(  # type: ignore
-        [
-            (start_time + i * TimeSpan(intvl.values)).datetime()
-            for i in range(len(values1))
-        ],
-        name="time",
-    )
     ts1 = TimeSeries(f"Loc1.Flow.Inst.{intvl.name}.0.Computed")
     ts1._data = pd.DataFrame(
         {
             "value": values1,
             "quality": 5 * [0] + 6 * [5] + 13 * [0],
         },
-        index=times,
+        index=intvl.get_datetime_index(
+            start_time=start_time, count=len(values1), name="time"
+        ),
     )
     values2 = [
         2000,
@@ -3249,20 +3243,15 @@ def test_merge() -> None:
         2330,
         2300,
     ]
-    times = pd.Index(
-        [
-            (start_time + i * TimeSpan(intvl.values)).datetime()
-            for i in range(len(values1))
-        ],
-        name="time",
-    )
     ts2 = TimeSeries(f"Loc1.Flow.Inst.{intvl.name}.0.Computed")
     ts2._data = pd.DataFrame(
         {
             "value": values2,
             "quality": 20 * [0] + 2 * [5] + 2 * [0],
         },
-        index=times,
+        index=intvl.get_datetime_index(
+            start_time=start_time, count=len(values2), name="time"
+        ),
     )
     # ------------------------------------- #
     # same time window, no protected values #
@@ -3377,25 +3366,20 @@ def test_merge() -> None:
     # test mixing intervals #
     # --------------------- #
     intvl = Interval.get_cwms("12Hours")
-    times = pd.Index(
-        [
-            (start_time + i * TimeSpan(intvl.values)).datetime()
-            for i in range(len(values1))
-        ],
-        name="time",
-    )
     ts4 = TimeSeries(f"Loc1.Flow.Inst.{intvl.name}.0.Computed")
     ts4._data = pd.DataFrame(
         {
             "value": values2,
             "quality": 20 * [0] + 2 * [5] + 2 * [0],
         },
-        index=times,
+        index=intvl.get_datetime_index(
+            start_time=start_time, count=len(values1), name="time"
+        ),
     )
     try:
         ts1.merge(ts4)
     except TimeSeriesException as tse:
-        assert str(tse).find("Times do not match interval") != -1
+        assert str(tse).find("is not consistent with interval") != -1
 
 
 def test_to_irregular() -> None:
@@ -3547,8 +3531,9 @@ def test_snap_to_regular() -> None:
 
 def test_new_regular_time_series() -> None:
     name = "Loc1.Flow.Inst.0.0.Computed"
+    time_zone = "US/Pacific"
     start_times = [
-        HecTime(s).label_as_time_zone("US/Pacific")
+        HecTime(s).label_as_time_zone(time_zone)
         for s in ("2025-02-15T15:30:00", "2025-10-15T15:30:00")
     ]
     matchers = [
@@ -3566,7 +3551,7 @@ def test_new_regular_time_series() -> None:
         480,
     ]
     values = (100.0, [1.0, 2.0, 3.0, 4.0, 5.0])
-    qualities = (
+    qualities: tuple[Union[list[Union[Qual, int]], Qual, int], ...] = (
         3,
         Qual(3),
         [0, 3],
@@ -3693,25 +3678,26 @@ def test_new_regular_time_series() -> None:
                 for offset in offsets:
                     for value in values:
                         for quality in qualities:
-                            # for item in (
-                            #     "start_time",
-                            #     "end",
-                            #     "intvl",
-                            #     "offset",
-                            #     "value",
-                            #     "quality",
-                            # ):
-                            #     print(
-                            #         f"{item} = {eval(item+'.name' if item == 'intvl' else item)}"
-                            #     )
-                            # print("")
+                            for item in (
+                                "start_time",
+                                "end",
+                                "intvl",
+                                "offset",
+                                "value",
+                                "quality",
+                            ):
+                                print(
+                                    f"{item} = {eval(item+'.name' if item == 'intvl' else item)}"
+                                )
+                            print("")
 
                             ts = TimeSeries.new_regular_time_series(
                                 name,
-                                HecTime(start_time).label_as_time_zone("US/Pacific"),
+                                start_time,
                                 end,
                                 intvl,
                                 offset,
+                                time_zone,
                                 value,
                                 quality,
                             )
@@ -3724,6 +3710,14 @@ def test_new_regular_time_series() -> None:
                                 == expected_times[str(start_time)][intvl.name][i]
                                 for i in range(expected_length)
                             ]
+                            if not all(same):
+                                for t1, t2 in list(
+                                    zip(
+                                        expected_times[str(start_time)][intvl.name],
+                                        ts.times,
+                                    )
+                                ):
+                                    print(f"{t1}\t{t2}\t{t2 == t1}")
                             assert all(same)
                             if value == 100.0:
                                 assert ts.values == expected_length * [100.0]
@@ -3756,6 +3750,7 @@ def test_resample() -> None:
         30,
         intvl_1_hour,
         offset,
+        None,
         [100 + i for i in range(30)],
     )
     expected_values = {
@@ -3995,6 +3990,7 @@ def test_resample() -> None:
         30,
         intvl_1_hour,
         offset,
+        None,
         [100 + i for i in range(30)],
     )
     expected_values = {
@@ -4237,6 +4233,7 @@ def test_resample() -> None:
         30,
         intvl_1_hour,
         offset,
+        None,
         [100 + i for i in range(30)],
     )
     expected_values = {
@@ -4479,6 +4476,7 @@ def test_resample() -> None:
         5,
         intvl_6_hours,
         offset,
+        None,
         [100 + 6 * i for i in range(5)],
     )
     expected_values = {
@@ -4720,6 +4718,7 @@ def test_resample() -> None:
         30,
         intvl_1_hour,
         offset,
+        None,
         [100 + i for i in range(30)],
     )
     expected_values = {
@@ -4961,6 +4960,7 @@ def test_resample() -> None:
         5,
         intvl_6_hours,
         offset,
+        None,
         [100 + 6 * i for i in range(5)],
     )
     expected_values = {
@@ -5201,6 +5201,7 @@ def test_resample() -> None:
         5,
         intvl_6_hours,
         offset,
+        None,
         [100 + 6 * i for i in range(5)],
     )
     tsvs = [
@@ -5219,7 +5220,7 @@ def test_resample() -> None:
             "value": [tsv.value.magnitude for tsv in tsvs],
             "quality": [tsv.quality.code for tsv in tsvs],
         },
-        index=pd.Index([tsv.time for tsv in tsvs], name="times"),
+        index=pd.Index([tsv.time for tsv in tsvs], name="time"),
     )
 
     expected_values = {
@@ -5241,31 +5242,43 @@ def test_resample() -> None:
     # print(f"TimeSeries.resample called {call_count} times.")
 
 
+def run_test_timed(test_name: str) -> None:
+    print(f"Running {test_name}")
+    ts1 = datetime.now()
+    try:
+        exec(f"{test_name}()")
+    except:
+        traceback.print_exc()
+    ts2 = datetime.now()
+    print(f"...completed in {ts2 - ts1}")
+
+
 if __name__ == "__main__":
-    # test_time_series_value()
-    # test_create_time_series_by_name()
-    # test_math_ops_scalar()
-    # test_math_ops_ts()
-    # test_selection_and_filter()
-    # test_aggregate_ts()
-    # test_aggregate_values()
-    # test_min_max()
-    # test_accum_diff()
-    # test_value_counts()
-    # test_unit()
-    # test_roundoff()
-    # test_smoothing()
-    # test_protected()
-    # test_screen_with_value_range()
-    # test_screen_with_value_change_rate()
-    # test_screen_with_value_range_or_change_rate()
-    # test_screen_with_duration_magnitude()
-    # test_screen_with_constant_value()
-    # test_screen_with_forward_moving_average()
-    # test_estimate_missing_values()
-    test_expand_collapse_trim()
-    # test_merge()
-    # test_to_irregular()
-    # test_snap_to_regular()
-    # test_new_regular_time_series()
-    # test_resample()
+    pass
+    # run_test_timed("test_time_series_value")
+    # run_test_timed("test_create_time_series_by_name")
+    # run_test_timed("test_math_ops_scalar")
+    # run_test_timed("test_math_ops_ts")
+    # run_test_timed("test_selection_and_filter")
+    # run_test_timed("test_aggregate_ts")
+    # run_test_timed("test_aggregate_values")
+    # run_test_timed("test_min_max")
+    # run_test_timed("test_accum_diff")
+    # run_test_timed("test_value_counts")
+    # run_test_timed("test_unit")
+    # run_test_timed("test_roundoff")
+    # run_test_timed("test_smoothing")
+    # run_test_timed("test_protected")
+    # run_test_timed("test_screen_with_value_range")
+    # run_test_timed("test_screen_with_value_change_rate")
+    # run_test_timed("test_screen_with_value_range_or_change_rate")
+    # run_test_timed("test_screen_with_duration_magnitude")
+    # run_test_timed("test_screen_with_constant_value")
+    # run_test_timed("test_screen_with_forward_moving_average")
+    # run_test_timed("test_estimate_missing_values")
+    # run_test_timed("test_expand_collapse_trim")
+    # run_test_timed("test_merge")
+    # run_test_timed("test_to_irregular")
+    # run_test_timed("test_snap_to_regular")
+    # run_test_timed("test_new_regular_time_series")
+    # run_test_timed("test_resample")

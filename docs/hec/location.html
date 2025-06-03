@@ -31,6 +31,60 @@
             <h2>API Documentation</h2>
                 <ul class="memberlist">
             <li>
+                    <a class="class" href="#KIND">KIND</a>
+                            <ul class="memberlist">
+                        <li>
+                                <a class="variable" href="#KIND.SITE">SITE</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#KIND.STREAM">STREAM</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#KIND.BASIN">BASIN</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#KIND.PROJECT">PROJECT</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#KIND.EMBANKMENT">EMBANKMENT</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#KIND.OUTLET">OUTLET</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#KIND.TURBINE">TURBINE</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#KIND.LOCK">LOCK</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#KIND.STREAM_LOCATION">STREAM_LOCATION</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#KIND.GATE">GATE</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#KIND.OVERFLOW">OVERFLOW</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#KIND.STREAM_GAGE">STREAM_GAGE</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#KIND.STREAM_REACH">STREAM_REACH</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#KIND.PUMP">PUMP</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#KIND.WEATHER_GAGE">WEATHER_GAGE</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#KIND.ENTITY">ENTITY</a>
+                        </li>
+                </ul>
+
+            </li>
+            <li>
                     <a class="class" href="#LocationException">LocationException</a>
                             <ul class="memberlist">
                 </ul>
@@ -49,10 +103,10 @@
                                 <a class="variable" href="#Location.elevation">elevation</a>
                         </li>
                         <li>
-                                <a class="variable" href="#Location.elevation_unit">elevation_unit</a>
+                                <a class="variable" href="#Location.horizontal_datum">horizontal_datum</a>
                         </li>
                         <li>
-                                <a class="variable" href="#Location.horizontal_datum">horizontal_datum</a>
+                                <a class="variable" href="#Location.kind">kind</a>
                         </li>
                         <li>
                                 <a class="variable" href="#Location.latitude">latitude</a>
@@ -70,7 +124,19 @@
                                 <a class="variable" href="#Location.subname">subname</a>
                         </li>
                         <li>
+                                <a class="variable" href="#Location.time_zone">time_zone</a>
+                        </li>
+                        <li>
                                 <a class="variable" href="#Location.vertical_datum">vertical_datum</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Location.vertical_datum_info">vertical_datum_info</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Location.vertical_datum_json">vertical_datum_json</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Location.vertical_datum_xml">vertical_datum_xml</a>
                         </li>
                 </ul>
 
@@ -98,6 +164,213 @@
                 
                 
             </section>
+                <section id="KIND">
+                    <div class="attr class">
+            
+    <span class="def">class</span>
+    <span class="name">KIND</span><wbr>(<span class="base">enum.Enum</span>):
+
+        
+    </div>
+    <a class="headerlink" href="#KIND"></a>
+    
+            <div class="docstring"><p>An enumeration.</p>
+</div>
+
+
+                            <div id="KIND.SITE" class="classattr">
+                                <div class="attr variable">
+            <span class="name">SITE</span>        =
+<span class="default_value">&lt;<a href="#KIND.SITE">KIND.SITE</a>: 1&gt;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#KIND.SITE"></a>
+    
+    
+
+                            </div>
+                            <div id="KIND.STREAM" class="classattr">
+                                <div class="attr variable">
+            <span class="name">STREAM</span>        =
+<span class="default_value">&lt;<a href="#KIND.STREAM">KIND.STREAM</a>: 2&gt;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#KIND.STREAM"></a>
+    
+    
+
+                            </div>
+                            <div id="KIND.BASIN" class="classattr">
+                                <div class="attr variable">
+            <span class="name">BASIN</span>        =
+<span class="default_value">&lt;<a href="#KIND.BASIN">KIND.BASIN</a>: 3&gt;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#KIND.BASIN"></a>
+    
+    
+
+                            </div>
+                            <div id="KIND.PROJECT" class="classattr">
+                                <div class="attr variable">
+            <span class="name">PROJECT</span>        =
+<span class="default_value">&lt;<a href="#KIND.PROJECT">KIND.PROJECT</a>: 4&gt;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#KIND.PROJECT"></a>
+    
+    
+
+                            </div>
+                            <div id="KIND.EMBANKMENT" class="classattr">
+                                <div class="attr variable">
+            <span class="name">EMBANKMENT</span>        =
+<span class="default_value">&lt;<a href="#KIND.EMBANKMENT">KIND.EMBANKMENT</a>: 5&gt;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#KIND.EMBANKMENT"></a>
+    
+    
+
+                            </div>
+                            <div id="KIND.OUTLET" class="classattr">
+                                <div class="attr variable">
+            <span class="name">OUTLET</span>        =
+<span class="default_value">&lt;<a href="#KIND.OUTLET">KIND.OUTLET</a>: 6&gt;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#KIND.OUTLET"></a>
+    
+    
+
+                            </div>
+                            <div id="KIND.TURBINE" class="classattr">
+                                <div class="attr variable">
+            <span class="name">TURBINE</span>        =
+<span class="default_value">&lt;<a href="#KIND.TURBINE">KIND.TURBINE</a>: 7&gt;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#KIND.TURBINE"></a>
+    
+    
+
+                            </div>
+                            <div id="KIND.LOCK" class="classattr">
+                                <div class="attr variable">
+            <span class="name">LOCK</span>        =
+<span class="default_value">&lt;<a href="#KIND.LOCK">KIND.LOCK</a>: 8&gt;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#KIND.LOCK"></a>
+    
+    
+
+                            </div>
+                            <div id="KIND.STREAM_LOCATION" class="classattr">
+                                <div class="attr variable">
+            <span class="name">STREAM_LOCATION</span>        =
+<span class="default_value">&lt;<a href="#KIND.STREAM_LOCATION">KIND.STREAM_LOCATION</a>: 9&gt;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#KIND.STREAM_LOCATION"></a>
+    
+    
+
+                            </div>
+                            <div id="KIND.GATE" class="classattr">
+                                <div class="attr variable">
+            <span class="name">GATE</span>        =
+<span class="default_value">&lt;<a href="#KIND.GATE">KIND.GATE</a>: 10&gt;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#KIND.GATE"></a>
+    
+    
+
+                            </div>
+                            <div id="KIND.OVERFLOW" class="classattr">
+                                <div class="attr variable">
+            <span class="name">OVERFLOW</span>        =
+<span class="default_value">&lt;<a href="#KIND.OVERFLOW">KIND.OVERFLOW</a>: 11&gt;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#KIND.OVERFLOW"></a>
+    
+    
+
+                            </div>
+                            <div id="KIND.STREAM_GAGE" class="classattr">
+                                <div class="attr variable">
+            <span class="name">STREAM_GAGE</span>        =
+<span class="default_value">&lt;<a href="#KIND.STREAM_GAGE">KIND.STREAM_GAGE</a>: 12&gt;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#KIND.STREAM_GAGE"></a>
+    
+    
+
+                            </div>
+                            <div id="KIND.STREAM_REACH" class="classattr">
+                                <div class="attr variable">
+            <span class="name">STREAM_REACH</span>        =
+<span class="default_value">&lt;<a href="#KIND.STREAM_REACH">KIND.STREAM_REACH</a>: 13&gt;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#KIND.STREAM_REACH"></a>
+    
+    
+
+                            </div>
+                            <div id="KIND.PUMP" class="classattr">
+                                <div class="attr variable">
+            <span class="name">PUMP</span>        =
+<span class="default_value">&lt;<a href="#KIND.PUMP">KIND.PUMP</a>: 14&gt;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#KIND.PUMP"></a>
+    
+    
+
+                            </div>
+                            <div id="KIND.WEATHER_GAGE" class="classattr">
+                                <div class="attr variable">
+            <span class="name">WEATHER_GAGE</span>        =
+<span class="default_value">&lt;<a href="#KIND.WEATHER_GAGE">KIND.WEATHER_GAGE</a>: 15&gt;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#KIND.WEATHER_GAGE"></a>
+    
+    
+
+                            </div>
+                            <div id="KIND.ENTITY" class="classattr">
+                                <div class="attr variable">
+            <span class="name">ENTITY</span>        =
+<span class="default_value">&lt;<a href="#KIND.ENTITY">KIND.ENTITY</a>: 16&gt;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#KIND.ENTITY"></a>
+    
+    
+
+                            </div>
+                </section>
                 <section id="LocationException">
                     <div class="attr class">
             
@@ -130,7 +403,7 @@
                             <div id="Location.__init__" class="classattr">
                                 <div class="attr function">
             
-        <span class="name">Location</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">name</span><span class="p">:</span> <span class="nb">str</span>,</span><span class="param">	<span class="n">office</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">latitude</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">longitude</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">elevation</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">elevation_unit</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">horizontal_datum</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">vertical_datum</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></span>)</span>
+        <span class="name">Location</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">name</span><span class="p">:</span> <span class="nb">str</span>,</span><span class="param">	<span class="n">office</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">latitude</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">longitude</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">horizontal_datum</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">elevation</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">elevation_unit</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">vertical_datum</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">time_zone</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">kind</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">vertical_datum_info</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">NoneType</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></span>)</span>
 
         
     </div>
@@ -142,13 +415,14 @@
 
 <ul>
 <li><strong>name (str):</strong>  The location name</li>
-<li><strong>office (str, optional):</strong>  The office that owns the location, if applicable. Defaults to None.</li>
-<li><strong>latitude (float, optional):</strong>  The latitude of the location. Defaults to None.</li>
-<li><strong>longitude (float, optional):</strong>  The longitude of the location. Defaults to None.</li>
-<li><strong>elevation (float, optional):</strong>  The elevation of the location. Defaults to None.</li>
-<li><strong>elevation_unit (str, optional):</strong>  The unit of elevation of the location. Defaults to None.</li>
-<li><strong>horizontal_datum (str, optional):</strong>  The horizontal datum of the specified lat/lon. Defaults to None.</li>
-<li><strong>vertical_datum (str, optional):</strong>  The vertical datum of the specified elevation. Defaults to None.</li>
+<li><strong>office (Optional[str]):</strong>  The office that owns the location, if applicable. Defaults to None.</li>
+<li><strong>latitude (Optional[float]):</strong>  The latitude of the location. Defaults to None.</li>
+<li><strong>longitude (Optional[float]):</strong>  The longitude of the location. Defaults to None.</li>
+<li><strong>horizontal_datum (Optional[str]):</strong>  The horizontal datum of the specified lat/lon. Defaults to None.</li>
+<li><strong>elevation (Optional[float]):</strong>  The elevation of the location. Defaults to None.</li>
+<li><strong>elevation_unit (Optional[str]):</strong>  The unit of elevation of the location. Defaults to None.</li>
+<li><strong>vertical_datum (Optional[str]):</strong>  The native vertical datum of the specified elevation. Defaults to None.</li>
+<li><strong>vertical_datum_info (Optional[Union[str, dict[str,Any]]]):</strong>  The vertical datum info for the location. Overrides <code><a href="#Location.elevation">elevation</a></code>, <code>elevation_unit</code>, and <code><a href="#Location.vertical_datum">vertical_datum</a></code> parameters, if also specified. Defaults to None.</li>
 </ul>
 </div>
 
@@ -175,32 +449,13 @@
                             </div>
                             <div id="Location.elevation" class="classattr">
                                 <div class="attr variable">
-            <span class="name">elevation</span><span class="annotation">: Optional[float]</span>
+            <span class="name">elevation</span><span class="annotation">: Optional[<a href="../hec.html#UnitQuantity">hec.UnitQuantity</a>]</span>
 
         
     </div>
     <a class="headerlink" href="#Location.elevation"></a>
     
             <div class="docstring"><p>The elevation of the location</p>
-
-<h6 id="operations">Operations:</h6>
-
-<blockquote>
-  <p>Read/Write</p>
-</blockquote>
-</div>
-
-
-                            </div>
-                            <div id="Location.elevation_unit" class="classattr">
-                                <div class="attr variable">
-            <span class="name">elevation_unit</span><span class="annotation">: Optional[str]</span>
-
-        
-    </div>
-    <a class="headerlink" href="#Location.elevation_unit"></a>
-    
-            <div class="docstring"><p>The unit of the location's elevation</p>
 
 <h6 id="operations">Operations:</h6>
 
@@ -220,6 +475,25 @@
     <a class="headerlink" href="#Location.horizontal_datum"></a>
     
             <div class="docstring"><p>The horizontal datum of the location's latitude/longitude</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read/Write</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="Location.kind" class="classattr">
+                                <div class="attr variable">
+            <span class="name">kind</span><span class="annotation">: Optional[str]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Location.kind"></a>
+    
+            <div class="docstring"><p>The kind of the location</p>
 
 <h6 id="operations">Operations:</h6>
 
@@ -325,15 +599,15 @@
 
 
                             </div>
-                            <div id="Location.vertical_datum" class="classattr">
+                            <div id="Location.time_zone" class="classattr">
                                 <div class="attr variable">
-            <span class="name">vertical_datum</span><span class="annotation">: Optional[str]</span>
+            <span class="name">time_zone</span><span class="annotation">: Optional[str]</span>
 
         
     </div>
-    <a class="headerlink" href="#Location.vertical_datum"></a>
+    <a class="headerlink" href="#Location.time_zone"></a>
     
-            <div class="docstring"><p>The vertical datum of the location's elevation</p>
+            <div class="docstring"><p>The time zone of the location</p>
 
 <h6 id="operations">Operations:</h6>
 
@@ -342,6 +616,68 @@
 </blockquote>
 </div>
 
+
+                            </div>
+                            <div id="Location.vertical_datum" class="classattr">
+                                <div class="attr variable">
+            <span class="name">vertical_datum</span><span class="annotation">: Optional[str]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Location.vertical_datum"></a>
+    
+            <div class="docstring"><p>The native vertical datum of the location's elevation</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read/Write</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="Location.vertical_datum_info" class="classattr">
+                                <div class="attr variable">
+            <span class="name">vertical_datum_info</span><span class="annotation">: Optional[hec.parameter.ElevParameter._VerticalDatumInfo]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Location.vertical_datum_info"></a>
+    
+            <div class="docstring"><p>The vertical datum information for the location.
+    * The getter returns a _VerticalDatumInfo object.
+    * The setter accepts _VerticalDatumInfo objects</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read/Write</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="Location.vertical_datum_json" class="classattr">
+                                <div class="attr variable">
+            <span class="name">vertical_datum_json</span><span class="annotation">: Optional[str]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Location.vertical_datum_json"></a>
+    
+    
+
+                            </div>
+                            <div id="Location.vertical_datum_xml" class="classattr">
+                                <div class="attr variable">
+            <span class="name">vertical_datum_xml</span><span class="annotation">: Optional[str]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Location.vertical_datum_xml"></a>
+    
+    
 
                             </div>
                 </section>

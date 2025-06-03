@@ -74,11 +74,11 @@ def test_creation() -> None:
 
     assert TimeSpan(timedelta(seconds=273906)).values == [0, 0, 3, 4, 5, 6]
     assert TimeSpan("P1Y2M3DT4H5M6S").values == [1, 2, 3, 4, 5, 6]
-    assert TimeSpan("P1Y2M,-P3DT4H5M6S").values == [1, 2, -3, -4, -5, -6]
-    assert TimeSpan("-P1Y2M,P3DT4H5M6S").values == [-1, -2, 3, 4, 5, 6]
+    assert TimeSpan("P1Y2M,-P3DT4H5M6S").values == [1, 2, -4, 19, 54, 54]
+    assert TimeSpan("-P1Y2M,P3DT4H5M6S").values == [-2, 10, 3, 4, 5, 6]
     assert TimeSpan("P1Y2/3M4DT5H6M7S").values == [1, Fraction(2, 3), 4, 5, 6, 7]
-    assert TimeSpan("P1Y2/3M,-P4DT5H6M7S").values == [1, Fraction(2, 3), -4, -5, -6, -7]
-    assert TimeSpan("-P1Y2/3M,P4DT5H6M7S").values == [-1, Fraction(-2, 3), 4, 5, 6, 7]
+    assert TimeSpan("P1Y2/3M,-P4DT5H6M7S").values == [1, Fraction(2, 3), -5, 18, 53, 53]
+    assert TimeSpan("-P1Y2/3M,P4DT5H6M7S").values == [-2, Fraction(34, 3), 4, 5, 6, 7]
 
 
 def test_repr() -> None:
@@ -129,11 +129,11 @@ def test_repr() -> None:
 
     assert repr(TimeSpan(timedelta(seconds=273906))) == "TimeSpan([0, 0, 3, 4, 5, 6])"
     assert repr(TimeSpan("P1Y2M3DT4H5M6S")) == "TimeSpan([1, 2, 3, 4, 5, 6])"
-    assert repr(TimeSpan("P1Y2M,-P3DT4H5M6S")) == "TimeSpan([1, 2, -3, -4, -5, -6])"
-    assert repr(TimeSpan("-P1Y2M,P3DT4H5M6S")) == "TimeSpan([-1, -2, 3, 4, 5, 6])"
+    assert repr(TimeSpan("P1Y2M,-P3DT4H5M6S")) == "TimeSpan([1, 2, -4, 19, 54, 54])"
+    assert repr(TimeSpan("-P1Y2M,P3DT4H5M6S")) == "TimeSpan([-2, 10, 3, 4, 5, 6])"
     assert repr(TimeSpan("P1Y2/3M4DT5H6M7S")) == "TimeSpan([1, 2/3, 4, 5, 6, 7])"
-    assert repr(TimeSpan("P1Y2/3M,-P4DT5H6M7S")) == "TimeSpan([1, 2/3, -4, -5, -6, -7])"
-    assert repr(TimeSpan("-P1Y2/3M,P4DT5H6M7S")) == "TimeSpan([-1, -2/3, 4, 5, 6, 7])"
+    assert repr(TimeSpan("P1Y2/3M,-P4DT5H6M7S")) == "TimeSpan([1, 2/3, -5, 18, 53, 53])"
+    assert repr(TimeSpan("-P1Y2/3M,P4DT5H6M7S")) == "TimeSpan([-2, 34/3, 4, 5, 6, 7])"
 
 
 def test_str() -> None:

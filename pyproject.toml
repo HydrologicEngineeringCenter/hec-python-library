@@ -10,14 +10,14 @@ hec = ["resources/*.txt"]
 
 [project]
 name = "hec-python-library"
-version = "0.8"
+version = "0.9"
 description = "Python 3 implementation of HEC Java/Jython utility classes"
 authors = [
     { name = "Michael Perryman", email = "michael.d.perryman@usace.army.mil" }
 ]
 # license = { file = "LICENSE" }
 # readme = "README.md"
-keywords = ["HEC", "timeseries", "time series"]
+keywords = ["HEC", "timeseries", "time series", "DSS", "HEC-DSS", "CWMS"]
 classifiers = [
     "Programming Language :: Python :: 3",
     "Operating System :: OS Independent"

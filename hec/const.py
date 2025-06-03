@@ -4,6 +4,11 @@ Provides constants and related items
 
 from enum import Enum
 
+UNDEFINED = -3.4028234663852886e38
+
+CWMS = "CWMS"
+DSS = "DSS"
+
 
 class Combine(Enum):
     """

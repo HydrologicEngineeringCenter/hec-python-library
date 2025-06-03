@@ -67,6 +67,9 @@
                                 <a class="function" href="#TimeSeries.__init__">TimeSeries</a>
                         </li>
                         <li>
+                                <a class="variable" href="#TimeSeries.name">name</a>
+                        </li>
+                        <li>
                                 <a class="function" href="#TimeSeries.accum">accum</a>
                         </li>
                         <li>
@@ -193,6 +196,12 @@
                                 <a class="variable" href="#TimeSeries.is_any_regular">is_any_regular</a>
                         </li>
                         <li>
+                                <a class="function" href="#TimeSeries.is_cwms_ts_id">is_cwms_ts_id</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#TimeSeries.is_dss_ts_pathname">is_dss_ts_pathname</a>
+                        </li>
+                        <li>
                                 <a class="variable" href="#TimeSeries.is_english">is_english</a>
                         </li>
                         <li>
@@ -283,7 +292,7 @@
                                 <a class="function" href="#TimeSeries.ito">ito</a>
                         </li>
                         <li>
-                                <a class="function" href="#TimeSeries.to_irregular">to_irregular</a>
+                                <a class="function" href="#TimeSeries.ito_irregular">ito_irregular</a>
                         </li>
                         <li>
                                 <a class="function" href="#TimeSeries.itrim">itrim</a>
@@ -323,9 +332,6 @@
                         </li>
                         <li>
                                 <a class="function" href="#TimeSeries.min_value_time">min_value_time</a>
-                        </li>
-                        <li>
-                                <a class="variable" href="#TimeSeries.name">name</a>
                         </li>
                         <li>
                                 <a class="function" href="#TimeSeries.new_regular_time_series">new_regular_time_series</a>
@@ -463,7 +469,7 @@
                                 <a class="function" href="#TimeSeries.to">to</a>
                         </li>
                         <li>
-                                <a class="function" href="#TimeSeries.ito_irregular">ito_irregular</a>
+                                <a class="function" href="#TimeSeries.to_irregular">to_irregular</a>
                         </li>
                         <li>
                                 <a class="function" href="#TimeSeries.trim">trim</a>
@@ -479,6 +485,9 @@
                         </li>
                         <li>
                                 <a class="variable" href="#TimeSeries.version">version</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#TimeSeries.version_time">version_time</a>
                         </li>
                         <li>
                                 <a class="variable" href="#TimeSeries.vertical_datum_info">vertical_datum_info</a>
@@ -794,20 +803,19 @@ method with <code>in_place=True</code>. The methods are named the same as the or
                             <div id="TimeSeries.__init__" class="classattr">
                                 <div class="attr function">
             
-        <span class="name">TimeSeries</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">init_from</span><span class="p">:</span> <span class="n">Any</span></span>)</span>
+        <span class="name">TimeSeries</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">name</span><span class="p">:</span> <span class="nb">str</span>,</span><span class="param">	<span class="n">times</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n"><a href="../hec.html#HecTime">hec.HecTime</a></span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">,</span> <span class="nb">str</span><span class="p">]],</span> <span class="n">pandas</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">indexes</span><span class="o">.</span><span class="n">datetimes</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">,</span> <span class="n">NoneType</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">values</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="nb">float</span><span class="p">,</span> <span class="n">NoneType</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">qualities</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n"><a href="../hec.html#Quality">hec.Quality</a></span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span> <span class="n"><a href="../hec.html#Quality">hec.Quality</a></span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">NoneType</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">time_zone</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></span>)</span>
 
         
     </div>
     <a class="headerlink" href="#TimeSeries.__init__"></a>
     
-            <div class="docstring"><p>Initializes a new TimeSeries object</p>
+            <div class="docstring"><p>Initializes a new TimeSeries object. To generate a new regular interval time series using start time, end time, interval, and offset
+see also <a href="#TimeSeries.new_regular_time_series"><code>new_regular_time_series()</code></a></p>
 
 <h6 id="arguments">Arguments:</h6>
 
 <ul>
-<li><strong>init_from (Any):</strong>  The object to initialize from.
-<ul>
-<li><strong>str</strong>: A CWMS time series identifier or HEC-DSS time series pathname.
+<li><strong>name (str):</strong>   The time series name. Must be either a CWMS time series identifier or HEC-DSS time series pathname.
 <ul>
 <li>If CWMS
 <ul>
@@ -835,18 +843,59 @@ method with <code>in_place=True</code>. The methods are named the same as the or
 <li>E =&gt; interval</li>
 <li>F =&gt; version</li>
 </ul></li>
+<li>The following components are set by default:
+<ul>
+<li>parameter type:
+<ul>
+<li>INST_CUM if C includes "Precip" (case insensitive)</li>
+<li>INST_VAL otherwise</li>
+</ul></li>
+</ul></li>
 <li>The following compents are not set:
 <ul>
-<li>parameter type</li>
 <li>duration</li>
 </ul></li>
 </ul></li>
 <li>The parameter unit is set to the default English unit</li>
 <li>No vertical datum information is set for elevation parameter</li>
 </ul></li>
-<li><strong>cwms.cwms_types.Data</strong>: A CWMS time series as returned from CDA using <code>cwms.get_timeseries()</code></li>
-</ul></li>
+<li><strong>times (Optional[Union[list[Union[HecTime, datetime, str]], pd.DatetimeIndex]]):</strong>  The times for the time series. If specified, all times must have the same time zone or no time zone.
+If not specified, <code><a href="#TimeSeries.values">values</a></code>, <code><a href="#TimeSeries.qualities">qualities</a></code>, and <code><a href="#TimeSeries.time_zone">time_zone</a></code> my not be specified. Defaults to None.</li>
+<li><strong>values (Optional[Union[list[float], float]]):</strong>  A value or a list of values to assign to the specified times. If a single value or a list of values shorter than the list of times, the
+specified value(s) is/are repeated until each time has an assigned value. Must be specified if <code>times is specified</code>. Defaults to None.</li>
+<li><strong>qualities (Optional[Union[list[Union[Quality, int]], Quality, int]]):</strong>  A quality code or object or a list of quality codes or objects  to assign to the specified times. If a single quality
+or a list of qualities shorter than the list of times, the specified quality(ies) is/are repeated until each time has an assigned quality. If not specified and <code><a href="#TimeSeries.times">times</a></code> is specified, each
+time will be assigned a quality code of zeor.Defaults to None.</li>
+<li><p><strong>time_zone (Optional[str]):</strong>  The time zone of the time series. If specified, must be a valid time zone name or "local". Interaction with the time zone of the <code><a href="#TimeSeries.times">times</a></code> argument is as follows.
+Defaults to None.</p>
+
+<table>
+<tr><th><code><a href="#TimeSeries.times">times</a></code> has time zone</th><th><code><a href="#TimeSeries.time_zone">time_zone</a></code> specified</th><th>Time series time zone</th></tr>
+<tr><td>False</td><td>False</td><td>local time zone</td></tr>
+<tr><td>False</td><td>True</td><td>as specified in <code><a href="#TimeSeries.time_zone">time_zone</a></code></td></tr>
+<tr><td>True</td><td>False</td><td>as specified in <code><a href="#TimeSeries.times">times</a></code></td></tr>
+<tr><td>True</td><td>True</td><td>as specified in <code><a href="#TimeSeries.time_zone">time_zone</a></code><br><code><a href="#TimeSeries.times">times</a></code> are converted to <code><a href="#TimeSeries.time_zone">time_zone</a></code></td></tr>
+</table></li>
 </ul>
+</div>
+
+
+                            </div>
+                            <div id="TimeSeries.name" class="classattr">
+                                <div class="attr variable">
+            <span class="name">name</span><span class="annotation">: str</span>
+
+        
+    </div>
+    <a class="headerlink" href="#TimeSeries.name"></a>
+    
+            <div class="docstring"><p>The CWMS time series identifier or HEC-DSS pathname</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read/Write</p>
+</blockquote>
 </div>
 
 
@@ -1454,10 +1503,10 @@ selected after expansion even though their location in the data may change.</p>
 <h6 id="arguments">Arguments:</h6>
 
 <ul>
-<li><strong>start_time (Optional[Union[str, datetime, HecTime]], optional):</strong>  The beginning of the timespan before the first time
+<li><strong>start_time (Optional[Union[str, datetime, HecTime]]):</strong>  The beginning of the timespan before the first time
 to fill with missing values. Does not need to fall on the time series interval. If not at least one full
 interval prior to the first time, no missing values will be inserted before the first time. Defaults to None.</li>
-<li><strong>end_time (Optional[Union[str, datetime, HecTime]], optional):</strong>  The end of the timespan after the last time to fill
+<li><strong>end_time (Optional[Union[str, datetime, HecTime]]):</strong>  The end of the timespan after the last time to fill
 with missing values. Does not need to fall on the time series interval. If not at least one full interval after
 the last time, no missing values will be inserted after the last time. Defaults to None.</li>
 <li><strong>in_place (bool, optional):</strong>  Specifies whether to expand this time series (True) or a copy of this time series (False).</li>
@@ -2066,6 +2115,62 @@ Otherwise this time series is not modified. Defaults to False.</li>
 
 
                             </div>
+                            <div id="TimeSeries.is_cwms_ts_id" class="classattr">
+                                <div class="attr function">
+                    <div class="decorator decorator-staticmethod">@staticmethod</div>
+
+        <span class="def">def</span>
+        <span class="name">is_cwms_ts_id</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">identifier</span><span class="p">:</span> <span class="nb">str</span></span><span class="return-annotation">) -> <span class="nb">bool</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#TimeSeries.is_cwms_ts_id"></a>
+    
+            <div class="docstring"><p>Returns whether the specified identifier is a valid CWMS time series identifier</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>identifier (str):</strong>  The identifier</li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>bool: Whether the identifier is a valid CWMS time series identifier</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="TimeSeries.is_dss_ts_pathname" class="classattr">
+                                <div class="attr function">
+                    <div class="decorator decorator-staticmethod">@staticmethod</div>
+
+        <span class="def">def</span>
+        <span class="name">is_dss_ts_pathname</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">identifier</span><span class="p">:</span> <span class="nb">str</span></span><span class="return-annotation">) -> <span class="nb">bool</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#TimeSeries.is_dss_ts_pathname"></a>
+    
+            <div class="docstring"><p>Returns whether the specified identifier is a valid HEC-DSS time series pathname</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>identifier (str):</strong>  The identifier</li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>bool: Whether the identifier is a valid HEC-DSS time series pathname</p>
+</blockquote>
+</div>
+
+
+                            </div>
                             <div id="TimeSeries.is_english" class="classattr">
                                 <div class="attr variable">
             <span class="name">is_english</span><span class="annotation">: bool</span>
@@ -2560,40 +2665,17 @@ Otherwise this time series is not modified. Defaults to False.</li>
 
 
                             </div>
-                            <div id="TimeSeries.to_irregular" class="classattr">
+                            <div id="TimeSeries.ito_irregular" class="classattr">
                                 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">to_irregular</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="bp">self</span>,</span><span class="param">	<span class="n">interval</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n"><a href="../hec.html#Interval">hec.Interval</a></span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>,</span><span class="param">	<span class="n">in_place</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></span><span class="return-annotation">) -> <span class="n"><a href="#TimeSeries">TimeSeries</a></span>:</span></span>
+        <span class="name">ito_irregular</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="bp">self</span>,</span><span class="param">	<span class="n">interval</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n"><a href="../hec.html#Interval">hec.Interval</a></span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="n"><a href="#TimeSeries">TimeSeries</a></span>:</span></span>
 
         
     </div>
-    <a class="headerlink" href="#TimeSeries.to_irregular"></a>
+    <a class="headerlink" href="#TimeSeries.ito_irregular"></a>
     
-            <div class="docstring"><p>Sets a time series (either this one or a copy of this one) to a specified irregular interval, and returns
-the modified time series. The times of the data values are not changed.</p>
-
-<h6 id="arguments">Arguments:</h6>
-
-<ul>
-<li><strong>interval (Union[Interval, str]):</strong>  The irregular interval to set the time series to.</li>
-<li><strong>in_place (bool, optional):</strong>  Specifies whether to modify this time series (True) or a copy of it (False).
-Defaults to False.</li>
-</ul>
-
-<h6 id="raises">Raises:</h6>
-
-<ul>
-<li><strong>TimeSeriesException:</strong>  If the specified interval is not a valid irregular interval for the
-context of the time series (e.g., a regular interval or a DSS-only irregular interval
-for a CWMS time series)</li>
-</ul>
-
-<h6 id="returns">Returns:</h6>
-
-<blockquote>
-  <p>TimeSeries: The modified time series</p>
-</blockquote>
+            <div class="docstring"><p>Convenience method for executing <a href="#TimeSeries.to_irregular">to_irregular(...)</a> with <code>in_place=True</code>.</p>
 </div>
 
 
@@ -2959,31 +3041,12 @@ If a list, each other time series is merged in sequence, with earlier results ac
 
 
                             </div>
-                            <div id="TimeSeries.name" class="classattr">
-                                <div class="attr variable">
-            <span class="name">name</span><span class="annotation">: str</span>
-
-        
-    </div>
-    <a class="headerlink" href="#TimeSeries.name"></a>
-    
-            <div class="docstring"><p>The CWMS time series identifier or HEC-DSS pathname</p>
-
-<h6 id="operations">Operations:</h6>
-
-<blockquote>
-  <p>Read/Write</p>
-</blockquote>
-</div>
-
-
-                            </div>
                             <div id="TimeSeries.new_regular_time_series" class="classattr">
                                 <div class="attr function">
                     <div class="decorator decorator-staticmethod">@staticmethod</div>
 
         <span class="def">def</span>
-        <span class="name">new_regular_time_series</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">name</span><span class="p">:</span> <span class="nb">str</span>,</span><span class="param">	<span class="n">start</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n"><a href="../hec.html#HecTime">hec.HecTime</a></span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>,</span><span class="param">	<span class="n">end</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n"><a href="../hec.html#HecTime">hec.HecTime</a></span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span>,</span><span class="param">	<span class="n">interval</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n"><a href="../hec.html#Interval">hec.Interval</a></span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>,</span><span class="param">	<span class="n">offset</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n"><a href="../hec.html#TimeSpan">hec.TimeSpan</a></span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>,</span><span class="param">	<span class="n">value</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>,</span><span class="param">	<span class="n">quality</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n"><a href="../hec.html#Quality">hec.Quality</a></span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n"><a href="../hec.html#Quality">hec.Quality</a></span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span></span><span class="return-annotation">) -> <span class="n"><a href="#TimeSeries">TimeSeries</a></span>:</span></span>
+        <span class="name">new_regular_time_series</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">name</span><span class="p">:</span> <span class="nb">str</span>,</span><span class="param">	<span class="n">start</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n"><a href="../hec.html#HecTime">hec.HecTime</a></span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>,</span><span class="param">	<span class="n">end</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n"><a href="../hec.html#HecTime">hec.HecTime</a></span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span>,</span><span class="param">	<span class="n">interval</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n"><a href="../hec.html#Interval">hec.Interval</a></span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>,</span><span class="param">	<span class="n">offset</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n"><a href="../hec.html#TimeSpan">hec.TimeSpan</a></span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">NoneType</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">time_zone</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">values</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="nb">float</span><span class="p">,</span> <span class="n">NoneType</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">qualities</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n"><a href="../hec.html#Quality">hec.Quality</a></span><span class="p">,</span> <span class="nb">int</span><span class="p">]],</span> <span class="n"><a href="../hec.html#Quality">hec.Quality</a></span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="n">NoneType</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></span><span class="return-annotation">) -> <span class="n"><a href="#TimeSeries">TimeSeries</a></span>:</span></span>
 
         
     </div>
@@ -2995,23 +3058,25 @@ specified times, values, and qualities.</p>
 <h6 id="arguments">Arguments:</h6>
 
 <ul>
-<li><strong>name (str):</strong>  The name of the time seires. The interval portion will be overwritten by the <code><a href="#TimeSeries.interval">interval</a></code> if they don't agree</li>
+<li><strong>name (str):</strong>  The name of the time series. The interval portion will be overwritten by the <code><a href="#TimeSeries.interval">interval</a></code> if they don't agree</li>
 <li><strong>start (Union[HecTime, datetime, str]):</strong>  The specified start time. The actual start time may be later than this, depending on <code><a href="#TimeSeries.interval">interval</a></code> and <code>offset</code></li>
-<li><strong>end (Union[HecTime, datetime, str, int]):</strong>  Either the specified end time or, if int, the number of intervals in the time seires.
+<li><strong>end (Union[HecTime, datetime, str, int]):</strong>  Either the specified end time or, if int, the number of intervals in the time series.
 The actual end time may be earlier than the specified end time, depending on <code><a href="#TimeSeries.interval">interval</a></code> and <code>offset</code></li>
-<li><strong>interval (Union[Interval, timedelta, str]):</strong>  The interval of the time seires. Will overwrite the interval portion of <code><a href="#TimeSeries.name">name</a></code>. If it
+<li><strong>interval (Union[Interval, timedelta, str]):</strong>  The interval of the time series. Will overwrite the interval portion of <code><a href="#TimeSeries.name">name</a></code>. If it
 is a local regular interval and <code>start</code> includes a time zone, then the time series will be a local regular time series</li>
-<li><strong>offset (Union[TimeSpan, timedelta, str, int], optional):</strong>  The interval offset. If int, then number of minutes. Defaults to 0.</li>
-<li><strong>value (Union[List[float], float], optional):</strong>  The value(s) to populate the time series with. If float, it specifies all values.
-If list, the list is repeated as many whole and/or partial time as necessary to fill the time series Defaults to 0.0.</li>
-<li><strong>quality (Union[List[Quality], List[int], Quality, int], optional):</strong>  The qualities to fill the time series with. If Quality or int,
-it specifies all qualities. If list, the list is repeated as many whole and/or partial times to fill the time sries Defaults to 0.</li>
+<li><strong>offset (Optional[Union[TimeSpan, timedelta, str, int]]):</strong>  The interval offset. If int, then number of minutes. If none, then the
+offset is determined from <code>start</code> (it's offset into the specified interval). Defaults to None.</li>
+<li><strong>time_zone (Optional[str]):</strong>  The time zone. Must be specified if <code><a href="#TimeSeries.interval">interval</a></code> is a local-regular interval.</li>
+<li><strong>values (Optional[Union[List[float], float]]):</strong>  The value(s) to populate the time series with. If float, it specifies all values.
+If list, the list is repeated as many whole and/or partial time as necessary to fill the time series. Defaults to None, which causes all values to be NaN.</li>
+<li><strong>qualities (Optional[Union[list[Union[Quality, int]], Quality, int]]):</strong>  The qualities to fill the time series with. If Quality or int,
+it specifies all qualities. If list, the list is repeated as many whole and/or partial times to fill the time sries Defaults to None, which causes all qualities to be zero.</li>
 </ul>
 
 <h6 id="raises">Raises:</h6>
 
 <ul>
-<li><strong>TimeSeriesException:</strong>  If an irregular interval is specified</li>
+<li><strong>TimeSeriesException:</strong>  If an irregular interval is specified. To generate new irregular interval time series, use <a href="#TimeSeries.__init__"><code>TimeSeries(name, times, values, quality, time_zone)</code></a></li>
 </ul>
 
 <h6 id="returns">Returns:</h6>
@@ -3444,7 +3509,7 @@ which is performed not only for the <code>Integrate</code> operation, but <code>
 
 <p><strong>Parameters, Units, and Parameter Types</strong></p>
 
-<p>The new time seires may have different parameter, unit, and/or parameter than the old time series:</p>
+<p>The new time series may have different parameter, unit, and/or parameter than the old time series:</p>
 
 <ul>
 <li><code>Count</code>:
@@ -3506,7 +3571,7 @@ list the accumulatable base parameters.</li>
 <ul>
 <li><strong>operation (str):</strong>  The resample operation to perform. Must be one of <code>Count</code>, <code>Maximum</code>, <code>Minimum</code>, <code>Previous</code>, <code>Interpolate</code>, <code>Integrate</code>, <code>Average</code>, <code>Accumulate</code>, or <code>Volume</code> or a unique
 beginning portion (case insensitive). 'c' is interpeted as <code>Count</code>, but 'INT' is ambiguous between <code>Interpolate</code> and <code>Integrate</code>.</li>
-<li><strong>interval (Optional[Union[&quot;TimeSeries&quot;, TimeSpan, timedelta]], optional):</strong>  The interval or time pattern to resample onto. If None, the old interval is used. Otherwise the following
+<li><strong>interval (Optional[Union[&quot;TimeSeries&quot;, TimeSpan, timedelta]]):</strong>  The interval or time pattern to resample onto. If None, the old interval is used. Otherwise the following
 can be used:
 <ul>
 <li><a href="interval.html#Interval"><code>Interval</code></a>: resample onto a standard regular or local-regular interval</li>
@@ -3514,14 +3579,14 @@ can be used:
 <li><a href="#TimeSeries"><code>TimeSeries</code></a>: resample onto an irregular time interval
 Defaults to None.</li>
 </ul></li>
-<li><strong>offset (Optional[Union[int, TimeSpan, timedelta]], optional):</strong>  Offset into <code><a href="#TimeSeries.interval">interval</a></code> for each new time. If specified as an int, the value is in minutes. None is the
+<li><strong>offset (Optional[Union[int, TimeSpan, timedelta]]):</strong>  Offset into <code><a href="#TimeSeries.interval">interval</a></code> for each new time. If specified as an int, the value is in minutes. None is the
 same as specifying <code>0</code>, <code>TimeSpan("PT0S")</code>, or <code>timedelta(seconds=0)</code>. Defaults to None</li>
-<li><strong>start_time (Optional[Union[HecTime, datetime, str]], optional):</strong>  Start time of the new time series. None specifies the same start time as the old time sereies. Defaults to None.</li>
-<li><strong>end_time (Optional[Union[HecTime, datetime, str]], optional):</strong>  End time of the new time series. None specifies the same end time as the old time sereies. Defaults to None.</li>
+<li><strong>start_time (Optional[Union[HecTime, datetime, str]]):</strong>  Start time of the new time series. None specifies the same start time as the old time sereies. Defaults to None.</li>
+<li><strong>end_time (Optional[Union[HecTime, datetime, str]]):</strong>  End time of the new time series. None specifies the same end time as the old time sereies. Defaults to None.</li>
 <li><strong>max_missing_percent (float, optional):</strong>  The maximum amount of time in each new interval that can be invalid or missing and still perform the resample operation for that interval.
 If the old time series is regular interval, this is approximately equivalent to the max percent of points that can be invalid or missing. If more than this amount of time
 is invalid or missing in any new interval, the value for that interval will be set to missing. Defaults to 25.0.</li>
-<li><strong>entire_interval (Optional[bool], optional):</strong>  <em>Used only for discreet resample operations (except <code>Previous</code>)</em>. Specifies whether to require each old interval to begin and end in the new
+<li><strong>entire_interval (Optional[bool]):</strong>  <em>Used only for discreet resample operations (except <code>Previous</code>)</em>. Specifies whether to require each old interval to begin and end in the new
 interval in order to be considered (True) or to allow all old intervals that end in the new interval (False). If None, each old interval is required toe begin and end in the new interval
 for all data types except Instantaneous (CWMS: Inst, DSS: INST-VAL, INST-CUM). Defaults to None.</li>
 <li><strong>before (Union[str, float], optional):</strong>  <em>Used only for time patterns</em>. Specfies the value for new points (points in the time pattern) that are prior to the beginning of the old time series.
@@ -3552,7 +3617,7 @@ Defaults to "LAST".</li>
 <ul>
 <li><strong>TimeSeriesException:</strong> <br>
 <ul>
-<li>on time seires with no data</li>
+<li>on time series with no data</li>
 <li>on time series with no parameter type</li>
 <li>on invalid <code>operation</code> parameter (matches zero or more than one)</li>
 <li>on invalid <code>before</code> paremeter</li>
@@ -4605,10 +4670,10 @@ were within the <code>forward</code> and <code>backward</code> time spans. The <
 
 <ul>
 <li><strong>interval (Union[Interval, str]):</strong>  The new interval</li>
-<li><strong>offset (Optional[Union[TimeSpan, timedelta, str]], optional):</strong>  The offset into the interval to snap the vlues to. Defaults to None.</li>
-<li><strong>backward (Optional[Union[TimeSpan, timedelta, str]], optional):</strong>  The time span prior to the interval/offset to accept values from.
+<li><strong>offset (Optional[Union[TimeSpan, timedelta, str]]):</strong>  The offset into the interval to snap the vlues to. Defaults to None.</li>
+<li><strong>backward (Optional[Union[TimeSpan, timedelta, str]]):</strong>  The time span prior to the interval/offset to accept values from.
 Defaults to None.</li>
-<li><strong>forward (Optional[Union[TimeSpan, timedelta, str]], optional):</strong>  The time span after the interval/offset to accept values from.
+<li><strong>forward (Optional[Union[TimeSpan, timedelta, str]]):</strong>  The time span after the interval/offset to accept values from.
 Defaults to None.</li>
 <li><strong>in_place (bool, optional):</strong>  Specifies whether to modify this time series (True) or a copy of it (False). Defaults to False.</li>
 </ul>
@@ -4750,17 +4815,40 @@ without vertical datum information</li>
 
 
                             </div>
-                            <div id="TimeSeries.ito_irregular" class="classattr">
+                            <div id="TimeSeries.to_irregular" class="classattr">
                                 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">ito_irregular</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="bp">self</span>,</span><span class="param">	<span class="n">interval</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n"><a href="../hec.html#Interval">hec.Interval</a></span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="n"><a href="#TimeSeries">TimeSeries</a></span>:</span></span>
+        <span class="name">to_irregular</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="bp">self</span>,</span><span class="param">	<span class="n">interval</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n"><a href="../hec.html#Interval">hec.Interval</a></span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>,</span><span class="param">	<span class="n">in_place</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></span><span class="return-annotation">) -> <span class="n"><a href="#TimeSeries">TimeSeries</a></span>:</span></span>
 
         
     </div>
-    <a class="headerlink" href="#TimeSeries.ito_irregular"></a>
+    <a class="headerlink" href="#TimeSeries.to_irregular"></a>
     
-            <div class="docstring"><p>Convenience method for executing <a href="#TimeSeries.to_irregular">to_irregular(...)</a> with <code>in_place=True</code>.</p>
+            <div class="docstring"><p>Sets a time series (either this one or a copy of this one) to a specified irregular interval, and returns
+the modified time series. The times of the data values are not changed.</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>interval (Union[Interval, str]):</strong>  The irregular interval to set the time series to.</li>
+<li><strong>in_place (bool, optional):</strong>  Specifies whether to modify this time series (True) or a copy of it (False).
+Defaults to False.</li>
+</ul>
+
+<h6 id="raises">Raises:</h6>
+
+<ul>
+<li><strong>TimeSeriesException:</strong>  If the specified interval is not a valid irregular interval for the
+context of the time series (e.g., a regular interval or a DSS-only irregular interval
+for a CWMS time series)</li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>TimeSeries: The modified time series</p>
+</blockquote>
 </div>
 
 
@@ -4865,6 +4953,25 @@ selected after trim even though their location in the data may change.</p>
     <a class="headerlink" href="#TimeSeries.version"></a>
     
             <div class="docstring"><p>The version (HEC-DSS F pathname part)</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read/Write</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="TimeSeries.version_time" class="classattr">
+                                <div class="attr variable">
+            <span class="name">version_time</span><span class="annotation">: Optional[<a href="../hec.html#HecTime">hec.HecTime</a>]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#TimeSeries.version_time"></a>
+    
+            <div class="docstring"><p>The version date/time</p>
 
 <h6 id="operations">Operations:</h6>
 

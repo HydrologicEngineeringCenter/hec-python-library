@@ -20,6 +20,7 @@ from zoneinfo import ZoneInfo
 import pytz
 import tzlocal
 
+import hec.shared
 from hec.interval import Interval
 from hec.timespan import TimeSpan
 
@@ -388,7 +389,7 @@ def convert_time_zone(
         hectime (HecTime): The HecTime object to convert
         from_time_zone (ZoneInfo): The time zone that the object is currently in
         to_time_zone (ZoneInfo): The target time
-        respect_daylight_savings (Optional[bool], optional): Specifies whether the target time zone.
+        respect_daylight_savings (Optional[bool]): Specifies whether the target time zone.
             should observe DST. Defaults to True.
             - If `True`, the target time zone is used as specified
             - If `False` and the specified target time zone observes DST, then a time zone is
@@ -1148,7 +1149,7 @@ def is_leap(y: int) -> bool:
     Returns:
         bool: Whether the year is a leap year
     """
-    return (not bool(y % 4) and bool(y % 100)) or (not bool(y % 400))
+    return hec.shared.is_leap(y)
 
 
 def is_valid_granularity(value: int) -> bool:
@@ -1332,11 +1333,7 @@ def max_day(y: int, m: int) -> int:
     Returns:
         int: The last calendar day of the specified month
     """
-    return (
-        31
-        if m in (1, 3, 5, 7, 8, 10, 12)
-        else 30 if m in (4, 6, 9, 11) else 29 if is_leap(y) else 28
-    )
+    return hec.shared.max_day(y, m)
 
 
 def m2hm(m: int) -> int:
@@ -1610,7 +1607,7 @@ def parse_date_time_str(
         # 10 = tz string
         # 11 = tz hour
         # 13 = tz minute
-        r"(-?\d{4,})-(\d{2})-(\d{2})([T ](\d{2})(:(\d{2})(:(\d{2}))?)?)?(Z|([+-]?\d{2})(:(\d{2}))?)?"
+        r"(-?\d{4,})-(\d{2})-(\d{2})([T ](\d{2})(:(\d{2})(:(\d{2})(?:\.\d+)?)?)?)?(Z|([+-]?\d{2})(:(\d{2}))?)?"
     )
 
     tzstr = None
@@ -1722,11 +1719,7 @@ def previous_month(y: int, m: int) -> tuple[int, int]:
     Returns:
         tuple[int, int]: The previous year and month
     """
-    m -= 1
-    if m < 1:
-        y -= 1
-        m = 12
-    return y, m
+    return hec.shared.previous_month(y, m)
 
 
 def seconds_since_midnight(values: list[int]) -> int:
@@ -2224,13 +2217,7 @@ class HecTime:
                                 raise
                     new_time = cast(HecTime, local.clone())
             elif isinstance(other, TimeSpan):
-                vals = [
-                    v1 + v2
-                    for v1, v2 in zip(
-                        cast(list[int], new_time.values), cast(list[int], other.values)
-                    )
-                ]
-                new_time.set(vals)
+                new_time.increment(1, other)
             elif isinstance(other, timedelta):
                 s = other.total_seconds()
                 new_time.value += int(
@@ -2267,6 +2254,10 @@ class HecTime:
         if isinstance(other, HecTime):
             if not other.defined:
                 return False
+            try:
+                return self.datetime() == other.datetime()
+            except:
+                pass
             vals1 = to0000(
                 cast(
                     list[int],
@@ -2301,6 +2292,12 @@ class HecTime:
         if isinstance(other, HecTime):
             if not other.defined:
                 return False
+            try:
+                return cast(datetime, self.datetime()) > cast(
+                    datetime, other.datetime()
+                )
+            except:
+                pass
             vals1 = to0000(
                 cast(
                     list[int],
@@ -2462,6 +2459,12 @@ class HecTime:
         if isinstance(other, HecTime):
             if not other.defined:
                 return False
+            try:
+                return cast(datetime, self.datetime()) < cast(
+                    datetime, other.datetime()
+                )
+            except:
+                pass
             vals1 = to0000(
                 cast(
                     list[int],
@@ -2578,21 +2581,19 @@ class HecTime:
                 return_obj = return_obj.convert_to_time_zone(self._tz)
             return return_obj
         elif isinstance(other, HecTime):
+            tempClone: HecTime = cast(HecTime, temp.clone()).convert_to_time_zone(
+                "UTC", on_tz_not_set=0
+            )
+            tempClone.midnight_as_2400 = False
+            otherClone: HecTime = cast(HecTime, other.clone()).convert_to_time_zone(
+                "UTC", on_tz_not_set=0
+            )
+            otherClone.midnight_as_2400 = False
             vals = [
                 v1 - v2
                 for v1, v2 in zip(
-                    cast(
-                        list[int],
-                        cast(HecTime, temp.clone())
-                        .convert_to_time_zone("UTC", on_tz_not_set=0)
-                        .values,
-                    ),
-                    cast(
-                        list[int],
-                        cast(HecTime, other.clone())
-                        .convert_to_time_zone("UTC", on_tz_not_set=0)
-                        .values,
-                    ),
+                    cast(list[int], tempClone.values),
+                    cast(list[int], otherClone.values),
                 )
             ]
             return_obj = TimeSpan(vals)
@@ -2606,6 +2607,14 @@ class HecTime:
 
     @staticmethod
     def _get_zone_info_obj(time_zone: Any) -> Optional[ZoneInfo]:
+
+        def parse_tz_str(time_zone: str) -> str:
+            matcher = re.match(r"(UTC)?([+-])(\d{2}):?00", time_zone)
+            if matcher:
+                return f"Etc/GMT{'+' if matcher.group(2) == '-' else '-'}{int(matcher.group(3))}"
+            else:
+                raise HecTimeException(f"Unknown time zone: {time_zone}")
+
         tz: Optional[ZoneInfo]
         if time_zone is None:
             tz = None
@@ -2631,18 +2640,17 @@ class HecTime:
         elif isinstance(time_zone, timezone):
             tzname = str(time_zone)
             if tzname not in zoneinfo.available_timezones():
-                matcher = re.match(r"UTC([+-])(\d{2}):?00", tzname)
-                if matcher:
-                    tzname = f"Etc/GMT{'+' if matcher.group(1) == '-' else '-'}{int(matcher.group(2))}"
-                else:
-                    raise HecTimeException(f"Unknown time zone: {tzname}")
+                tzname = parse_tz_str(tzname)
             tz = ZoneInfo(tzname)
         elif isinstance(time_zone, str):
-            tz = (
-                tzlocal.get_localzone()
-                if time_zone.lower() == "local"
-                else ZoneInfo(time_zone)
-            )
+            if time_zone.upper() == "Z":
+                tz = ZoneInfo("UTC")
+            elif time_zone.lower() == "local":
+                tz = tzlocal.get_localzone()
+            else:
+                if time_zone not in zoneinfo.available_timezones():
+                    time_zone = parse_tz_str(time_zone)
+                tz = ZoneInfo(time_zone)
         elif isinstance(time_zone, (pytz.tzfile.DstTzInfo, pytz.tzfile.StaticTzInfo)):  # type: ignore
             tz = ZoneInfo(time_zone.__class__.__name__)
         else:
@@ -2848,11 +2856,8 @@ class HecTime:
             # --------------------- #
             # now add in the offset #
             # --------------------- #
-            values[M] += offset_minutes // Interval.MINUTES["1Month"]
-            values[N] += offset_minutes % Interval.MINUTES["1Month"]
-            values[S] = 0
-            normalize_time_vals(values)
             self.values = values
+            self += offset_minutes
         return self
 
     def astimezone(
@@ -3000,7 +3005,7 @@ class HecTime:
         Args:
             from_time_zone (Union[ZoneInfo, str]): The time zone to convert from
             to_time_zone (Union[ZoneInfo, str]): The target time zone
-            respect_daylight_saving (Optional[bool], optional): Specifies whether the target time zone.
+            respect_daylight_saving (Optional[bool]): Specifies whether the target time zone.
                 should observe DST. Defaults to True.
                 - If `True`, the target time zone is used as specified
                 - If `False` and the specified target time zone observes DST, then a time zone is
@@ -3055,15 +3060,16 @@ class HecTime:
 
     def convert_to_time_zone(
         self,
-        time_zone: Union["HecTime", datetime, ZoneInfo, timezone, str],
+        time_zone: Optional[Union["HecTime", datetime, ZoneInfo, timezone, str]],
         on_tz_not_set: int = 1,
     ) -> "HecTime":
         """
         Returns a copy of this object at the spcified time zone
 
         Args:
-            time_zone (Union["HecTime", datetime, ZoneInfo, timezone, str]): The target time zone or object containg the target time zone.
-                Use `"local"` to specify the system time zone.
+            time_zone (Optional[Union["HecTime", datetime, ZoneInfo, timezone, str]]): The target time zone or object containg the target time zone.
+                - Use `None` to remove time zone information without time conversion.
+                - Use `"local"` to specify the system time zone.
             on_tz_not_set (int, optional): Specifies behavior if this object has no time zone attached. Defaults to 1.
                 - `0`: Quietly behave as if this object had the local time zone attached.
                 - `1`: (default) Same as `0`, but issue a warning.
@@ -3089,7 +3095,10 @@ class HecTime:
                     )
             if t.defined:
                 dt = cast(datetime, self.datetime())
-                dt = dt.astimezone(tz)
+                if tz is None:
+                    dt = dt.replace(tzinfo=None)
+                else:
+                    dt = dt.astimezone(tz)
                 t.set(dt)
             t._tz = tz
         return t
@@ -3546,7 +3555,7 @@ class HecTime:
         - with_colons = True (default), `[..., 6, 8, 23]` is retuned is `06:08:23`
         - with_colons = False, `[..., 6, 8, 23]` is retuned is `0608`
         Args:
-            with_colons (Optional[bool], optional): Specifies with or without colons. Defaults to `True`.
+            with_colons (Optional[bool]): Specifies with or without colons. Defaults to `True`.
 
         Deprecated:
             use [**time**](#HecTime.HecTime.time) method instead
@@ -3784,7 +3793,13 @@ class HecTime:
                 # integer minutes #
                 # --------------- #
                 minutes = interval
-            elif isinstance(interval, Interval):
+            elif (
+                isinstance(interval, Interval)
+                and interval.is_local_regular
+                and self._tz is not None
+                and self._tz.dst(datetime(2000, 1, 1))
+                != self._tz.dst(datetime(2000, 7, 1))
+            ):
                 # ---------------- #
                 # Interval object  #
                 # ---------------- #
@@ -3793,6 +3808,7 @@ class HecTime:
                         "UTC", on_already_set=0
                     )
                     span = TimeSpan(interval.values)
+                    local = self
                     for i in range(abs(count)):
                         while True:
                             if count > 0:
@@ -4295,6 +4311,7 @@ class HecTime:
                     timevals, tzstr = parse_date_time_str(args[0], include_tz=True)
                     self.set(timevals)
                     if tzstr:
+                        tzstr = tzstr.replace("Z", "+00:00")
                         hours = int(tzstr.split(":")[0])
                         minutes = int(tzstr.split(":")[1])
                         offset = timedelta(minutes=hours * 60 + minutes)
@@ -4388,8 +4405,8 @@ class HecTime:
 
         Args:
             julian (int): The number of days since 1899
-            minutes_since_midnight (Optional[int], optional): The number of minutes past midnight for the time portion. Defaults to None.
-            seconds_since_midnight (Optional[int], optional): The number of seconds past the minute for the time portion. Defaults to None.
+            minutes_since_midnight (Optional[int]): The number of minutes past midnight for the time portion. Defaults to None.
+            seconds_since_midnight (Optional[int]): The number of seconds past the minute for the time portion. Defaults to None.
 
         Returns:
             HecTime: The modified object
@@ -4411,7 +4428,7 @@ class HecTime:
 
         Args:
             total_minutes (int): The number of minutes since 1899
-            time_zone_offset (Optional[Union[int, &quot;ZoneInfo&quot;]], optional): The time zone to represent this object in. Defaults to None.
+            time_zone_offset (Optional[Union[int, &quot;ZoneInfo&quot;]]): The time zone to represent this object in. Defaults to None.
                 If `int`, the number of minutes *behind* UTC (positive for western longitudes)
 
         Returns:
@@ -4516,7 +4533,7 @@ class HecTime:
 
         Args:
             milliseconds (int): The number of seconds since 1970-01-01T00:00:00Z (same as Java milliseconds and milliseconds of Unix Epoch)
-            time_zone_offset (Optional[Union[int, &quot;ZoneInfo&quot;]], optional): The time zone to represent this object in. Defaults to None.
+            time_zone_offset (Optional[Union[int, &quot;ZoneInfo&quot;]]): The time zone to represent this object in. Defaults to None.
                 If `int`, the number of minutes *behind* UTC (positive for western longitudes)
 
         Returns:
@@ -4732,7 +4749,7 @@ class HecTime:
         - with_colons = True (default), `[..., 6, 8, 23]` is retuned is `06:08:23`
         - with_colons = False, `[..., 6, 8, 23]` is retuned is `0608`
         Args:
-            with_colons (Optional[bool], optional): Specifies with or without colons. Defaults to `True`.
+            with_colons (Optional[bool]): Specifies with or without colons. Defaults to `True`.
 
         Returns:
             str: The time portion string with colons (hour, minute, and second), or without colons (hour, minute only))

@@ -2,9 +2,15 @@
 Provides standard time intervals
 """
 
-from datetime import timedelta
-from typing import Any, Callable, Optional, Union, cast
+from datetime import datetime, timedelta
+from fractions import Fraction
+from typing import Any, Callable, List, Optional, Union, cast
+from zoneinfo import ZoneInfo
 
+import numpy as np
+import pandas as pd
+
+import hec
 from hec.timespan import TimeSpan, TimeSpanException
 
 _new_local_regular_names = False
@@ -66,11 +72,11 @@ class Interval(TimeSpan):
     <tr><th>Name</th><th>Minutes</th><th>Context(s)</th></tr>
     <tr><td>0</td><td>0</td><td>CWMS</td></tr>
     <tr><td>Irr</td><td>0</td><td>CWMS</td></tr>
-    <tr><td>Ir-Century</td><td>0</td><td>DSS</td></tr>
-    <tr><td>Ir-Day</td><td>0</td><td>DSS</td></tr>
-    <tr><td>Ir-Decade</td><td>0</td><td>DSS</td></tr>
-    <tr><td>Ir-Month</td><td>0</td><td>DSS</td></tr>
-    <tr><td>Ir-Year</td><td>0</td><td>DSS</td></tr>
+    <tr><td>IR-Century</td><td>0</td><td>DSS</td></tr>
+    <tr><td>IR-Day</td><td>0</td><td>DSS</td></tr>
+    <tr><td>IR-Decade</td><td>0</td><td>DSS</td></tr>
+    <tr><td>IR-Month</td><td>0</td><td>DSS</td></tr>
+    <tr><td>IR-Year</td><td>0</td><td>DSS</td></tr>
     <tr><td>1Minute</td><td>1</td><td>CWMS, DSS</td></tr>
     <tr><td>2Minute</td><td>2</td><td>DSS</td></tr>
     <tr><td>2Minutes</td><td>2</td><td>CWMS</td></tr>
@@ -144,9 +150,8 @@ class Interval(TimeSpan):
             raise IntervalException("Seconds is not allowed to be non-zero")
         count = sum([1 for item in cast(list[int], self.values) if item])
         if count > 1:
-            print(self.values)
             raise IntervalException(
-                "Only one of years, months, days, hours, and minutes is allowed to be non-zero"
+                f"Only one of years, months, days, hours, and minutes is allowed to be non-zero: got {self.values}"
             )
 
     def __add__(self, other: object) -> "Interval":
@@ -478,6 +483,222 @@ class Interval(TimeSpan):
             else:
                 return None
 
+    @property
+    def context(self) -> str:
+        """
+        The context of this object ("Cwms", "Dss", or "DssBlock")
+
+        Operations:
+            Read-only
+        """
+        return self._context
+
+    @staticmethod
+    def get_all(
+        matcher: Optional[Callable[["Interval"], bool]] = None,
+        exception_on_not_found: Optional[bool] = None,
+    ) -> list["Interval"]:
+        """
+        Retuns list of matched `Interval` objects in the any context
+
+        Args:
+            matcher (Optional[Callable[[Interval], bool]]): A function that returns True or False when passed an `Interval` object parameter. Defaults to None.
+                If None, all `Interval` objects in all contexts are matched.<br>
+                Examples:
+                - `lambda i : i.is_irregular`
+                - `lambda i : i.minutes < 60`
+                - `lambda i : i.name.find("Week") != -1`
+
+        Returns:
+            List[Interval]: A list of matched `Interval` objects (may be empty)
+        """
+        return Interval._get_all(
+            _CWMS_INTERVALS + _DSS_INTERVALS + _DSS_BLOCK_SIZES,
+            matcher,
+            exception_on_not_found,
+        )
+
+    @staticmethod
+    def get_all_cwms(
+        matcher: Optional[Callable[["Interval"], bool]] = None,
+        exception_on_not_found: Optional[bool] = None,
+    ) -> list["Interval"]:
+        """
+        Retuns list of matched `Interval` objects in the CWMS context
+
+        Args:
+            matcher (Optional[Callable[[Interval], bool]]): A function that returns True or False when passed an `Interval` object parameter. Defaults to None.
+                If None, all `Interval` objects in the context are matched.<br>
+                Examples:
+                - `lambda i : i.is_irregular`
+                - `lambda i : i.minutes < 60`
+                - `lambda i : i.name.find("Week") != -1`
+            exception_on_not_found (bool): Specifies whether to raise an exception if no Intervals are found. If None, the default
+                behavior is used. Optional. Defaults to None. See [set_default_exception_on_not_found](#Interval.set_default_exception_on_not_found) and
+                [get_default_exception_on_not_found](#Interval.get_default_exception_on_not_found)
+
+        Returns:
+            List[Interval]: A list of matched `Interval` objects (may be empty)
+        """
+        return Interval._get_all(_CWMS_INTERVALS, matcher, exception_on_not_found)
+
+    @staticmethod
+    def get_all_cwms_names(
+        matcher: Optional[Callable[["Interval"], bool]] = None,
+        exception_on_not_found: Optional[bool] = None,
+    ) -> list[str]:
+        """
+        Retuns list of names of matched `Interval` objects in the CWMS context
+
+        Args:
+            matcher (Optional[Callable[[Interval], bool]]): A function that returns True or False when passed an `Interval` object parameter. Defaults to None.
+                If None, all `Interval` objects in the context are matched.<br>
+                Examples:
+                - `lambda i : i.is_irregular`
+                - `lambda i : i.minutes < 60`
+                - `lambda i : i.name.find("Week") != -1`
+            exception_on_not_found (bool): Specifies whether to raise an exception if no Intervals are found. If None, the default
+                behavior is used. Optional. Defaults to None. See [set_default_exception_on_not_found](#Interval.set_default_exception_on_not_found) and
+                [get_default_exception_on_not_found](#Interval.get_default_exception_on_not_found)
+
+        Returns:
+            List[str]: A list of names of matched `Interval` objects (may be empty)
+        """
+        return list(
+            dict.fromkeys(
+                Interval._get_all_names(
+                    _CWMS_INTERVALS, matcher, exception_on_not_found
+                )
+            )
+        )
+
+    @staticmethod
+    def get_all_dss(
+        matcher: Optional[Callable[["Interval"], bool]] = None,
+        exception_on_not_found: Optional[bool] = None,
+    ) -> list["Interval"]:
+        """
+        Retuns list of matched `Interval` objects in the DSS context
+
+        Args:
+            matcher (Optional[Callable[[Interval], bool]]): A function that returns True or False when passed an `Interval` object parameter. Defaults to None.
+                If None, all `Interval` objects in the context are matched.<br>
+                Examples:
+                - `lambda i : i.is_irregular`
+                - `lambda i : i.minutes < 60`
+                - `lambda i : i.name.find("Week") != -1`
+            exception_on_not_found (bool): Specifies whether to raise an exception if no Intervals are found. If None, the default
+                behavior is used. Optional. Defaults to None. See [set_default_exception_on_not_found](#Interval.set_default_exception_on_not_found) and
+                [get_default_exception_on_not_found](#Interval.get_default_exception_on_not_found)
+
+        Returns:
+            List[Interval]: A list of matched `Interval` objects (may be empty)
+        """
+        return Interval._get_all(_DSS_INTERVALS, matcher, exception_on_not_found)
+
+    @staticmethod
+    def get_all_dss_block_names(
+        matcher: Optional[Callable[["Interval"], bool]] = None,
+        exception_on_not_found: Optional[bool] = None,
+    ) -> list[str]:
+        """
+        Retuns list of names of matched `Interval` objects in the DSS block size context
+
+        Args:
+            matcher (Optional[Callable[[Interval], bool]]): A function that returns True or False when passed an `Interval` object parameter. Defaults to None.
+                If None, all `Interval` objects in the context are matched.<br>
+                Examples:
+                - `lambda i : i.is_irregular`
+                - `lambda i : i.minutes < 60`
+                - `lambda i : i.name.find("Week") != -1`
+            exception_on_not_found (bool): Specifies whether to raise an exception if no Intervals are found. If None, the default
+                behavior is used. Optional. Defaults to None. See [set_default_exception_on_not_found](#Interval.set_default_exception_on_not_found) and
+                [get_default_exception_on_not_found](#Interval.get_default_exception_on_not_found)
+
+        Returns:
+            List[str]: A list of names of matched `Interval` objects (may be empty)
+        """
+        return Interval._get_all_names(
+            _DSS_BLOCK_SIZES, matcher, exception_on_not_found
+        )
+
+    @staticmethod
+    def get_all_dss_blocks(
+        matcher: Optional[Callable[["Interval"], bool]] = None,
+        exception_on_not_found: Optional[bool] = None,
+    ) -> list["Interval"]:
+        """
+        Retuns list of matched `Interval` objects in the DSS block size context
+
+        Args:
+            matcher (Optional[Callable[[Interval], bool]]): A function that returns True or False when passed an `Interval` object parameter. Defaults to None.
+                If None, all `Interval` objects in the context are matched.<br>
+                Examples:
+                - `lambda i : i.is_irregular`
+                - `lambda i : i.minutes < 60`
+                - `lambda i : i.name.find("Week") != -1`
+            exception_on_not_found (bool): Specifies whether to raise an exception if no Intervals are found. If None, the default
+                behavior is used. Optional. Defaults to None. See [set_default_exception_on_not_found](#Interval.set_default_exception_on_not_found) and
+                [get_default_exception_on_not_found](#Interval.get_default_exception_on_not_found)
+
+        Returns:
+            List[Interval]: A list of matched `Interval` objects (may be empty)
+        """
+        return Interval._get_all(_DSS_BLOCK_SIZES, matcher, exception_on_not_found)
+
+    @staticmethod
+    def get_all_dss_names(
+        matcher: Optional[Callable[["Interval"], bool]] = None,
+        exception_on_not_found: Optional[bool] = None,
+    ) -> list[str]:
+        """
+        Retuns list of names of matched `Interval` objects in the DSS context
+
+        Args:
+            matcher (Optional[Callable[[Interval], bool]]): A function that returns True or False when passed an `Interval` object parameter. Defaults to None.
+                If None, all `Interval` objects in the context are matched.<br>
+                Examples:
+                - `lambda i : i.is_irregular`
+                - `lambda i : i.minutes < 60`
+                - `lambda i : i.name.find("Week") != -1`
+            exception_on_not_found (bool): Specifies whether to raise an exception if no Intervals are found. If None, the default
+                behavior is used. Optional. Defaults to None. See [set_default_exception_on_not_found](#Interval.set_default_exception_on_not_found) and
+                [get_default_exception_on_not_found](#Interval.get_default_exception_on_not_found)
+
+        Returns:
+            List[str]: A list of names of matched `Interval` objects (may be empty)
+        """
+        return Interval._get_all_names(_DSS_INTERVALS, matcher, exception_on_not_found)
+
+    @staticmethod
+    def get_all_names(
+        matcher: Optional[Callable[["Interval"], bool]] = None,
+        exception_on_not_found: Optional[bool] = None,
+    ) -> list[str]:
+        """
+        Retuns list of names of matched `Interval` objects in the any context
+
+        Args:
+            matcher (Optional[Callable[[Interval], bool]]): A function that returns True or False when passed an `Interval` object parameter. Defaults to None.
+                If None, all `Interval` objects in all contexts are matched.<br>
+                Examples:
+                - `lambda i : i.is_irregular`
+                - `lambda i : i.minutes < 60`
+                - `lambda i : i.name.find("Week") != -1`
+
+        Returns:
+            List[str]: A list of names of matched `Interval` objects (may be empty)
+        """
+        return list(
+            dict.fromkeys(
+                Interval._get_all_names(
+                    _CWMS_INTERVALS + _DSS_INTERVALS + _DSS_BLOCK_SIZES,
+                    matcher,
+                    exception_on_not_found,
+                )
+            )
+        )
+
     @staticmethod
     def get_any(
         matcher: Callable[["Interval"], bool],
@@ -698,6 +919,340 @@ class Interval(TimeSpan):
             raise TypeError(f"Expected string or integer, got {key.__class__.__name__}")
         return intvl
 
+    def get_datetime_index(
+        self,
+        start_time: Any,
+        end_time: Optional[Any] = None,
+        count: Optional[int] = None,
+        offset: Optional[Any] = None,
+        time_zone: Optional[Any] = None,
+        name: Optional[str] = None,
+    ) -> pd.DatetimeIndex:
+        """
+        Generates a pandas DatetimeIndex from this interval.
+
+        Args:
+            start_time (Any): A time in the first interval. If `offset` is None, this will be the first time, otherwise the first time will be the top of the interval
+                containing this time plus the specified `offset`. If the time includes no time zone, it will be assumed to be in `time_zone`, if specified, if any.
+                Must be an [`HecTime`](hectime.html#HecTime) object or an object suitable for the [`HecTime` constructor](hectime.html#HecTime.__init__)
+            end_time (Optional[Any]): The generated series will end on or before this time, if specified. If the time includes no time zone, it will be assumed to be in `time_zone`, if specified.
+                If specified, must be an [`HecTime`](hectime.html#HecTime) object or an object suitable for the [`HecTime` constructor](hectime.html#HecTime.__init__). Either `end_time` or
+                `count`, but not both, must be specified. Defaults to None.
+            count (Optional[int]): The number of times in the index. Either `end_time` or `count`, but not both, must be specified. Defaults to None.
+            offset (Optional[Any]): The offset of each time into the interval. If None, the offset is determined from `start_time`. If specified, must be an
+                [`TimeSpan`](timespan.html#TimeSpan) object or an object suitable for the [`TimeSpan` constructor](timespan.html#TimeSpan.__init__). Defaults to None.
+            time_zone (Optional[Any]): The time zone of the generated times. Must be specified if the interval is a local-regular interval. Defaults to None.
+            name (Optional[str]): The name of the index. If the generated index is to be used in a [`TimeSeries`](timeseries.html#TimeSeries) object, specify the name as "name". Defaults to None.
+
+        Raises:
+            IntervalException: If invalid parameters are specified
+
+        Returns:
+            pd.DatetimeIndex: The generated index.
+
+        Notes:
+            There is a somewhat subtle interplay between `start_time` and `offset`. If `offset` is None or not specified, the index is generated as follows:
+                <ul>
+                <li>The offset used is the offset of <code>start_time</code> into the Interval object being used</li>
+                <li>The offset handles end-of-month dates and leap years by adjusting the actual offset at each time to keep dates as aligned as possible</li>
+                </ul>
+            Otherwise the offset is used literally.<br>
+            See the following examples:
+        <table style="font-size: 14px;">
+        <pre>
+        <tr><th colspan="5">Index on 1Month interval<br>Values in <span style="color: red;">red</span> exceed the end of the month</th><tr>
+        <tr><th>start_time</th><th colspan="2">"2025&#8209;01&#8209;31 08:00:00"</th><th colspan="2">"2025&#8209;01&#8209;01 00:00:00"</th></tr>
+        <tr><th>offset</th><th>None</th><th colspan="2">TimeSpan("P30DT8H")</th><th>timedelta(<br>&nbsp;&nbsp;days=30,<br>&nbsp;&nbsp;hours=8,<br>)</th></tr>
+        <tr><th rowspan="13">index</th>
+        <tr><td>2025&#8209;01&#8209;31&nbsp;08:00:00</td><td>2025&#8209;01&#8209;31&nbsp;08:00:00</td><td>2025&#8209;01&#8209;31&nbsp;08:00:00</td><td>2025&#8209;01&#8209;31&nbsp;08:00:00</td></tr>
+        <tr><td>2025&#8209;02&#8209;28&nbsp;08:00:00</td><td style="color: red;">2025&#8209;03&#8209;03&nbsp;08:00:00</td><td style="color: red;">2025&#8209;03&#8209;03&nbsp;08:00:00</td><td style="color: red;">2025&#8209;03&#8209;03&nbsp;08:00:00</td></tr>
+        <tr><td>2025&#8209;03&#8209;31&nbsp;08:00:00</td><td>2025&#8209;03&#8209;31&nbsp;08:00:00</td><td>2025&#8209;03&#8209;31&nbsp;08:00:00</td><td>2025&#8209;03&#8209;31&nbsp;08:00:00</td></tr>
+        <tr><td>2025&#8209;04&#8209;30&nbsp;08:00:00</td><td style="color: red;">2025&#8209;05&#8209;01&nbsp;08:00:00</td><td style="color: red;">2025&#8209;05&#8209;01&nbsp;08:00:00</td><td style="color: red;">2025&#8209;05&#8209;01&nbsp;08:00:00</td></tr>
+        <tr><td>2025&#8209;05&#8209;31&nbsp;08:00:00</td><td>2025&#8209;05&#8209;31&nbsp;08:00:00</td><td>2025&#8209;05&#8209;31&nbsp;08:00:00</td><td>2025&#8209;05&#8209;31&nbsp;08:00:00</td></tr>
+        <tr><td>2025&#8209;06&#8209;30&nbsp;08:00:00</td><td style="color: red;">2025&#8209;07&#8209;01&nbsp;08:00:00</td><td style="color: red;">2025&#8209;07&#8209;01&nbsp;08:00:00</td><td style="color: red;">2025&#8209;07&#8209;01&nbsp;08:00:00</td></tr>
+        <tr><td>2025&#8209;07&#8209;31&nbsp;08:00:00</td><td>2025&#8209;07&#8209;31&nbsp;08:00:00</td><td>2025&#8209;07&#8209;31&nbsp;08:00:00</td><td>2025&#8209;07&#8209;31&nbsp;08:00:00</td></tr>
+        <tr><td>2025&#8209;08&#8209;31&nbsp;08:00:00</td><td>2025&#8209;08&#8209;31&nbsp;08:00:00</td><td>2025&#8209;08&#8209;31&nbsp;08:00:00</td><td>2025&#8209;08&#8209;31&nbsp;08:00:00</td></tr>
+        <tr><td>2025&#8209;09&#8209;30&nbsp;08:00:00</td><td style="color: red;">2025&#8209;10&#8209;01&nbsp;08:00:00</td><td style="color: red;">2025&#8209;10&#8209;01&nbsp;08:00:00</td><td style="color: red;">2025&#8209;10&#8209;01&nbsp;08:00:00</td></tr>
+        <tr><td>2025&#8209;10&#8209;31&nbsp;08:00:00</td><td>2025&#8209;10&#8209;31&nbsp;08:00:00</td><td>2025&#8209;10&#8209;31&nbsp;08:00:00</td><td>2025&#8209;10&#8209;31&nbsp;08:00:00</td></tr>
+        <tr><td>2025&#8209;11&#8209;30&nbsp;08:00:00</td><td style="color: red;">2025&#8209;12&#8209;01&nbsp;08:00:00</td><td style="color: red;">2025&#8209;12&#8209;01&nbsp;08:00:00</td><td style="color: red;">2025&#8209;12&#8209;01&nbsp;08:00:00</td></tr>
+        <tr><td>2025&#8209;12&#8209;31&nbsp;08:00:00</td><td>2025&#8209;12&#8209;31&nbsp;08:00:00</td><td>2025&#8209;12&#8209;31&nbsp;08:00:00</td><td>2025&#8209;12&#8209;31&nbsp;08:00:00</td></tr>
+        </pre>
+        </table>
+        <table style="font-size: 14px;">
+        <pre>
+        <tr><th colspan="5">Index on 1Year interval<br>Values in <span style="color: red;">red</span> don't match the starting day-of-month</th><tr>
+        <tr><th>start_time</th><th colspan="2">"2025&#8209;05&#8209;11 00:00:00"</th><th colspan="2">"2025&#8209;01&#8209;01 00:00:00"</th></tr>
+        <tr><th>offset</th><th>None</th><th colspan="2">TimeSpan("P1M10D")</th><th>timedelta(<br>&nbsp;&nbsp;days=130,<br>)</th></tr>
+        <tr><th rowspan="13">index</th>
+        <tr><td>2025&#8209;05&#8209;11&nbsp;00:00:00</td><td>2025&#8209;05&#8209;11&nbsp;00:00:00</td><td>2025&#8209;05&#8209;11&nbsp;00:00:00</td><td>2025&#8209;05&#8209;11&nbsp;00:00:00</td></tr>
+        <tr><td>2026&#8209;05&#8209;11&nbsp;00:00:00</td><td>2026&#8209;05&#8209;11&nbsp;00:00:00</td><td>2026&#8209;05&#8209;11&nbsp;00:00:00</td><td>2026&#8209;05&#8209;11&nbsp;00:00:00</td></tr>
+        <tr><td>2027&#8209;05&#8209;11&nbsp;00:00:00</td><td>2027&#8209;05&#8209;11&nbsp;00:00:00</td><td>2027&#8209;05&#8209;11&nbsp;00:00:00</td><td>2027&#8209;05&#8209;11&nbsp;00:00:00</td></tr>
+        <tr><td>2028&#8209;05&#8209;11&nbsp;00:00:00</td><td>2028&#8209;05&#8209;11&nbsp;00:00:00</td><td>2028&#8209;05&#8209;11&nbsp;00:00:00</td><td style="color: red;">2028&#8209;05&#8209;10&nbsp;00:00:00</td></tr>
+        <tr><td>2029&#8209;05&#8209;11&nbsp;00:00:00</td><td>2029&#8209;05&#8209;11&nbsp;00:00:00</td><td>2029&#8209;05&#8209;11&nbsp;00:00:00</td><td>2029&#8209;05&#8209;11&nbsp;00:00:00</td></tr>
+        <tr><td>2030&#8209;05&#8209;11&nbsp;00:00:00</td><td>2030&#8209;05&#8209;11&nbsp;00:00:00</td><td>2030&#8209;05&#8209;11&nbsp;00:00:00</td><td>2030&#8209;05&#8209;11&nbsp;00:00:00</td></tr>
+        <tr><td>2031&#8209;05&#8209;11&nbsp;00:00:00</td><td>2031&#8209;05&#8209;11&nbsp;00:00:00</td><td>2031&#8209;05&#8209;11&nbsp;00:00:00</td><td>2031&#8209;05&#8209;11&nbsp;00:00:00</td></tr>
+        <tr><td>2032&#8209;05&#8209;11&nbsp;00:00:00</td><td>2032&#8209;05&#8209;11&nbsp;00:00:00</td><td>2032&#8209;05&#8209;11&nbsp;00:00:00</td><td style="color: red;">2032&#8209;05&#8209;10&nbsp;00:00:00</td></tr>
+        <tr><td>2033&#8209;05&#8209;11&nbsp;00:00:00</td><td>2033&#8209;05&#8209;11&nbsp;00:00:00</td><td>2033&#8209;05&#8209;11&nbsp;00:00:00</td><td>2033&#8209;05&#8209;11&nbsp;00:00:00</td></tr>
+        <tr><td>2034&#8209;05&#8209;11&nbsp;00:00:00</td><td>2034&#8209;05&#8209;11&nbsp;00:00:00</td><td>2034&#8209;05&#8209;11&nbsp;00:00:00</td><td>2034&#8209;05&#8209;11&nbsp;00:00:00</td></tr>
+        <tr><td>2035&#8209;05&#8209;11&nbsp;00:00:00</td><td>2035&#8209;05&#8209;11&nbsp;00:00:00</td><td>2035&#8209;05&#8209;11&nbsp;00:00:00</td><td>2035&#8209;05&#8209;11&nbsp;00:00:00</td></tr>
+        <tr><td>2036&#8209;05&#8209;11&nbsp;00:00:00</td><td>2036&#8209;05&#8209;11&nbsp;00:00:00</td><td>2036&#8209;05&#8209;11&nbsp;00:00:00</td><td style="color: red;">2036&#8209;05&#8209;10&nbsp;00:00:00</td></tr>
+        </pre>
+        </table>
+        """
+        if not self.is_any_regular:
+            raise IntervalException(
+                f"Cannot create a datetime index from irregular interval {self.name}"
+            )
+        if not any([end_time, count]):
+            raise IntervalException("One of 'end_time' or 'count' must be specified")
+        if all([end_time, count]):
+            raise IntervalException(
+                "Only one of 'end_time' or 'count' may be specified"
+            )
+        l_start_time = hec.hectime.HecTime(start_time).label_as_time_zone(
+            "UTC" if self.is_local_regular else time_zone, on_already_set=0
+        )
+        if not l_start_time.defined:
+            raise IntervalException(
+                "Cannot get a datetime index: start_time is undefined."
+            )
+        l_start_time.midnight_as_2400 = False
+        l_interval_begin = hec.hectime.HecTime(l_start_time).adjust_to_interval_offset(
+            self, 0
+        )
+        l_interval_offset = cast(TimeSpan, l_start_time - l_interval_begin)
+        l_end_time = (
+            None
+            if end_time is None
+            else hec.hectime.HecTime(end_time).label_as_time_zone(
+                "UTC" if self.is_local_regular else time_zone, on_already_set=0
+            )
+        )
+        if l_end_time:
+            if not l_end_time.defined:
+                raise IntervalException(
+                    "Cannot get a datetime index: end_time is specified but undefined."
+                )
+            l_end_time.midnight_as_2400 = False
+        if time_zone is None and self.is_local_regular:
+            raise IntervalException(
+                f"Cannot create a local-regular time series: no time zone specified."
+            )
+        l_offset = None if offset is None else TimeSpan(offset)
+        l_first_time = l_start_time if l_offset is None else l_interval_begin + l_offset
+        if l_first_time < l_start_time:
+            l_interval_begin = l_interval_begin.increment(1, self)
+            l_first_time = l_interval_begin + l_offset
+        if (
+            self.is_local_regular
+            and self.minutes > Interval.MINUTES["1Month"]
+            and offset
+            and time_zone
+        ):
+            # -------------------------------- #
+            # adjust for crossing DST boundary #
+            # -------------------------------- #
+            l_start_time_tz = l_start_time.label_as_time_zone(
+                time_zone, on_already_set=0
+            )
+            l_interval_begin_tz = cast(
+                hec.hectime.HecTime, l_start_time_tz.clone()
+            ).adjust_to_interval_offset(self, 0)
+            l_first_time_tz = l_interval_begin_tz + l_offset
+            if l_first_time_tz < l_start_time_tz:
+                l_interval_begin_tz.increment(1, self)
+                l_first_time_tz = l_interval_begin_tz + l_offset
+            l_first_time = l_first_time_tz.label_as_time_zone("UTC", on_already_set=0)
+        try:
+            l_freq = _DATETIME_INDEX_FREQ[str(TimeSpan(self.values))]
+        except KeyError:
+            l_freq = None
+        if l_freq:
+            if time_zone and not self.is_local_regular:
+                l_first_time = l_first_time.convert_to_time_zone("UTC")
+                if l_end_time:
+                    l_end_time = l_end_time.convert_to_time_zone("UTC")
+            l_indx = pd.date_range(
+                start=l_first_time.datetime(),
+                end=None if l_end_time is None else l_end_time.datetime(),
+                periods=count,
+                freq=l_freq,
+                name=name,
+            )
+            if l_end_time:
+                l_indx = l_indx[(l_indx <= l_end_time.datetime())]  # type: ignore[operator]
+            if time_zone and not self.is_local_regular:
+                l_indx = l_indx.tz_convert(
+                    ZoneInfo(time_zone) if isinstance(time_zone, str) else time_zone
+                )
+        else:
+            # ------------------------------------------------------------------------ #
+            # calendar intervals don't have a single frequency for pandas date_range() #
+            # ------------------------------------------------------------------------ #
+            if l_end_time:
+                l_start_minutes = cast(int, l_start_time.julian()) * 1440 + cast(
+                    int, l_start_time.minutes_since_midnight()
+                )
+                l_end_minutes = cast(int, l_end_time.julian()) * 1440 + cast(
+                    int, l_end_time.minutes_since_midnight()
+                )
+                l_count = int((l_end_minutes - l_start_minutes) / self.minutes * 1.1)
+            else:
+                l_count = cast(int, count)
+            if self.minutes == Interval.MINUTES["1Month"]:
+                if l_offset is None:
+                    if cast(int, l_first_time.day) >= 28:
+                        l_target_day = l_start_time.day
+                        if time_zone and not self.is_local_regular:
+                            l_first_time = l_first_time.convert_to_time_zone("UTC")
+                            if l_end_time:
+                                l_end_time = l_end_time.convert_to_time_zone("UTC")
+                        l_indx = pd.date_range(
+                            start=l_first_time.datetime(),
+                            periods=l_count,
+                            freq="1ME",
+                            unit="s",
+                            name=name,
+                        )
+                        if time_zone and not self.is_local_regular:
+                            l_indx = l_indx.tz_convert(
+                                ZoneInfo(time_zone)
+                                if isinstance(time_zone, str)
+                                else time_zone
+                            )
+                        l_timestamps = [
+                            (
+                                dt.replace(day=l_target_day)
+                                if dt.day > cast(int, l_target_day)
+                                else dt
+                            )
+                            for dt in l_indx
+                        ]
+                        l_indx = pd.DatetimeIndex(data=l_timestamps, name=name)
+                        if l_end_time:
+                            l_indx = l_indx[(l_indx <= l_end_time.datetime())]  # type: ignore[operator]
+                    else:
+                        if time_zone and not self.is_local_regular:
+                            l_interval_begin = l_interval_begin.convert_to_time_zone(
+                                "UTC"
+                            )
+                            if l_end_time:
+                                l_end_time = l_end_time.convert_to_time_zone("UTC")
+                        l_indx = pd.date_range(
+                            start=l_interval_begin.datetime(),
+                            periods=l_count,
+                            freq="1MS",
+                            unit="s",
+                            name=name,
+                        )
+                        if time_zone and not self.is_local_regular:
+                            l_indx = l_indx.tz_convert(
+                                ZoneInfo(time_zone)
+                                if isinstance(time_zone, str)
+                                else time_zone
+                            )
+                        v = cast(list[int], l_interval_offset.values)
+                        if v[0]:
+                            l_indx += pd.DateOffset(years=v[0])  # type: ignore[operator]
+                        if v[1]:
+                            l_indx += pd.DateOffset(months=v[1])  # type: ignore[operator]
+                        if v[2]:
+                            l_indx += pd.DateOffset(days=v[2])  # type: ignore[operator]
+                        if v[3]:
+                            l_indx += pd.DateOffset(hours=v[3])  # type: ignore[operator]
+                        if v[4]:
+                            l_indx += pd.DateOffset(minutes=v[4])  # type: ignore[operator]
+                        if l_end_time:
+                            l_indx = l_indx[(l_indx <= l_end_time.datetime())]  # type: ignore[operator]
+                else:
+                    if time_zone and l_offset is not None:
+                        l_interval_begin = l_interval_begin.convert_to_time_zone("UTC")
+                        if l_end_time:
+                            l_end_time = l_end_time.convert_to_time_zone("UTC")
+                    l_indx = pd.date_range(
+                        start=l_interval_begin.datetime(),
+                        periods=l_count,
+                        freq="1MS",
+                        unit="s",
+                        name=name,
+                    )
+                    v = cast(list[int], l_offset.values)
+                    if v[0]:
+                        l_indx += pd.DateOffset(years=v[0])  # type: ignore[operator]
+                    if v[1]:
+                        l_indx += pd.DateOffset(months=v[1])  # type: ignore[operator]
+                    if v[2]:
+                        l_indx += pd.DateOffset(days=v[2])  # type: ignore[operator]
+                    if v[3]:
+                        l_indx += pd.DateOffset(hours=v[3])  # type: ignore[operator]
+                    if v[4]:
+                        l_indx += pd.DateOffset(minutes=v[4])  # type: ignore[operator]
+                    if l_end_time:
+                        l_indx = l_indx[(l_indx <= l_end_time.datetime())]  # type: ignore[operator]
+                    if time_zone and l_offset is not None:
+                        if self.is_local_regular:
+                            l_indx = l_indx.tz_localize(None).tz_localize(
+                                ZoneInfo(time_zone)
+                                if isinstance(time_zone, str)
+                                else time_zone
+                            )
+                        else:
+                            l_indx = l_indx.tz_convert(
+                                ZoneInfo(time_zone)
+                                if isinstance(time_zone, str)
+                                else time_zone
+                            )
+            else:
+                if offset is None:
+                    l_first_time = l_start_time
+                else:
+                    l_interval_begin = cast(
+                        hec.hectime.HecTime, l_start_time.clone()
+                    ).adjust_to_interval_offset(self, 0)
+                    l_first_time = l_interval_begin + offset
+                    if l_first_time < l_start_time:
+                        l_interval_begin.increment(1, self)
+                        l_first_time = l_interval_begin + offset
+                if time_zone:
+                    if self.is_local_regular:
+                        l_first_time = l_first_time.label_as_time_zone(
+                            "UTC", on_already_set=0
+                        )
+                        if l_end_time is not None:
+                            l_end_time = l_end_time.label_as_time_zone(
+                                "UTC", on_already_set=0
+                            )
+                    else:
+                        l_first_time = l_first_time.convert_to_time_zone("UTC")
+                        if l_end_time is not None:
+                            l_end_time = l_end_time.convert_to_time_zone("UTC")
+                l_hectimes = [
+                    cast(hec.hectime.HecTime, l_first_time.clone()).increment(i, self)
+                    for i in range(l_count)
+                ]
+                if l_end_time is not None:
+                    while l_hectimes[-1] > l_end_time:
+                        l_hectimes.pop()
+                if time_zone:
+                    if self.is_local_regular:
+                        l_hectimes = [
+                            ht.label_as_time_zone(time_zone, on_already_set=0)
+                            for ht in l_hectimes
+                        ]
+                    else:
+                        l_hectimes = [
+                            ht.convert_to_time_zone(time_zone) for ht in l_hectimes
+                        ]
+                l_datetimes = [cast(datetime, ht.datetime()) for ht in l_hectimes]
+                l_indx = pd.DatetimeIndex(data=l_datetimes, name=name)
+        if self.is_local_regular:
+            ambiguous_flags = np.zeros(len(l_indx), dtype=bool)
+            l_indx = l_indx.tz_localize(None).tz_localize(
+                ZoneInfo(time_zone) if isinstance(time_zone, str) else time_zone,
+                ambiguous=ambiguous_flags,
+            )
+        return l_indx
+
     @staticmethod
     def get_default_exception_on_not_found() -> bool:
         """
@@ -726,7 +1281,12 @@ class Interval(TimeSpan):
         """
         intvl: Optional[Interval] = None
         if isinstance(key, str):
-            intvl = Interval.get_any_dss(lambda i: i.name == key.title(), False)
+            if key.upper().startswith("IR-"):
+                intvl = Interval.get_any_dss(
+                    lambda i: i.name == f"IR-{key[3:].title()}", False
+                )
+            else:
+                intvl = Interval.get_any_dss(lambda i: i.name == key.title(), False)
             if intvl is None:
                 raise IntervalException(
                     f'No HEC-DSS interval found with name = "{key}"'
@@ -742,230 +1302,32 @@ class Interval(TimeSpan):
         return intvl
 
     @staticmethod
-    def set_default_exception_on_not_found(state: bool) -> None:
+    def get_dss_block_for_interval(interval: Union[str, int, "Interval"]) -> "Interval":
         """
-        Sets the default behavior if any of the get... methods do not find an Interval object to return.
+        Returns the HEC-DSS block size for a specified interval.
 
         Args:
-            state (bool): Whether to raise an exception if no Interval is found (True) or return None (False)
-        """
-        Interval._default_exception_on_not_found = state
-
-    @staticmethod
-    def get_all(
-        matcher: Optional[Callable[["Interval"], bool]] = None,
-        exception_on_not_found: Optional[bool] = None,
-    ) -> list["Interval"]:
-        """
-        Retuns list of matched `Interval` objects in the any context
-
-        Args:
-            matcher (Optional[Callable[[Interval], bool]]): A function that returns True or False when passed an `Interval` object parameter. Defaults to None.
-                If None, all `Interval` objects in all contexts are matched.<br>
-                Examples:
-                - `lambda i : i.is_irregular`
-                - `lambda i : i.minutes < 60`
-                - `lambda i : i.name.find("Week") != -1`
+            interval (Union[str, int, &quot;Interval&quot;]): The interval to return the block size for. May be an Interval object,
+                or its name or (actual or characteristic) minutes.
 
         Returns:
-            List[Interval]: A list of matched `Interval` objects (may be empty)
+            Interval: An interval object representing the HEC-DSS block size
         """
-        return Interval._get_all(
-            _CWMS_INTERVALS + _DSS_INTERVALS + _DSS_BLOCK_SIZES,
-            matcher,
-            exception_on_not_found,
-        )
-
-    @staticmethod
-    def get_all_cwms(
-        matcher: Optional[Callable[["Interval"], bool]] = None,
-        exception_on_not_found: Optional[bool] = None,
-    ) -> list["Interval"]:
-        """
-        Retuns list of matched `Interval` objects in the CWMS context
-
-        Args:
-            matcher (Optional[Callable[[Interval], bool]]): A function that returns True or False when passed an `Interval` object parameter. Defaults to None.
-                If None, all `Interval` objects in the context are matched.<br>
-                Examples:
-                - `lambda i : i.is_irregular`
-                - `lambda i : i.minutes < 60`
-                - `lambda i : i.name.find("Week") != -1`
-            exception_on_not_found (bool): Specifies whether to raise an exception if no Intervals are found. If None, the default
-                behavior is used. Optional. Defaults to None. See [set_default_exception_on_not_found](#Interval.set_default_exception_on_not_found) and
-                [get_default_exception_on_not_found](#Interval.get_default_exception_on_not_found)
-
-        Returns:
-            List[Interval]: A list of matched `Interval` objects (may be empty)
-        """
-        return Interval._get_all(_CWMS_INTERVALS, matcher, exception_on_not_found)
-
-    @staticmethod
-    def get_all_cwms_names(
-        matcher: Optional[Callable[["Interval"], bool]] = None,
-        exception_on_not_found: Optional[bool] = None,
-    ) -> list[str]:
-        """
-        Retuns list of names of matched `Interval` objects in the CWMS context
-
-        Args:
-            matcher (Optional[Callable[[Interval], bool]]): A function that returns True or False when passed an `Interval` object parameter. Defaults to None.
-                If None, all `Interval` objects in the context are matched.<br>
-                Examples:
-                - `lambda i : i.is_irregular`
-                - `lambda i : i.minutes < 60`
-                - `lambda i : i.name.find("Week") != -1`
-            exception_on_not_found (bool): Specifies whether to raise an exception if no Intervals are found. If None, the default
-                behavior is used. Optional. Defaults to None. See [set_default_exception_on_not_found](#Interval.set_default_exception_on_not_found) and
-                [get_default_exception_on_not_found](#Interval.get_default_exception_on_not_found)
-
-        Returns:
-            List[str]: A list of names of matched `Interval` objects (may be empty)
-        """
-        return list(
-            dict.fromkeys(
-                Interval._get_all_names(
-                    _CWMS_INTERVALS, matcher, exception_on_not_found
-                )
+        if isinstance(interval, (str, int)):
+            _interval = Interval.get_dss(interval)
+        elif isinstance(interval, Interval):
+            _interval = interval
+        else:
+            raise ValueError(
+                f"Expected str, int, or Interval for interval, got {interval.__class__.__name__}"
             )
-        )
-
-    @staticmethod
-    def get_all_dss(
-        matcher: Optional[Callable[["Interval"], bool]] = None,
-        exception_on_not_found: Optional[bool] = None,
-    ) -> list["Interval"]:
-        """
-        Retuns list of matched `Interval` objects in the DSS context
-
-        Args:
-            matcher (Optional[Callable[[Interval], bool]]): A function that returns True or False when passed an `Interval` object parameter. Defaults to None.
-                If None, all `Interval` objects in the context are matched.<br>
-                Examples:
-                - `lambda i : i.is_irregular`
-                - `lambda i : i.minutes < 60`
-                - `lambda i : i.name.find("Week") != -1`
-            exception_on_not_found (bool): Specifies whether to raise an exception if no Intervals are found. If None, the default
-                behavior is used. Optional. Defaults to None. See [set_default_exception_on_not_found](#Interval.set_default_exception_on_not_found) and
-                [get_default_exception_on_not_found](#Interval.get_default_exception_on_not_found)
-
-        Returns:
-            List[Interval]: A list of matched `Interval` objects (may be empty)
-        """
-        return Interval._get_all(_DSS_INTERVALS, matcher, exception_on_not_found)
-
-    @staticmethod
-    def get_all_dss_block_names(
-        matcher: Optional[Callable[["Interval"], bool]] = None,
-        exception_on_not_found: Optional[bool] = None,
-    ) -> list[str]:
-        """
-        Retuns list of names of matched `Interval` objects in the DSS block size context
-
-        Args:
-            matcher (Optional[Callable[[Interval], bool]]): A function that returns True or False when passed an `Interval` object parameter. Defaults to None.
-                If None, all `Interval` objects in the context are matched.<br>
-                Examples:
-                - `lambda i : i.is_irregular`
-                - `lambda i : i.minutes < 60`
-                - `lambda i : i.name.find("Week") != -1`
-            exception_on_not_found (bool): Specifies whether to raise an exception if no Intervals are found. If None, the default
-                behavior is used. Optional. Defaults to None. See [set_default_exception_on_not_found](#Interval.set_default_exception_on_not_found) and
-                [get_default_exception_on_not_found](#Interval.get_default_exception_on_not_found)
-
-        Returns:
-            List[str]: A list of names of matched `Interval` objects (may be empty)
-        """
-        return Interval._get_all_names(
-            _DSS_BLOCK_SIZES, matcher, exception_on_not_found
-        )
-
-    @staticmethod
-    def get_all_dss_blocks(
-        matcher: Optional[Callable[["Interval"], bool]] = None,
-        exception_on_not_found: Optional[bool] = None,
-    ) -> list["Interval"]:
-        """
-        Retuns list of matched `Interval` objects in the DSS block size context
-
-        Args:
-            matcher (Optional[Callable[[Interval], bool]]): A function that returns True or False when passed an `Interval` object parameter. Defaults to None.
-                If None, all `Interval` objects in the context are matched.<br>
-                Examples:
-                - `lambda i : i.is_irregular`
-                - `lambda i : i.minutes < 60`
-                - `lambda i : i.name.find("Week") != -1`
-            exception_on_not_found (bool): Specifies whether to raise an exception if no Intervals are found. If None, the default
-                behavior is used. Optional. Defaults to None. See [set_default_exception_on_not_found](#Interval.set_default_exception_on_not_found) and
-                [get_default_exception_on_not_found](#Interval.get_default_exception_on_not_found)
-
-        Returns:
-            List[Interval]: A list of matched `Interval` objects (may be empty)
-        """
-        return Interval._get_all(_DSS_BLOCK_SIZES, matcher, exception_on_not_found)
-
-    @staticmethod
-    def get_all_dss_names(
-        matcher: Optional[Callable[["Interval"], bool]] = None,
-        exception_on_not_found: Optional[bool] = None,
-    ) -> list[str]:
-        """
-        Retuns list of names of matched `Interval` objects in the DSS context
-
-        Args:
-            matcher (Optional[Callable[[Interval], bool]]): A function that returns True or False when passed an `Interval` object parameter. Defaults to None.
-                If None, all `Interval` objects in the context are matched.<br>
-                Examples:
-                - `lambda i : i.is_irregular`
-                - `lambda i : i.minutes < 60`
-                - `lambda i : i.name.find("Week") != -1`
-            exception_on_not_found (bool): Specifies whether to raise an exception if no Intervals are found. If None, the default
-                behavior is used. Optional. Defaults to None. See [set_default_exception_on_not_found](#Interval.set_default_exception_on_not_found) and
-                [get_default_exception_on_not_found](#Interval.get_default_exception_on_not_found)
-
-        Returns:
-            List[str]: A list of names of matched `Interval` objects (may be empty)
-        """
-        return Interval._get_all_names(_DSS_INTERVALS, matcher, exception_on_not_found)
-
-    @staticmethod
-    def get_all_names(
-        matcher: Optional[Callable[["Interval"], bool]] = None,
-        exception_on_not_found: Optional[bool] = None,
-    ) -> list[str]:
-        """
-        Retuns list of names of matched `Interval` objects in the any context
-
-        Args:
-            matcher (Optional[Callable[[Interval], bool]]): A function that returns True or False when passed an `Interval` object parameter. Defaults to None.
-                If None, all `Interval` objects in all contexts are matched.<br>
-                Examples:
-                - `lambda i : i.is_irregular`
-                - `lambda i : i.minutes < 60`
-                - `lambda i : i.name.find("Week") != -1`
-
-        Returns:
-            List[str]: A list of names of matched `Interval` objects (may be empty)
-        """
-        return list(
-            dict.fromkeys(
-                Interval._get_all_names(
-                    _CWMS_INTERVALS + _DSS_INTERVALS + _DSS_BLOCK_SIZES,
-                    matcher,
-                    exception_on_not_found,
-                )
-            )
-        )
-
-    @property
-    def context(self) -> str:
-        """
-        The context of this object ("Cwms", "Dss", or "DssBlock")
-
-        Operations:
-            Read-only
-        """
-        return self._context
+        block_size_name = _DSS_BLOCK_SIZE_FOR_INTERVAL[_interval.name]
+        assert block_size_name, f"Couldn't determine HEC-DSS block size for {_interval}"
+        block_size = Interval.get_any_dss_block(lambda i: i.name == block_size_name)
+        assert (
+            block_size
+        ), f"Couldn't instantiate block size interval '{block_size_name}'"
+        return block_size
 
     @property
     def is_any_irregular(self) -> bool:
@@ -1052,6 +1414,16 @@ class Interval(TimeSpan):
             Read-only
         """
         return self._name
+
+    @staticmethod
+    def set_default_exception_on_not_found(state: bool) -> None:
+        """
+        Sets the default behavior if any of the get... methods do not find an Interval object to return.
+
+        Args:
+            state (bool): Whether to raise an exception if no Interval is found (True) or return None (False)
+        """
+        Interval._default_exception_on_not_found = state
 
 
 _CWMS_INTERVALS = [
@@ -1169,11 +1541,21 @@ _CWMS_INTERVALS = [
 ]
 
 _DSS_INTERVALS = [
-    Interval("PT0S", "Ir-Day", "Dss"),
-    Interval("PT0S", "Ir-Month", "Dss"),
-    Interval("PT0S", "Ir-Year", "Dss"),
-    Interval("PT0S", "Ir-Decade", "Dss"),
-    Interval("PT0S", "Ir-Century", "Dss"),
+    Interval("PT0S", "IR-Day", "Dss"),
+    Interval("PT0S", "IR-Month", "Dss"),
+    Interval("PT0S", "IR-Year", "Dss"),
+    Interval("PT0S", "IR-Decade", "Dss"),
+    Interval("PT0S", "IR-Century", "Dss"),
+    # Interval("PT0S", "~1Second", "Dss"),
+    # Interval("PT0S", "~2Second", "Dss"),
+    # Interval("PT0S", "~3Second", "Dss"),
+    # Interval("PT0S", "~4Second", "Dss"),
+    # Interval("PT0S", "~5Second", "Dss"),
+    # Interval("PT0S", "~6Second", "Dss"),
+    # Interval("PT0S", "~10Second", "Dss"),
+    # Interval("PT0S", "~15Second", "Dss"),
+    # Interval("PT0S", "~20Second", "Dss"),
+    # Interval("PT0S", "~30Second", "Dss"),
     Interval("PT0S", "~1Minute", "Dss"),
     Interval("PT0S", "~2Minute", "Dss"),
     Interval("PT0S", "~3Minute", "Dss"),
@@ -1201,6 +1583,16 @@ _DSS_INTERVALS = [
     Interval("PT0S", "~1Week", "Dss"),
     Interval("PT0S", "~1Month", "Dss"),
     Interval("PT0S", "~1Year", "Dss"),
+    # Interval("PT1S", "1Second", "Dss"),
+    # Interval("PT2S", "2Second", "Dss"),
+    # Interval("PT3S", "3Second", "Dss"),
+    # Interval("PT4S", "4Second", "Dss"),
+    # Interval("PT5S", "5Second", "Dss"),
+    # Interval("PT6S", "6Second", "Dss"),
+    # Interval("PT10S", "10Second", "Dss"),
+    # Interval("PT15S", "15Second", "Dss"),
+    # Interval("PT20S", "20Second", "Dss"),
+    # Interval("PT30S", "30Second", "Dss"),
     Interval("PT1M", "1Minute", "Dss"),
     Interval("PT2M", "2Minute", "Dss"),
     Interval("PT3M", "3Minute", "Dss"),
@@ -1232,11 +1624,122 @@ _DSS_INTERVALS = [
     Interval("P1Y", "1Year", "Dss", 525600),
 ]
 _DSS_BLOCK_SIZES = [
+    Interval("P1D", "1Day", "DssBlock"),
     Interval("P1M", "1Month", "DssBlock", 43200),
     Interval("P1Y", "1Year", "DssBlock", 525600),
     Interval("P10Y", "1Decade", "DssBlock", 5256000),
     Interval("P100Y", "1Century", "DssBlock", 52560000),
 ]
+_DSS_BLOCK_SIZE_FOR_INTERVAL = {
+    "IR-Day": "1Day",
+    "IR-Month": "1Month",
+    "IR-Year": "1Year",
+    "IR-Decade": "1Decade",
+    "IR-Century": "1Century",
+    "~1Second": "1Day",
+    "~2Second": "1Day",
+    "~3Second": "1Day",
+    "~4Second": "1Day",
+    "~5Second": "1Day",
+    "~6Second": "1Day",
+    "~10Second": "1Day",
+    "~15Second": "1Day",
+    "~20Second": "1Day",
+    "~30Second": "1Day",
+    "~1Minute": "1Day",
+    "~2Minute": "1Day",
+    "~3Minute": "1Day",
+    "~4Minute": "1Day",
+    "~5Minute": "1Day",
+    "~6Minute": "1Day",
+    "~10Minute": "1Day",
+    "~12Minute": "1Day",
+    "~15Minute": "1Day",
+    "~20Minute": "1Day",
+    "~30Minute": "1Month",
+    "~1Hour": "1Month",
+    "~2Hour": "1Month",
+    "~3Hour": "1Month",
+    "~4Hour": "1Month",
+    "~6Hour": "1Year",
+    "~8Hour": "1Year",
+    "~12Hour": "1Year",
+    "~1Day": "1Year",
+    "~2Day": "1Year",
+    "~3Day": "1Year",
+    "~4Day": "1Year",
+    "~5Day": "1Year",
+    "~6Day": "1Year",
+    "~1Week": "1Decade",
+    "~1Month": "1Century",
+    "~1Year": "1Century",
+    "1Second": "1Day",
+    "2Second": "1Day",
+    "3Second": "1Day",
+    "4Second": "1Day",
+    "5Second": "1Day",
+    "6Second": "1Day",
+    "10Second": "1Day",
+    "15Second": "1Day",
+    "20Second": "1Day",
+    "30Second": "1Day",
+    "1Minute": "1Day",
+    "2Minute": "1Day",
+    "3Minute": "1Day",
+    "4Minute": "1Day",
+    "5Minute": "1Day",
+    "6Minute": "1Day",
+    "10Minute": "1Day",
+    "12Minute": "1Day",
+    "15Minute": "1Month",
+    "20Minute": "",
+    "30Minute": "",
+    "1Hour": "1Month",
+    "2Hour": "1Month",
+    "3Hour": "1Month",
+    "4Hour": "1Month",
+    "6Hour": "1Month",
+    "8Hour": "1Month",
+    "12Hour": "1Month",
+    "1Day": "1Year",
+    "2Day": "1Year",
+    "3Day": "1Year",
+    "4Day": "1Year",
+    "5Day": "1Year",
+    "6Day": "1Year",
+    "1Week": "1Decade",
+    "Tri-Month": "1Decade",
+    "Semi-Month": "1Decade",
+    "1Month": "1Decade",
+    "1Year": "1Century",
+}
+_DATETIME_INDEX_FREQ = {
+    "PT1M": "min",
+    "PT2M": "2min",
+    "PT3M": "3min",
+    "PT4M": "4min",
+    "PT5M": "5min",
+    "PT6M": "6min",
+    "PT10M": "10min",
+    "PT12M": "12min",
+    "PT15M": "15min",
+    "PT20M": "20min",
+    "PT30M": "30min",
+    "PT1H": "h",
+    "PT2H": "2h",
+    "PT3H": "3h",
+    "PT4H": "4h",
+    "PT6H": "6h",
+    "PT8H": "8h",
+    "PT12H": "12h",
+    "P1D": "D",
+    "P2D": "2D",
+    "P3D": "3D",
+    "P4D": "4D",
+    "P5D": "5D",
+    "P6D": "6D",
+    "P7D": "7D",  # "W" is anchored to Sunday
+}
 
 for _i in _CWMS_INTERVALS:
     Interval.MINUTES[_i.name] = _i.minutes
