@@ -150,9 +150,8 @@ class Interval(TimeSpan):
             raise IntervalException("Seconds is not allowed to be non-zero")
         count = sum([1 for item in cast(list[int], self.values) if item])
         if count > 1:
-            print(self.values)
             raise IntervalException(
-                "Only one of years, months, days, hours, and minutes is allowed to be non-zero"
+                f"Only one of years, months, days, hours, and minutes is allowed to be non-zero: got {self.values}"
             )
 
     def __add__(self, other: object) -> "Interval":
@@ -1010,15 +1009,25 @@ class Interval(TimeSpan):
             raise IntervalException(
                 "Only one of 'end_time' or 'count' may be specified"
             )
-        l_start_time = hec.hectime.HecTime(start_time).label_as_time_zone("UTC" if self.is_local_regular else time_zone)
+        l_start_time = hec.hectime.HecTime(start_time).label_as_time_zone(
+            "UTC" if self.is_local_regular else time_zone, on_already_set=0
+        )
         if not l_start_time.defined:
             raise IntervalException(
                 "Cannot get a datetime index: start_time is undefined."
             )
         l_start_time.midnight_as_2400 = False
-        l_interval_begin = hec.hectime.HecTime(l_start_time).adjust_to_interval_offset(self, 0)
+        l_interval_begin = hec.hectime.HecTime(l_start_time).adjust_to_interval_offset(
+            self, 0
+        )
         l_interval_offset = cast(TimeSpan, l_start_time - l_interval_begin)
-        l_end_time = None if end_time is None else hec.hectime.HecTime(end_time).label_as_time_zone("UTC" if self.is_local_regular else time_zone)
+        l_end_time = (
+            None
+            if end_time is None
+            else hec.hectime.HecTime(end_time).label_as_time_zone(
+                "UTC" if self.is_local_regular else time_zone, on_already_set=0
+            )
+        )
         if l_end_time:
             if not l_end_time.defined:
                 raise IntervalException(
@@ -1034,12 +1043,32 @@ class Interval(TimeSpan):
         if l_first_time < l_start_time:
             l_interval_begin = l_interval_begin.increment(1, self)
             l_first_time = l_interval_begin + l_offset
+        if (
+            self.is_local_regular
+            and self.minutes > Interval.MINUTES["1Month"]
+            and offset
+            and time_zone
+        ):
+            # -------------------------------- #
+            # adjust for crossing DST boundary #
+            # -------------------------------- #
+            l_start_time_tz = l_start_time.label_as_time_zone(
+                time_zone, on_already_set=0
+            )
+            l_interval_begin_tz = cast(
+                hec.hectime.HecTime, l_start_time_tz.clone()
+            ).adjust_to_interval_offset(self, 0)
+            l_first_time_tz = l_interval_begin_tz + l_offset
+            if l_first_time_tz < l_start_time_tz:
+                l_interval_begin_tz.increment(1, self)
+                l_first_time_tz = l_interval_begin_tz + l_offset
+            l_first_time = l_first_time_tz.label_as_time_zone("UTC", on_already_set=0)
         try:
             l_freq = _DATETIME_INDEX_FREQ[str(TimeSpan(self.values))]
         except KeyError:
             l_freq = None
         if l_freq:
-            if time_zone and l_offset is not None and not self.is_local_regular:
+            if time_zone and not self.is_local_regular:
                 l_first_time = l_first_time.convert_to_time_zone("UTC")
                 if l_end_time:
                     l_end_time = l_end_time.convert_to_time_zone("UTC")
@@ -1051,37 +1080,62 @@ class Interval(TimeSpan):
                 name=name,
             )
             if l_end_time:
-                l_indx = l_indx[(l_indx <= l_end_time.datetime())]
-            if time_zone and l_offset is not None and not self.is_local_regular:
-                l_indx = l_indx.tz_convert(ZoneInfo(time_zone) if isinstance(time_zone, str) else time_zone)
+                l_indx = l_indx[(l_indx <= l_end_time.datetime())]  # type: ignore[operator]
+            if time_zone and not self.is_local_regular:
+                l_indx = l_indx.tz_convert(
+                    ZoneInfo(time_zone) if isinstance(time_zone, str) else time_zone
+                )
         else:
             # ------------------------------------------------------------------------ #
             # calendar intervals don't have a single frequency for pandas date_range() #
             # ------------------------------------------------------------------------ #
             if l_end_time:
-                l_start_minutes = l_start_time.julian() * 1440 + l_start_time.minutes_since_midnight()
-                l_end_minutes = l_end_time.julian() * 1440 + l_end_time.minutes_since_midnight()
+                l_start_minutes = cast(int, l_start_time.julian()) * 1440 + cast(
+                    int, l_start_time.minutes_since_midnight()
+                )
+                l_end_minutes = cast(int, l_end_time.julian()) * 1440 + cast(
+                    int, l_end_time.minutes_since_midnight()
+                )
                 l_count = int((l_end_minutes - l_start_minutes) / self.minutes * 1.1)
             else:
-                l_count = count
+                l_count = cast(int, count)
             if self.minutes == Interval.MINUTES["1Month"]:
                 if l_offset is None:
-                    if l_start_time.day >= 28:
+                    if cast(int, l_first_time.day) >= 28:
                         l_target_day = l_start_time.day
+                        if time_zone and not self.is_local_regular:
+                            l_first_time = l_first_time.convert_to_time_zone("UTC")
+                            if l_end_time:
+                                l_end_time = l_end_time.convert_to_time_zone("UTC")
                         l_indx = pd.date_range(
-                            start=l_start_time.datetime(),
+                            start=l_first_time.datetime(),
                             periods=l_count,
                             freq="1ME",
                             unit="s",
                             name=name,
                         )
-                        l_datetimes = [dt.replace(day=l_target_day) if dt.day > l_target_day else dt for dt in l_indx]
-                        l_indx = pd.DatetimeIndex(data=l_datetimes, name=name)
+                        if time_zone and not self.is_local_regular:
+                            l_indx = l_indx.tz_convert(
+                                ZoneInfo(time_zone)
+                                if isinstance(time_zone, str)
+                                else time_zone
+                            )
+                        l_timestamps = [
+                            (
+                                dt.replace(day=l_target_day)
+                                if dt.day > cast(int, l_target_day)
+                                else dt
+                            )
+                            for dt in l_indx
+                        ]
+                        l_indx = pd.DatetimeIndex(data=l_timestamps, name=name)
                         if l_end_time:
-                            l_indx = l_indx[(l_indx <= l_end_time.datetime())]
+                            l_indx = l_indx[(l_indx <= l_end_time.datetime())]  # type: ignore[operator]
                     else:
-                        if time_zone and l_offset:
-                            l_interval_begin = l_interval_begin.convert_to_time_zone("UTC")
+                        if time_zone and not self.is_local_regular:
+                            l_interval_begin = l_interval_begin.convert_to_time_zone(
+                                "UTC"
+                            )
                             if l_end_time:
                                 l_end_time = l_end_time.convert_to_time_zone("UTC")
                         l_indx = pd.date_range(
@@ -1091,21 +1145,25 @@ class Interval(TimeSpan):
                             unit="s",
                             name=name,
                         )
-                        if time_zone and l_offset:
-                            l_indx = l_indx.tz_convert(ZoneInfo(time_zone) if isinstance(time_zone, str) else time_zone)
-                        v = l_interval_offset.values
+                        if time_zone and not self.is_local_regular:
+                            l_indx = l_indx.tz_convert(
+                                ZoneInfo(time_zone)
+                                if isinstance(time_zone, str)
+                                else time_zone
+                            )
+                        v = cast(list[int], l_interval_offset.values)
                         if v[0]:
-                            l_indx += pd.DateOffset(years=v[0])
+                            l_indx += pd.DateOffset(years=v[0])  # type: ignore[operator]
                         if v[1]:
-                            l_indx += pd.DateOffset(months=v[1])
+                            l_indx += pd.DateOffset(months=v[1])  # type: ignore[operator]
                         if v[2]:
-                            l_indx += pd.DateOffset(days=v[2])
+                            l_indx += pd.DateOffset(days=v[2])  # type: ignore[operator]
                         if v[3]:
-                            l_indx += pd.DateOffset(hours=v[3])
+                            l_indx += pd.DateOffset(hours=v[3])  # type: ignore[operator]
                         if v[4]:
-                            l_indx += pd.DateOffset(minutes=v[4])
+                            l_indx += pd.DateOffset(minutes=v[4])  # type: ignore[operator]
                         if l_end_time:
-                            l_indx = l_indx[(l_indx <= l_end_time.datetime())]
+                            l_indx = l_indx[(l_indx <= l_end_time.datetime())]  # type: ignore[operator]
                 else:
                     if time_zone and l_offset is not None:
                         l_interval_begin = l_interval_begin.convert_to_time_zone("UTC")
@@ -1118,53 +1176,81 @@ class Interval(TimeSpan):
                         unit="s",
                         name=name,
                     )
-                    v = l_offset.values
+                    v = cast(list[int], l_offset.values)
                     if v[0]:
-                        l_indx += pd.DateOffset(years=v[0])
+                        l_indx += pd.DateOffset(years=v[0])  # type: ignore[operator]
                     if v[1]:
-                        l_indx += pd.DateOffset(months=v[1])
+                        l_indx += pd.DateOffset(months=v[1])  # type: ignore[operator]
                     if v[2]:
-                        l_indx += pd.DateOffset(days=v[2])
+                        l_indx += pd.DateOffset(days=v[2])  # type: ignore[operator]
                     if v[3]:
-                        l_indx += pd.DateOffset(hours=v[3])
+                        l_indx += pd.DateOffset(hours=v[3])  # type: ignore[operator]
                     if v[4]:
-                        l_indx += pd.DateOffset(minutes=v[4])
+                        l_indx += pd.DateOffset(minutes=v[4])  # type: ignore[operator]
                     if l_end_time:
-                        l_indx = l_indx[(l_indx <= l_end_time.datetime())]
+                        l_indx = l_indx[(l_indx <= l_end_time.datetime())]  # type: ignore[operator]
                     if time_zone and l_offset is not None:
                         if self.is_local_regular:
-                            l_indx = l_indx.tz_localize(None).tz_localize(ZoneInfo(time_zone) if isinstance(time_zone, str) else time_zone)
+                            l_indx = l_indx.tz_localize(None).tz_localize(
+                                ZoneInfo(time_zone)
+                                if isinstance(time_zone, str)
+                                else time_zone
+                            )
                         else:
-                            l_indx = l_indx.tz_convert(ZoneInfo(time_zone) if isinstance(time_zone, str) else time_zone)
+                            l_indx = l_indx.tz_convert(
+                                ZoneInfo(time_zone)
+                                if isinstance(time_zone, str)
+                                else time_zone
+                            )
             else:
-                if l_offset is None:
-                    if time_zone:
-                        l_start_time = l_start_time.label_as_time_zone(None)
-                        if l_end_time is not None:
-                            l_end_time = l_end_time.label_as_time_zone(None)
-                        l_hectimes = [cast(hec.hectime.HecTime, l_start_time.clone()).increment(i, self) for i in range(l_count)]
-                        if l_end_time is not None:
-                            while l_hectimes[-1] > l_end_time:
-                                l_hectimes.pop()
-                        l_hectimes = [ht.label_as_time_zone(time_zone) for ht in l_hectimes]
-                    else:
-                        l_hectimes = [cast(hec.hectime.HecTime, l_start_time.clone()).increment(i, self) for i in range(l_count)]
-                        if l_end_time:
-                            while l_hectimes[-1] > l_end_time:
-                                l_hectimes.pop()
+                if offset is None:
+                    l_first_time = l_start_time
                 else:
-                    l_interval_begin = cast(hec.hectime.HecTime, l_start_time.clone()).adjust_to_interval_offset(self, 0)
+                    l_interval_begin = cast(
+                        hec.hectime.HecTime, l_start_time.clone()
+                    ).adjust_to_interval_offset(self, 0)
                     l_first_time = l_interval_begin + offset
                     if l_first_time < l_start_time:
-                        l_interval_begin = l_interval_begin.increment(1, self)
-                    l_hectimes = [cast(hec.hectime.HecTime, l_interval_begin.clone()).increment(i, self).increment(1, offset) for i in range(l_count)]
-                    if l_end_time is not None:
-                        while l_hectimes[-1] > l_end_time:
-                            l_hectimes.pop()
-                l_datetimes = [ht.datetime() for ht in l_hectimes]
-                l_indx= pd.DatetimeIndex(data=l_datetimes, name=name)
+                        l_interval_begin.increment(1, self)
+                        l_first_time = l_interval_begin + offset
+                if time_zone:
+                    if self.is_local_regular:
+                        l_first_time = l_first_time.label_as_time_zone(
+                            "UTC", on_already_set=0
+                        )
+                        if l_end_time is not None:
+                            l_end_time = l_end_time.label_as_time_zone(
+                                "UTC", on_already_set=0
+                            )
+                    else:
+                        l_first_time = l_first_time.convert_to_time_zone("UTC")
+                        if l_end_time is not None:
+                            l_end_time = l_end_time.convert_to_time_zone("UTC")
+                l_hectimes = [
+                    cast(hec.hectime.HecTime, l_first_time.clone()).increment(i, self)
+                    for i in range(l_count)
+                ]
+                if l_end_time is not None:
+                    while l_hectimes[-1] > l_end_time:
+                        l_hectimes.pop()
+                if time_zone:
+                    if self.is_local_regular:
+                        l_hectimes = [
+                            ht.label_as_time_zone(time_zone, on_already_set=0)
+                            for ht in l_hectimes
+                        ]
+                    else:
+                        l_hectimes = [
+                            ht.convert_to_time_zone(time_zone) for ht in l_hectimes
+                        ]
+                l_datetimes = [cast(datetime, ht.datetime()) for ht in l_hectimes]
+                l_indx = pd.DatetimeIndex(data=l_datetimes, name=name)
         if self.is_local_regular:
-            l_indx = l_indx.tz_localize(None).tz_localize(ZoneInfo(time_zone) if isinstance(time_zone, str) else time_zone)
+            ambiguous_flags = np.zeros(len(l_indx), dtype=bool)
+            l_indx = l_indx.tz_localize(None).tz_localize(
+                ZoneInfo(time_zone) if isinstance(time_zone, str) else time_zone,
+                ambiguous=ambiguous_flags,
+            )
         return l_indx
 
     @staticmethod

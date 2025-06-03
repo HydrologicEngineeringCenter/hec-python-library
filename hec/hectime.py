@@ -7,7 +7,6 @@ Jump to [**`class HecTime`**](#HecTime)
 """
 
 import datetime as dt
-import hec.shared
 import math
 import re
 import warnings
@@ -21,6 +20,7 @@ from zoneinfo import ZoneInfo
 import pytz
 import tzlocal
 
+import hec.shared
 from hec.interval import Interval
 from hec.timespan import TimeSpan
 
@@ -2254,7 +2254,7 @@ class HecTime:
         if isinstance(other, HecTime):
             if not other.defined:
                 return False
-            try :
+            try:
                 return self.datetime() == other.datetime()
             except:
                 pass
@@ -2292,8 +2292,10 @@ class HecTime:
         if isinstance(other, HecTime):
             if not other.defined:
                 return False
-            try :
-                return self.datetime() > other.datetime()
+            try:
+                return cast(datetime, self.datetime()) > cast(
+                    datetime, other.datetime()
+                )
             except:
                 pass
             vals1 = to0000(
@@ -2457,8 +2459,10 @@ class HecTime:
         if isinstance(other, HecTime):
             if not other.defined:
                 return False
-            try :
-                return self.datetime() < other.datetime()
+            try:
+                return cast(datetime, self.datetime()) < cast(
+                    datetime, other.datetime()
+                )
             except:
                 pass
             vals1 = to0000(
@@ -2577,9 +2581,13 @@ class HecTime:
                 return_obj = return_obj.convert_to_time_zone(self._tz)
             return return_obj
         elif isinstance(other, HecTime):
-            tempClone: HecTime = cast(HecTime, temp.clone()).convert_to_time_zone("UTC", on_tz_not_set=0)
+            tempClone: HecTime = cast(HecTime, temp.clone()).convert_to_time_zone(
+                "UTC", on_tz_not_set=0
+            )
             tempClone.midnight_as_2400 = False
-            otherClone: HecTime = cast(HecTime, other.clone()).convert_to_time_zone("UTC", on_tz_not_set=0)
+            otherClone: HecTime = cast(HecTime, other.clone()).convert_to_time_zone(
+                "UTC", on_tz_not_set=0
+            )
             otherClone.midnight_as_2400 = False
             vals = [
                 v1 - v2
@@ -3785,7 +3793,13 @@ class HecTime:
                 # integer minutes #
                 # --------------- #
                 minutes = interval
-            elif isinstance(interval, Interval):
+            elif (
+                isinstance(interval, Interval)
+                and interval.is_local_regular
+                and self._tz is not None
+                and self._tz.dst(datetime(2000, 1, 1))
+                != self._tz.dst(datetime(2000, 7, 1))
+            ):
                 # ---------------- #
                 # Interval object  #
                 # ---------------- #
@@ -3793,10 +3807,8 @@ class HecTime:
                     utc = cast(HecTime, self.clone()).label_as_time_zone(
                         "UTC", on_already_set=0
                     )
-                    local = utc.label_as_time_zone(
-                        self._tz, on_already_set=0
-                    )
                     span = TimeSpan(interval.values)
+                    local = self
                     for i in range(abs(count)):
                         while True:
                             if count > 0:
@@ -4157,7 +4169,7 @@ class HecTime:
             stacklevel=2,
         )
         return self <= other
-    
+
     @property
     def midnight_as_2400(self) -> bool:
         """

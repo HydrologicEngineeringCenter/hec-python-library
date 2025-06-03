@@ -10,23 +10,23 @@ import importlib.metadata
 import math
 import os
 import re
+import warnings
 from abc import ABC, abstractmethod
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple, Type, cast
+from typing import Any, Dict, List, Optional, Tuple, Type, Union, cast
 from zoneinfo import ZoneInfo
 
 import numpy as np
 import pandas as pd
 import tzlocal
-import warnings
 from hecdss.record_type import RecordType  # type: ignore
 from typing_extensions import Literal
 
 from hec import location, parameter, timeseries, unit
 from hec.const import CWMS, DSS, UNDEFINED
 from hec.duration import Duration
-from hec.hectime import HecTime
+from hec.hectime import HecTime, get_time_window
 from hec.interval import Interval
 from hec.location import Location
 from hec.parameter import ElevParameter, Parameter, ParameterType
@@ -85,7 +85,10 @@ def _pattern_to_regex(pattern: Optional[str]) -> Optional[str]:
     chars = ["^"]
     for c in pattern:
         if c == "*":
-            chars.extend(".*")
+            if chars[-1] in ")]":
+                chars.append("*")
+            else:
+                chars.extend(".*")
         elif c == "?":
             chars.append(".")
         elif c == "^":
@@ -434,6 +437,10 @@ class AbstractDataStore(ABC):
         pass
 
     @property
+    def native_data_store(self) -> Any:
+        pass
+
+    @property
     def name(self) -> str:
         """
         The name of the data store as provided in the constructor or `open()` method
@@ -477,7 +484,7 @@ class AbstractDataStore(ABC):
     @property
     def is_read_only(self) -> bool:
         """
-        Whether this data store is open for storing and deleting. Meaningless if `is_open()` is False
+        Whether this data store is open for storing and deleting. Meaningless if `is_open` is False
 
         Operations:
             Read/Write
@@ -531,20 +538,37 @@ class AbstractDataStore(ABC):
 
     @time_window.setter
     def time_window(
-        self, _time_window: Tuple[Optional[HecTime], Optional[HecTime]]
+        self, _time_window: Union[str, Tuple[Optional[HecTime], Optional[HecTime]]]
     ) -> None:
-        self._time_window = (
-            (
-                _time_window[0]
-                if _time_window[0] is None
-                else HecTime(_time_window[0]).label_as_time_zone(self._time_zone)
-            ),
-            (
-                _time_window[1]
-                if _time_window[1] is None
-                else HecTime(_time_window[1]).label_as_time_zone(self._time_zone)
-            ),
-        )
+        if isinstance(_time_window, str):
+            start_time = HecTime()
+            end_time = HecTime()
+            if 0 == get_time_window(_time_window, start_time, end_time):
+                self._time_window = (start_time, end_time)
+            else:
+                raise DataStoreException(
+                    f"Invalid time window string: '{_time_window}'"
+                )
+        elif isinstance(_time_window, tuple):
+            self._time_window = (
+                (
+                    _time_window[0]
+                    if _time_window[0] is None
+                    else HecTime(_time_window[0])
+                ),
+                (
+                    _time_window[1]
+                    if _time_window[1] is None
+                    else HecTime(_time_window[1])
+                ),
+            )
+            for i in (0, 1):
+                t = cast(HecTime, self._time_window[i])
+                if t:
+                    if t.tzinfo is None:
+                        t.label_as_time_zone(self._time_zone)
+                    elif str(t.tzinfo) != self._time_zone:
+                        t.convert_to_time_zone(self._time_zone)
 
     @property
     def time_zone(self) -> str:
@@ -921,6 +945,20 @@ class DssDataStore(AbstractDataStore):
                 "The get_extents() method is available only for time series data"
             )
 
+    @property
+    def is_open(self) -> bool:
+        return not self._hecdss._closed if self._hecdss else False
+
+    @property
+    def native_data_store(self) -> Any:
+        """
+        The underlying HecDss object from the imported library used by this data store
+
+        Operations:
+            Read-Only
+        """
+        return self._hecdss
+
     @staticmethod
     def open(name: Optional[str] = None, **kwargs: Any) -> "DssDataStore":
         """
@@ -1079,7 +1117,7 @@ class DssDataStore(AbstractDataStore):
                 ts = IrregularTimeSeries()
             ts.id = obj.name
             data = cast(pd.DataFrame, obj.data)
-            ts.times = data.index.tolist()
+            ts.times = pd.to_datetime(data.index).tz_localize(None).tolist()
             ts.values = data["value"].fillna(UNDEFINED).tolist()
             ts.quality = data["quality"].tolist()
             ts.units = obj.unit
@@ -1160,6 +1198,7 @@ class CwmsDataStore(AbstractDataStore):
         self._name = cwms.api.return_base_url()
         if not self._office:
             self._office = os.getenv("cda_api_office")
+        self._cwms = cwms
         self._is_open = True
 
     def _delete_location(self, identifier: str, **kwargs: Any) -> None:
@@ -1187,16 +1226,22 @@ class CwmsDataStore(AbstractDataStore):
                         f"Expected str for 'delete_action', got {argval.__class__.__name__}"
                     )
                 if argval.upper() not in DeleteAction.__members__:
-                    raise ValueError(f"Invalid delete action: {argval}, must be {DeleteAction.DELETE_KEY.name} or {DeleteAction.DELETE_ALL.name}")
+                    raise ValueError(
+                        f"Invalid delete action: {argval}, must be {DeleteAction.DELETE_KEY.name} or {DeleteAction.DELETE_ALL.name}"
+                    )
                 action = DeleteAction[argval.upper()]
                 if action == DeleteAction.DELETE_DATA:
-                    raise ValueError(f"Invalid delete action: {argval}, must be {DeleteAction.DELETE_KEY.name} or {DeleteAction.DELETE_ALL.name}")
+                    raise ValueError(
+                        f"Invalid delete action: {argval}, must be {DeleteAction.DELETE_KEY.name} or {DeleteAction.DELETE_ALL.name}"
+                    )
                 cascade = action == DeleteAction.DELETE_ALL
         if not office:
             raise DataStoreException(
                 f"No office specified and CwmsDataStore {self} has no default office"
             )
-        cwms.delete_location(location_id=identifier, office_id=office, cascade_delete=cascade)
+        cwms.delete_location(
+            location_id=identifier, office_id=office, cascade_delete=cascade
+        )
 
     def _delete_time_series(self, identifier: str, **kwargs: Any) -> None:
         office: Optional[str] = self._office
@@ -1347,12 +1392,14 @@ class CwmsDataStore(AbstractDataStore):
             office=office,
             units=unit_system,
             vertical_datum=vertical_datum,
-            fields="name,office,latitude,longitude,horizontal-datum,elevation,unit,vertical-datum,time-zone,kind"
+            fields="name,office,latitude,longitude,horizontal-datum,elevation,unit,vertical-datum,time-zone,kind",
         )
         if len(catalog) == 0:
             raise DataStoreException(f"Location not found: {identifier}")
         if len(catalog) > 1:
-            raise DataStoreException(f"Identifier {identifier} matched more than one location")
+            raise DataStoreException(
+                f"Identifier {identifier} matched more than one location"
+            )
         fields = catalog[0].split("\t")
         vdi = self.get_vertical_datum_info(identifier)
         if vdi:
@@ -1364,7 +1411,7 @@ class CwmsDataStore(AbstractDataStore):
                 horizontal_datum=fields[4],
                 time_zone=fields[8],
                 kind=fields[9],
-                vertical_datum_info=vdi
+                vertical_datum_info=vdi,
             )
         else:
             loc = Location(
@@ -1501,7 +1548,10 @@ class CwmsDataStore(AbstractDataStore):
         timeseries._timezone = "UTC"
         if version_time is not None:
             timeseries.version_time = HecTime(version_time)
-        if timeseries.parameter.base_parameter == "Elev" and "vertical-datum-info" in props:
+        if (
+            timeseries.parameter.base_parameter == "Elev"
+            and "vertical-datum-info" in props
+        ):
             elev_param = ElevParameter(
                 timeseries.parameter.name, props["vertical-datum-info"]
             )
@@ -1528,170 +1578,256 @@ class CwmsDataStore(AbstractDataStore):
             raise DataStoreException(
                 f"Cannot store to {self._name}, data store is set to read-only"
             )
-        if isinstance(obj, (str, Location)):
-            required_fields = {
-                "office-id",
-                "name",
-                "horizontal-datum",
-                "timezone-name",
-                "latitude",
-                "location-kind",
-                "longitude",
-            }
-            str_args = {
-                "office": "office_id",
-                "name": "name",
-                "public_name": "public_name",
-                "long_name": "long_name",
-                "description": "description",
-                "time_zone": "timezone_name",
-                "type": "location_type",
-                "kind": "location_kind",
-                "nation": "nation",
-                "state": "state_initial",
-                "county": "county_name",
-                "nearest_city": "nearest_city",
-                "horizontal_datum": "horizontal_datum",
-                "vertical_datum": "vertical_datum",
-                "map_label": "map_label",
-                "bounding_office": "bounding_office_id",
-                "elevation_unit": "elevation_units",
-            }
-            float_args = {
-                "latitude": "latitude",
-                "longitude": "longitude",
-                "published_longitude": "published_longitude",
-                "published_latitude": "published_latitude",
-                "elevation": "elevation",
-            }
-            bool_args = {
-                "active": "active",
-            }
-            # ------------ #
-            # set defaults #
-            # ------------ #
-            active: Optional[bool] = True
-            bounding_office_id: Optional[str] = self.office
-            county_name: Optional[str] = None
-            description: Optional[str] = None
-            elevation = obj.elevation.magnitude if obj.elevation else None
-            elevation_units = obj.elevation.specified_unit if obj.elevation else None
-            horizontal_datum = obj.horizontal_datum
-            latitude = obj.latitude if obj.longitude else 0.
-            location_kind = obj.kind if obj.kind else "SITE"
-            location_type: Optional[str] = None 
-            long_name: Optional[str] = None
-            longitude = obj.longitude if obj.latitude else 0.
-            map_label: Optional[str] = None
-            name = obj.name
-            nation: Optional[str] = "US"
-            nearest_city: Optional[str] = None
-            office_id = obj.office if obj.office else self.office
-            public_name: Optional[str] = None
-            published_latitude: Optional[float] = 0.
-            published_longitude: Optional[float] = 0.
-            state_initial: Optional[str] = None
-            timezone_name = obj.time_zone if obj.time_zone else self.time_zone
-            vertical_datum = obj.vertical_datum if obj.vertical_datum else self.vertical_datum
-            if kwargs:
-                # --------------------------------- #
-                # override defaults from parameters #
-                # --------------------------------- #
-                for argname in str_args:
-                    if argname in kwargs:
-                        argval = kwargs[argname]
-                        if isinstance(argval, str):
-                            exec(f"{str_args[argname]} = {argval}")
-                            if isinstance(obj, Location):
-                                new_val = eval(str_args[argname])
-                                if argname == "office" and obj.office and new_val != obj.office:
-                                    warnings.warn(f"{argname} value of {argval} overrides location object value of {obj.office}", UserWarning)
-                                if argname == "name" and obj.name and new_val != obj.name:
-                                    warnings.warn(f"{argname} value of {argval} overrides location object value of {obj.name}", UserWarning)
-                                elif argname == "horizontal_datum" and obj.horizontal_datum and new_val != obj.horizontal_datum:
-                                    warnings.warn(f"{argname} value of {argval} overrides location object value of {obj.horizontal_datum}", UserWarning)
-                                elif argname == "elevation_unit" and obj.elevation and obj.elevation.specified_unit and new_val != obj.elevation.specified_unit:
-                                    warnings.warn(f"{argname} value of {argval} overrides location object value of {obj.elevation.specified_unit}", UserWarning)
-                                elif argname == "vertical_datum" and obj.vertical_datum and new_val != obj.vertical_datum:
-                                    warnings.warn(f"{argname} value of {argval} overrides location object value of {obj.vertical_datum}", UserWarning)
-                                elif argname == "time_zone" and obj.time_zone and new_val != obj.time_zone:
-                                    warnings.warn(f"{argname} value of {argval} overrides location object value of {obj.time_zone}", UserWarning)
-                                elif argname == "kind" and obj.kind and new_val != obj.kind:
-                                    warnings.warn(f"{argname} value of {argval} overrides location object value of {obj.kind}", UserWarning)
-                        else:
-                            raise TypeError(f"Expected str for {argname}, got {argval.__class__.__name__}")
-                for argname in float_args:
-                    if argname in kwargs:
-                        argval = kwargs[argname]
-                        if isinstance(argval, (int, float)):
-                            exec(f"{str_args[argname]} = {argval}")
-                            if isinstance(obj, Location):
-                                new_val = eval(str_args[argname])
-                                if argname == "latitude" and obj.latitude and new_val != obj.latitude:
-                                    warnings.warn(f"{argname} value of {argval} overrides location object value of {obj.latitude}", UserWarning)
-                                elif argname == "longitude" and obj.longitude and new_val != obj.longitude:
-                                    warnings.warn(f"{argname} value of {argval} overrides location object value of {obj.longitude}", UserWarning)
-                                elif argname == "elevation" and obj.elevation and new_val != obj.elevation:
-                                    warnings.warn(f"{argname} value of {argval} overrides location object value of {obj.elevation}", UserWarning)
-                        else:
-                            raise DataStoreException(f"Expected float for {argname}, got {argval.__class__.__name__} instead")
-                for argname in bool_args:
-                    if argname in kwargs:
-                        argval = kwargs[argname]
-                        if isinstance(argval, bool):
-                            exec(f"{str_args[argname]} = {argval}")
-                        else:
-                            raise TypeError(f"Expected bool for {argname}, got {argval.__class__.__name__}")
-            # -------------------------------- #
-            # build dictionary for cwms-python #
-            # -------------------------------- #
-            data = {}
-            for item in str_args.values():
-                data[item.replace("_", "-")] = eval(item)
-            for item in float_args.values():
-                data[item.replace("_", "-")] = eval(item)
-            for item in bool_args.values():
-                data[item.replace("_", "-")] = eval(item)
-            for item in required_fields:
-                if not item in data or data[item] is None:
-                    raise DataStoreException(f"Required item '{item.replace('-', '_')}' is not specified")
-            # ------------------ #
-            # store the location #
-            # ------------------ #
-            cwms.store_location(data)
-            if isinstance(obj, Location) and obj._vertical_datum_info is not None:
-                # -------------------------------------------------------------- #
-                # store the vertical datum via a temporary elevation time series #
-                # -------------------------------------------------------------- #
-                if not obj.office:
-                    obj.office = office_id
-                now = HecTime.now().convert_to_time_zone("UTC", on_tz_not_set=0)
-                epoch_seconds = int(cast(datetime, now.datetime()).timestamp())
-                ts_id = f"{obj.name}.Elev.Inst.0.0.Test-{epoch_seconds}"
-                ts = TimeSeries(ts_id)
-                ts.iset_location(obj)
-                ts._data = pd.DataFrame(
-                    {
-                        "value": [100.0],
-                        "quality": [0],
-                    },
-                    index=pd.Index([now.datetime()], name="time"),
-                )
-                # ----------------------------------- #
-                # 1. store the elevation time seires  #
-                # 2. delete the elevation time series #
-                # ----------------------------------- #
-                try:
-                    self.store(ts, office=ts.location.office, vertical_datum_info=obj.vertical_datum_json)
-                except Exception as e:
-                    warnings.warn(f"Unable to store vertical datum info for location {obj}", UserWarning)
-                else:
-                    try:
-                        self.delete(ts.name, office=ts.location.office, delete_action=DeleteAction.DELETE_ALL)
-                    except:
-                        warnings.warn(f"Unable to delete temporary time series {ts.location.office}/{ts.name}", UserWarning)
-        else:
+        if not isinstance(obj, Location):
             raise TypeError(f"Expected Location or str, got {obj.__class__.__name__}")
+        required_fields = {
+            "office-id",
+            "name",
+            "horizontal-datum",
+            "timezone-name",
+            "latitude",
+            "location-kind",
+            "longitude",
+        }
+        str_args = {
+            "office": "office_id",
+            "name": "name",
+            "public_name": "public_name",
+            "long_name": "long_name",
+            "description": "description",
+            "time_zone": "timezone_name",
+            "type": "location_type",
+            "kind": "location_kind",
+            "nation": "nation",
+            "state": "state_initial",
+            "county": "county_name",
+            "nearest_city": "nearest_city",
+            "horizontal_datum": "horizontal_datum",
+            "vertical_datum": "vertical_datum",
+            "map_label": "map_label",
+            "bounding_office": "bounding_office_id",
+            "elevation_unit": "elevation_units",
+        }
+        float_args = {
+            "latitude": "latitude",
+            "longitude": "longitude",
+            "published_longitude": "published_longitude",
+            "published_latitude": "published_latitude",
+            "elevation": "elevation",
+        }
+        bool_args = {
+            "active": "active",
+        }
+        # ------------ #
+        # set defaults #
+        # ------------ #
+        active: Optional[bool] = True
+        bounding_office_id: Optional[str] = self.office
+        county_name: Optional[str] = None
+        description: Optional[str] = None
+        elevation = obj.elevation.magnitude if obj.elevation else None
+        elevation_units = obj.elevation.specified_unit if obj.elevation else None
+        horizontal_datum = obj.horizontal_datum
+        latitude = obj.latitude if obj.longitude else 0.0
+        location_kind = obj.kind if obj.kind else "SITE"
+        location_type: Optional[str] = None
+        long_name: Optional[str] = None
+        longitude = obj.longitude if obj.latitude else 0.0
+        map_label: Optional[str] = None
+        name = obj.name
+        nation: Optional[str] = "US"
+        nearest_city: Optional[str] = None
+        office_id = obj.office if obj.office else self.office
+        public_name: Optional[str] = None
+        published_latitude: Optional[float] = 0.0
+        published_longitude: Optional[float] = 0.0
+        state_initial: Optional[str] = None
+        timezone_name = obj.time_zone if obj.time_zone else self.time_zone
+        vertical_datum = (
+            obj.vertical_datum if obj.vertical_datum else self.vertical_datum
+        )
+        if kwargs:
+            # --------------------------------- #
+            # override defaults from parameters #
+            # --------------------------------- #
+            for argname in str_args:
+                if argname in kwargs:
+                    argval = kwargs[argname]
+                    if isinstance(argval, str):
+                        exec(f"{str_args[argname]} = {argval}")
+                        if isinstance(obj, Location):
+                            new_val = eval(str_args[argname])
+                            if (
+                                argname == "office"
+                                and obj.office
+                                and new_val != obj.office
+                            ):
+                                warnings.warn(
+                                    f"{argname} value of {argval} overrides location object value of {obj.office}",
+                                    UserWarning,
+                                )
+                            if argname == "name" and obj.name and new_val != obj.name:
+                                warnings.warn(
+                                    f"{argname} value of {argval} overrides location object value of {obj.name}",
+                                    UserWarning,
+                                )
+                            elif (
+                                argname == "horizontal_datum"
+                                and obj.horizontal_datum
+                                and new_val != obj.horizontal_datum
+                            ):
+                                warnings.warn(
+                                    f"{argname} value of {argval} overrides location object value of {obj.horizontal_datum}",
+                                    UserWarning,
+                                )
+                            elif (
+                                argname == "elevation_unit"
+                                and obj.elevation
+                                and obj.elevation.specified_unit
+                                and new_val != obj.elevation.specified_unit
+                            ):
+                                warnings.warn(
+                                    f"{argname} value of {argval} overrides location object value of {obj.elevation.specified_unit}",
+                                    UserWarning,
+                                )
+                            elif (
+                                argname == "vertical_datum"
+                                and obj.vertical_datum
+                                and new_val != obj.vertical_datum
+                            ):
+                                warnings.warn(
+                                    f"{argname} value of {argval} overrides location object value of {obj.vertical_datum}",
+                                    UserWarning,
+                                )
+                            elif (
+                                argname == "time_zone"
+                                and obj.time_zone
+                                and new_val != obj.time_zone
+                            ):
+                                warnings.warn(
+                                    f"{argname} value of {argval} overrides location object value of {obj.time_zone}",
+                                    UserWarning,
+                                )
+                            elif argname == "kind" and obj.kind and new_val != obj.kind:
+                                warnings.warn(
+                                    f"{argname} value of {argval} overrides location object value of {obj.kind}",
+                                    UserWarning,
+                                )
+                    else:
+                        raise TypeError(
+                            f"Expected str for {argname}, got {argval.__class__.__name__}"
+                        )
+            for argname in float_args:
+                if argname in kwargs:
+                    argval = kwargs[argname]
+                    if isinstance(argval, (int, float)):
+                        exec(f"{str_args[argname]} = {argval}")
+                        if isinstance(obj, Location):
+                            new_val = eval(str_args[argname])
+                            if (
+                                argname == "latitude"
+                                and obj.latitude
+                                and new_val != obj.latitude
+                            ):
+                                warnings.warn(
+                                    f"{argname} value of {argval} overrides location object value of {obj.latitude}",
+                                    UserWarning,
+                                )
+                            elif (
+                                argname == "longitude"
+                                and obj.longitude
+                                and new_val != obj.longitude
+                            ):
+                                warnings.warn(
+                                    f"{argname} value of {argval} overrides location object value of {obj.longitude}",
+                                    UserWarning,
+                                )
+                            elif (
+                                argname == "elevation"
+                                and obj.elevation
+                                and new_val != obj.elevation
+                            ):
+                                warnings.warn(
+                                    f"{argname} value of {argval} overrides location object value of {obj.elevation}",
+                                    UserWarning,
+                                )
+                    else:
+                        raise DataStoreException(
+                            f"Expected float for {argname}, got {argval.__class__.__name__} instead"
+                        )
+            for argname in bool_args:
+                if argname in kwargs:
+                    argval = kwargs[argname]
+                    if isinstance(argval, bool):
+                        exec(f"{str_args[argname]} = {argval}")
+                    else:
+                        raise TypeError(
+                            f"Expected bool for {argname}, got {argval.__class__.__name__}"
+                        )
+        # -------------------------------- #
+        # build dictionary for cwms-python #
+        # -------------------------------- #
+        data = {}
+        for item in str_args.values():
+            data[item.replace("_", "-")] = eval(item)
+        for item in float_args.values():
+            data[item.replace("_", "-")] = eval(item)
+        for item in bool_args.values():
+            data[item.replace("_", "-")] = eval(item)
+        for item in required_fields:
+            if not item in data or data[item] is None:
+                raise DataStoreException(
+                    f"Required item '{item.replace('-', '_')}' is not specified"
+                )
+        # ------------------ #
+        # store the location #
+        # ------------------ #
+        cwms.store_location(data)
+        if isinstance(obj, Location) and obj._vertical_datum_info is not None:
+            # -------------------------------------------------------------- #
+            # store the vertical datum via a temporary elevation time series #
+            # -------------------------------------------------------------- #
+            if not obj.office:
+                obj.office = office_id
+            now = HecTime.now().convert_to_time_zone("UTC", on_tz_not_set=0)
+            epoch_seconds = int(cast(datetime, now.datetime()).timestamp())
+            ts_id = f"{obj.name}.Elev.Inst.0.0.Test-{epoch_seconds}"
+            ts = TimeSeries(ts_id)
+            ts.iset_location(obj)
+            ts._data = pd.DataFrame(
+                {
+                    "value": [100.0],
+                    "quality": [0],
+                },
+                index=pd.Index([now.datetime()], name="time"),
+            )
+            # ----------------------------------- #
+            # 1. store the elevation time seires  #
+            # 2. delete the elevation time series #
+            # ----------------------------------- #
+            try:
+                self.store(
+                    ts,
+                    office=ts.location.office,
+                    vertical_datum_info=obj.vertical_datum_json,
+                )
+            except Exception as e:
+                warnings.warn(
+                    f"Unable to store vertical datum info for location {obj}",
+                    UserWarning,
+                )
+            else:
+                try:
+                    self.delete(
+                        ts.name,
+                        office=ts.location.office,
+                        delete_action=DeleteAction.DELETE_ALL,
+                    )
+                except:
+                    warnings.warn(
+                        f"Unable to delete temporary time series {ts.location.office}/{ts.name}",
+                        UserWarning,
+                    )
 
     def _store_time_series(self, obj: object, **kwargs: Any) -> None:
         self._assert_open()
@@ -1718,7 +1854,7 @@ class CwmsDataStore(AbstractDataStore):
             as_lrts = obj.interval.is_local_regular
             override_protection = False
             store_rule = self._store_rule
-            vertical_datum_info=None
+            vertical_datum_info = None
             if kwargs:
                 # ------- #
                 # as_lrts #
@@ -2066,7 +2202,9 @@ class CwmsDataStore(AbstractDataStore):
                 argval = kwargs["units"]
                 if isinstance(argval, str):
                     if argval.upper() not in ["EN", "SI"]:
-                        raise DataStoreException(f"Invalid units, expected EN or SI, got {argval}")
+                        raise DataStoreException(
+                            f"Invalid units, expected EN or SI, got {argval}"
+                        )
                     units = argval.upper()
                 elif argval is None:
                     pass
@@ -2081,7 +2219,9 @@ class CwmsDataStore(AbstractDataStore):
                 argval = kwargs["vertical_datum"]
                 if isinstance(argval, str):
                     if not parameter._all_datums_pattern.match(argval):
-                        raise DataStoreException(f"Invalid vertical_datum, expected {parameter._NGVD29}, {parameter._NGVD29}, or {parameter._OTHER_DATUM}")
+                        raise DataStoreException(
+                            f"Invalid vertical_datum, expected {parameter._NGVD29}, {parameter._NGVD29}, or {parameter._OTHER_DATUM}"
+                        )
                     if parameter._ngvd29_pattern.match(argval):
                         vertical_datum = parameter._NGVD29
                     elif parameter._navd88_pattern.match(argval):
@@ -2201,7 +2341,9 @@ class CwmsDataStore(AbstractDataStore):
                                     list(
                                         map(
                                             "\t".join,
-                                            list(zip(*(field_items[f] for f in fields))),
+                                            list(
+                                                zip(*(field_items[f] for f in fields))
+                                            ),
                                         )
                                     )
                                 )
@@ -2209,7 +2351,9 @@ class CwmsDataStore(AbstractDataStore):
                     field_items["earliest-time"] = list(
                         map(
                             lambda i: (
-                                "<None>" if "earliest-time" not in i else i["earliest-time"]
+                                "<None>"
+                                if "earliest-time" not in i
+                                else i["earliest-time"]
                             ),
                             extents,
                         )
@@ -2233,12 +2377,17 @@ class CwmsDataStore(AbstractDataStore):
                     transposed_catalog = [field_items[f] for f in fields]
                     catalog = [row for row in list(zip(*transposed_catalog))]
                     catalog_items = ["\t".join(row) for row in catalog]
-                if catalog_items and _regex and case_sensitive and name_field is not None:
+                if (
+                    catalog_items
+                    and _regex
+                    and case_sensitive
+                    and name_field is not None
+                ):
                     # API uses case insensitive matching
                     pat = re.compile(_regex)
                     catalog_items = list(
                         filter(
-                            lambda s: bool(pat.match(s.split(r"\t")[name_field])), # type: ignore
+                            lambda s: bool(pat.match(s.split(r"\t")[name_field])),  # type: ignore
                             catalog_items,
                         )
                     )
@@ -2568,7 +2717,9 @@ class CwmsDataStore(AbstractDataStore):
                     )
                 output_format = argval.upper()
                 if output_format not in ("JSON", "XML"):
-                    raise DataStoreException(f"Invalid format specified: '{argval}', must be one of 'JSON', or 'XML'")
+                    raise DataStoreException(
+                        f"Invalid format specified: '{argval}', must be one of 'JSON', or 'XML'"
+                    )
         office = office if office else self.office
         if not office:
             raise DataStoreException(
@@ -2582,7 +2733,9 @@ class CwmsDataStore(AbstractDataStore):
         # -------------------------------------------------------- #
         # find an elevation time series to retrieve one value from #
         # -------------------------------------------------------- #
-        catalog = self.catalog("timeseries", pattern=f"{loc_id}.Elev.*", fields="identifier,latest-time")
+        catalog = self.catalog(
+            "timeseries", pattern=f"{loc_id}.Elev.*", fields="identifier,latest-time"
+        )
         latest_time: Optional[str] = None
         for tsid, latest_time in list(map(lambda s: s.split("\t"), catalog)):
             if latest_time:
@@ -2591,7 +2744,9 @@ class CwmsDataStore(AbstractDataStore):
             # ---------------------------------------------------- #
             # retrieve the time series and the vertical datum info #
             # ---------------------------------------------------- #
-            ts = self.retrieve(tsid, start_time=latest_time, end_time=latest_time, office=office)
+            ts = self.retrieve(
+                tsid, start_time=latest_time, end_time=latest_time, office=office
+            )
             vdi = ts.vertical_datum_info_xml
         else:
             # ------------------------------------------------- #
@@ -2599,7 +2754,9 @@ class CwmsDataStore(AbstractDataStore):
             # ------------------------------------------------- #
             catalog = self.catalog("location", pattern=loc_id, office=office)
             if not catalog:
-                raise DataStoreException(f"{office}/{loc_id} is not a valid CWMS location")
+                raise DataStoreException(
+                    f"{office}/{loc_id} is not a valid CWMS location"
+                )
             now = HecTime.now().convert_to_time_zone("UTC", on_tz_not_set=0)
             epoch_seconds = int(cast(datetime, now.datetime()).timestamp())
             ts_id = f"{loc_id}.Elev.Inst.0.0.Test-{epoch_seconds}"
@@ -2624,10 +2781,17 @@ class CwmsDataStore(AbstractDataStore):
                 self.store(ts, office=office)
                 catalog = self.catalog("timeseries", pattern=ts.name, office=office)
                 try:
-                    ts2 = cast(TimeSeries, self.retrieve(ts.name, office=office, start_time=now, end_time=now))
+                    ts2 = cast(
+                        TimeSeries,
+                        self.retrieve(
+                            ts.name, office=office, start_time=now, end_time=now
+                        ),
+                    )
                     vdi = ts2.vertical_datum_info_xml
                 finally:
-                    self.delete(ts.name, office=office, delete_action=DeleteAction.DELETE_ALL)
+                    self.delete(
+                        ts.name, office=office, delete_action=DeleteAction.DELETE_ALL
+                    )
             except Exception as e:
                 # ------------------------- #
                 # may not have write access #
@@ -2646,8 +2810,24 @@ class CwmsDataStore(AbstractDataStore):
             else:
                 vdi = ts.location.vertical_datum_xml
         else:
-            warnings.warn(f"{self}: Unable to retrieve vertical datum information for location {loc_id}")
+            warnings.warn(
+                f"{self}: Unable to retrieve vertical datum information for location {loc_id}"
+            )
         return vdi
+
+    @property
+    def is_open(self) -> bool:
+        return self._is_open
+
+    @property
+    def native_data_store(self) -> Any:
+        """
+        The cwms module imported by this data store
+
+        Operations:
+            Read-Only
+        """
+        return cwms
 
     @staticmethod
     def open(name: Optional[str] = None, **kwargs: Any) -> "CwmsDataStore":

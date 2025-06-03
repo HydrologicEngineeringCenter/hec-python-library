@@ -4,6 +4,7 @@ Provides time series types and operations
 
 import bisect
 import math
+import statistics as stat
 import types
 import warnings
 from copy import deepcopy
@@ -73,6 +74,7 @@ _resample_before = (_RESAMPLE_FIRST, _RESAMPLE_MISSING)
 _resample_after = (_RESAMPLE_LAST, _RESAMPLE_MISSING)
 
 pd.set_option("future.no_silent_downcasting", True)
+
 
 def _is_cwms_tsid(id: str) -> bool:
     parts = id.split(".")
@@ -377,38 +379,64 @@ class TimeSeries:
 
     _default_slice_stop_exclusive: bool = True
 
-    def __init__(self, init_from: Any):
+    def __init__(
+        self,
+        name: str,
+        times: Optional[
+            Union[list[Union[HecTime, datetime, str]], pd.DatetimeIndex]
+        ] = None,
+        values: Optional[Union[list[float], float]] = None,
+        qualities: Optional[Union[list[Union[Quality, int]], Quality, int]] = None,
+        time_zone: Optional[str] = None,
+    ):
         """
-        Initializes a new TimeSeries object
+        Initializes a new TimeSeries object. To generate a new regular interval time series using start time, end time, interval, and offset
+        see also [`new_regular_time_series()`](#TimeSeries.new_regular_time_series)
 
         Args:
-            init_from (Any): The object to initialize from.
-                * **str**: A CWMS time series identifier or HEC-DSS time series pathname.
-                    * If CWMS
-                        * The following components are set from the identifier:
-                            * location (may be in the format &lt;*office*&gt;/&lt;*location*&gt; to set office)
-                            * parameter
-                            * parameter type
-                            * interval
-                            * duration
-                            * version
-                        * The following components are not set:
-                            * watershed
-                    * If HEC-DSS
-                        * The following components are set from the pathname:
-                            * A => watershed
-                            * B => location
-                            * C => parameter
-                            * E => interval
-                            * F => version
-                        * The following components are set by default:
-                            * parameter type:
-                                * INST_CUM if C includes "Precip" (case insensitive)
-                                * INST_VAL otherwise
-                        * The following compents are not set:
-                            * duration
-                    * The parameter unit is set to the default English unit
-                    * No vertical datum information is set for elevation parameter
+            name (str):  The time series name. Must be either a CWMS time series identifier or HEC-DSS time series pathname.
+                * If CWMS
+                    * The following components are set from the identifier:
+                        * location (may be in the format &lt;*office*&gt;/&lt;*location*&gt; to set office)
+                        * parameter
+                        * parameter type
+                        * interval
+                        * duration
+                        * version
+                    * The following components are not set:
+                        * watershed
+                * If HEC-DSS
+                    * The following components are set from the pathname:
+                        * A => watershed
+                        * B => location
+                        * C => parameter
+                        * E => interval
+                        * F => version
+                    * The following components are set by default:
+                        * parameter type:
+                            * INST_CUM if C includes "Precip" (case insensitive)
+                            * INST_VAL otherwise
+                    * The following compents are not set:
+                        * duration
+                * The parameter unit is set to the default English unit
+                * No vertical datum information is set for elevation parameter
+
+            times (Optional[Union[list[Union[HecTime, datetime, str]], pd.DatetimeIndex]]): The times for the time series. If specified, all times must have the same time zone or no time zone.
+                If not specified, `values`, `qualities`, and `time_zone` my not be specified. Defaults to None.
+            values (Optional[Union[list[float], float]]): A value or a list of values to assign to the specified times. If a single value or a list of values shorter than the list of times, the
+                specified value(s) is/are repeated until each time has an assigned value. Must be specified if `times is specified`. Defaults to None.
+            qualities (Optional[Union[list[Union[Quality, int]], Quality, int]]): A quality code or object or a list of quality codes or objects  to assign to the specified times. If a single quality
+                or a list of qualities shorter than the list of times, the specified quality(ies) is/are repeated until each time has an assigned quality. If not specified and `times` is specified, each
+                time will be assigned a quality code of zeor.Defaults to None.
+            time_zone (Optional[str]): The time zone of the time series. If specified, must be a valid time zone name or "local". Interaction with the time zone of the `times` argument is as follows.
+                Defaults to None.
+                <table>
+                <tr><th><code>times</code> has time zone</th><th><code>time_zone</code> specified</th><th>Time series time zone</th></tr>
+                <tr><td>False</td><td>False</td><td>local time zone</td></tr>
+                <tr><td>False</td><td>True</td><td>as specified in <code>time_zone</code></td></tr>
+                <tr><td>True</td><td>False</td><td>as specified in <code>times</code></td></tr>
+                <tr><td>True</td><td>True</td><td>as specified in <code>time_zone</code><br><code>times</code> are converted to <code>time_zone</code></td></tr>
+                </table>
         """
         self._slice_stop_exclusive = TimeSeries._default_slice_stop_exclusive
         self._context: Optional[str] = None
@@ -427,10 +455,96 @@ class TimeSeries:
         self._expanded = False
         self._skip_validation = False
 
-        if isinstance(init_from, str):
-            self.name = init_from.strip()
+        self.name = name.strip()
+        if times is None:
+            if not all([arg is None for arg in (values, qualities, time_zone)]):
+                raise TimeSeriesException(
+                    "None of values, qualities, or time_zone may be specified when times is not specified"
+                )
+            return
+        # ------------ #
+        # handle times #
+        # ------------ #
+        if isinstance(times, pd.DatetimeIndex):
+            l_indx = times.copy()
+            l_indx.name = "time"
         else:
-            raise TypeError(type(init_from))
+            try:
+                l_hectimes = list(map(hec.hectime.HecTime, times))
+            except:
+                raise TimeSeriesException("Cannot convert times to HecTime objects")
+            tzname = str(l_hectimes[0].tzinfo)
+            if not all(
+                [str(l_hectimes[i].tzinfo) == tzname for i in range(1, len(l_hectimes))]
+            ):
+                raise TimeSeriesException(
+                    "Times do not all have the same (or no) time zone"
+                )
+            l_indx = pd.DatetimeIndex(
+                data=[ht.datetime() for ht in l_hectimes], name="time"
+            )
+        # ------------- #
+        # handle values #
+        # ------------- #
+        if values is None:
+            l_values = len(l_indx) * [np.nan]
+        elif isinstance(values, float):
+            l_values = len(l_indx) * [values]
+        elif isinstance(values, (tuple, list)):
+            try:
+                floats = [float(v) for v in values]
+            except:
+                raise TimeSeriesException("Not all values are convertible to float")
+            l_values = list(islice(cycle(floats), len(l_indx)))
+        else:
+            raise TimeSeriesException(
+                f"Expected float or sequence of floats for values, got {values.__class__.__name__}"
+            )
+        # ---------------- #
+        # handle qualities #
+        # ---------------- #
+        if qualities is None:
+            l_qualities = len(l_indx) * [0]
+        elif isinstance(qualities, (Quality, int)):
+            l_qualities = len(l_indx) * [
+                q.code if isinstance(q, Quality) else q for q in [qualities]
+            ]
+        elif isinstance(qualities, (tuple, list)):
+            if not all([isinstance(q, (Quality, int)) for q in qualities]):
+                raise TimeSeriesException(
+                    "Not all qualities are integers or Quality objects"
+                )
+            ints = [q.code if isinstance(q, Quality) else q for q in qualities]
+            l_qualities = list(islice(cycle(ints), len(l_indx)))
+        else:
+            raise TimeSeriesException(
+                f"Expected Quality object, int or sequence of Quality objects or ints for qualities, got {values.__class__.__name__}"
+            )
+        # ---------------- #
+        # handle time zone #
+        # ---------------- #
+        l_times_tz = None if l_indx.tz is None else str(l_indx.tz)
+        if time_zone is None:
+            if l_times_tz is None:
+                self._timezone = tzlocal.get_localzone_name()
+            else:
+                self._timezone = str(l_indx.tz)
+        else:
+            self._timezone = time_zone
+            if l_times_tz:
+                l_indx.tz_convert(ZoneInfo(time_zone))
+            else:
+                l_indx.tz_localize(ZoneInfo(time_zone))
+        # -------------------------- #
+        # finally, set the DataFrame #
+        # -------------------------- #
+        self._data = pd.DataFrame(
+            {
+                "value": l_values,
+                "quality": l_qualities,
+            },
+            index=l_indx,
+        )
 
     def __add__(
         self, amount: Union["TimeSeries", UnitQuantity, float, int]
@@ -1898,21 +2012,24 @@ class TimeSeries:
                 ).total_seconds()
                 values_per_year = number_values / time_range * seconds_per_year
                 if values_per_year > 1000:
-                    intvl = Interval.get_any_dss(lambda i: i.name == "Ir-Decade")
+                    intvl = Interval.get_any_dss(lambda i: i.name == "IR-Decade")
                 elif values_per_year > 100:
-                    intvl = Interval.get_any_dss(lambda i: i.name == "Ir-Year")
+                    intvl = Interval.get_any_dss(lambda i: i.name == "IR-Year")
                 elif values_per_year > 100.0 / 12:
-                    intvl = Interval.get_any_dss(lambda i: i.name == "Ir-Month")
+                    intvl = Interval.get_any_dss(lambda i: i.name == "IR-Month")
                 else:
-                    intvl = Interval.get_any_dss(lambda i: i.name == "Ir-Day")
+                    intvl = Interval.get_any_dss(lambda i: i.name == "IR-Day")
             else:
-                intvl = Interval.get_any_dss(
-                    lambda i: i.is_regular == True
-                    and i.minutes == self.interval.minutes
-                )
+                if self.interval.is_local_regular or self.interval.is_pseudo_regular:
+                    intvl = Interval.get_dss(self.interval.name)
+                else:
+                    intvl = Interval.get_any_dss(
+                        lambda i: i.is_regular == True
+                        and i.minutes == self.interval.minutes
+                    )
             if intvl is None:
                 raise TimeSeriesException(
-                    f"Could not find CWMS equivalent of DSS interval {self._interval}"
+                    f"Could not find DSS equivalent of CWMS interval {self._interval}"
                 )
             self.iset_interval(intvl)
             if self.version == "None":
@@ -3163,7 +3280,18 @@ class TimeSeries:
         if self._skip_validation:
             return
         if self.is_any_regular and self._data is not None and not self._data.empty:
-            my_datetimes = self._data.index.to_list()
+            if self._timezone:
+                my_datetimes = (
+                    self._data.copy()
+                    .tz_localize(None)
+                    .tz_localize(
+                        self._timezone,
+                        ambiguous=np.zeros(len(self._data.index), dtype=bool),
+                    )
+                    .index.to_list()
+                )
+            else:
+                my_datetimes = self._data.index.to_list()
             interval_times = self.interval.get_datetime_index(
                 start_time=my_datetimes[0],
                 count=len(my_datetimes),
@@ -3316,7 +3444,17 @@ class TimeSeries:
                 raise TimeSeriesException(
                     "Cannot perform aggregation with fewer than 2 items"
                 )
-            return self._data["value"].agg(func)
+            if func in (stat.stdev, stat.pstdev):
+                # ------------------------------------------------------------------#
+                # why don't these functions just return NaN if the encounter a NaN? #
+                # ------------------------------------------------------------------#
+                return (
+                    cast(Callable[[Any], Any], func)(self.values)
+                    if all([np.isfinite(v) for v in self.values])
+                    else np.nan
+                )
+            else:
+                return self._data["value"].agg(func)
 
     @staticmethod
     def aggregate_ts(
@@ -3429,7 +3567,21 @@ class TimeSeries:
             # ---------------------------------------- #
             ts = timeseries[0].clone(include_data=False)
             ts.ito("Code").version = "Aggregate"
-            ts._data = pd.concat(dfs)[["value"]].groupby(level=0).agg(func)
+            if func in (stat.stdev, stat.pstdev):
+                # ------------------------------------------------------------------#
+                # why don't these functions just return NaN if the encounter a NaN? #
+                # ------------------------------------------------------------------#
+                def func2(*args: Any) -> float:
+                    v = (
+                        cast(Callable[[Any], Any], func)(*args)
+                        if all([np.isfinite(x) for x in args[0].to_list()])
+                        else np.nan
+                    )
+                    return v
+
+                ts._data = pd.concat(dfs)[["value"]].groupby(level=0).agg(func2)
+            else:
+                ts._data = pd.concat(dfs)[["value"]].groupby(level=0).agg(func)
             ts._data.set_index(common_index)
             ts._data["quality"] = 0
             return ts
@@ -3601,7 +3753,9 @@ class TimeSeries:
                             UserWarning,
                         )
                 target._data = target._data.tz_localize(
-                    localzone_name, ambiguous=False, nonexistent="NaT"
+                    localzone_name,
+                    ambiguous=np.zeros(len(target._data.index), dtype=bool),
+                    nonexistent="NaT",
                 )
             target._data = target._data.tz_convert(tz)
             if target._version_time is not None:
@@ -4805,7 +4959,9 @@ class TimeSeries:
                 if target._data is not None:
                     target._data = target._data.tz_localize(None)
                     target._data = target._data.tz_localize(
-                        tz, ambiguous=False, nonexistent="NaT"
+                        tz,
+                        ambiguous=np.zeros(len(target._data.index), dtype=bool),
+                        nonexistent="NaT",
                     )
                 target._timezone = str(time_zone)
         else:
@@ -4813,7 +4969,9 @@ class TimeSeries:
                 if target._data is not None:
                     target._data = target._data.tz_localize(None)
                     target._data = target._data.tz_localize(
-                        tz, ambiguous=False, nonexistent="NaT"
+                        tz,
+                        ambiguous=np.zeros(len(target._data.index), dtype=bool),
+                        nonexistent="NaT",
                     )
                 target._timezone = str(tz)
         return target
@@ -5155,9 +5313,9 @@ class TimeSeries:
                 raise TimeSeriesException("Parameter must be specified")
             if not self._parameter_type and self._context == CWMS:
                 raise TimeSeriesException("Parameter type must be specified")
-            if not self._interval:
+            if self._interval is None:
                 raise TimeSeriesException("Interval must be specified")
-            if not self._duration and self._context == CWMS:
+            if self._duration is None and self._context == CWMS:
                 raise TimeSeriesException("Duration must be specified")
             if not self._version and self._context == CWMS:
                 raise TimeSeriesException("Version must be specified")
@@ -5175,8 +5333,8 @@ class TimeSeries:
         interval: Union[Interval, timedelta, str],
         offset: Optional[Union[TimeSpan, timedelta, str, int]] = None,
         time_zone: Optional[str] = None,
-        value: Union[List[float], float] = 0.0,
-        quality: Union[List[Quality], List[int], Quality, int] = 0,
+        values: Optional[Union[List[float], float]] = None,
+        qualities: Optional[Union[list[Union[Quality, int]], Quality, int]] = None,
     ) -> "TimeSeries":
         """
         Generates and returns a new regular (possibly local regular) interval time series with the
@@ -5192,13 +5350,13 @@ class TimeSeries:
             offset (Optional[Union[TimeSpan, timedelta, str, int]]): The interval offset. If int, then number of minutes. If none, then the
                 offset is determined from `start` (it's offset into the specified interval). Defaults to None.
             time_zone (Optional[str]): The time zone. Must be specified if `interval` is a local-regular interval.
-            value (Union[List[float], float], optional): The value(s) to populate the time series with. If float, it specifies all values.
-                If list, the list is repeated as many whole and/or partial time as necessary to fill the time series Defaults to 0.0.
-            quality (Union[List[Quality], List[int], Quality, int], optional): The qualities to fill the time series with. If Quality or int,
-                it specifies all qualities. If list, the list is repeated as many whole and/or partial times to fill the time sries Defaults to 0.
+            values (Optional[Union[List[float], float]]): The value(s) to populate the time series with. If float, it specifies all values.
+                If list, the list is repeated as many whole and/or partial time as necessary to fill the time series. Defaults to None, which causes all values to be NaN.
+            qualities (Optional[Union[list[Union[Quality, int]], Quality, int]]): The qualities to fill the time series with. If Quality or int,
+                it specifies all qualities. If list, the list is repeated as many whole and/or partial times to fill the time sries Defaults to None, which causes all qualities to be zero.
 
         Raises:
-            TimeSeriesException: If an irregular interval is specified
+            TimeSeriesException: If an irregular interval is specified. To generate new irregular interval time series, use [`TimeSeries(name, times, values, quality, time_zone)`](#TimeSeries.__init__)
 
         Returns:
             TimeSeries: The generated regular (possible local regular) interval time series
@@ -5271,49 +5429,7 @@ class TimeSeries:
             times = intvl.get_datetime_index(
                 start_time=start_time, count=end, time_zone=time_zone, name="time"
             )
-        # ------------ #
-        # handle value #
-        # ------------ #
-        if isinstance(value, float):
-            values = len(times) * [value]
-        elif isinstance(value, list):
-            if len(value) == 0:
-                values = len(times) * [0.0]
-            else:
-                values = list(islice(cycle(map(int, value)), len(times)))
-        else:
-            raise TypeError(
-                f"Expected value parameter to be float or list, got {type(value)}"
-            )
-        # -------------- #
-        # handle quality #
-        # -------------- #
-        if isinstance(quality, int):
-            qualities = len(times) * [quality]
-        elif isinstance(quality, Quality):
-            qualities = len(times) * [quality.code]
-        elif isinstance(quality, list):
-            if len(quality) == 0:
-                qualities = len(times) * [0]
-            else:
-                qualities = list(islice(cycle(map(int, quality)), len(times)))
-        else:
-            raise TypeError(
-                f"Expected quality parameter to be int, Quality or list, got {type(quality)}"
-            )
-        # ----------------- #
-        # populate the data #
-        # ----------------- #
-        ts._expanded = True
-        ts._timezone = None if start_time._tz is None else str(start_time._tz)
-        ts._data = pd.DataFrame(
-            {
-                "value": values,
-                "quality": qualities,
-            },
-            index=times,
-        )
-        return ts
+        return TimeSeries(ts.name, times, values, qualities)
 
     @property
     def number_invalid_values(self) -> int:

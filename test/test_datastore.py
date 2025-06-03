@@ -47,6 +47,7 @@ else:
     </offset>
     </vertical-datum-info>"""
 
+
 def test_cwms_datastore() -> None:
     global vdi
     api_root = os.getenv("cda_api_root")
@@ -75,7 +76,12 @@ def test_cwms_datastore() -> None:
     # use in context manager to test implicit close #
     # --------------------------------------------- #
     with CwmsDataStore.open(
-        api_root, api_key=api_key, office=api_office, units="EN", time_zone="UTC", read_only=False
+        api_root,
+        api_key=api_key,
+        office=api_office,
+        units="EN",
+        time_zone="UTC",
+        read_only=False,
     ) as db:
         vdi = vdi.replace(":location", loc_id)
         # -------------------------- #
@@ -211,7 +217,7 @@ def test_dss_datastore() -> None:
     dss_file_name = "./tester.dss"
     number_values = 120
     t = HecTime("15Mar2025 01:00")
-    times = [t + 1440 * i for i in range(number_values)]
+    times = [(t + 1440 * i).datetime() for i in range(number_values)]
     values = [100 + i for i in range(number_values)]
     qualities = number_values * [0]
     # --------------------------------------------- #
@@ -225,7 +231,8 @@ def test_dss_datastore() -> None:
 
     rts = TimeSeries("//TestLoc/Flow//1Day/Regular/")
     rts._data = pd.DataFrame(
-        {"value": values, "quality": qualities}, index=pd.Index(times, name="time")
+        {"value": values, "quality": qualities},
+        index=pd.DatetimeIndex(times, name="time"),
     )
     # ----------------------------------------------------------------------- #
     # regular extents are the end of the interval containing the extent times #
@@ -239,11 +246,13 @@ def test_dss_datastore() -> None:
 
     its1 = TimeSeries("//TestLoc/Flow//IR-Year/Irregular/")
     its1._data = pd.DataFrame(
-        {"value": values, "quality": qualities}, index=pd.Index(times, name="time")
+        {"value": values, "quality": qualities},
+        index=pd.DatetimeIndex(times, name="time"),
     )
     its2 = TimeSeries("//TestLoc/Flow//IR-Month/Irregular/")
     its2._data = pd.DataFrame(
-        {"value": values, "quality": qualities}, index=pd.Index(times, name="time")
+        {"value": values, "quality": qualities},
+        index=pd.DatetimeIndex(times, name="time"),
     )
     DssDataStore.set_message_level(0)
     # --------------------------------------------- #
@@ -357,5 +366,5 @@ def test_dss_datastore() -> None:
 
 
 if __name__ == "__main__":
-    test_cwms_datastore()
-    # test_dss_datastore()
+    # test_cwms_datastore()
+    test_dss_datastore()

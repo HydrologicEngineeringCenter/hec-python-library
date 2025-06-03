@@ -532,8 +532,21 @@ class ElevParameter(Parameter):
                         # ----------------------- #
                         # JSON string as from CDA #
                         # ----------------------- #
-                        s = re.sub(r"\b(true|false)\b", lambda m: m.group(0).title(), vertical_datum_info)
-                        self = ElevParameter._VerticalDatumInfo(eval(s))
+                        s = re.sub(
+                            r"\b(true|false)\b",
+                            lambda m: m.group(0).title(),
+                            vertical_datum_info,
+                        )
+                        vdi = ElevParameter._VerticalDatumInfo(eval(s))
+                        self._unit_name = vdi._unit_name
+                        self._unit = vdi._unit
+                        self._elevation = vdi._elevation
+                        self._native_datum = vdi._native_datum
+                        self._current_datum = vdi._current_datum
+                        self._ngvd29_offset = vdi._ngvd29_offset
+                        self._navd88_offset = vdi._navd88_offset
+                        self._ngvd29_offset_is_estimate = vdi._ngvd29_offset_is_estimate
+                        self._navd88_offset_is_estimate = vdi._navd88_offset_is_estimate
                     elif vertical_datum_info.startswith("<"):
                         # ------------------------------------- #
                         # XML string as from CWMS db or HEC-DSS #
@@ -567,7 +580,9 @@ class ElevParameter(Parameter):
                         self._current_datum = self._native_datum
                         elem = root.find("elevation")
                         if elem is not None and elem.text:
-                            self._elevation = UnitQuantity(float(elem.text), self._unit_name)
+                            self._elevation = UnitQuantity(
+                                float(elem.text), self._unit_name
+                            )
                         for elem in root.findall("offset"):
                             estimate = elem.attrib["estimate"] == "true"
                             datum_elem = elem.find("to-datum")

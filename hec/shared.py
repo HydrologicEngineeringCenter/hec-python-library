@@ -2,6 +2,7 @@
 # DO NOT IMPORT ANY HEC MODULES FROM THIS MODULE #
 # ---------------------------------------------- #
 
+
 def is_leap(y: int) -> bool:
     """
     Return whether the specified year is a leap year
@@ -13,6 +14,7 @@ def is_leap(y: int) -> bool:
         bool: Whether the year is a leap year
     """
     return (not bool(y % 4) and bool(y % 100)) or (not bool(y % 400))
+
 
 def max_day(y: int, m: int) -> int:
     """
@@ -30,6 +32,7 @@ def max_day(y: int, m: int) -> int:
         if m in (1, 3, 5, 7, 8, 10, 12)
         else 30 if m in (4, 6, 9, 11) else 29 if is_leap(y) else 28
     )
+
 
 def previous_month(y: int, m: int) -> tuple[int, int]:
     """

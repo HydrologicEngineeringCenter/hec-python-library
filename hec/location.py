@@ -2,22 +2,33 @@
 Provides location info
 """
 
-import hec
-import numpy as np
 import re
 import warnings
 from enum import Enum
-from hec.parameter import _all_datums_pattern, _navd88_pattern, _ngvd29_pattern, _NAVD88, _NGVD29, _OTHER_DATUM
-from hec.unit import UnitQuantity
 from io import StringIO
 from typing import Any, Optional, Union, cast
+
+import numpy as np
+
+import hec
+from hec.parameter import (
+    _NAVD88,
+    _NGVD29,
+    _OTHER_DATUM,
+    _all_datums_pattern,
+    _navd88_pattern,
+    _ngvd29_pattern,
+)
+from hec.unit import UnitQuantity
 
 warnings.filterwarnings("always", category=UserWarning)
 
 _loc_pat = re.compile("^[^.-]{1,24}(-[^.]{1,32})?$")
 
+
 def _is_cwms_location(id: str) -> bool:
     return bool(_loc_pat.match(id))
+
 
 class KIND(Enum):
     SITE = 1
@@ -36,6 +47,7 @@ class KIND(Enum):
     PUMP = 14
     WEATHER_GAGE = 15
     ENTITY = 16
+
 
 class LocationException(Exception):
     """
@@ -62,7 +74,7 @@ class Location:
         vertical_datum: Optional[str] = None,
         time_zone: Optional[str] = None,
         kind: Optional[str] = None,
-        vertical_datum_info: Optional[Union[str, dict[str,Any]]] = None
+        vertical_datum_info: Optional[Union[str, dict[str, Any]]] = None,
     ):
         """
         Initializes a Location object
@@ -87,7 +99,9 @@ class Location:
         self._vertical_datum: Optional[str] = None
         self._time_zone: Optional[str] = None
         self._kind: Optional[KIND] = None
-        self._vertical_datum_info: Optional[hec.parameter.ElevParameter._VerticalDatumInfo] = None
+        self._vertical_datum_info: Optional[
+            hec.parameter.ElevParameter._VerticalDatumInfo
+        ] = None
         if elevation and elevation_unit:
             self._elevation = UnitQuantity(elevation, elevation_unit)
         if vertical_datum is not None:
@@ -102,7 +116,11 @@ class Location:
                 self._vertical_datum = vertical_datum
         if time_zone is not None:
             try:
-                self._time_zone = str(hec.hectime.HecTime.now().convert_to_time_zone(time_zone, on_tz_not_set=0).tzinfo)
+                self._time_zone = str(
+                    hec.hectime.HecTime.now()
+                    .convert_to_time_zone(time_zone, on_tz_not_set=0)
+                    .tzinfo
+                )
             except:
                 raise LocationException(f"Invalid time zone: {time_zone}")
         if kind is None or kind.strip() == "":
@@ -111,16 +129,33 @@ class Location:
             if kind.upper() in KIND.__members__:
                 self._kind = KIND[kind.upper()]
             else:
-                raise LocationException(f"Invalid kind: {kind.upper()}, must be one of {','.join(KIND.__members__)}")
+                raise LocationException(
+                    f"Invalid kind: {kind.upper()}, must be one of {','.join(KIND.__members__)}"
+                )
         if vertical_datum_info is not None:
-            self._vertical_datum_info = hec.parameter.ElevParameter._VerticalDatumInfo(vertical_datum_info)
+            self._vertical_datum_info = hec.parameter.ElevParameter._VerticalDatumInfo(
+                vertical_datum_info
+            )
         vdi = self._vertical_datum_info
         if vdi:
             if vdi.elevation and self._elevation:
-                if not np.isclose(self._elevation.to(vdi.elevation.unit).magnitude, vdi.elevation.magnitude):
-                    warnings.warn(f"Vertical datum info elevation of {vdi.elevation} overrides parameters of {elevation} and {elevation_unit}", UserWarning)
-            if vdi.native_datum and vertical_datum and vdi.native_datum != vertical_datum:
-                    warnings.warn(f"Vertical datum info native datum of {vdi.native_datum} overrides parameter of {vertical_datum}", UserWarning)
+                if not np.isclose(
+                    self._elevation.to(vdi.elevation.unit).magnitude,
+                    vdi.elevation.magnitude,
+                ):
+                    warnings.warn(
+                        f"Vertical datum info elevation of {vdi.elevation} overrides parameters of {elevation} and {elevation_unit}",
+                        UserWarning,
+                    )
+            if (
+                vdi.native_datum
+                and vertical_datum
+                and vdi.native_datum != vertical_datum
+            ):
+                warnings.warn(
+                    f"Vertical datum info native datum of {vdi.native_datum} overrides parameter of {vertical_datum}",
+                    UserWarning,
+                )
 
     def __repr__(self) -> str:
         s = f"Location(name='{self.name}'"
@@ -133,9 +168,7 @@ class Location:
         if self.horizontal_datum is not None:
             s += f",horizontal_datum='{self.horizontal_datum}'"
         if not self.vertical_datum_info and self.elevation is not None:
-            s += (
-                f",elevation={float(self.elevation.magnitude)}"  # prevent truncating .0 in output
-            )
+            s += f",elevation={float(self.elevation.magnitude)}"  # prevent truncating .0 in output
             s += f",elevation_unit='{self.elevation.specified_unit}'"
             if self.vertical_datum is not None:
                 s += f",vertical_datum='{self.vertical_datum}'"
@@ -182,7 +215,9 @@ class Location:
     @elevation.setter
     def elevation(self, value: Optional[UnitQuantity]) -> None:
         if self._vertical_datum_info is not None:
-            raise LocationException("Cannot directly set the elevation of a location with vertical datum information")
+            raise LocationException(
+                "Cannot directly set the elevation of a location with vertical datum information"
+            )
         self._elevation = None if value is None else value
 
     @property
@@ -208,7 +243,7 @@ class Location:
             Read/Write
         """
         return None if self._kind is None else self._kind.name
-    
+
     @kind.setter
     def kind(self, value: Optional[str]) -> None:
         if value is None or value.strip() == "":
@@ -217,7 +252,9 @@ class Location:
             if value.upper() in KIND.__members__:
                 self._kind = KIND[value.upper()]
             else:
-                raise LocationException(f"Invalid kind: {value.upper()}, must be one of {','.join(KIND.__members__)}")
+                raise LocationException(
+                    f"Invalid kind: {value.upper()}, must be one of {','.join(KIND.__members__)}"
+                )
 
     @property
     def latitude(self) -> Optional[float]:
@@ -332,17 +369,21 @@ class Location:
             Read/Write
         """
         return self._time_zone
-    
+
     @time_zone.setter
     def time_zone(self, value: Optional[str]) -> None:
         if value is None:
             self._time_zone = None
         else:
             try:
-                self._time_zone = str(hec.hectime.HecTime.now().convert_to_time_zone(value, on_tz_not_set=0).tzinfo)
+                self._time_zone = str(
+                    hec.hectime.HecTime.now()
+                    .convert_to_time_zone(value, on_tz_not_set=0)
+                    .tzinfo
+                )
             except:
                 raise LocationException(f"Invalid time zone: {value}")
-    
+
     @property
     def vertical_datum(self) -> Optional[str]:
         """
@@ -351,12 +392,18 @@ class Location:
         Operations:
             Read/Write
         """
-        return self._vertical_datum if self._vertical_datum_info is None else self._vertical_datum_info.native_datum
-    
+        return (
+            self._vertical_datum
+            if self._vertical_datum_info is None
+            else self._vertical_datum_info.native_datum
+        )
+
     @vertical_datum.setter
     def vertical_datum(self, value: Optional[str]) -> None:
         if self._vertical_datum_info:
-            raise LocationException("Cannot directly set native vertical datum on a location with vertical datum information")
+            raise LocationException(
+                "Cannot directly set native vertical datum on a location with vertical datum information"
+            )
         if value is None:
             self._vertical_datum = None
         elif _all_datums_pattern.match(value):
@@ -370,7 +417,9 @@ class Location:
             self._vertical_datum = value
 
     @property
-    def vertical_datum_info(self) -> Optional[hec.parameter.ElevParameter._VerticalDatumInfo]:
+    def vertical_datum_info(
+        self,
+    ) -> Optional[hec.parameter.ElevParameter._VerticalDatumInfo]:
         """
         The vertical datum information for the location.
             * The getter returns a _VerticalDatumInfo object.
@@ -390,12 +439,18 @@ class Location:
             self._vertical_datum_info = value.clone()
         elif isinstance(value, dict):
             s = re.sub(r"\b(True|False)\b", lambda m: m.group(0).lower(), str(value))
-            self._vertical_datum_info = hec.parameter.ElevParameter._VerticalDatumInfo(s)
+            self._vertical_datum_info = hec.parameter.ElevParameter._VerticalDatumInfo(
+                s
+            )
         elif isinstance(value, str):
-            self._vertical_datum_info = hec.parameter.ElevParameter._VerticalDatumInfo(value)
+            self._vertical_datum_info = hec.parameter.ElevParameter._VerticalDatumInfo(
+                value
+            )
         else:
-            raise TypeError(f"Expected str or ElevParameter._VerticalDatumInfo, got {value.__class__.__name__}")
-    
+            raise TypeError(
+                f"Expected str or ElevParameter._VerticalDatumInfo, got {value.__class__.__name__}"
+            )
+
     @property
     def vertical_datum_json(self) -> Optional[str]:
         vdi = self._vertical_datum_info
@@ -403,18 +458,24 @@ class Location:
             buf = StringIO()
             buf.write(f'{{"office":"{self.office}","location":"{self.name}",')
             if vdi.elevation:
-                buf.write(f'"elevation":{vdi.elevation.magnitude},"unit":"{vdi.elevation.specified_unit}",')
+                buf.write(
+                    f'"elevation":{vdi.elevation.magnitude},"unit":"{vdi.elevation.specified_unit}",'
+                )
             else:
                 buf.write(f'"elevation":null,"unit":"null",')
             buf.write(f'"native-datum":"{vdi.native_datum}",')
             if vdi.navd88_offset or vdi.ngvd29_offset:
                 buf.write('"offsets":[')
                 if vdi.navd88_offset:
-                    buf.write(f'{{"to-datum":"{_NAVD88}","value":{vdi.navd88_offset.magnitude},"estimate":"{"true" if vdi.navd88_offset_is_estimate else "false"}"}}')
+                    buf.write(
+                        f'{{"to-datum":"{_NAVD88}","value":{vdi.navd88_offset.magnitude},"estimate":"{"true" if vdi.navd88_offset_is_estimate else "false"}"}}'
+                    )
                 if vdi.ngvd29_offset:
                     if vdi.navd88_offset:
-                        buf.write(',')
-                    buf.write(f'{{"to-datum":"{_NGVD29}","value":{vdi.ngvd29_offset.magnitude},"estimate":{"true" if vdi.ngvd29_offset_is_estimate else "false"}}}')
+                        buf.write(",")
+                    buf.write(
+                        f'{{"to-datum":"{_NGVD29}","value":{vdi.ngvd29_offset.magnitude},"estimate":{"true" if vdi.ngvd29_offset_is_estimate else "false"}}}'
+                    )
                 buf.write("]")
             buf.write("}")
             json = buf.getvalue()
@@ -422,22 +483,22 @@ class Location:
             return json
         else:
             return None
+
     @property
     def vertical_datum_xml(self) -> Optional[str]:
         vdi = self._vertical_datum_info
         if vdi:
             lines = str(self._vertical_datum_info).split("\n")
             buf = StringIO()
-            buf.write(f'<vertical-datum-info office="{self.office} "')
+            buf.write(f'<vertical-datum-info office="{self.office}" ')
             if vdi.elevation:
-                buf.write(f'"unit="{vdi.elevation.specified_unit}">\n')
+                buf.write(f'unit="{vdi.elevation.specified_unit}">\n')
             else:
                 buf.write('"unit=""\n')
-            buf.write(f'  <location>{self.name}</location>\n')
+            buf.write(f"  <location>{self.name}</location>\n")
             buf.write("\n".join(lines[1:]))
             xml = buf.getvalue()
             buf.close()
             return xml
         else:
             return None
-

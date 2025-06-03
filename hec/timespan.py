@@ -3,13 +3,13 @@ Provides basic time span functionality.
 Like timedelta, but with calendar capabilities and without sub-second resolution.
 """
 
-import hec
 import re
 from datetime import timedelta
 from fractions import Fraction
 from functools import total_ordering
 from typing import Any, Optional, Union, cast
 
+import hec
 import hec.shared
 
 __all__ = ["TimeSpanException", "TimeSpan"]
@@ -162,9 +162,9 @@ class TimeSpan:
             return TimeSpan(vals)
         else:
             return NotImplemented
-        
+
     def __bool__(self) -> bool:
-        return any(self.values)
+        return False if self.values is None else any(self.values)
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, TimeSpan):
@@ -350,32 +350,51 @@ class TimeSpan:
         return NotImplemented
 
     def __str__(self) -> str:
-        sign1 = sign2 = 0
-        v = cast(list[int], self.values)
-        for i in (Y, M):
-            if v[i] != 0:
-                sign1 = -1 if v[i] < 0 else 1
-                break
-        for i in (D, H, N, S):
-            if v[i] != 0:
-                sign2 = -1 if v[i] < 0 else 1
-                break
-        if sign1 != 0 and sign2 != 0 and sign1 != sign2:
-            return f"{str(TimeSpan([v[Y],v[M],0,0,0,0]))},{str(TimeSpan([0,0,v[D],v[H],v[N],v[S]]))}"
-        string = (
-            "P"
-            + (f"{abs(v[Y])}Y" if v[Y] else "")
-            + (f"{abs(v[M])}M" if v[M] else "")
-            + (f"{abs(v[D])}D" if v[D] else "")
-        )
-        if string == "P" or any(v[H:]):
-            string += "T" + (
-                (f"{abs(v[H])}H" if v[H] else "") + (f"{abs(v[N])}M" if v[N] else "")
+        if self.values is None:
+            return "Undefined TimeSpan"
+        if not any(self.values):
+            return "PT0S"
+        sign1 = sign2 = False
+        temp = TimeSpan(self.values)
+        temp._normalize()
+        v = cast(list[int], temp.values)
+        if v[Y] < 0:
+            sign1 = True
+            v[Y] += 1
+            v[M] -= 12
+        if v[D] < 0:
+            sign2 = True
+            v[D] += 1
+            v[H] -= 23
+            v[N] -= 59
+            if v[S]:
+                v[S] -= 60
+        if sign1 == sign2:
+            string = (
+                "-P"
+                if sign1
+                else "P"
+                + (f"{abs(v[Y])}Y" if v[Y] else "")
+                + (f"{abs(v[M])}M" if v[M] else "")
+                + (f"{abs(v[D])}D" if v[D] else "")
+                + ("T" if any(v[H:]) else "")
+                + (f"{abs(v[H])}H" if v[H] else "")
+                + (f"{abs(v[N])}M" if v[N] else "")
+                + (f"{abs(v[S])}S" if v[S] else "")
             )
-            if string.endswith("T") or v[S]:
-                string += f"{abs(v[S])}S"
-        if all(map(lambda x: x <= 0, v)) and v != [0, 0, 0, 0, 0, 0]:
-            string = "-" + string
+        else:
+            string = (
+                ("" if not any(v[Y:D]) else "-P" if sign1 else "P")
+                + (f"{abs(v[Y])}Y" if v[Y] else "")
+                + (f"{abs(v[M])}M" if v[M] else "")
+                + ("," if any(v[Y:D]) and any(v[D:]) else "")
+                + ("" if not any(v[D:]) else "-P" if sign2 else "P")
+                + (f"{abs(v[D])}D" if v[D] else "")
+                + ("T" if any(v[H:]) else "")
+                + (f"{abs(v[H])}H" if v[H] else "")
+                + (f"{abs(v[N])}M" if v[N] else "")
+                + (f"{abs(v[S])}S" if v[S] else "")
+            )
         return string
 
     def __sub__(self, other: object) -> "TimeSpan":

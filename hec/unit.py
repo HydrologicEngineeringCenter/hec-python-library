@@ -1436,14 +1436,14 @@ class UnitQuantity:
         return self.to(unit, in_place=True)
 
     @property
-    def magnitude(self) -> Any:
+    def magnitude(self) -> float:
         """
         The magnitude of the object (unitless value)
 
         Operations:
             Read/Only
         """
-        return self._quantity.magnitude
+        return float(self._quantity.magnitude)
 
     @property
     def output_format(self) -> Optional[str]:

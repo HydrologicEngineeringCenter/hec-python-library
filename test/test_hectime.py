@@ -853,6 +853,7 @@ def test_add_subtract_compare() -> None:
         )
         assert isinstance(intvl, Interval)
         ht2.increment(1, intvl)
+        print(f"{season}\t{ht2}\t{intvl}")
         assert str(ht2) == times[season]["next_local"]
         assert ht2.values == list(map(int, str(ht2)[:19].translate(table).split()))
         ht3 = cast(HecTime, ht2.clone())
