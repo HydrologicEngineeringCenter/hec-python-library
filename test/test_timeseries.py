@@ -10,7 +10,14 @@ from typing import List, Union, cast
 import numpy as np
 import pandas as pd
 
-from hec import Combine, Duration, HecTime, Interval, Parameter, ParameterType
+from hec import (
+    Combine,
+    Duration,
+    HecTime,
+    Interval,
+    Parameter,
+    ParameterType,
+)
 from hec import Quality as Qual
 from hec import (
     Select,
@@ -166,31 +173,31 @@ def test_math_ops_scalar() -> None:
     assert area2.name == area.name
     assert np.allclose(area2.values, value_count * [10.0**3])
 
-    area2 = area.clone()
+    area2 = area.copy()
     area2 += 3
     assert area2.name == area.name
     assert np.allclose(area2.values, value_count * [10.0 + 3])
-    area2 = area.clone()
+    area2 = area.copy()
     area2 -= 3
     assert area2.name == area.name
     assert np.allclose(area2.values, value_count * [10.0 - 3])
-    area2 = area.clone()
+    area2 = area.copy()
     area2 *= 3
     assert area2.name == area.name
     assert np.allclose(area2.values, value_count * [10.0 * 3])
-    area2 = area.clone()
+    area2 = area.copy()
     area2 /= 3
     assert area2.name == area.name
     assert np.allclose(area2.values, value_count * [10.0 / 3])
-    area2 = area.clone()
+    area2 = area.copy()
     area2 //= 3
     assert area2.name == area.name
     assert np.allclose(area2.values, value_count * [10.0 // 3])
-    area2 = area.clone()
+    area2 = area.copy()
     area2 %= 3
     assert area2.name == area.name
     assert np.allclose(area2.values, value_count * [10.0 % 3])
-    area2 = area.clone()
+    area2 = area.copy()
     area2 **= 3
     assert area2.name == area.name
     assert np.allclose(area2.values, value_count * [10.0**3])
@@ -220,31 +227,31 @@ def test_math_ops_scalar() -> None:
     assert area2.name == area.name
     assert np.allclose(area2.values, value_count * [10.0**3])
 
-    area2 = area.clone()
+    area2 = area.copy()
     area2 += scalar
     assert area2.name == area.name
     assert np.allclose(area2.values, value_count * [10.0 + 3])
-    area2 = area.clone()
+    area2 = area.copy()
     area2 -= scalar
     assert area2.name == area.name
     assert np.allclose(area2.values, value_count * [10.0 - 3])
-    area2 = area.clone()
+    area2 = area.copy()
     area2 *= scalar
     assert area2.name == area.name
     assert np.allclose(area2.values, value_count * [10.0 * 3])
-    area2 = area.clone()
+    area2 = area.copy()
     area2 /= scalar
     assert area2.name == area.name
     assert np.allclose(area2.values, value_count * [10.0 / 3])
-    area2 = area.clone()
+    area2 = area.copy()
     area2 //= scalar
     assert area2.name == area.name
     assert np.allclose(area2.values, value_count * [10.0 // 3])
-    area2 = area.clone()
+    area2 = area.copy()
     area2 %= scalar
     assert area2.name == area.name
     assert np.allclose(area2.values, value_count * [10.0 % 3])
-    area2 = area.clone()
+    area2 = area.copy()
     area2 **= scalar
     assert area2.name == area.name
     assert np.allclose(area2.values, value_count * [10.0**3])
@@ -310,31 +317,31 @@ def test_math_ops_ts() -> None:
     assert area2.name == area.name
     assert np.allclose(area2.values, value_count * [10**3])
 
-    area2 = area.clone()
+    area2 = area.copy()
     area2 += other_ts
     assert area2.name == area.name
     assert np.allclose(area2.values, value_count * [10 + 3])
-    area2 = area.clone()
+    area2 = area.copy()
     area2 -= other_ts
     assert area2.name == area.name
     assert np.allclose(area2.values, value_count * [10 - 3])
-    area2 = area.clone()
+    area2 = area.copy()
     area2 *= other_ts
     assert area2.name == area.name
     assert np.allclose(area2.values, value_count * [10 * 3])
-    area2 = area.clone()
+    area2 = area.copy()
     area2 /= other_ts
     assert area2.name == area.name
     assert np.allclose(area2.values, value_count * [10 / 3])
-    area2 = area.clone()
+    area2 = area.copy()
     area2 //= other_ts
     assert area2.name == area.name
     assert np.allclose(area2.values, value_count * [10 // 3])
-    area2 = area.clone()
+    area2 = area.copy()
     area2 %= other_ts
     assert area2.name == area.name
     assert np.allclose(area2.values, value_count * [10 % 3])
-    area2 = area.clone()
+    area2 = area.copy()
     area2 **= other_ts
     assert area2.name == area.name
     assert np.allclose(area2.values, value_count * [10**3])
@@ -391,7 +398,7 @@ def test_selection_and_filter() -> None:
         flow2.qualities[i] for i in range(len(flow2)) if flow2.values[i] < 0
     ]
     flow2 = flow.select(lambda tsv: tsv.value < 0)
-    flow3 = flow2.clone().ifilter(unselected=True)
+    flow3 = flow2.copy().ifilter(unselected=True)
     assert flow3.times == [
         flow2.times[i] for i in range(len(flow2)) if not flow2.values[i] < 0
     ]
@@ -3287,8 +3294,8 @@ def test_merge() -> None:
     # ------------------------------ #
     # test merging empty time series #
     # ------------------------------ #
-    ts1_copy = ts1.clone()  # will restore later
-    ts2_copy = ts2.clone()  # will restore later
+    ts1_copy = ts1.copy()  # will restore later
+    ts2_copy = ts2.copy()  # will restore later
     ts1._data = None
     ts3 = ts1.merge(ts2)
     assert len(ts3) == expected_length

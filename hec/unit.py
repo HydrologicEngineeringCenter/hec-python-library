@@ -980,7 +980,7 @@ def convert_units(
             )
         factor: float = convert_units(1, src_unit, dst_unit)
         converted = to_convert if in_place else copy.deepcopy(to_convert)
-        json = converted.json  # type: ignore
+        json = converted.json
         if convert_units(10, src_unit, dst_unit) == 10 * factor:
             json["values"] = [[v[0], v[1] * factor, v[2]] for v in json["values"]]
         else:
@@ -1001,8 +1001,8 @@ def convert_units(
                 )
             vdi["unit"] = to_unit
 
-        converted.json = json  # type: ignore
-        converted._df = None  # type: ignore
+        converted.json = json
+        converted._df = None
         return converted
         # ----- #
         # other #
@@ -1151,7 +1151,9 @@ class UnitQuantity:
     def __ipow__(self, other: object) -> "UnitQuantity":
         if isinstance(other, (int, float)):
             self._specified_unit = f"({self._specified_unit})**{other}"
-            self._quantity = UnitQuantity(self._quantity.magnitude**other, self._specified_unit)  # type: ignore
+            self._quantity = UnitQuantity(  # type: ignore
+                self._quantity.magnitude**other, self._specified_unit
+            )
             return self
         return NotImplemented
 

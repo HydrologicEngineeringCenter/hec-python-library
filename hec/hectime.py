@@ -2201,9 +2201,7 @@ class HecTime:
                 if self._tz is None:
                     new_time += TimeSpan(other.values)
                 else:
-                    utc = cast(HecTime, self.clone()).label_as_time_zone(
-                        "UTC", on_already_set=0
-                    )
+                    utc = self.copy().label_as_time_zone("UTC", on_already_set=0)
                     span = TimeSpan(other.values)
                     count = 0
                     while True:
@@ -2215,7 +2213,7 @@ class HecTime:
                             count += 1
                             if count > 1000:
                                 raise
-                    new_time = cast(HecTime, local.clone())
+                    new_time = local.copy()
             elif isinstance(other, TimeSpan):
                 new_time.increment(1, other)
             elif isinstance(other, timedelta):
@@ -2353,9 +2351,7 @@ class HecTime:
                 if self.tzinfo is None:
                     self += TimeSpan(other.values)
                 else:
-                    utc = cast(HecTime, self.clone()).label_as_time_zone(
-                        "UTC", on_already_set=0
-                    )
+                    utc = self.copy().label_as_time_zone("UTC", on_already_set=0)
                     span = TimeSpan(other.values)
                     while True:
                         utc += span
@@ -2414,9 +2410,7 @@ class HecTime:
                 if self.tzinfo is None:
                     self -= TimeSpan(other.values)
                 else:
-                    utc = cast(HecTime, self.clone()).label_as_time_zone(
-                        "UTC", on_already_set=0
-                    )
+                    utc = self.copy().label_as_time_zone("UTC", on_already_set=0)
                     span = TimeSpan(other.values)
                     while True:
                         utc -= span
@@ -2531,9 +2525,7 @@ class HecTime:
                 return_obj = self - (TimeSpan(other.values))
             else:
                 return_obj = HecTime(self)
-                utc = cast(HecTime, self.clone()).label_as_time_zone(
-                    "UTC", on_already_set=0
-                )
+                utc = self.copy().label_as_time_zone("UTC", on_already_set=0)
                 span = TimeSpan(other.values)
                 while True:
                     utc -= span
@@ -2581,11 +2573,11 @@ class HecTime:
                 return_obj = return_obj.convert_to_time_zone(self._tz)
             return return_obj
         elif isinstance(other, HecTime):
-            tempClone: HecTime = cast(HecTime, temp.clone()).convert_to_time_zone(
+            tempClone: HecTime = temp.copy().convert_to_time_zone(
                 "UTC", on_tz_not_set=0
             )
             tempClone.midnight_as_2400 = False
-            otherClone: HecTime = cast(HecTime, other.clone()).convert_to_time_zone(
+            otherClone: HecTime = other.copy().convert_to_time_zone(
                 "UTC", on_tz_not_set=0
             )
             otherClone.midnight_as_2400 = False
@@ -3102,6 +3094,15 @@ class HecTime:
                 t.set(dt)
             t._tz = tz
         return t
+
+    def copy(self) -> "HecTime":
+        """
+        Returns a copy of this object already cast as an HecTime
+
+        Returns:
+            HecTime: The copy
+        """
+        return cast(HecTime, self.clone())
 
     def date(self, style: Optional[int] = None) -> str:
         """
@@ -3804,9 +3805,7 @@ class HecTime:
                 # Interval object  #
                 # ---------------- #
                 if self._tz is not None and interval.is_local_regular:
-                    utc = cast(HecTime, self.clone()).label_as_time_zone(
-                        "UTC", on_already_set=0
-                    )
+                    utc = self.copy().label_as_time_zone("UTC", on_already_set=0)
                     span = TimeSpan(interval.values)
                     local = self
                     for i in range(abs(count)):
@@ -4853,20 +4852,24 @@ class HecTime:
         return to2400(self._values) if self._midnight_as_2400 else to0000(self._values)
 
     @values.setter
-    def values(self, values: Union[tuple[int, ...], list[int]]) -> None:
-        values = list(values)
-        normalize_time_vals(values)
-        if self.granularity > SECOND_GRANULARITY:
-            values[S] = 0
-        if self.granularity > MINUTE_GRANULARITY:
-            values[N] = 0
-        if self.granularity > HOUR_GRANULARITY:
-            values[H] = 0
-        if is_valid_time(values, self.granularity):
-            self._values = values
-            self._value = None
-            if self.granularity == DAY_GRANULARITY and any(values[3:]):
-                self.value += 1
-        else:
+    def values(self, values: Optional[Union[tuple[int, ...], list[int]]]) -> None:
+        if values is None:
             self._value = UNDEFINED_TIME
             self._values = None
+        else:
+            l_values = list(values)
+            normalize_time_vals(l_values)
+            if self.granularity > SECOND_GRANULARITY:
+                l_values[S] = 0
+            if self.granularity > MINUTE_GRANULARITY:
+                l_values[N] = 0
+            if self.granularity > HOUR_GRANULARITY:
+                l_values[H] = 0
+            if is_valid_time(l_values, self.granularity):
+                self._values = l_values
+                self._value = None
+                if self.granularity == DAY_GRANULARITY and any(l_values[3:]):
+                    self.value += 1
+            else:
+                self._value = UNDEFINED_TIME
+                self._values = None

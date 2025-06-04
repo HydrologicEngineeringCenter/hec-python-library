@@ -8,6 +8,13 @@ packages = ["hec"]
 [tool.setuptools.package-data]
 hec = ["resources/*.txt"]
 
+[tool.mypy]
+ignore_missing_imports = false
+
+[[tool.mypy.overrides]]
+module = "pint.*"
+ignore_missing_imports = true
+
 [project]
 name = "hec-python-library"
 version = "0.9"
@@ -31,3 +38,4 @@ dependencies = [
     "Pint-pandas>=0.6.2",
     "tzlocal>=5.2"
 ]
+

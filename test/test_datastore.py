@@ -8,7 +8,6 @@ import numpy as np
 import pandas as pd
 
 from hec import (
-    datastore,
     CwmsDataStore,
     DeleteAction,
     DssDataStore,
@@ -17,6 +16,7 @@ from hec import (
     Location,
     StoreRule,
     TimeSeries,
+    datastore,
 )
 
 STORE_TIMESERIES_STORES_VDI_OFFSETS = False

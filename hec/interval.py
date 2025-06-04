@@ -1227,8 +1227,7 @@ class Interval(TimeSpan):
                         if l_end_time is not None:
                             l_end_time = l_end_time.convert_to_time_zone("UTC")
                 l_hectimes = [
-                    cast(hec.hectime.HecTime, l_first_time.clone()).increment(i, self)
-                    for i in range(l_count)
+                    l_first_time.copy().increment(i, self) for i in range(l_count)
                 ]
                 if l_end_time is not None:
                     while l_hectimes[-1] > l_end_time:

@@ -1,5 +1,4 @@
-"""Module for testing hec.location module
-"""
+"""Module for testing hec.location module"""
 
 import pytest
 

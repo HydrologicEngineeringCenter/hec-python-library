@@ -1109,7 +1109,7 @@ class DssDataStore(AbstractDataStore):
                     f"Cannot store time series {obj.name} with unknown parameter type"
                 )
             if obj.context == "CWMS":
-                obj = obj.clone()
+                obj = obj.copy()
                 obj.context = "DSS"
             if obj.interval.is_regular:
                 ts = RegularTimeSeries()
