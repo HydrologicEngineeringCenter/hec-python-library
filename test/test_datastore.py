@@ -8,6 +8,7 @@ import numpy as np
 import pandas as pd
 
 from hec import (
+    datastore,
     CwmsDataStore,
     DeleteAction,
     DssDataStore,
@@ -50,6 +51,8 @@ else:
 
 def test_cwms_datastore() -> None:
     global vdi
+    if not datastore.cwms_imported:
+        return
     api_root = os.getenv("cda_api_root")
     api_key = os.getenv("cda_api_key")
     api_office = os.getenv("cda_api_office")
@@ -203,6 +206,9 @@ def test_cwms_datastore() -> None:
 
 
 def test_dss_datastore() -> None:
+
+    if not datastore.dss_imported:
+        return
 
     def clean_block_start(pathname: str) -> str:
         parts = pathname.split("/")

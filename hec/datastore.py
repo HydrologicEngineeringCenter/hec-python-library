@@ -20,7 +20,6 @@ from zoneinfo import ZoneInfo
 import numpy as np
 import pandas as pd
 import tzlocal
-from hecdss.record_type import RecordType  # type: ignore
 from typing_extensions import Literal
 
 from hec import location, parameter, timeseries, unit
@@ -53,6 +52,7 @@ except ImportError:
 try:
     from hecdss import HecDss  # type: ignore
     from hecdss import DssPath, IrregularTimeSeries, RegularTimeSeries
+    from hecdss.record_type import RecordType  # type: ignore
 
     dss_version = importlib.metadata.version("hecdss")
     dss_imported = eval(f"'{dss_version}' {_required_dss_version}")
