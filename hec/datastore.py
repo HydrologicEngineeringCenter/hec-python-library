@@ -1836,10 +1836,15 @@ class CwmsDataStore(AbstractDataStore):
                 f"Cannot store to {self._name}, data store is set to read-only"
             )
         if isinstance(obj, TimeSeries):
-            if obj.data is None:
+            if obj.data is None or obj.data.empty:
                 raise DataStoreException(f"Cannot store empty time series {obj.name}")
-            df = obj.data.reset_index().rename(
-                columns={"time": "date-time", "quality": "quality-code"}
+            if obj.context == DSS:
+                obj = obj.copy()
+                obj.context = CWMS
+            df = (
+                cast(pd.DataFrame, obj.data)
+                .reset_index()
+                .rename(columns={"time": "date-time", "quality": "quality-code"})
             )
             name = obj.name
             if name.startswith(f"{self.office}/"):
@@ -2239,8 +2244,6 @@ class CwmsDataStore(AbstractDataStore):
                 f"Office parameter must be specified since data store '{self}' has no default office"
             )
         header_str = None
-        if not _regex:
-            _regex = "^.+$"
         catalog_type = _CwmsDataType[data_type.upper()]
         valid_fields = _valid_catalog_fields[CWMS][catalog_type.name]
         catalog_items: List[str] = []
@@ -2410,181 +2413,240 @@ class CwmsDataStore(AbstractDataStore):
                 name_field = fields.index("name")
             except:
                 pass
-            if category or group or "aliases" in fields:
-                # -------------------- #
-                # use catalog endpoint #
-                # -------------------- #
-                # must filter category and group after-the-fact (CDA problem)
-                specified_fields = fields[:]
-                if category or group and not "aliases" in fields:
-                    fields.append("aliases")
-                data = cwms.get_locations_catalog(
-                    office_id=office if office else self._office,
-                    unit_system=self.units,
-                    page_size=limit if limit else 5000,
-                    like=_regex,
-                    # location_category_like=_pattern_to_regex(category), -- doesn't work
-                    # location_group_like=_pattern_to_regex(group),       -- doesn't work
-                    bounding_office_like=_pattern_to_regex(bounding_office),
-                    location_kind_like=_pattern_to_regex(kind),
-                )
-                if not data.df.empty:
-                    field_items = {}
-                    for field in fields:
-                        field_items[field] = list(map(str, data.df[field].to_list()))
-                    catalog_items.extend(
-                        list(
-                            map("\t".join, list(zip(*(field_items[f] for f in fields))))
-                        )
+            done = False
+            use_catalog_endpoint = category or group or "aliases" in fields
+            original_fields = fields[:]
+            while not done:
+                if use_catalog_endpoint:
+                    # -------------------- #
+                    # use catalog endpoint #
+                    # -------------------- #
+                    done = True
+                    # must filter category and group after-the-fact (CDA problem)
+                    specified_fields = fields[:]
+                    if category or group and not "aliases" in fields:
+                        fields.append("aliases")
+                    data = cwms.get_locations_catalog(
+                        office_id=office if office else self._office,
+                        unit_system=self.units,
+                        page_size=limit if limit else 5000,
+                        like=_regex,
+                        # location_category_like=_pattern_to_regex(category), -- doesn't work
+                        # location_group_like=_pattern_to_regex(group),       -- doesn't work
+                        bounding_office_like=_pattern_to_regex(bounding_office),
+                        location_kind_like=_pattern_to_regex(kind),
                     )
-                if not limit:
-                    while "next-page" in data.json and data.json["next-page"]:
-                        data = cwms.get_locations_catalog(
-                            office_id=office if office else self._office,
-                            unit_system=self.units,
-                            page_size=limit if limit else 5000,
-                            like=_regex,
-                            # location_category_like=_pattern_to_regex(category), -- doesn't work
-                            # location_group_like=_pattern_to_regex(group),       -- doesn't work
-                            bounding_office_like=_pattern_to_regex(bounding_office),
-                            location_kind_like=_pattern_to_regex(kind),
-                        )
-                        if not data.df.empty:
-                            field_items = {}
-                            for field in fields:
-                                field_items[field] = [
-                                    "<None>" if not item or item == "nan" else item
-                                    for item in map(str, data.df[field].to_list())
-                                ]
-                            catalog_items.extend(
-                                list(
-                                    map(
-                                        "\t".join,
-                                        list(zip(*(field_items[f] for f in fields))),
-                                    )
-                                )
+                    if not data.df.empty:
+                        field_items = {}
+                        for field in fields:
+                            field_items[field] = list(
+                                map(str, data.df[field].to_list())
                             )
-                # ---------------------------------------------------------- #
-                # filter category and group and re-format aliases for output #
-                # ---------------------------------------------------------- #
-                try:
-                    alias_field = fields.index("aliases")
-                except:
-                    pass
-                else:
-                    cat_pat = None if not category else re.compile(_pattern_to_regex(category), 0 if case_sensitive else re.I)  # type: ignore
-                    grp_pat = None if not group else re.compile(_pattern_to_regex(group), 0 if case_sensitive else re.I)  # type: ignore
-                    matched = len(catalog_items) * [category is None and group is None]
-                    include_aliases = "aliases" in specified_fields
-                    for i in range(len(catalog_items)):
-                        parts = catalog_items[i].split("\t")
-                        old = eval(parts[alias_field])
-                        new = {}
-                        for d in old:
-                            cat_grp = d["name"]
-                            if cat_pat or grp_pat:
-                                cat, grp = cat_grp.split("-", 1)
-                                if (cat_pat is None or cat_pat.match(cat)) and (
-                                    grp_pat is None or grp_pat.match(grp)
-                                ):
-                                    matched[i] = True
-                            new[cat_grp] = d["value"]
-                        parts[alias_field] = str(new)
-                        catalog_items[i] = "\t".join(
-                            parts if include_aliases else parts[:-1]
-                        )  # alias field is always last if not in specified fiels
-                    if not all(matched):
-                        catalog_items = [
-                            catalog_items[i]
-                            for i in range(len(catalog_items))
-                            if matched[i]
-                        ]
-                if "elevation" in fields and (vertical_datum or self.vertical_datum):
-                    pass
-            else:
-                # ---------------------- #
-                # use locations endpoint #
-                # ---------------------- #
-                # must filter kind and bounding office after-the-fact (not supported in this endpoint)
-                specified_fields = fields[:]
-                if bounding_office and not "bounding-office" in fields:
-                    fields.append("bounding-office")
-                if kind and not "kind" in fields:
-                    fields.append("kind")
-                data = cwms.get_locations(
-                    office_id=office if office else self.office,
-                    location_ids=_regex,
-                    units=units if units else self.units,
-                    datum=vertical_datum if vertical_datum else self.vertical_datum,
-                )
-                if not data.df.empty:
-                    # change column names to match catalog endpoint
-                    df = data.df.rename(
-                        columns={
-                            "bounding-office-id": "bounding-office",
-                            "county-name": "county",
-                            "elevation-units": "unit",
-                            "location-kind": "kind",
-                            "location-type": "type",
-                            "office-id": "office",
-                            "state-initial": "state",
-                            "timezone-name": "time-zone",
-                        }
-                    )
-                    field_items = {}
-                    for field in fields:
-                        items = list(map(str, df[field].to_list()))
-                        field_items[field] = [
-                            "<None>" if not item or item in ("nan", "NULL") else item
-                            for item in items
-                        ]
-                    # each location gets returned twice (https://github.com/HydrologicEngineeringCenter/cwms-python/issues/143)
-                    # so use a set() to filter duplicates
-                    catalog_items.extend(
-                        sorted(
-                            set(
+                        catalog_items.extend(
+                            list(
                                 map(
                                     "\t".join,
                                     list(zip(*(field_items[f] for f in fields))),
                                 )
                             )
                         )
-                    )
-                    # filter kind and bounding office
-                    if bounding_office:
-                        pat = re.compile(
-                            cast(str, _pattern_to_regex(bounding_office)),
-                            0 if case_sensitive else re.I,
+                    if not limit:
+                        while "next-page" in data.json and data.json["next-page"]:
+                            data = cwms.get_locations_catalog(
+                                office_id=office if office else self._office,
+                                unit_system=self.units,
+                                page_size=limit if limit else 5000,
+                                like=_regex,
+                                # location_category_like=_pattern_to_regex(category), -- doesn't work
+                                # location_group_like=_pattern_to_regex(group),       -- doesn't work
+                                bounding_office_like=_pattern_to_regex(bounding_office),
+                                location_kind_like=_pattern_to_regex(kind),
+                            )
+                            if not data.df.empty:
+                                field_items = {}
+                                for field in fields:
+                                    field_items[field] = [
+                                        "<None>" if not item or item == "nan" else item
+                                        for item in map(str, data.df[field].to_list())
+                                    ]
+                                catalog_items.extend(
+                                    list(
+                                        map(
+                                            "\t".join,
+                                            list(
+                                                zip(*(field_items[f] for f in fields))
+                                            ),
+                                        )
+                                    )
+                                )
+                    # -------------------------------------------------------------------- #
+                    # fixup elevations to specified unit system (shoudn't have to do this) #
+                    # -------------------------------------------------------------------- #
+                    if "elevation" in fields and "unit" in fields:
+                        elev_idx = fields.index("elevation")
+                        unit_idx = fields.index("unit")
+                        target_units = units if units else self.units
+                        for i in range(len(catalog_items)):
+                            item_parts = catalog_items[i].split("\t")
+                            if target_units == "EN" and item_parts[unit_idx] != "ft":
+                                q = UnitQuantity(
+                                    f"{item_parts[elev_idx]} {item_parts[unit_idx]}"
+                                ).ito("ft")
+                                item_parts[elev_idx] = str(q.magnitude)
+                                item_parts[unit_idx] = q.specified_unit
+                                catalog_items[i] = "\t".join(item_parts)
+                            elif target_units == "SI" and item_parts[unit_idx] != "m":
+                                q = UnitQuantity(
+                                    f"{item_parts[elev_idx]} {item_parts[unit_idx]}"
+                                ).ito("m")
+                                item_parts[elev_idx] = str(q.magnitude)
+                                item_parts[unit_idx] = q.specified_unit
+                                catalog_items[i] = "\t".join(item_parts)
+                    # ---------------------------------------------------------- #
+                    # filter category and group and re-format aliases for output #
+                    # ---------------------------------------------------------- #
+                    try:
+                        alias_field = fields.index("aliases")
+                    except:
+                        pass
+                    else:
+                        cat_pat = None if not category else re.compile(_pattern_to_regex(category), 0 if case_sensitive else re.I)  # type: ignore
+                        grp_pat = None if not group else re.compile(_pattern_to_regex(group), 0 if case_sensitive else re.I)  # type: ignore
+                        matched = len(catalog_items) * [
+                            category is None and group is None
+                        ]
+                        include_aliases = "aliases" in specified_fields
+                        for i in range(len(catalog_items)):
+                            parts = catalog_items[i].split("\t")
+                            old = eval(parts[alias_field])
+                            new = {}
+                            for d in old:
+                                cat_grp = d["name"]
+                                if cat_pat or grp_pat:
+                                    cat, grp = cat_grp.split("-", 1)
+                                    if (cat_pat is None or cat_pat.match(cat)) and (
+                                        grp_pat is None or grp_pat.match(grp)
+                                    ):
+                                        matched[i] = True
+                                new[cat_grp] = d["value"]
+                            parts[alias_field] = str(new)
+                            catalog_items[i] = "\t".join(
+                                parts if include_aliases else parts[:-1]
+                            )  # alias field is always last if not in specified fiels
+                        if not all(matched):
+                            catalog_items = [
+                                catalog_items[i]
+                                for i in range(len(catalog_items))
+                                if matched[i]
+                            ]
+                    if "elevation" in fields and (
+                        vertical_datum or self.vertical_datum
+                    ):
+                        pass
+                else:
+                    # ---------------------- #
+                    # use locations endpoint #
+                    # ---------------------- #
+                    # must filter kind and bounding office after-the-fact (not supported in this endpoint)
+                    specified_fields = fields[:]
+                    if bounding_office and not "bounding-office" in fields:
+                        fields.append("bounding-office")
+                    if kind and not "kind" in fields:
+                        fields.append("kind")
+                    try:
+                        data = cwms.get_locations(
+                            office_id=office if office else self.office,
+                            location_ids=_regex if _regex else "^.+$",
+                            units=units if units else self.units,
+                            datum=(
+                                vertical_datum
+                                if vertical_datum
+                                else self.vertical_datum
+                            ),
                         )
-                        idx = fields.index("bounding-office")
-                        catalog_items = list(
-                            filter(
-                                lambda s: pat.match(s.split(r"\t")[idx]), catalog_items
+                    except:
+                        use_catalog_endpoint = True
+                        fields = original_fields
+                        continue
+                    else:
+                        done = True
+                    if not data.df.empty:
+                        # change column names to match catalog endpoint
+                        df = data.df.rename(
+                            columns={
+                                "bounding-office-id": "bounding-office",
+                                "county-name": "county",
+                                "elevation-units": "unit",
+                                "location-kind": "kind",
+                                "location-type": "type",
+                                "office-id": "office",
+                                "state-initial": "state",
+                                "timezone-name": "time-zone",
+                            }
+                        )
+                        field_items = {}
+                        for field in fields:
+                            try:
+                                items = list(map(str, df[field].to_list()))
+                            except KeyError:
+                                item = None
+                            field_items[field] = [
+                                (
+                                    "<None>"
+                                    if not item or item in ("nan", "NULL")
+                                    else item
+                                )
+                                for item in items
+                            ]
+                        # each location gets returned twice (https://github.com/HydrologicEngineeringCenter/cwms-python/issues/143)
+                        # so use a set() to filter duplicates
+                        catalog_items.extend(
+                            sorted(
+                                set(
+                                    map(
+                                        "\t".join,
+                                        list(zip(*(field_items[f] for f in fields))),
+                                    )
+                                )
                             )
                         )
-                        if not "bounding-office" in specified_fields:
-                            fields.pop(idx)
-                            for i in range(len(catalog_items)):
-                                items = catalog_items[i].split("\t")
-                                items.pop(idx)
-                                catalog_items[i] = "\t".join(items)
-                    if kind:
-                        pat = re.compile(
-                            cast(str, _pattern_to_regex(kind)),
-                            0 if case_sensitive else re.I,
-                        )
-                        idx = fields.index("kind")
-                        catalog_items = list(
-                            filter(
-                                lambda s: pat.match(s.split("\t")[idx]), catalog_items
+                        # filter kind and bounding office
+                        if bounding_office:
+                            pat = re.compile(
+                                cast(str, _pattern_to_regex(bounding_office)),
+                                0 if case_sensitive else re.I,
                             )
-                        )
-                        if not "kind" in specified_fields:
-                            fields.pop(idx)
-                            for i in range(len(catalog_items)):
-                                items = catalog_items[i].split("\t")
-                                items.pop(idx)
-                                catalog_items[i] = "\t".join(items)
+                            idx = fields.index("bounding-office")
+                            catalog_items = list(
+                                filter(
+                                    lambda s: pat.match(s.split(r"\t")[idx]),
+                                    catalog_items,
+                                )
+                            )
+                            if not "bounding-office" in specified_fields:
+                                fields.pop(idx)
+                                for i in range(len(catalog_items)):
+                                    items = catalog_items[i].split("\t")
+                                    items.pop(idx)
+                                    catalog_items[i] = "\t".join(items)
+                        if kind:
+                            pat = re.compile(
+                                cast(str, _pattern_to_regex(kind)),
+                                0 if case_sensitive else re.I,
+                            )
+                            idx = fields.index("kind")
+                            catalog_items = list(
+                                filter(
+                                    lambda s: pat.match(s.split("\t")[idx]),
+                                    catalog_items,
+                                )
+                            )
+                            if not "kind" in specified_fields:
+                                fields.pop(idx)
+                                for i in range(len(catalog_items)):
+                                    items = catalog_items[i].split("\t")
+                                    items.pop(idx)
+                                    catalog_items[i] = "\t".join(items)
 
             if catalog_items and _regex and case_sensitive and name_field is not None:
                 # API uses case insensitive matching
