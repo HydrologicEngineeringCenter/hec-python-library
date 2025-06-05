@@ -153,9 +153,7 @@ class TimeSeriesValue:
             value (Any): The value. Must be a UnitQuantity object or [convertible to a UnitQuantity](./unit.html#UnitQuantity.__init__) object
             quality (Union[Quality, int], optional): The quality code. Must be a Quality object or a valid quality integer. Defaults to 0.
         """
-        self._time = (
-            cast(HecTime, time.clone()) if isinstance(time, HecTime) else HecTime(time)
-        )
+        self._time = time.copy() if isinstance(time, HecTime) else HecTime(time)
         self._value = value if isinstance(value, UnitQuantity) else UnitQuantity(value)
         self._quality = Quality(quality)
 
@@ -558,7 +556,7 @@ class TimeSeries:
             # ------------------------------------ #
             # add a unitless scalar to time series #
             # ------------------------------------ #
-            other = self.clone()
+            other = self.copy()
             data = cast(pd.DataFrame, other._data)
             if other.has_selection:
                 data.loc[data["selected"], ["value"]] += amount
@@ -591,7 +589,7 @@ class TimeSeries:
                 that = cast(pd.DataFrame, amount.to("n/a")._data)
             else:
                 that = cast(pd.DataFrame, amount.to(self.unit)._data)
-            other = self.clone(include_data=False)
+            other = self.copy(include_data=False)
             other._data = pd.merge(
                 this[this["selected"]] if "selected" in this.columns else this,
                 that[that["selected"]] if "selected" in that.columns else that,
@@ -626,7 +624,7 @@ class TimeSeries:
             # ------------------------------------- #
             # divide time series by unitless scalar #
             # ------------------------------------- #
-            other = self.clone()
+            other = self.copy()
             data = cast(pd.DataFrame, other._data)
             if other.has_selection:
                 data.loc[data["selected"], ["value"]] //= amount
@@ -708,7 +706,7 @@ class TimeSeries:
                     ) from None
             this = self._data
             that = cast(pd.DataFrame, amount.to(to_unit)._data)
-            other = self.clone(include_data=False)
+            other = self.copy(include_data=False)
             other._data = pd.merge(
                 this[this["selected"]] if "selected" in this.columns else this,
                 that[that["selected"]] if "selected" in that.columns else that,
@@ -737,7 +735,7 @@ class TimeSeries:
             raise TimeSeriesException(
                 "Cannot index or slice into a TimeSeries object with no data"
             )
-        other = self.clone(include_data=False)
+        other = self.copy(include_data=False)
         if isinstance(key, slice):
             start, stop, step = key.start, key.stop, key.step
             if start:
@@ -760,7 +758,7 @@ class TimeSeries:
                         stop = None
                     else:
                         raise
-            other._data = self._data.loc[start:stop:step]  # type:ignore
+            other._data = self._data.loc[start:stop:step]
         else:
             other._data = cast(pd.DataFrame, self._data.loc[self.index_of(key)])
         return other
@@ -1418,7 +1416,7 @@ class TimeSeries:
             shape = self._data.shape
             return 1 if len(shape) == 1 else shape[0]
         else:
-            copy = self.clone()
+            copy = self.copy()
             copy.iexpand()
             shape = cast(pd.DataFrame, copy._data).shape
             return 1 if len(shape) == 1 else shape[0]
@@ -1429,7 +1427,7 @@ class TimeSeries:
         # ---------------------------- #
         if self._data is None:
             raise TimeSeriesException("Operation is invalid with empty time series.")
-        other: TimeSeries = self.clone()
+        other: TimeSeries = self.copy()
         if isinstance(amount, (TimeSpan)):
             offset = amount
         elif isinstance(amount, timedelta):
@@ -1462,7 +1460,7 @@ class TimeSeries:
             # -------------------------------------- #
             # mod time series with a unitless scalar #
             # -------------------------------------- #
-            other = self.clone()
+            other = self.copy()
             data = cast(pd.DataFrame, other._data)
             if other.has_selection:
                 data.loc[data["selected"], ["value"]] %= amount
@@ -1495,7 +1493,7 @@ class TimeSeries:
                 that = cast(pd.DataFrame, amount.to("n/a")._data)
             else:
                 that = cast(pd.DataFrame, amount.to(self.unit)._data)
-            other = self.clone(include_data=False)
+            other = self.copy(include_data=False)
             other._data = pd.merge(
                 this[this["selected"]] if "selected" in this.columns else this,
                 that[that["selected"]] if "selected" in that.columns else that,
@@ -1530,7 +1528,7 @@ class TimeSeries:
             # --------------------------------------- #
             # multiply time series by unitless scalar #
             # --------------------------------------- #
-            other = self.clone()
+            other = self.copy()
             data = cast(pd.DataFrame, other._data)
             if other.has_selection:
                 data.loc[data["selected"], ["value"]] *= amount
@@ -1612,7 +1610,7 @@ class TimeSeries:
                     ) from None
             this = self._data
             that = cast(pd.DataFrame, amount.to(to_unit)._data)
-            other = self.clone(include_data=False)
+            other = self.copy(include_data=False)
             other._data = pd.merge(
                 this[this["selected"]] if "selected" in this.columns else this,
                 that[that["selected"]] if "selected" in that.columns else that,
@@ -1642,7 +1640,7 @@ class TimeSeries:
         # ------------- #
         if self._data is None:
             raise TimeSeriesException("Operation is invalid with empty time series.")
-        other = self.clone()
+        other = self.copy()
         data = cast(pd.DataFrame, other._data)
         if other.has_selection:
             data.loc[data["selected"], ["value"]] *= -1
@@ -1666,7 +1664,7 @@ class TimeSeries:
             # ------------------------------------ #
             # raise time series by unitless scalar #
             # ------------------------------------ #
-            other = self.clone()
+            other = self.copy()
             data = cast(pd.DataFrame, other._data)
             if other.has_selection:
                 data.loc[data["selected"], ["value"]] **= amount
@@ -1695,7 +1693,7 @@ class TimeSeries:
                 )
             this = self._data
             that = cast(pd.DataFrame, amount.to("n/a")._data)
-            other = self.clone(include_data=False)
+            other = self.copy(include_data=False)
             other._data = pd.merge(
                 this[this["selected"]] if "selected" in this.columns else this,
                 that[that["selected"]] if "selected" in that.columns else that,
@@ -1730,7 +1728,7 @@ class TimeSeries:
         # -------------------------- #
         if self._data is None:
             raise TimeSeriesException("Operation is invalid with empty time series.")
-        other: TimeSeries = self.clone()
+        other: TimeSeries = self.copy()
         if isinstance(amount, (TimeSpan)):
             offset = amount
         elif isinstance(amount, timedelta):
@@ -1769,7 +1767,7 @@ class TimeSeries:
             # ------------------------------------------- #
             # subtract a unitless scalar from time series #
             # ------------------------------------------- #
-            other = self.clone()
+            other = self.copy()
             data = cast(pd.DataFrame, other._data)
             if other.has_selection:
                 data.loc[data["selected"], ["value"]] -= amount
@@ -1802,7 +1800,7 @@ class TimeSeries:
                 that = cast(pd.DataFrame, amount.to("n/a")._data)
             else:
                 that = cast(pd.DataFrame, amount.to(self.unit)._data)
-            other = self.clone(include_data=False)
+            other = self.copy(include_data=False)
             other._data = pd.merge(
                 this[this["selected"]] if "selected" in this.columns else this,
                 that[that["selected"]] if "selected" in that.columns else that,
@@ -1837,7 +1835,7 @@ class TimeSeries:
             # ------------------------------------- #
             # divide time series by unitless scalar #
             # ------------------------------------- #
-            other = self.clone()
+            other = self.copy()
             data = cast(pd.DataFrame, other._data)
             if other.has_selection:
                 data.loc[data["selected"], ["value"]] /= amount
@@ -1919,7 +1917,7 @@ class TimeSeries:
                     ) from None
             this = self._data
             that = cast(pd.DataFrame, amount.to(to_unit)._data)
-            other = self.clone(include_data=False)
+            other = self.copy(include_data=False)
             other._data = pd.merge(
                 this[this["selected"]] if "selected" in this.columns else this,
                 that[that["selected"]] if "selected" in that.columns else that,
@@ -2038,7 +2036,7 @@ class TimeSeries:
             self._validate()
 
     def _diff(self, time_based: bool, in_place: bool = False) -> "TimeSeries":
-        target = self if in_place else self.clone()
+        target = self if in_place else self.copy()
         if target._data is None:
             raise TimeSeriesException("Operation is invalid with empty time series.")
         if target.has_selection:
@@ -2116,7 +2114,7 @@ class TimeSeries:
         # ------------------------------ #
         # get the DataFrame to work with #
         # ------------------------------ #
-        target = self if in_place else self.clone()
+        target = self if in_place else self.copy()
         df = cast(pd.DataFrame, target._data)
         # --------------------------- #
         # first perform the averaging #
@@ -3345,7 +3343,7 @@ class TimeSeries:
             raise TimeSeriesException(
                 f"Cannot perform accumulate a {cast(ParameterType, self.parameter_type).name} time series."
             )
-        target = self if in_place else self.clone()
+        target = self if in_place else self.copy()
         if target._data is None:
             raise TimeSeriesException("Operation is invalid with empty time series.")
         if target.has_selection:
@@ -3565,7 +3563,7 @@ class TimeSeries:
             # ---------------------------------------- #
             # generate and return a result time series #
             # ---------------------------------------- #
-            ts = timeseries[0].clone(include_data=False)
+            ts = timeseries[0].copy(include_data=False)
             ts.ito("Code").version = "Aggregate"
             if func in (stat.stdev, stat.pstdev):
                 # ------------------------------------------------------------------#
@@ -3633,7 +3631,7 @@ class TimeSeries:
             "CENTERED", window, only_valid, use_reduced, in_place
         )
 
-    def clone(self, include_data: bool = True) -> "TimeSeries":
+    def copy(self, include_data: bool = True) -> "TimeSeries":
         """
         Creates a copy of this object, with or without data
 
@@ -3651,9 +3649,7 @@ class TimeSeries:
         other._duration = deepcopy(self._duration)
         other._version = self._version
         other._version_time = (
-            None
-            if self._version_time is None
-            else cast(HecTime, self._version_time.clone())
+            None if self._version_time is None else self._version_time.copy()
         )
         other._timezone = self._timezone
         if include_data and self._data is not None:
@@ -3682,11 +3678,11 @@ class TimeSeries:
         # short circuit for irregular time series #
         # --------------------------------------- #
         if self.is_any_irregular:
-            return self if in_place else self.clone()
+            return self if in_place else self.copy()
         # ------------------------------ #
         # get the DataFrame to work with #
         # ------------------------------ #
-        target = self if in_place else self.clone()
+        target = self if in_place else self.copy()
         df = cast(pd.DataFrame, target._data)  # does not recognize selection
         # --------------- #
         # set the results #
@@ -3739,7 +3735,7 @@ class TimeSeries:
             TimeSeries: The converted time series
         """
         tz = HecTime._get_zone_info_obj(time_zone)
-        target = self if in_place else self.clone()
+        target = self if in_place else self.copy()
         if target._data is not None:
             if not target._timezone:
                 localzone_name = tzlocal.get_localzone_name()
@@ -3864,7 +3860,7 @@ class TimeSeries:
         # ------------------------------ #
         # get the DataFrame to work with #
         # ------------------------------ #
-        target = self if in_place else self.clone()
+        target = self if in_place else self.copy()
         data = cast(pd.DataFrame, target._data)
         df = data.loc[data["selected"]] if self.has_selection else data
         df_protected = df.loc[
@@ -3985,7 +3981,7 @@ class TimeSeries:
         Returns:
             TimeSeries: The expanded time series
         """
-        target = self if in_place else self.clone()
+        target = self if in_place else self.copy()
         if self.is_any_regular and not target._expanded:
             if target._data is None or target._data.empty:
                 if start_time and end_time:
@@ -4049,7 +4045,7 @@ class TimeSeries:
         Returns:
             TimeSeries: The filtered time series
         """
-        target = self if in_place else self.clone()
+        target = self if in_place else self.copy()
         data = cast(pd.DataFrame, target._data)
         if target.has_selection:
             if unselected:
@@ -4938,7 +4934,7 @@ class TimeSeries:
             TimeSeries: The modified object
         """
         tz = HecTime._get_zone_info_obj(time_zone)
-        target = self if in_place else self.clone()
+        target = self if in_place else self.copy()
         if target._timezone:
             if tz and tz.key == target._timezone:
                 return target
@@ -5052,7 +5048,7 @@ class TimeSeries:
         """
         if self._data is None:
             raise TimeSeriesException("Operation is invalid with empty time series.")
-        target = self if in_place else self.clone()
+        target = self if in_place else self.copy()
         cast(pd.DataFrame, target._data)["value"] = cast(pd.DataFrame, target._data)[
             "value"
         ].map(func)
@@ -5133,7 +5129,7 @@ class TimeSeries:
         # ------------------------------ #
         # get the DataFrame to work with #
         # ------------------------------ #
-        target = self if in_place else self.clone()
+        target = self if in_place else self.copy()
         data = cast(
             pd.DataFrame, target._data
         )  # doesn't affect selection, can't overwrite protected rows
@@ -5393,7 +5389,7 @@ class TimeSeries:
                 f"Cannot generate a regular time series with the specified interval {intvl}"
             )
         ts.iset_interval(intvl)
-        specified_start_time: HecTime = cast(HecTime, start_time.clone())
+        specified_start_time: HecTime = start_time.copy()
         interval_offset: TimeSpan
         if offset is None:
             interval_offset = cast(
@@ -5679,7 +5675,7 @@ class TimeSeries:
             # ---------------------------------------- #
             # generate and return a result time series #
             # ---------------------------------------- #
-            ts = timeseries[0].clone(include_data=False)
+            ts = timeseries[0].copy(include_data=False)
             ts.ito("Code-Percentile").version = (
                 f"{str(pct).replace('.', '_')}-percentile"
             )
@@ -6078,7 +6074,7 @@ class TimeSeries:
         # ------------------------------ #
         # perform the resample operation #
         # ------------------------------ #
-        target = self if in_place else self.clone()
+        target = self if in_place else self.copy()
         is_discreet = _resample_operations[resample_operation]
         if is_discreet:
             self._resample_discreet(
@@ -6235,7 +6231,7 @@ class TimeSeries:
         # ------------------------------ #
         # get the DataFrame to work with #
         # ------------------------------ #
-        target = self if in_place else self.clone()
+        target = self if in_place else self.copy()
         data = cast(pd.DataFrame, target._data)
         df = data.loc[data["selected"]] if self.has_selection else data
         df_protected = df.loc[
@@ -6336,7 +6332,7 @@ class TimeSeries:
         # ------------------------------ #
         # get the DataFrame to work with #
         # ------------------------------ #
-        target = self if in_place else self.clone()
+        target = self if in_place else self.copy()
         data = cast(pd.DataFrame, target._data)
         df = data.loc[data["selected"]] if self.has_selection else data
         df_protected = df.loc[
@@ -6434,7 +6430,7 @@ class TimeSeries:
         # ------------------------------ #
         # get the DataFrame to work with #
         # ------------------------------ #
-        target = self if in_place else self.clone()
+        target = self if in_place else self.copy()
         data = cast(pd.DataFrame, target._data)
         df = data.loc[data["selected"]] if self.has_selection else data
         df_protected = df.loc[
@@ -6560,7 +6556,7 @@ class TimeSeries:
         # ------------------------------ #
         # get the DataFrame to work with #
         # ------------------------------ #
-        target = self if in_place else self.clone()
+        target = self if in_place else self.copy()
         data = cast(pd.DataFrame, target._data)
         data["value_diff"] = data["value"].diff()
         data["minutes_diff"] = data.index.to_series().diff().dt.total_seconds() / 60
@@ -6713,7 +6709,7 @@ class TimeSeries:
         # ------------------------------ #
         # get the DataFrame to work with #
         # ------------------------------ #
-        target = self if in_place else self.clone()
+        target = self if in_place else self.copy()
         data = cast(pd.DataFrame, target._data)
         df = data.loc[data["selected"]] if self.has_selection else data
         # ---------------- #
@@ -6838,7 +6834,7 @@ class TimeSeries:
         # ------------------------------ #
         # get the DataFrame to work with #
         # ------------------------------ #
-        target = self if in_place else self.clone()
+        target = self if in_place else self.copy()
         data = cast(pd.DataFrame, target._data)
         df = data.loc[data["selected"]] if self.has_selection else data
         # ---------------- #
@@ -6982,7 +6978,7 @@ class TimeSeries:
         """
         if self._data is None:
             raise TimeSeriesException("Operation is invalid with empty time series.")
-        target = self if in_place else self.clone()
+        target = self if in_place else self.copy()
         data = cast(pd.DataFrame, target._data)
         if isinstance(selection, Select):
             # ---------------- #
@@ -7116,7 +7112,7 @@ class TimeSeries:
         """
         if self._data is None:
             raise TimeSeriesException("Operation is invalid with empty time series.")
-        target = self if in_place else self.clone()
+        target = self if in_place else self.copy()
         data = cast(pd.DataFrame, target._data)
         data.loc[:, "selected"] = data.index.isin(TimeSeries._valid_indices(data))
         return target
@@ -7168,7 +7164,7 @@ class TimeSeries:
         Returns:
             TimeSeries: The modified time series
         """
-        target = self if in_place else self.clone()
+        target = self if in_place else self.copy()
         if isinstance(value, Duration):
             target._duration = value
         else:
@@ -7192,7 +7188,7 @@ class TimeSeries:
         Returns:
             TimeSeries: The modified time series
         """
-        target = self if in_place else self.clone()
+        target = self if in_place else self.copy()
         if isinstance(value, Interval):
             target._interval = value
         else:
@@ -7219,7 +7215,7 @@ class TimeSeries:
         Returns:
             TimeSeries: The modified time series
         """
-        target = self if in_place else self.clone()
+        target = self if in_place else self.copy()
         if isinstance(value, Location):
             target._location = value
         else:
@@ -7251,7 +7247,7 @@ class TimeSeries:
         Returns:
             TimeSeries: The modified time series
         """
-        target = self if in_place else self.clone()
+        target = self if in_place else self.copy()
         if isinstance(value, Parameter):
             target._parameter = value
         else:
@@ -7274,7 +7270,7 @@ class TimeSeries:
         Returns:
             TimeSeries: The modified object
         """
-        target = self if in_place else self.clone()
+        target = self if in_place else self.copy()
         if isinstance(value, ParameterType):
             target._parameter_type = value
         else:
@@ -7301,7 +7297,7 @@ class TimeSeries:
         # ------------------------------ #
         # get the DataFrame to work with #
         # ------------------------------ #
-        target = self if in_place else self.clone()
+        target = self if in_place else self.copy()
         data = cast(pd.DataFrame, target._data)
         df = data.loc[data["selected"]] if target.has_selection else data
         # -------------------------------------------- #
@@ -7333,7 +7329,7 @@ class TimeSeries:
         # ------------------------------ #
         # get the DataFrame to work with #
         # ------------------------------ #
-        target = self if in_place else self.clone()
+        target = self if in_place else self.copy()
         data = cast(pd.DataFrame, target._data)
         df = data.loc[data["selected"]] if self.has_selection else data
         df.loc[:, "quality"] = df["quality"] & 0b0111_1111_1111_1111_1111_1111_1111_1111
@@ -7358,7 +7354,7 @@ class TimeSeries:
         Returns:
             TimeSeries: The modified object
         """
-        target = self if in_place else self.clone()
+        target = self if in_place else self.copy()
         data = cast(pd.DataFrame, target._data)
         if target.has_selection:
             data.loc[data["selected"], ["quality"]] = Quality(quality).code
@@ -7413,7 +7409,7 @@ class TimeSeries:
         Returns:
             TimeSeries: The modified time series
         """
-        target = self if in_place else self.clone()
+        target = self if in_place else self.copy()
         if isinstance(value, Unit):
             if target._parameter.unit.dimensionality != Unit.dimensionality:
                 raise TimeSeriesException(
@@ -7439,7 +7435,7 @@ class TimeSeries:
         Returns:
             TimeSeries: The modified object
         """
-        target = self if in_place else self.clone()
+        target = self if in_place else self.copy()
         data = cast(pd.DataFrame, target._data)
         if target.has_selection:
             data.loc[data["selected"], ["value"]] = value
@@ -7466,7 +7462,7 @@ class TimeSeries:
         Returns:
             TimeSeries: The modified object
         """
-        target = self if in_place else self.clone()
+        target = self if in_place else self.copy()
         data = cast(pd.DataFrame, target._data)
         if target.has_selection:
             data.loc[data["selected"], ["value"]] = value
@@ -7501,7 +7497,7 @@ class TimeSeries:
         Returns:
             TimeSeries: The modified time series
         """
-        target = self if in_place else self.clone()
+        target = self if in_place else self.copy()
         if target._parameter.base_parameter == "Elev":
             target._parameter = ElevParameter(target._parameter.name, value)
         else:
@@ -7579,7 +7575,7 @@ class TimeSeries:
         # ----------------- #
         # handle parameters #
         # ----------------- #
-        target = self if in_place else self.clone()
+        target = self if in_place else self.copy()
         intvl: Optional[Interval] = None
         ofst: Optional[TimeSpan] = None
         back: Optional[TimeSpan] = None
@@ -7808,7 +7804,7 @@ class TimeSeries:
         Returns:
             TimeSeries: The converted object
         """
-        target = self if in_place else self.clone()
+        target = self if in_place else self.copy()
         if isinstance(
             unit_parameter_or_datum, str
         ) and hec.parameter._all_datums_pattern.match(unit_parameter_or_datum):
@@ -7895,7 +7891,7 @@ class TimeSeries:
         Returns:
             TimeSeries: The modified time series
         """
-        target = self if in_place else self.clone()
+        target = self if in_place else self.copy()
         intvl: Optional[Interval] = None
         if isinstance(interval, str):
             if self._context == DSS:
@@ -7958,11 +7954,11 @@ class TimeSeries:
         # short circuit for irregular time series #
         # --------------------------------------- #
         if self.is_any_irregular:
-            return self if in_place else self.clone()
+            return self if in_place else self.copy()
         # ------------------------------ #
         # get the DataFrame to work with #
         # ------------------------------ #
-        target = self if in_place else self.clone()
+        target = self if in_place else self.copy()
         df = cast(pd.DataFrame, target._data)  # does not recognize selection
         # --------------- #
         # set the results #

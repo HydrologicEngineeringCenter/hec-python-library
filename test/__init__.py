@@ -1,5 +1,4 @@
-"""Testing package for hec modules
-"""
+"""Testing package for hec modules"""
 
 __all__ = [
     "shared",

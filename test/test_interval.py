@@ -1,5 +1,4 @@
-"""Module for testing hec.interval module
-"""
+"""Module for testing hec.interval module"""
 
 import datetime
 import sys
@@ -234,7 +233,7 @@ def generate_one_expected_data(
         f"{interval.name},{start_time},{end_time},{count},{offset},{time_zone}\n"
     )
     l_ts1 = datetime.datetime.now()
-    l_start_time = cast(HecTime, start_time.clone()).label_as_time_zone(time_zone)
+    l_start_time = start_time.copy().label_as_time_zone(time_zone)
     l_start_time.midnight_as_2400 = False
     l_interval = (
         Interval.get_any(lambda i: i.minutes == interval.minutes and i.is_regular)
@@ -243,7 +242,7 @@ def generate_one_expected_data(
     )
     assert l_interval is not None
     if end_time is not None:
-        l_end_time = cast(HecTime, end_time.clone()).label_as_time_zone(time_zone)
+        l_end_time = end_time.copy().label_as_time_zone(time_zone)
         l_end_time.midnight_as_2400 = False
         l_start_minutes = cast(int, l_start_time.julian()) * 1440 + cast(
             int, l_start_time.minutes_since_midnight()
@@ -274,10 +273,7 @@ def generate_one_expected_data(
             l_first_time = l_first_time.convert_to_time_zone("UTC")
             if l_end_time is not None:
                 l_end_time = l_end_time.convert_to_time_zone("UTC")
-    l_hectimes = [
-        cast(HecTime, l_first_time.clone()).increment(i, l_interval)
-        for i in range(l_count)
-    ]
+    l_hectimes = [l_first_time.copy().increment(i, l_interval) for i in range(l_count)]
     if l_end_time is not None:
         while l_hectimes[-1] > l_end_time:
             l_hectimes.pop()
@@ -309,9 +305,7 @@ def generate_datetime_index_expected_data() -> None:
             HecTime("2025-01-31T08:00:00"),
         ):
             l_count = 20 if l_interval.minutes < 3650 * 1440 else 2
-            l_end_time = cast(HecTime, l_start_time.clone()).increment(
-                l_count, l_interval
-            )
+            l_end_time = l_start_time.copy().increment(l_count, l_interval)
             for l_offset in (
                 None,
                 0,

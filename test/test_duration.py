@@ -1,5 +1,4 @@
-"""Module for testing hec.duration module
-"""
+"""Module for testing hec.duration module"""
 
 from hec import Duration, Interval
 

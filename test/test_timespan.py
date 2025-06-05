@@ -1,5 +1,4 @@
-"""Module for testing hec.timespan module
-"""
+"""Module for testing hec.timespan module"""
 
 from datetime import timedelta
 from fractions import Fraction

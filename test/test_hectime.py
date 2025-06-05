@@ -1,5 +1,4 @@
-"""Module for testing hec.hectime module
-"""
+"""Module for testing hec.hectime module"""
 
 import os
 import time
@@ -746,108 +745,108 @@ def test_add_subtract_compare() -> None:
         assert ht3.values == list(map(int, str(ht3)[:19].translate(table).split()))
 
         # in-place addition across DST boundary
-        ht2 = cast(HecTime, ht.clone())
+        ht2 = ht.copy()
         ht2 += 1440
         assert str(ht2) == times[season]["next"]
         assert ht2.values == list(map(int, str(ht2)[:19].translate(table).split()))
-        ht3 = cast(HecTime, ht2.clone())
+        ht3 = ht2.copy()
         ht3 -= 1440
         assert isinstance(ht3, HecTime)
         assert str(ht3) == times[season]["start"]
         assert ht3.values == list(map(int, str(ht3)[:19].translate(table).split()))
 
-        ht2 = cast(HecTime, ht.clone())
+        ht2 = ht.copy()
         ht2 += TimeSpan(days=1)
         assert str(ht2) == times[season]["next"]
         assert ht2.values == list(map(int, str(ht2)[:19].translate(table).split()))
-        ht3 = cast(HecTime, ht2.clone())
+        ht3 = ht2.copy()
         ht3 -= TimeSpan(days=1)
         assert str(ht3) == times[season]["start"]
         assert isinstance(ht3, HecTime)
         assert ht3.values == list(map(int, str(ht3)[:19].translate(table).split()))
 
-        ht2 = cast(HecTime, ht.clone())
+        ht2 = ht.copy()
         ht2 += timedelta(days=1)
         assert str(ht2) == times[season]["next"]
         assert ht2.values == list(map(int, str(ht2)[:19].translate(table).split()))
-        ht3 = cast(HecTime, ht2.clone())
+        ht3 = ht2.copy()
         ht3 -= timedelta(days=1)
         assert isinstance(ht3, HecTime)
         assert str(ht3) == times[season]["start"]
         assert ht3.values == list(map(int, str(ht3)[:19].translate(table).split()))
 
-        ht2 = cast(HecTime, ht.clone())
+        ht2 = ht.copy()
         ht2 += "1D"
         assert str(ht2) == times[season]["next"]
         assert ht2.values == list(map(int, str(ht2)[:19].translate(table).split()))
-        ht3 = cast(HecTime, ht2.clone())
+        ht3 = ht2.copy()
         ht3 -= "1D"
         assert isinstance(ht3, HecTime)
         assert str(ht3) == times[season]["start"]
         assert ht3.values == list(map(int, str(ht3)[:19].translate(table).split()))
 
-        ht2 = cast(HecTime, ht.clone())
+        ht2 = ht.copy()
         ht2 += Interval.get_cwms("1Day")
         assert str(ht2) == times[season]["next"]
         assert ht2.values == list(map(int, str(ht2)[:19].translate(table).split()))
-        ht3 = cast(HecTime, ht2.clone())
+        ht3 = ht2.copy()
         ht3 -= Interval.get_cwms("1Day")
         assert isinstance(ht3, HecTime)
         assert str(ht3) == times[season]["start"]
         assert ht3.values == list(map(int, str(ht3)[:19].translate(table).split()))
 
-        ht2 = cast(HecTime, ht.clone())
+        ht2 = ht.copy()
         ht2 += Interval.get_any_cwms(lambda i: i.minutes == 1440 and i.is_local_regular)
         assert str(ht2) == times[season]["next_local"]
         assert ht2.values == list(map(int, str(ht2)[:19].translate(table).split()))
-        ht3 = cast(HecTime, ht2.clone())
+        ht3 = ht2.copy()
         ht3 -= Interval.get_any_cwms(lambda i: i.minutes == 1440 and i.is_local_regular)
         assert isinstance(ht3, HecTime)
         assert str(ht3) == times[season]["start"]
         assert ht3.values == list(map(int, str(ht3)[:19].translate(table).split()))
 
         # increment addition across DST boundary
-        ht2 = cast(HecTime, ht.clone())
+        ht2 = ht.copy()
         ht2.increment(1, 1440)
         assert str(ht2) == times[season]["next"]
         assert ht2.values == list(map(int, str(ht2)[:19].translate(table).split()))
-        ht3 = cast(HecTime, ht2.clone())
+        ht3 = ht2.copy()
         ht3.increment(-1, 1440)
         assert isinstance(ht3, HecTime)
         assert str(ht3) == times[season]["start"]
         assert ht3.values == list(map(int, str(ht3)[:19].translate(table).split()))
 
-        ht2 = cast(HecTime, ht.clone())
+        ht2 = ht.copy()
         ht2.increment(1, TimeSpan(days=1))
         assert str(ht2) == times[season]["next"]
         assert ht2.values == list(map(int, str(ht2)[:19].translate(table).split()))
-        ht3 = cast(HecTime, ht2.clone())
+        ht3 = ht2.copy()
         ht3.increment(-1, TimeSpan(days=1))
         assert isinstance(ht3, HecTime)
         assert str(ht3) == times[season]["start"]
         assert ht3.values == list(map(int, str(ht3)[:19].translate(table).split()))
 
-        ht2 = cast(HecTime, ht.clone())
+        ht2 = ht.copy()
         ht2.increment(1, timedelta(days=1))
         assert str(ht2) == times[season]["next"]
         assert ht2.values == list(map(int, str(ht2)[:19].translate(table).split()))
-        ht3 = cast(HecTime, ht2.clone())
+        ht3 = ht2.copy()
         ht3.increment(-1, timedelta(days=1))
         assert isinstance(ht3, HecTime)
         assert str(ht3) == times[season]["start"]
         assert ht3.values == list(map(int, str(ht3)[:19].translate(table).split()))
 
-        ht2 = cast(HecTime, ht.clone())
+        ht2 = ht.copy()
         ht2.increment(1, Interval.get_cwms("1Day"))
         assert str(ht2) == times[season]["next"]
         assert ht2.values == list(map(int, str(ht2)[:19].translate(table).split()))
-        ht3 = cast(HecTime, ht2.clone())
+        ht3 = ht2.copy()
         ht3.increment(-1, Interval.get_cwms("1Day"))
         assert isinstance(ht3, HecTime)
         assert str(ht3) == times[season]["start"]
         assert ht3.values == list(map(int, str(ht3)[:19].translate(table).split()))
 
-        ht2 = cast(HecTime, ht.clone())
+        ht2 = ht.copy()
         intvl = Interval.get_any_cwms(
             lambda i: i.minutes == 1440 and i.is_local_regular
         )
@@ -856,7 +855,7 @@ def test_add_subtract_compare() -> None:
         print(f"{season}\t{ht2}\t{intvl}")
         assert str(ht2) == times[season]["next_local"]
         assert ht2.values == list(map(int, str(ht2)[:19].translate(table).split()))
-        ht3 = cast(HecTime, ht2.clone())
+        ht3 = ht2.copy()
         ht3.increment(-1, intvl)
         assert isinstance(ht3, HecTime)
         assert str(ht3) == times[season]["start"]
