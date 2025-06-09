@@ -18,6 +18,7 @@ Cond	Conductivity	Ability of an aqueous solution to conduct electricity	umho/cm	
 Count	Count	Progressive sum of items enumerated one by one or group by group.	unit	unit	True
 Currency	Currency	Economic value expressed as currency/money	$	$	True
 Current	Current	Electric current flowing past a point in a circuit	ampere	ampere	False
+Date	Coded Date-Time	Date and/or time encoded as a number	n/a	n/a	False
 Depth	Depth	Depth of any form of water above the ground surface	in	mm	False		Speed	0.056818182	0.0036
 DepthVelocity	Depth Velocity	Depth Velocity	ft2/s	m2/s	False	Area
 Dir	Direction	Map direction specified clockwise from North	deg	deg	False

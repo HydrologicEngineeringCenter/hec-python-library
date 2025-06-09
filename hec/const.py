@@ -28,6 +28,32 @@ class Combine(Enum):
     XOR = 4
 
 
+class PercentileMethods(Enum):
+    """
+    Enumeration of methods for computing percentiles
+
+    * `HECMATH`: is used only in [TimeSeries.cyclic_analysys()](timeseries.html#TimeSeries.cyclic_analysis) and specifies using the Java HecMath algorithm for computing
+        the percentiles in the cyclic analysis statistics.
+    * Others: See the [NumPy docs](https://numpy.org/doc/stable/reference/generated/numpy.percentile.html) for descriptions
+
+    """
+
+    HECMATH = 0
+    AVERAGED_INVERTED_CDF = 1
+    CLOSEST_OBSERVATION = 2
+    HAZEN = 3
+    HIGHER = 4
+    INTERPOLATED_INVERTED_CDF = 5
+    INVERTED_CDF = 6
+    LINEAR = 7
+    LOWER = 8
+    MEDIAN_UNBIASED = 9
+    MIDPOINT = 10
+    NEAREST = 11
+    NORMAL_UNBIASED = 12
+    WEIBULL = 13
+
+
 class Safety(Enum):
     """
     Enumeration for specifying behavior of potentially unsafe operations.

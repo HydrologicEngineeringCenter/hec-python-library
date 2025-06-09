@@ -61,6 +61,54 @@
 
             </li>
             <li>
+                    <a class="class" href="#PercentileMethods">PercentileMethods</a>
+                            <ul class="memberlist">
+                        <li>
+                                <a class="variable" href="#PercentileMethods.HECMATH">HECMATH</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#PercentileMethods.AVERAGED_INVERTED_CDF">AVERAGED_INVERTED_CDF</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#PercentileMethods.CLOSEST_OBSERVATION">CLOSEST_OBSERVATION</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#PercentileMethods.HAZEN">HAZEN</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#PercentileMethods.HIGHER">HIGHER</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#PercentileMethods.INTERPOLATED_INVERTED_CDF">INTERPOLATED_INVERTED_CDF</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#PercentileMethods.INVERTED_CDF">INVERTED_CDF</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#PercentileMethods.LINEAR">LINEAR</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#PercentileMethods.LOWER">LOWER</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#PercentileMethods.MEDIAN_UNBIASED">MEDIAN_UNBIASED</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#PercentileMethods.MIDPOINT">MIDPOINT</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#PercentileMethods.NEAREST">NEAREST</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#PercentileMethods.NORMAL_UNBIASED">NORMAL_UNBIASED</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#PercentileMethods.WEIBULL">WEIBULL</a>
+                        </li>
+                </ul>
+
+            </li>
+            <li>
                     <a class="class" href="#Safety">Safety</a>
                             <ul class="memberlist">
                         <li>
@@ -239,6 +287,195 @@
         
     </div>
     <a class="headerlink" href="#Combine.XOR"></a>
+    
+    
+
+                            </div>
+                </section>
+                <section id="PercentileMethods">
+                    <div class="attr class">
+            
+    <span class="def">class</span>
+    <span class="name">PercentileMethods</span><wbr>(<span class="base">enum.Enum</span>):
+
+        
+    </div>
+    <a class="headerlink" href="#PercentileMethods"></a>
+    
+            <div class="docstring"><p>Enumeration of methods for computing percentiles</p>
+
+<ul>
+<li><code><a href="#PercentileMethods.HECMATH">HECMATH</a></code>: is used only in <a href="timeseries.html#TimeSeries.cyclic_analysis">TimeSeries.cyclic_analysys()</a> and specifies using the Java HecMath algorithm for computing
+the percentiles in the cyclic analysis statistics.</li>
+<li>Others: See the <a href="https://numpy.org/doc/stable/reference/generated/numpy.percentile.html">NumPy docs</a> for descriptions</li>
+</ul>
+</div>
+
+
+                            <div id="PercentileMethods.HECMATH" class="classattr">
+                                <div class="attr variable">
+            <span class="name">HECMATH</span>        =
+<span class="default_value">&lt;<a href="#PercentileMethods.HECMATH">PercentileMethods.HECMATH</a>: 0&gt;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#PercentileMethods.HECMATH"></a>
+    
+    
+
+                            </div>
+                            <div id="PercentileMethods.AVERAGED_INVERTED_CDF" class="classattr">
+                                <div class="attr variable">
+            <span class="name">AVERAGED_INVERTED_CDF</span>        =
+<span class="default_value">&lt;<a href="#PercentileMethods.AVERAGED_INVERTED_CDF">PercentileMethods.AVERAGED_INVERTED_CDF</a>: 1&gt;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#PercentileMethods.AVERAGED_INVERTED_CDF"></a>
+    
+    
+
+                            </div>
+                            <div id="PercentileMethods.CLOSEST_OBSERVATION" class="classattr">
+                                <div class="attr variable">
+            <span class="name">CLOSEST_OBSERVATION</span>        =
+<span class="default_value">&lt;<a href="#PercentileMethods.CLOSEST_OBSERVATION">PercentileMethods.CLOSEST_OBSERVATION</a>: 2&gt;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#PercentileMethods.CLOSEST_OBSERVATION"></a>
+    
+    
+
+                            </div>
+                            <div id="PercentileMethods.HAZEN" class="classattr">
+                                <div class="attr variable">
+            <span class="name">HAZEN</span>        =
+<span class="default_value">&lt;<a href="#PercentileMethods.HAZEN">PercentileMethods.HAZEN</a>: 3&gt;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#PercentileMethods.HAZEN"></a>
+    
+    
+
+                            </div>
+                            <div id="PercentileMethods.HIGHER" class="classattr">
+                                <div class="attr variable">
+            <span class="name">HIGHER</span>        =
+<span class="default_value">&lt;<a href="#PercentileMethods.HIGHER">PercentileMethods.HIGHER</a>: 4&gt;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#PercentileMethods.HIGHER"></a>
+    
+    
+
+                            </div>
+                            <div id="PercentileMethods.INTERPOLATED_INVERTED_CDF" class="classattr">
+                                <div class="attr variable">
+            <span class="name">INTERPOLATED_INVERTED_CDF</span>        =
+<span class="default_value">&lt;<a href="#PercentileMethods.INTERPOLATED_INVERTED_CDF">PercentileMethods.INTERPOLATED_INVERTED_CDF</a>: 5&gt;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#PercentileMethods.INTERPOLATED_INVERTED_CDF"></a>
+    
+    
+
+                            </div>
+                            <div id="PercentileMethods.INVERTED_CDF" class="classattr">
+                                <div class="attr variable">
+            <span class="name">INVERTED_CDF</span>        =
+<span class="default_value">&lt;<a href="#PercentileMethods.INVERTED_CDF">PercentileMethods.INVERTED_CDF</a>: 6&gt;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#PercentileMethods.INVERTED_CDF"></a>
+    
+    
+
+                            </div>
+                            <div id="PercentileMethods.LINEAR" class="classattr">
+                                <div class="attr variable">
+            <span class="name">LINEAR</span>        =
+<span class="default_value">&lt;<a href="#PercentileMethods.LINEAR">PercentileMethods.LINEAR</a>: 7&gt;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#PercentileMethods.LINEAR"></a>
+    
+    
+
+                            </div>
+                            <div id="PercentileMethods.LOWER" class="classattr">
+                                <div class="attr variable">
+            <span class="name">LOWER</span>        =
+<span class="default_value">&lt;<a href="#PercentileMethods.LOWER">PercentileMethods.LOWER</a>: 8&gt;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#PercentileMethods.LOWER"></a>
+    
+    
+
+                            </div>
+                            <div id="PercentileMethods.MEDIAN_UNBIASED" class="classattr">
+                                <div class="attr variable">
+            <span class="name">MEDIAN_UNBIASED</span>        =
+<span class="default_value">&lt;<a href="#PercentileMethods.MEDIAN_UNBIASED">PercentileMethods.MEDIAN_UNBIASED</a>: 9&gt;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#PercentileMethods.MEDIAN_UNBIASED"></a>
+    
+    
+
+                            </div>
+                            <div id="PercentileMethods.MIDPOINT" class="classattr">
+                                <div class="attr variable">
+            <span class="name">MIDPOINT</span>        =
+<span class="default_value">&lt;<a href="#PercentileMethods.MIDPOINT">PercentileMethods.MIDPOINT</a>: 10&gt;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#PercentileMethods.MIDPOINT"></a>
+    
+    
+
+                            </div>
+                            <div id="PercentileMethods.NEAREST" class="classattr">
+                                <div class="attr variable">
+            <span class="name">NEAREST</span>        =
+<span class="default_value">&lt;<a href="#PercentileMethods.NEAREST">PercentileMethods.NEAREST</a>: 11&gt;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#PercentileMethods.NEAREST"></a>
+    
+    
+
+                            </div>
+                            <div id="PercentileMethods.NORMAL_UNBIASED" class="classattr">
+                                <div class="attr variable">
+            <span class="name">NORMAL_UNBIASED</span>        =
+<span class="default_value">&lt;<a href="#PercentileMethods.NORMAL_UNBIASED">PercentileMethods.NORMAL_UNBIASED</a>: 12&gt;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#PercentileMethods.NORMAL_UNBIASED"></a>
+    
+    
+
+                            </div>
+                            <div id="PercentileMethods.WEIBULL" class="classattr">
+                                <div class="attr variable">
+            <span class="name">WEIBULL</span>        =
+<span class="default_value">&lt;<a href="#PercentileMethods.WEIBULL">PercentileMethods.WEIBULL</a>: 13&gt;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#PercentileMethods.WEIBULL"></a>
     
     
 

@@ -1054,18 +1054,29 @@ class DssDataStore(AbstractDataStore):
             obj.values[mask] = np.nan
             ts = TimeSeries(obj.id)
             ts.iset_parameter_type(obj.data_type)
-            ts.iset_unit(obj.units)
+            try:
+                ts.iset_unit(obj.units)
+            except:
+                ts.iset_unit(ts.parameter.unit_name)
+                warnings.warn(
+                    f"HEC-DSS record unit '{obj.units}' is invalid for base parameter '{ts.parameter.basename}', used '{ts.unit}' instead",
+                    UserWarning,
+                )
             df = pd.DataFrame(
                 {
                     "value": list(obj.values),
                     "quality": obj.quality if obj.quality else len(obj.times) * [0],
                 },
-                index=pd.Index(obj.times, name="time"),
+                index=pd.DatetimeIndex(obj.times, name="time"),
             )
             df.loc[df["value"].isna(), "quality"] = 5
             if isinstance(obj, IrregularTimeSeries):
                 df = df[(~df["value"].isna())]
             ts._data = df
+            if obj.time_zone_name:
+                if not cast(pd.DatetimeIndex, ts._data.index).tzinfo:
+                    ts._data.tz_localize(obj.time_zone_name)
+                ts._timezone = str(cast(pd.DatetimeIndex, ts._data.index).tzinfo)
             return ts
         else:
             raise TypeError(f"Retrieving {type(obj).__name__} objects is not supported")
@@ -1118,6 +1129,7 @@ class DssDataStore(AbstractDataStore):
             ts.id = obj.name
             data = cast(pd.DataFrame, obj.data)
             ts.times = pd.to_datetime(data.index).tz_localize(None).tolist()
+            ts.time_zone_name = obj.time_zone if obj.time_zone else ""
             ts.values = data["value"].fillna(UNDEFINED).tolist()
             ts.quality = data["quality"].tolist()
             ts.units = obj.unit
@@ -1799,7 +1811,7 @@ class CwmsDataStore(AbstractDataStore):
                     "value": [100.0],
                     "quality": [0],
                 },
-                index=pd.Index([now.datetime()], name="time"),
+                index=pd.DatetimeIndex([now.datetime()], name="time"),
             )
             # ----------------------------------- #
             # 1. store the elevation time seires  #
@@ -2829,7 +2841,7 @@ class CwmsDataStore(AbstractDataStore):
                     "value": [100.0],
                     "quality": [0],
                 },
-                index=pd.Index([now.datetime()], name="time"),
+                index=pd.DatetimeIndex([now.datetime()], name="time"),
             )
             # ------------------------------------------------------ #
             # 1. store the elevation time seires                     #
