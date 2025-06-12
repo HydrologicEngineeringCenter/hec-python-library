@@ -97,6 +97,9 @@
                                 <a class="function" href="#TimeSeries.convert_to_time_zone">convert_to_time_zone</a>
                         </li>
                         <li>
+                                <a class="function" href="#TimeSeries.cyclic_analysis">cyclic_analysis</a>
+                        </li>
+                        <li>
                                 <a class="variable" href="#TimeSeries.data">data</a>
                         </li>
                         <li>
@@ -1339,6 +1342,85 @@ Use <code>"local"</code> to specify the system time zone.</li>
 
 <blockquote>
   <p>TimeSeries: The converted time series</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="TimeSeries.cyclic_analysis" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">cyclic_analysis</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;linear&#39;</span></span><span class="return-annotation">) -> <span class="nb">list</span><span class="p">[</span><span class="n"><a href="#TimeSeries">TimeSeries</a></span><span class="p">]</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#TimeSeries.cyclic_analysis"></a>
+    
+            <div class="docstring"><p>Generates cyclic analysis statistics on this TimeSeries.</p>
+
+<p>The time series must have an interval of 1Hour, 1Day or 1Month. In all cases the statistics are computed for a 1 year cycle reported as year 2100:
+    * 1Hour: Statistics are computed on 8760 1-hour bins
+    * 1Day: Statistics are computed on 365 1-day bins
+    * 1Month: Statistics are computed on 12 1-month bins</p>
+
+<p>The statistics returned are (in order):</p>
+
+<pre><code><ol>
+<li>Count of valid values in each bin</li>
+<li>Date/time of maximum value in each bin</li>
+<li>Date/Time of minimum value in each bin</li>
+<li>The average (arithmetic mean) of the values in each bin</li>
+<li>The maximum value each bin</li>
+<li>The minimum value each bin</li>
+<li>The 5th percentile value each bin computed according to the specified method</li>
+<li>The 10th percentile value each bin computed according to the specified method</li>
+<li>The 25th percentile value each bin computed according to the specified method</li>
+<li>The 50th percentile value each bin computed according to the specified method</li>
+<li>The 75th percentile value each bin computed according to the specified method</li>
+<li>The 90th percentile value each bin computed according to the specified method</li>
+<li>The 95th percentile value each bin computed according to the specified method</li>
+<li>The standard deviation of the values in each bin</li>
+</ol>
+</code></pre>
+
+<p>The values for date/time statistics are the year of the min or max value (Java code uses yyyy.mmdd on 1Hour statistics).</p>
+
+<p>The report year is 2100. The Java code report year of 3000 is not used due to current limitations of the pandas.DatetimeIndex type.</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>method (str):</strong>  The method to use for generating the probability statistics. Must be one of the following. Defaults to 'linear'.</li>
+<li><strong>* 'hecmath':</strong>  Specifies using the alorithm used in the Java <code>hec.hecmath.TimeSeriesMath.cyclicAnalysis()</code> method, which performs a version of nearest-rank percentile.</li>
+<li><strong>* others:</strong>  Specify the NumPy method to use for <a href="https://numpy.org/doc/stable/reference/generated/numpy.percentile.html">numpy.percentile()</a>. Must be one of
+<ul>
+<li>'averaged_inverted_cdf'</li>
+<li>'closest_observation'</li>
+<li>'hazen'</li>
+<li>'higher'</li>
+<li>'interpolated_inverted_cdf'</li>
+<li>'inverted_cdf'</li>
+<li>'linear'</li>
+<li>'lower'</li>
+<li>'median_unbiased'</li>
+<li>'midpoint '</li>
+<li>'nearest'</li>
+<li>'normal_unbiased'</li>
+<li>'weibull'</li>
+</ul></li>
+</ul>
+
+<h6 id="raises">Raises:</h6>
+
+<ul>
+<li><strong>TimeSeriesException:</strong>  if the time series is empty or an invalid method is specified.</li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>list[TimeSeries]: The 14 time series containing the cyclic analysis statistics</p>
 </blockquote>
 </div>
 

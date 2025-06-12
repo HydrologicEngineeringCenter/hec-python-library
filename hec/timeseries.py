@@ -22,7 +22,7 @@ from pint import Unit
 import hec.hectime
 import hec.parameter
 import hec.unit
-from hec.const import CWMS, DSS, Combine, Select, SelectionState
+from hec.const import CWMS, DSS, Combine, PercentileMethods, Select, SelectionState
 from hec.duration import Duration
 from hec.hectime import HecTime
 from hec.interval import Interval
@@ -3762,6 +3762,282 @@ class TimeSeries:
         target._timezone = str(tz)
         return target
 
+    def cyclic_analysis(self, method: str = "linear") -> list["TimeSeries"]:
+        """
+        Generates cyclic analysis statistics on this TimeSeries.
+
+        The time series must have an interval of 1Hour, 1Day or 1Month. In all cases the statistics are computed for a 1 year cycle reported as year 2100:
+            * 1Hour: Statistics are computed on 8760 1-hour bins
+            * 1Day: Statistics are computed on 365 1-day bins
+            * 1Month: Statistics are computed on 12 1-month bins
+
+        The statistics returned are (in order):
+            <ol>
+            <li>Count of valid values in each bin</li>
+            <li>Date/time of maximum value in each bin</li>
+            <li>Date/Time of minimum value in each bin</li>
+            <li>The average (arithmetic mean) of the values in each bin</li>
+            <li>The maximum value each bin</li>
+            <li>The minimum value each bin</li>
+            <li>The 5th percentile value each bin computed according to the specified method</li>
+            <li>The 10th percentile value each bin computed according to the specified method</li>
+            <li>The 25th percentile value each bin computed according to the specified method</li>
+            <li>The 50th percentile value each bin computed according to the specified method</li>
+            <li>The 75th percentile value each bin computed according to the specified method</li>
+            <li>The 90th percentile value each bin computed according to the specified method</li>
+            <li>The 95th percentile value each bin computed according to the specified method</li>
+            <li>The standard deviation of the values in each bin</li>
+            </ol>
+
+        The values for date/time statistics are the year of the min or max value (Java code uses yyyy.mmdd on 1Hour statistics).
+
+        The report year is 2100. The Java code report year of 3000 is not used due to current limitations of the pandas.DatetimeIndex type.
+
+        Args:
+            method (str): The method to use for generating the probability statistics. Must be one of the following. Defaults to 'linear'.
+            * 'hecmath': Specifies using the alorithm used in the Java `hec.hecmath.TimeSeriesMath.cyclicAnalysis()` method, which performs a version of nearest-rank percentile.
+            * others: Specify the NumPy method to use for [numpy.percentile()](https://numpy.org/doc/stable/reference/generated/numpy.percentile.html). Must be one of
+                * 'averaged_inverted_cdf'
+                * 'closest_observation'
+                * 'hazen'
+                * 'higher'
+                * 'interpolated_inverted_cdf'
+                * 'inverted_cdf'
+                * 'linear'
+                * 'lower'
+                * 'median_unbiased'
+                * 'midpoint '
+                * 'nearest'
+                * 'normal_unbiased'
+                * 'weibull'
+        Raises:
+            TimeSeriesException: if the time series is empty or an invalid method is specified.
+
+        Returns:
+            list[TimeSeries]: The 14 time series containing the cyclic analysis statistics
+        """
+        if self.data is None or self.data.empty:
+            raise TimeSeriesException("Operation is invalid with empty time series.")
+        if method.upper() in PercentileMethods.__members__:
+            method = PercentileMethods[method.upper()].name.lower()
+        else:
+            raise TimeSeriesException(
+                f"Invalid method specified: {method}; must be one of {','.join(PercentileMethods.__members__)}"
+            )
+        dummy_ts = TimeSeries(self.name)
+        df = self.data.copy()
+        df.index -= pd.Timedelta(seconds=1)  # work around 2400/0000 problem
+        target_year = 2100  # non-leap year
+        if self.interval.minutes == Interval.MINUTES["1Hour"]:
+            # ---------------- #
+            # 8760 1-Hour bins #
+            # ---------------- #
+            bins: list[pd.DataFrame] = []
+            times = [
+                datetime(target_year, 1, 1, 1) + timedelta(days=i, hours=j)
+                for i in range(365)
+                for j in range(24)
+            ]
+            bins = []
+            for m in range(1, 13):
+                for d in range(
+                    1, 29 if m == 2 else 32 if m in (1, 3, 5, 7, 8, 10, 12) else 31
+                ):
+                    df2 = df[
+                        (
+                            (cast(pd.DatetimeIndex, df.index).month == m)
+                            & (cast(pd.DatetimeIndex, df.index).day == d)
+                        )
+                    ]
+                    bins.extend(
+                        [
+                            df2[cast(pd.DatetimeIndex, df2.index).hour == j]
+                            for j in range(24)
+                        ]
+                    )
+        elif self.interval.minutes == Interval.MINUTES["1Day"]:
+            # -------------- #
+            # 365 1-Day bins #
+            # -------------- #
+            times = [datetime(target_year, 1, 2) + timedelta(i) for i in range(365)]
+            bins = []
+            for m in range(1, 13):
+                for d in range(
+                    1, 29 if m == 2 else 32 if m in (1, 3, 5, 7, 8, 10, 12) else 31
+                ):
+                    bins.append(
+                        df[
+                            (
+                                (cast(pd.DatetimeIndex, df.index).month == m)
+                                & (cast(pd.DatetimeIndex, df.index).day == d)
+                            )
+                        ]
+                    )
+        elif self.interval.minutes == Interval.MINUTES["1Month"]:
+            # --------------- #
+            # 12 1-Month bins #
+            # --------------- #
+            base_time = HecTime(f"{target_year}-02-01T00:00:00")
+            times = [
+                cast(
+                    datetime,
+                    (base_time.copy().increment(i, TimeSpan("P1M"))).datetime(),
+                )
+                for i in range(12)
+            ]
+            bins = [
+                df[cast(pd.DatetimeIndex, df.index).month == i] for i in range(1, 13)
+            ]
+        else:
+            raise TimeSeriesException(
+                "Operation can only be performed on 1Hour, 1Day, or 1Month data"
+            )
+        if self.time_zone:
+            zi = ZoneInfo(self.time_zone)
+            times = [t.replace(tzinfo=zi) for t in times]
+        indx = pd.DatetimeIndex(data=times, name="time")
+        first_time, last_time = [self.times[i] for i in (0, -1)]
+        dummy_ts.version = f"{self.version}[{HecTime(first_time).date(104)}-{HecTime(last_time).date(104)}]"
+        if method == "hecmath":
+            sorted_bins = [
+                bin.dropna().sort_values("value").reset_index(drop=True) for bin in bins
+            ]
+        else:
+            bins = [bin.dropna() for bin in bins]
+        results = []
+        # ----- #
+        # count #
+        # ----- #
+        dummy_ts.iset_parameter(
+            Parameter(f"Count-{self.parameter.name}", "EN" if self.is_english else "SI")
+        )
+        binvals = [float(bins[i]["value"].count()) for i in range(len(bins))]
+        results.append(TimeSeries(dummy_ts.name, indx, binvals, 0))
+        # ----------------- #
+        # maximum date/time #
+        # ----------------- #
+        dummy_ts.iset_parameter(Parameter(f"Date-{self.parameter.name}-Max", "n/a"))
+        maxtimes = [bins[i]["value"].idxmax() for i in range(len(bins))]
+        binvals = [t.year for t in maxtimes]  # type: ignore
+        results.append(TimeSeries(dummy_ts.name, indx, binvals, 0))
+        # ----------------- #
+        # minimum date/time #
+        # ----------------- #
+        dummy_ts.iset_parameter(Parameter(f"Date-{self.parameter.name}-Min", "n/a"))
+        mintimes = [bins[i]["value"].idxmin() for i in range(len(bins))]
+        binvals = [t.year for t in mintimes]  # type: ignore
+        results.append(TimeSeries(dummy_ts.name, indx, binvals, 0))
+        # ------- #
+        # average #
+        # ------- #
+        dummy_ts.iset_parameter(Parameter(f"{self.parameter.name}-Aver", self.unit))
+        binvals = [bins[i]["value"].mean() for i in range(len(bins))]
+        results.append(TimeSeries(dummy_ts.name, indx, binvals, 0))
+        # ------- #
+        # maximum #
+        # ------- #
+        dummy_ts.iset_parameter(Parameter(f"{self.parameter.name}-Max", self.unit))
+        binvals = [bins[i]["value"].max() for i in range(len(bins))]
+        results.append(TimeSeries(dummy_ts.name, indx, binvals, 0))
+        # ------- #
+        # minimum #
+        # ------- #
+        dummy_ts.iset_parameter(Parameter(f"{self.parameter.name}-Min", self.unit))
+        binvals = [bins[i]["value"].min() for i in range(len(bins))]
+        results.append(TimeSeries(dummy_ts.name, indx, binvals, 0))
+        # -- #
+        # 5% #
+        # -- #
+        dummy_ts.iset_parameter(Parameter(f"{self.parameter.name}-P05", self.unit))
+        if method == "hecmath":
+            binvals = [
+                bin["value"][max(0, int(len(bin) * 0.05 + 0.5) - 1)]
+                for bin in sorted_bins
+            ]
+        else:
+            binvals = [np.percentile(bin["value"].values, 5, method=method) for bin in bins]  # type: ignore
+        results.append(TimeSeries(dummy_ts.name, indx, binvals, 0))
+        # --- #
+        # 10% #
+        # --- #
+        dummy_ts.iset_parameter(Parameter(f"{self.parameter.name}-P10", self.unit))
+        if method == "hecmath":
+            binvals = [
+                bin["value"][max(0, int(len(bin) * 0.1 + 0.5) - 1)]
+                for bin in sorted_bins
+            ]
+        else:
+            binvals = [np.percentile(bin["value"].values, 10, method=method) for bin in bins]  # type: ignore
+        results.append(TimeSeries(dummy_ts.name, indx, binvals, 0))
+        # --- #
+        # 25% #
+        # --- #
+        dummy_ts.iset_parameter(Parameter(f"{self.parameter.name}-P25", self.unit))
+        if method == "hecmath":
+            binvals = [
+                bin["value"][max(0, int(len(bin) * 0.25 + 0.5) - 1)]
+                for bin in sorted_bins
+            ]
+        else:
+            binvals = [np.percentile(bin["value"].values, 25, method=method) for bin in bins]  # type: ignore
+        results.append(TimeSeries(dummy_ts.name, indx, binvals, 0))
+        # --- #
+        # 50% #
+        # --- #
+        dummy_ts.iset_parameter(Parameter(f"{self.parameter.name}-P50", self.unit))
+        if method == "hecmath":
+            binvals = [
+                bin["value"][max(0, int(len(bin) * 0.5 + 0.5) - 1)]
+                for bin in sorted_bins
+            ]
+        else:
+            binvals = [np.percentile(bin["value"].values, 50, method=method) for bin in bins]  # type: ignore
+        results.append(TimeSeries(dummy_ts.name, indx, binvals, 0))
+        # --- #
+        # 75% #
+        # --- #
+        dummy_ts.iset_parameter(Parameter(f"{self.parameter.name}-P75", self.unit))
+        if method == "hecmath":
+            binvals = [
+                bin["value"][max(0, int(len(bin) * 0.75 + 0.5) - 1)]
+                for bin in sorted_bins
+            ]
+        else:
+            binvals = [np.percentile(bin["value"].values, 75, method=method) for bin in bins]  # type: ignore
+        results.append(TimeSeries(dummy_ts.name, indx, binvals, 0))
+        # --- #
+        # 90% #
+        # --- #
+        dummy_ts.iset_parameter(Parameter(f"{self.parameter.name}-P90", self.unit))
+        if method == "hecmath":
+            binvals = [
+                bin["value"][max(0, int(len(bin) * 0.9 + 0.5) - 1)]
+                for bin in sorted_bins
+            ]
+        else:
+            binvals = [np.percentile(bin["value"].values, 90, method=method) for bin in bins]  # type: ignore
+        results.append(TimeSeries(dummy_ts.name, indx, binvals, 0))
+        # --- #
+        # 95% #
+        # --- #
+        dummy_ts.iset_parameter(Parameter(f"{self.parameter.name}-P95", self.unit))
+        if method == "hecmath":
+            binvals = [
+                bin["value"][max(0, int(len(bin) * 0.95 + 0.5) - 1)]
+                for bin in sorted_bins
+            ]
+        else:
+            binvals = [np.percentile(bin["value"].values, 95, method=method) for bin in bins]  # type: ignore
+        results.append(TimeSeries(dummy_ts.name, indx, binvals, 0))
+        # ------- #
+        # std dev #
+        # ------- #
+        dummy_ts.iset_parameter(Parameter(f"{self.parameter.name}-SD", self.unit))
+        binvals = [bins[i]["value"].std() for i in range(len(bins))]
+        results.append(TimeSeries(dummy_ts.name, indx, binvals, 0))
+
+        return results
+
     @property
     def data(self) -> Optional[pd.DataFrame]:
         """
@@ -4016,9 +4292,12 @@ class TimeSeries:
                 _end_time = (
                     end if last is None else last if end is None else max(end, last)
                 )
-                offset = HecTime(_start_time) - HecTime(
-                    _start_time
-                ).adjust_to_interval_offset(self.interval, 0)
+                _start_hec_time = HecTime(_start_time)
+                _start_hec_time.midnight_as_2400 = False
+                offset = (
+                    _start_hec_time
+                    - _start_hec_time.copy().adjust_to_interval_offset(self.interval, 0)
+                )
                 interval_times = self.interval.get_datetime_index(
                     start_time=_start_time,
                     end_time=_end_time,
@@ -5150,7 +5429,9 @@ class TimeSeries:
                 #
                 # Moved to using sets becuase data.index.union(data2.index) didn't always work
                 all_times |= set(data2.index.to_list())
-                aligned_data2 = data2.reindex(pd.Index(sorted(all_times), name="time"))
+                aligned_data2 = data2.reindex(
+                    pd.DatetimeIndex(sorted(all_times), name="time")
+                )
                 aligned_data2["quality"] = (
                     pd.to_numeric(aligned_data2["quality"], errors="coerce")
                     .fillna(5)
@@ -6143,7 +6424,9 @@ class TimeSeries:
                 "value": [tsv.value.magnitude for tsv in new_tsvs],
                 "quality": [tsv.quality.code for tsv in new_tsvs],
             },
-            index=pd.Index([tsv.time.datetime() for tsv in new_tsvs], name="time"),
+            index=pd.DatetimeIndex(
+                [tsv.time.datetime() for tsv in new_tsvs], name="time"
+            ),
         )
         # -------------------------------- #
         # return the resampled time series #
@@ -7723,7 +8006,9 @@ class TimeSeries:
                 "value": [tsv.value.magnitude for tsv in new_tsvs],
                 "quality": [tsv.quality.code for tsv in new_tsvs],
             },
-            index=pd.Index([tsv.time.datetime() for tsv in new_tsvs], name="time"),
+            index=pd.DatetimeIndex(
+                [tsv.time.datetime() for tsv in new_tsvs], name="time"
+            ),
         )
         target._validate()
         return target
@@ -7775,14 +8060,21 @@ class TimeSeries:
         Operations:
             Read Only
         """
+
+        def add_colon(tstr: str) -> str:
+            if tstr[-5] in "-+":
+                tstr = f"{tstr[:-2]}:{tstr[-2:]}"
+            return tstr
+
         if self._data is None:
             return []
         if len(self._data.shape) == 1:
-            timestr = self._data.name.strftime("%Y-%m-%d %H:%M:%S%z")
-            if timestr[-5] in "-+":
-                timestr = f"{timestr[:-2]}:{timestr[-2:]}"
-            return timestr
-        return list(map(self.format_time_for_index, self._data.index.tolist()))
+            return add_colon(self._data.name.strftime("%Y-%m-%d %H:%M:%S%z"))
+        df = cast(pd.DataFrame, self.data)
+        timestrs = [
+            t.strftime("%Y-%m-%d %H:%M:%S%z") for t in cast(pd.DatetimeIndex, df.index)
+        ]
+        return list(map(add_colon, timestrs))
 
     def to(
         self,

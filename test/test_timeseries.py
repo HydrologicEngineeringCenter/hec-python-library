@@ -2,6 +2,7 @@ import copy
 import math
 import os
 import statistics as stat
+import sys
 import traceback
 import warnings
 from datetime import datetime, timedelta
@@ -9,9 +10,11 @@ from typing import List, Union, cast
 
 import numpy as np
 import pandas as pd
+import pytest
 
 from hec import (
     Combine,
+    DssDataStore,
     Duration,
     HecTime,
     Interval,
@@ -136,7 +139,7 @@ def test_math_ops_scalar() -> None:
     start_time = HecTime("2024-10-10T01:00:00")
     intvl = Interval.get_cwms("1Hour")
     value_count = 24
-    times = pd.Index(  # type: ignore
+    times = pd.DatetimeIndex(
         [
             (start_time + i * TimeSpan(intvl.values)).datetime()
             for i in range(value_count)
@@ -275,7 +278,7 @@ def test_math_ops_ts() -> None:
     start_time = HecTime("2024-10-10T01:00:00")
     intvl = Interval.get_cwms("1Hour")
     value_count = 24
-    times = pd.Index(  # type: ignore
+    times = pd.DatetimeIndex(
         [
             (start_time + i * TimeSpan(intvl.values)).datetime()
             for i in range(value_count)
@@ -376,7 +379,7 @@ def test_selection_and_filter() -> None:
     start_time = HecTime("2024-10-10T01:00:00")
     intvl = Interval.get_dss("1Hour")
     value_count = 24
-    times = pd.Index(  # type: ignore
+    times = pd.DatetimeIndex(
         [
             (start_time + i * TimeSpan(intvl.values)).datetime()
             for i in range(value_count)
@@ -436,7 +439,7 @@ def test_aggregate_ts() -> None:
     intvl = Interval.get_cwms("1Hour")
     value_count = 24
     ts_count = 10
-    times = pd.Index(  # type: ignore
+    times = pd.DatetimeIndex(
         [
             (start_time + i * TimeSpan(intvl.values)).datetime()
             for i in range(value_count)
@@ -764,7 +767,7 @@ def test_aggregate_values() -> None:
         1330,
         1345,
     ]
-    times = pd.Index(  # type: ignore
+    times = pd.DatetimeIndex(
         [
             (start_time + i * TimeSpan(intvl.values)).datetime()
             for i in range(len(values))
@@ -970,7 +973,7 @@ def test_min_max() -> None:
     values[3] = math.nan
     values[2] = values[8] = -1.0
     values[5] = values[9] = 1000.0
-    times = pd.Index(  # type: ignore
+    times = pd.DatetimeIndex(
         [
             (start_time + i * TimeSpan(intvl.values)).datetime()
             for i in range(value_count)
@@ -1028,7 +1031,7 @@ def test_accum_diff() -> None:
     value_count = len(data)
     values, accum, diffs = map(list, zip(*data))
     diffs = diffs[1:]
-    times = pd.Index(  # type: ignore
+    times = pd.DatetimeIndex(
         [
             (start_time + i * TimeSpan(intvl.values)).datetime()
             for i in range(value_count)
@@ -1129,7 +1132,7 @@ def test_value_counts() -> None:
         1330,
         1345,
     ]
-    times = pd.Index(  # type: ignore
+    times = pd.DatetimeIndex(
         [
             (start_time + i * TimeSpan(intvl.values)).datetime()
             for i in range(len(values))
@@ -1210,7 +1213,7 @@ def test_unit() -> None:
         1330,
         1345,
     ]
-    times = pd.Index(  # type: ignore
+    times = pd.DatetimeIndex(
         [
             (start_time + i * TimeSpan(intvl.values)).datetime()
             for i in range(len(values))
@@ -1400,7 +1403,7 @@ def test_roundoff() -> None:
         1330.123,
         1345.123,
     ]
-    times = pd.Index(  # type: ignore
+    times = pd.DatetimeIndex(
         [
             (start_time + i * TimeSpan(intvl.values)).datetime()
             for i in range(len(values))
@@ -1433,7 +1436,7 @@ def test_smoothing() -> None:
     values = [data[i][0] for i in range(len(data))]
     start_time = HecTime("2024-10-10T01:00:00")
     intvl = Interval.get_cwms("1Hour")
-    times = pd.Index(  # type: ignore
+    times = pd.DatetimeIndex(
         [
             (start_time + i * TimeSpan(intvl.values)).datetime()
             for i in range(len(values))
@@ -1579,7 +1582,7 @@ def test_protected() -> None:
         1330,
         1345,
     ]
-    times = pd.Index(  # type: ignore
+    times = pd.DatetimeIndex(
         [
             (start_time + i * TimeSpan(intvl.values)).datetime()
             for i in range(len(values))
@@ -1662,7 +1665,7 @@ def test_screen_with_value_range() -> None:
         1330,
         1300,
     ]
-    times = pd.Index(  # type: ignore
+    times = pd.DatetimeIndex(
         [
             (start_time + i * TimeSpan(intvl.values)).datetime()
             for i in range(len(values))
@@ -1792,7 +1795,7 @@ def test_screen_with_value_change_rate() -> None:
         1330,  #      0.25, o
         1300,  #     -0.50, q
     ]
-    times = pd.Index(  # type: ignore
+    times = pd.DatetimeIndex(
         [
             (start_time + i * TimeSpan(intvl.values)).datetime()
             for i in range(len(values))
@@ -1967,7 +1970,7 @@ def test_screen_with_value_range_or_change_rate() -> None:
         1330,
         1300,
     ]
-    times = pd.Index(  # type: ignore
+    times = pd.DatetimeIndex(
         [
             (start_time + i * TimeSpan(intvl.values)).datetime()
             for i in range(len(values))
@@ -2134,7 +2137,7 @@ def test_screen_with_duration_magnitude() -> None:
         0.225,
         0.150,
     ]
-    times = pd.Index(  # type: ignore
+    times = pd.DatetimeIndex(
         [
             (start_time + i * TimeSpan(intvl.values)).datetime()
             for i in range(len(values))
@@ -2480,7 +2483,7 @@ def test_screen_with_constant_value() -> None:
         613.541,
         613.527,
     ]
-    times = pd.Index(  # type: ignore
+    times = pd.DatetimeIndex(
         [
             (start_time + i * TimeSpan(intvl.values)).datetime()
             for i in range(len(values))
@@ -2688,7 +2691,7 @@ def test_screen_with_forward_moving_average() -> None:
         1330,
         1300,
     ]
-    times = pd.Index(  # type: ignore
+    times = pd.DatetimeIndex(
         [
             (start_time + i * TimeSpan(intvl.values)).datetime()
             for i in range(len(values))
@@ -2879,7 +2882,7 @@ def test_estimate_missing_values() -> None:
     }
     start_time = HecTime("2024-10-10T01:00:00")
     intvl = Interval.get_cwms("1Hour")
-    times = pd.Index(  # type: ignore
+    times = pd.DatetimeIndex(
         [
             (start_time + i * TimeSpan(intvl.values)).datetime()
             for i in range(len(data_vals[0]))
@@ -3418,7 +3421,7 @@ def test_to_irregular() -> None:
         1330,
         1300,
     ]
-    times = pd.Index(  # type: ignore
+    times = pd.DatetimeIndex(
         [
             (start_time + i * TimeSpan(intvl.values)).datetime()
             for i in range(len(values1))
@@ -3478,7 +3481,7 @@ def test_snap_to_regular() -> None:
         1330,
         1300,
     ]
-    times = pd.Index(  # type: ignore
+    times = pd.DatetimeIndex(
         [
             (start_time + i * TimeSpan(intvl.values)).datetime()
             for i in range(len(values1))
@@ -5227,7 +5230,7 @@ def test_resample() -> None:
             "value": [tsv.value.magnitude for tsv in tsvs],
             "quality": [tsv.quality.code for tsv in tsvs],
         },
-        index=pd.Index([tsv.time for tsv in tsvs], name="time"),
+        index=pd.DatetimeIndex([cast(datetime, tsv.time.datetime()) for tsv in tsvs], name="time"),
     )
 
     expected_values = {
@@ -5249,11 +5252,58 @@ def test_resample() -> None:
     # print(f"TimeSeries.resample called {call_count} times.")
 
 
+test_cyclic_analysis_inputs = [
+    [
+        "./test/resources/timeseries/CyclicAnalysisData.dss",
+        "//TestLoc/Flow//1Month/GMT/",
+    ],
+    ["./test/resources/timeseries/CyclicAnalysisData.dss", "//TestLoc/Flow//1Day/GMT/"],
+    [
+        "./test/resources/timeseries/CyclicAnalysisData.dss",
+        "//TestLoc/Flow//1Hour/GMT/",
+    ],
+]
+
+
+@pytest.mark.parametrize("dss_filename, pathname", test_cyclic_analysis_inputs)
+def test_cyclic_analysis(dss_filename: str, pathname: str) -> None:
+    DssDataStore.set_message_level(0)
+    dss = DssDataStore.open(dss_filename)
+    ts = cast(TimeSeries, dss.retrieve(pathname))
+    results = ts.cyclic_analysis(method="hecmath")
+    for computed in results:
+        expected = cast(TimeSeries, dss.retrieve(computed.name))
+        if not computed.times == expected.times:
+            print(computed.name)
+            for t1, t2 in list(zip(expected.times, computed.times)):
+                print(f"{t1}\t{t2}\t{t2 == t1}")
+        assert computed.times == expected.times
+        if computed.parameter.basename == "Date" and computed.interval.name != "1Year":
+            # hecmath only has year on these time series
+            expected.iselect(Select.ALL)
+            expected.imap(lambda v: float(int(v)))
+        if not np.allclose(computed.values, expected.values, equal_nan=True):
+            print(computed.name)
+            for t, v1, v2 in list(
+                zip(expected.times, expected.values, computed.values)
+            ):
+                same = np.isclose(v1, v2, equal_nan=True)
+                print(f"{t}\t{v1}\t{v2}\t{same}")
+            assert computed.values == expected.values
+
+
 def run_test_timed(test_name: str) -> None:
     print(f"Running {test_name}")
     ts1 = datetime.now()
     try:
-        exec(f"{test_name}()")
+        if test_name == "test_cyclic_analysis":
+            for dss_filename, pathname in test_cyclic_analysis_inputs:
+                ts_a = datetime.now()
+                test_cyclic_analysis(dss_filename, pathname)
+                ts_b = datetime.now()
+                print(f"\t...{pathname} in {(ts_b - ts_a)}")
+        else:
+            exec(f"{test_name}()")
     except:
         traceback.print_exc()
     ts2 = datetime.now()
@@ -5262,30 +5312,31 @@ def run_test_timed(test_name: str) -> None:
 
 if __name__ == "__main__":
     pass
-    # run_test_timed("test_time_series_value")
-    # run_test_timed("test_create_time_series_by_name")
-    # run_test_timed("test_math_ops_scalar")
-    # run_test_timed("test_math_ops_ts")
-    # run_test_timed("test_selection_and_filter")
-    # run_test_timed("test_aggregate_ts")
-    # run_test_timed("test_aggregate_values")
-    # run_test_timed("test_min_max")
-    # run_test_timed("test_accum_diff")
-    # run_test_timed("test_value_counts")
-    # run_test_timed("test_unit")
-    # run_test_timed("test_roundoff")
-    # run_test_timed("test_smoothing")
-    # run_test_timed("test_protected")
-    # run_test_timed("test_screen_with_value_range")
-    # run_test_timed("test_screen_with_value_change_rate")
-    # run_test_timed("test_screen_with_value_range_or_change_rate")
-    # run_test_timed("test_screen_with_duration_magnitude")
-    # run_test_timed("test_screen_with_constant_value")
-    # run_test_timed("test_screen_with_forward_moving_average")
-    # run_test_timed("test_estimate_missing_values")
-    # run_test_timed("test_expand_collapse_trim")
-    # run_test_timed("test_merge")
-    # run_test_timed("test_to_irregular")
-    # run_test_timed("test_snap_to_regular")
-    # run_test_timed("test_new_regular_time_series")
-    # run_test_timed("test_resample")
+    run_test_timed("test_time_series_value")
+    run_test_timed("test_create_time_series_by_name")
+    run_test_timed("test_math_ops_scalar")
+    run_test_timed("test_math_ops_ts")
+    run_test_timed("test_selection_and_filter")
+    run_test_timed("test_aggregate_ts")
+    run_test_timed("test_aggregate_values")
+    run_test_timed("test_min_max")
+    run_test_timed("test_accum_diff")
+    run_test_timed("test_value_counts")
+    run_test_timed("test_unit")
+    run_test_timed("test_roundoff")
+    run_test_timed("test_smoothing")
+    run_test_timed("test_protected")
+    run_test_timed("test_screen_with_value_range")
+    run_test_timed("test_screen_with_value_change_rate")
+    run_test_timed("test_screen_with_value_range_or_change_rate")
+    run_test_timed("test_screen_with_duration_magnitude")
+    run_test_timed("test_screen_with_constant_value")
+    run_test_timed("test_screen_with_forward_moving_average")
+    run_test_timed("test_estimate_missing_values")
+    run_test_timed("test_expand_collapse_trim")
+    run_test_timed("test_merge")
+    run_test_timed("test_to_irregular")
+    run_test_timed("test_snap_to_regular")
+    run_test_timed("test_new_regular_time_series")
+    run_test_timed("test_resample")
+    run_test_timed("test_cyclic_analysis")
