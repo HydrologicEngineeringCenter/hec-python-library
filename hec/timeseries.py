@@ -3795,21 +3795,21 @@ class TimeSeries:
 
         Args:
             method (str): The method to use for generating the probability statistics. Must be one of the following. Defaults to 'linear'.
-            * 'hecmath': Specifies using the alorithm used in the Java `hec.hecmath.TimeSeriesMath.cyclicAnalysis()` method, which performs a version of nearest-rank percentile.
-            * others: Specify the NumPy method to use for [numpy.percentile()](https://numpy.org/doc/stable/reference/generated/numpy.percentile.html). Must be one of
-                * 'averaged_inverted_cdf'
-                * 'closest_observation'
-                * 'hazen'
-                * 'higher'
-                * 'interpolated_inverted_cdf'
-                * 'inverted_cdf'
-                * 'linear'
-                * 'lower'
-                * 'median_unbiased'
-                * 'midpoint '
-                * 'nearest'
-                * 'normal_unbiased'
-                * 'weibull'
+                * **'hecmath':** Specifies using the alorithm used in the Java `hec.hecmath.TimeSeriesMath.cyclicAnalysis()` method, which performs a version of nearest-rank percentile.
+                * **others:** Specify the NumPy method to use for [numpy.percentile()](https://numpy.org/doc/stable/reference/generated/numpy.percentile.html). Must be one of
+                    * 'averaged_inverted_cdf'
+                    * 'closest_observation'
+                    * 'hazen'
+                    * 'higher'
+                    * 'interpolated_inverted_cdf'
+                    * 'inverted_cdf'
+                    * 'linear'
+                    * 'lower'
+                    * 'median_unbiased'
+                    * 'midpoint '
+                    * 'nearest'
+                    * 'normal_unbiased'
+                    * 'weibull'
         Raises:
             TimeSeriesException: if the time series is empty or an invalid method is specified.
 

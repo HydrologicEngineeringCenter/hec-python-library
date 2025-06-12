@@ -1391,9 +1391,10 @@ Use <code>"local"</code> to specify the system time zone.</li>
 <h6 id="arguments">Arguments:</h6>
 
 <ul>
-<li><strong>method (str):</strong>  The method to use for generating the probability statistics. Must be one of the following. Defaults to 'linear'.</li>
-<li><strong>* 'hecmath':</strong>  Specifies using the alorithm used in the Java <code>hec.hecmath.TimeSeriesMath.cyclicAnalysis()</code> method, which performs a version of nearest-rank percentile.</li>
-<li><strong>* others:</strong>  Specify the NumPy method to use for <a href="https://numpy.org/doc/stable/reference/generated/numpy.percentile.html">numpy.percentile()</a>. Must be one of
+<li><strong>method (str):</strong>  The method to use for generating the probability statistics. Must be one of the following. Defaults to 'linear'.
+<ul>
+<li><strong>'hecmath':</strong> Specifies using the alorithm used in the Java <code>hec.hecmath.TimeSeriesMath.cyclicAnalysis()</code> method, which performs a version of nearest-rank percentile.</li>
+<li><strong>others:</strong> Specify the NumPy method to use for <a href="https://numpy.org/doc/stable/reference/generated/numpy.percentile.html">numpy.percentile()</a>. Must be one of
 <ul>
 <li>'averaged_inverted_cdf'</li>
 <li>'closest_observation'</li>
@@ -1408,6 +1409,7 @@ Use <code>"local"</code> to specify the system time zone.</li>
 <li>'nearest'</li>
 <li>'normal_unbiased'</li>
 <li>'weibull'</li>
+</ul></li>
 </ul></li>
 </ul>
 
