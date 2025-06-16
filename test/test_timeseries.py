@@ -5230,7 +5230,9 @@ def test_resample() -> None:
             "value": [tsv.value.magnitude for tsv in tsvs],
             "quality": [tsv.quality.code for tsv in tsvs],
         },
-        index=pd.DatetimeIndex([cast(datetime, tsv.time.datetime()) for tsv in tsvs], name="time"),
+        index=pd.DatetimeIndex(
+            [cast(datetime, tsv.time.datetime()) for tsv in tsvs], name="time"
+        ),
     )
 
     expected_values = {

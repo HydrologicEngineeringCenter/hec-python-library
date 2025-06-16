@@ -197,6 +197,21 @@ class Location:
         """
         return self._name.split("-", 1)[0]
 
+    def copy(self) -> "Location":
+        return Location(
+            self.name,
+            self.office,
+            self.latitude,
+            self.longitude,
+            self.horizontal_datum,
+            self.elevation.magnitude,
+            self.elevation.specified_unit,
+            self.vertical_datum,
+            self.time_zone,
+            self.kind,
+            self.vertical_datum_info,
+        )
+
     @property
     def elevation(self) -> Optional[UnitQuantity]:
         """
