@@ -90,6 +90,15 @@ __all__ = [
     "unit",
 ]
 
+from hec.rating import (
+    LookupMethod,
+    RatingException,
+    RatingSpecification,
+    RatingSpecificationException,
+    RatingTemplate,
+    RatingTemplateException,
+)
+
 from . import datastore
 from .const import Combine, Safety, Select, SelectionState
 from .datastore import (
@@ -111,14 +120,6 @@ from .parameter import (
     ParameterTypeException,
 )
 from .quality import Quality, QualityException
-from hec.rating import (
-    LookupMethod,
-    RatingException,
-    RatingSpecification,
-    RatingSpecificationException,
-    RatingTemplate,
-    RatingTemplateException,
-)
 from .timeseries import TimeSeries, TimeSeriesException, TimeSeriesValue
 from .timespan import TimeSpan, TimeSpanException
 from .unit import UnitException, UnitQuantity

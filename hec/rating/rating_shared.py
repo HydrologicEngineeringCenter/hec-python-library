@@ -48,7 +48,7 @@ class LookupMethod(Enum):
         else:
             raise TypeError(f"Expected str or int, got {key.__type__.__name__}")
 
-        
+
 class RatingException(Exception):
     """
     Base exception for all rating exceptions
