@@ -18,6 +18,7 @@ from hec import (
     TimeSeries,
     datastore,
 )
+from hec.shared import cwms_imported, dss_imported
 
 STORE_TIMESERIES_STORES_VDI_OFFSETS = False
 CDA_ERRORS_ON_LOCAL_DATUM_NAME = True
@@ -51,7 +52,7 @@ else:
 
 def test_cwms_datastore() -> None:
     global vdi
-    if not datastore.cwms_imported:
+    if not cwms_imported:
         return
     api_root = os.getenv("cda_api_root")
     api_key = os.getenv("cda_api_key")
@@ -207,7 +208,7 @@ def test_cwms_datastore() -> None:
 
 def test_dss_datastore() -> None:
 
-    if not datastore.dss_imported:
+    if not dss_imported:
         return
 
     def clean_block_start(pathname: str) -> str:

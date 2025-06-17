@@ -2,6 +2,7 @@
 
 import pytest
 
+import hec
 from hec import Location, LocationException
 from hec import UnitQuantity as UQ
 
@@ -149,7 +150,7 @@ def test_repr() -> None:
     assert str(loc2) == "SWL/A New Name"
     assert (
         repr(loc2)
-        == "Location(name='A New Name',office='SWL',elevation=408.0,elevation_unit='ft',vertical_datum='NGVD-29',time_zone='Etc/GMT+7',kind='OUTLET')"
+        == "hec.Location(name='A New Name',office='SWL',elevation=408.0,elevation_unit='ft',vertical_datum='NGVD-29',time_zone='Etc/GMT+7',kind='OUTLET')"
     )
 
 
