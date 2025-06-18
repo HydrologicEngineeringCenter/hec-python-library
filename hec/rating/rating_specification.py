@@ -1,4 +1,4 @@
-from typing import Any, Optional, Union
+from typing import Any, Optional, Sequence, Union
 
 from hec.location import Location
 from hec.rating.rating_shared import LookupMethod, RatingException
@@ -170,9 +170,7 @@ class RatingSpecification:
         ]
 
     @lookup.setter
-    def lookup(
-        self, value: Union[list[Union[str, int]], tuple[Union[str, int], ...]]
-    ) -> None:
+    def lookup(self, value: Sequence[Union[str, int]]) -> None:
         if not isinstance(value, (list, tuple)):
             raise TypeError(
                 f"Expected list or tuple for 'value', got {value.__class__.__name__}"

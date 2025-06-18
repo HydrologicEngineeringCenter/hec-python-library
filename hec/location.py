@@ -226,7 +226,6 @@ class Location:
         """
         return self._name.split("-", 1)[0]
 
-
     def copy(self) -> "Location":
         return Location(
             self.name,

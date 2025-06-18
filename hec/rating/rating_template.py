@@ -41,6 +41,22 @@ class RatingTemplate:
                 self._out_range_low_method = DEFAULT_OUT_RANGE_LOW_METHOD
                 self._out_range_high_method = DEFAULT_OUT_RANGE_HIGH_METHOD
 
+        @property
+        def name(self) -> str:
+            return self._name
+
+        @property
+        def in_range_method(self) -> str:
+            return self._in_range_method.name
+
+        @property
+        def out_range_low_method(self) -> str:
+            return self._out_range_low_method.name
+
+        @property
+        def out_range_high_method(self) -> str:
+            return self._out_range_high_method.name
+
     def __init__(self, name: str, **kwargs: Any):
         if not isinstance(name, str):
             raise TypeError(f"Expected str for 'name', got {name.__class__.__name__}")
@@ -163,15 +179,15 @@ class RatingTemplate:
 
     @property
     def ind_params(self) -> list[str]:
-        return [i._name for i in self._ind_params]
+        return [self._ind_params[i].name for i in range(self.ind_param_count)]
 
     @property
     def lookup(self) -> list[list[str]]:
         return [
             [
-                i._in_range_method.name,
-                i._out_range_low_method.name,
-                i._out_range_high_method.name,
+                i.in_range_method,
+                i.out_range_low_method,
+                i.out_range_high_method,
             ]
             for i in self._ind_params
         ]
