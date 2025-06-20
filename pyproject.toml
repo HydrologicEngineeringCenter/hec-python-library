@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 packages = ["hec"]
 
 [tool.setuptools.package-data]
-hec = ["resources/*.txt"]
+hec = ["resources/*"]
 
 [tool.mypy]
 ignore_missing_imports = false
@@ -23,7 +23,7 @@ authors = [
     { name = "Michael Perryman", email = "michael.d.perryman@usace.army.mil" }
 ]
 # license = { file = "LICENSE" }
-# readme = "README.md"
+readme = "README.md"
 keywords = ["HEC", "timeseries", "time series", "DSS", "HEC-DSS", "CWMS"]
 classifiers = [
     "Programming Language :: Python :: 3",

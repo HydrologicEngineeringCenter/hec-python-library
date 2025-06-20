@@ -172,8 +172,8 @@ class AbstractRating(ABC):
                 f"Expected datetime, HecTime, or str, got {value.__class__.__name__}"
             )
 
-    @abstractmethod
     @staticmethod
+    @abstractmethod
     def from_xml(xml_str: str) -> "AbstractRating":
         raise AbstractRatingException("Method must be called on a sub-class")
 

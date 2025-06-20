@@ -31,31 +31,36 @@ from hec.location import Location
 from hec.parameter import ElevParameter, Parameter, ParameterType
 from hec.timeseries import TimeSeries
 from hec.unit import UnitQuantity
+import hec.rating.paired_data
 
 __all__ = [
     "DataStoreException",
     "CwmsDataStore",
     "DssDataStore",
     "AbstractDataStore",
+    "cwms_imported",
+    "dss_imported",
+    "required_cwms_version",
+    "required_dss_version",
 ]
 
-_required_cwms_version = ">= '0.6.0'"
-_required_dss_version = "> '0.1.21'"
+required_cwms_version = ">= '0.6.0'"
+required_dss_version = "> '0.1.21'"
 
 try:
     import cwms  # type: ignore
 
     cwms_version = importlib.metadata.version("cwms-python")
-    cwms_imported = eval(f"'{cwms_version}' {_required_cwms_version}")
+    cwms_imported = eval(f"'{cwms_version}' {required_cwms_version}")
 except ImportError:
     cwms_imported = False
 try:
-    from hecdss import HecDss  # type: ignore
+    from hecdss import HecDss, PairedData as DssPD  # type: ignore
     from hecdss import DssPath, IrregularTimeSeries, RegularTimeSeries
     from hecdss.record_type import RecordType  # type: ignore
 
     dss_version = importlib.metadata.version("hecdss")
-    dss_imported = eval(f"'{dss_version}' {_required_dss_version}")
+    dss_imported = eval(f"'{dss_version}' {required_dss_version}")
 except ImportError:
     dss_imported = False
 
@@ -691,7 +696,7 @@ class DssDataStore(AbstractDataStore):
         super().__init__()
         if not dss_imported:
             raise DataStoreException(
-                f"Cannot create a DssDataStore object: please install the hec-dss-python module or upgrade to {_required_dss_version}"
+                f"Cannot create a DssDataStore object: please install the hec-dss-python module or upgrade to {required_dss_version}"
             )
         if "name" not in kwargs:
             raise DataStoreException("No name specified for data store.")
@@ -1078,6 +1083,9 @@ class DssDataStore(AbstractDataStore):
                     ts._data.tz_localize(obj.time_zone_name)
                 ts._timezone = str(cast(pd.DatetimeIndex, ts._data.index).tzinfo)
             return ts
+        elif isinstance(obj, (DssPD)):
+            pd = hec.rating.paired_data.PairedData(obj)
+            return pd
         else:
             raise TypeError(f"Retrieving {type(obj).__name__} objects is not supported")
 
@@ -1181,7 +1189,7 @@ class CwmsDataStore(AbstractDataStore):
         self._init(**kwargs)
         if not cwms_imported:
             raise DataStoreException(
-                f"Cannot create a CwmsDataStore object: please install the cwms-python module or upgrade to {_required_cwms_version}"
+                f"Cannot create a CwmsDataStore object: please install the cwms-python module or upgrade to {required_cwms_version}"
             )
         if kwargs:
             argval: Any
@@ -3061,3 +3069,6 @@ if __name__ == "__main__":
         "(OUTLET|TURBINE)",
     ]:
         print(f"{pattern} => {_pattern_to_regex(pattern)}")
+
+    with DssDataStore.open("test/resources/rating/Paired_Data.dss") as dss:
+        pd = dss.retrieve("/WAPPAPELLO LAKE/POOL-AREA CAPACITY/ELEV-STOR-AREA////")
