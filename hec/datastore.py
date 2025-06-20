@@ -22,6 +22,7 @@ import pandas as pd
 import tzlocal
 from typing_extensions import Literal
 
+import hec.rating.paired_data
 from hec import location, parameter, timeseries, unit
 from hec.const import CWMS, DSS, UNDEFINED
 from hec.duration import Duration
@@ -31,7 +32,6 @@ from hec.location import Location
 from hec.parameter import ElevParameter, Parameter, ParameterType
 from hec.timeseries import TimeSeries
 from hec.unit import UnitQuantity
-import hec.rating.paired_data
 
 __all__ = [
     "DataStoreException",
@@ -45,7 +45,7 @@ __all__ = [
 ]
 
 required_cwms_version = ">= '0.6.0'"
-required_dss_version = "> '0.1.21'"
+required_dss_version = ">= '0.1.23'"
 
 try:
     import cwms  # type: ignore
@@ -55,8 +55,9 @@ try:
 except ImportError:
     cwms_imported = False
 try:
-    from hecdss import HecDss, PairedData as DssPD  # type: ignore
-    from hecdss import DssPath, IrregularTimeSeries, RegularTimeSeries
+    from hecdss import DssPath, HecDss, IrregularTimeSeries
+    from hecdss import PairedData as DssPD  # type: ignore
+    from hecdss import RegularTimeSeries
     from hecdss.record_type import RecordType  # type: ignore
 
     dss_version = importlib.metadata.version("hecdss")
@@ -1084,8 +1085,7 @@ class DssDataStore(AbstractDataStore):
                 ts._timezone = str(cast(pd.DatetimeIndex, ts._data.index).tzinfo)
             return ts
         elif isinstance(obj, (DssPD)):
-            pd = hec.rating.paired_data.PairedData(obj)
-            return pd
+            return hec.rating.paired_data.PairedData(obj)
         else:
             raise TypeError(f"Retrieving {type(obj).__name__} objects is not supported")
 
@@ -3071,4 +3071,8 @@ if __name__ == "__main__":
         print(f"{pattern} => {_pattern_to_regex(pattern)}")
 
     with DssDataStore.open("test/resources/rating/Paired_Data.dss") as dss:
-        pd = dss.retrieve("/WAPPAPELLO LAKE/POOL-AREA CAPACITY/ELEV-STOR-AREA////")
+        pd = dss.retrieve(
+            "/Lake Shelbyville/Sluices-Gate Rating/Elev-Flow/PairedValuesExt///"
+        )
+        q = pd.rate([2.75, 613.20])
+        pass

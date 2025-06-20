@@ -1,3 +1,5 @@
+from typing import Sequence, Union, cast
+
 from hec.datastore import dss_imported, required_dss_version
 
 if not dss_imported:
@@ -5,7 +7,6 @@ if not dss_imported:
         f"Cannot import hec.rating.paired_data_rating module: please install the hec-dss-python module or upgrade to {required_dss_version}"
     )
 
-from hec.parameter import Parameter
 from typing import Any, Optional
 
 import hecdss  # type: ignore
@@ -13,6 +14,7 @@ import numpy as np
 import numpy.typing as npt
 import pandas as pd
 
+from hec.parameter import Parameter
 from hec.rating import rating_shared
 
 
@@ -38,7 +40,10 @@ class PairedData:
         self._param_names = []
         for _ in c_part.split("-"):
             param = Parameter(_)
-            self._param_names.append(f"{param.base_parameter}" + f"{'-'+param.subname if param.subname else ''}")
+            self._param_names.append(
+                f"{param.base_parameter}"
+                + f"{'-'+param.subname if param.subname else ''}"
+            )
         self._labels = paired_data.labels[:]
         num_curves = len(paired_data.values[0])
         if len(self._labels) == 1 and not self._labels[0]:
@@ -57,12 +62,150 @@ class PairedData:
             self._ordinates2 = np.array([np.float64(s) for s in paired_data.labels])
         except:
             self._ordinates2 = None
-        data = {"ind": paired_data.ordinates}
+        if self._ind_log:
+            arr = np.asarray(paired_data.ordinates)
+            ordinates = np.full_like(arr, np.nan, dtype=np.float64)
+            mask = arr > 0
+            ordinates[mask] = np.log(arr[mask])
+            if self._ordinates2:
+                arr = np.asarray(self._ordinates2)
+                self._ordinates2 = np.full_like(arr, np.nan, dtype=np.float64)
+                mask = arr > 0
+                self._ordinates2[mask] = np.log(arr[mask])
+        else:
+            ordinates = paired_data.ordinates
+        data = {"ind": ordinates}
         values_T = paired_data.values.T
         if num_curves > len(self._labels):
+            self._lables = []
             for i in range(num_curves):
-                data[f"dep{i+1}"] = values_T[i]
+                label = f"dep{i+1}"
+                self._lables.append(label)
+                data[label] = values_T[i]
         else:
             for i in range(num_curves):
                 data[self._labels[i]] = values_T[i]
         self._data = pd.DataFrame(data)
+        if self._dep_log:
+            for column_name in data:
+                if column_name == "ind":
+                    continue
+                self._data[column_name] = np.where(
+                    self._data[column_name] > 0, np.log(self._data[column_name]), np.nan
+                )
+
+    def rate(
+        self, to_rate: Any, label: Optional[str] = None
+    ) -> Any:
+        if to_rate is None:
+            return None
+        elif isinstance(to_rate, float):
+            # ------------------- #
+            # rate a single value #
+            # ------------------- #
+            if not label:
+                if len(self._data.columns) > 2:
+                    raise PairedDataException(
+                        "Multi-column PairedData object can't rate a single value with no label"
+                    )
+                else:
+                    label = "dep"
+            elif label not in self._labels:
+                raise ValueError(f"No such column label: '{label}'")
+            if self._ind_log:
+                to_rate = np.log(to_rate)
+                if np.isnan(cast(float, to_rate)):
+                    return np.nan
+            rated = np.interp([to_rate], self._data["ind"], self._data[label, left=np.nan, right=np.nan])[0]
+            if self._dep_log:
+                rated = np.exp(rated)
+            return float(rated)
+        elif isinstance(to_rate, (list, tuple)):
+            if isinstance(to_rate[0], float):
+                if label:
+                    # ------------------------------------------------- #
+                    # rate a list of 1-value inputs on specified column #
+                    # ------------------------------------------------- #
+                    if label not in self._labels:
+                        raise ValueError(f"No such column label: '{label}'")
+                    if self._ind_log:
+                        v = np.array(to_rate)
+                        rated = np.interp(np.where(v > 0, np.log(v), np.nan), self._data["ind"], self._data[label], left=np.nan, right=np.nan)
+                    else:
+                        rated = np.interp(v, self._data["ind"], self._data[label], left=np.nan, right=np.nan)
+                elif len(to_rate) == 2:
+                    # --------------------------- #
+                    # rate a single 2-value input #
+                    # --------------------------- #
+                    if self._ordinates2 is None:
+                        raise TypeError(
+                            f"Expected float for 'to_rate', got {to_rate.__class__.__name__}"
+                        )
+                    if not isinstance(to_rate[1], float):
+                        raise TypeError(
+                            f"Expected float for 'to_rate[1]', got {to_rate[1].__class__.__name__}"
+                        )
+                    if self._ind_log:
+                        to_rate = list(map(np.log, to_rate))
+                    if any(map(np.isnan, to_rate)):
+                        return np.nan
+                    idx = np.searchsorted(self._ordinates2, to_rate[0]) - 1
+                    if idx < 0 or idx == len(self._data) - 1:
+                        return np.nan
+                    fraction = float(to_rate[0] - self._ordinates2[idx]) / float(
+                        self._ordinates2[idx + 1] - self._ordinates2[idx]
+                    )
+                    low_label = str(self._ordinates2[idx])
+                    high_label = str(self._ordinates2[idx + 1])
+                    low_val = float(
+                        np.interp([to_rate[1]], self._data["ind"], self._data[low_label])[0], left=np.nan, right=np.nan
+                    )
+                    if np.isnan(low_val):
+                        return np.nan
+                    high_val = float(
+                        np.interp([to_rate[1]], self._data["ind"], self._data[high_label])[0], left=np.nan, right=np.nan
+                    )
+                    if np.isnan(high_val):
+                        return np.nan
+                    rated = low_val + fraction * (high_val - low_val)
+                    if self._dep_log:
+                        rated = np.exp(rated)
+                    return rated
+                else:
+                    # ------------------------------------------- #
+                    # rate a list of 1-value inputs with no label #
+                    # ------------------------------------------- #
+                    if len(self._data.columns > 2) :
+                        raise PairedDataException(
+                            "Multi-column PairedData object can't rate a list of single values with no label"
+                        )
+                    if "dep" not in self._labels:
+                        raise PairedDataException(
+                            "Unexpected error finding 'dep' column"
+                        )
+                    if self._ind_log:
+                        v = np.array(to_rate)
+                        rated = np.interp(np.where(v > 0, np.log(v), np.nan), self._data["ind"], self._data["dep"], left=np.nan, right=np.nan)
+                    else:
+                        rated = np.interp(v, self._data["ind"], self._data["dep"], left=np.nan, right=np.nan)
+            elif isinstance(to_rate[0], (list, tuple)):
+                # ----------------------------- #
+                # rate a list of 2-value inputs #
+                # ----------------------------- #
+                if self._ordinates2 is None:
+                    raise TypeError(
+                        f"Object is not a 2-D PairedData object"
+                    )
+                if not all([len(v) == 2 for v in to_rate]):
+                    raise PairedDataException(
+                        "2-D PairedData object required each input to be of length 2"
+                    )
+                if label:
+                    raise ValueError("Cannot specify a label for 2-D PairedData object")
+                ##############
+                # START HERE #
+                ##############
+        else:
+            raise TypeError(
+                f"Expected float, list, or tuple for 'value', got {to_rate.__class__.__name__}"
+            )
