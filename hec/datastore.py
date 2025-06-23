@@ -55,9 +55,9 @@ try:
 except ImportError:
     cwms_imported = False
 try:
-    from hecdss import DssPath, HecDss, IrregularTimeSeries
-    from hecdss import PairedData as DssPD  # type: ignore
-    from hecdss import RegularTimeSeries
+    from hecdss import DssPath, HecDss, IrregularTimeSeries  # type: ignore
+    from hecdss import PairedData as DssPD
+    from hecdss import RegularTimeSeries  # type: ignore
     from hecdss.record_type import RecordType  # type: ignore
 
     dss_version = importlib.metadata.version("hecdss")
@@ -3071,8 +3071,8 @@ if __name__ == "__main__":
         print(f"{pattern} => {_pattern_to_regex(pattern)}")
 
     with DssDataStore.open("test/resources/rating/Paired_Data.dss") as dss:
-        pd = dss.retrieve(
+        dsspd = dss.retrieve(
             "/Lake Shelbyville/Sluices-Gate Rating/Elev-Flow/PairedValuesExt///"
         )
-        q = pd.rate([2.75, 613.20])
+        q = dsspd.rate([2.75, 613.20])
         pass
