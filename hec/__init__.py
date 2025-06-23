@@ -58,12 +58,12 @@ __all__ = [
     "ParameterTypeException",
     "Quality",
     "QualityException",
-    "RatingException",
-    "LookupMethod",
-    "RatingSpecification",
-    "RatingSpecificationException",
-    "RatingTemplate",
-    "RatingTemplateException",
+    # "RatingException",
+    # "LookupMethod",
+    # "RatingSpecification",
+    # "RatingSpecificationException",
+    # "RatingTemplate",
+    # "RatingTemplateException",
     "Safety",
     "Select",
     "SelectionState",
@@ -90,16 +90,17 @@ __all__ = [
     "unit",
 ]
 
-from hec.rating import (
-    LookupMethod,
-    RatingException,
-    RatingSpecification,
-    RatingSpecificationException,
-    RatingTemplate,
-    RatingTemplateException,
-)
+# from hec.rating import (
+#     LookupMethod,
+#     RatingException,
+#     RatingSpecification,
+#     RatingSpecificationException,
+#     RatingTemplate,
+#     RatingTemplateException,
+# )
 
-from . import datastore
+from . import shared
+from . import rating
 from .const import Combine, Safety, Select, SelectionState
 from .datastore import (
     CwmsDataStore,
@@ -130,11 +131,11 @@ from .unit import UnitException, UnitQuantity
 datastore.CwmsDataStore.__doc__ = f"""
     Class to facilitate cataloging, storing, retrieving, and deleting data in CWMS databases.
 
-    Requires installation of the [cwms-python](https://pypi.org/project/cwms-python/) {datastore.required_cwms_version}.
+    Requires installation of the [cwms-python](https://pypi.org/project/cwms-python/) {shared.required_cwms_version}.
     """
 
 datastore.DssDataStore.__doc__ = f"""
     Class to facilitate cataloging, storing, retrieving, and deleting data in HEC-DSS files.
 
-    Requires installation of the 'hecdss' package {datastore.required_dss_version}.
+    Requires installation of the 'hecdss' package {shared.required_dss_version}.
     """

@@ -1,7 +1,36 @@
 # ---------------------------------------------- #
 # DO NOT IMPORT ANY HEC MODULES FROM THIS MODULE #
 # ---------------------------------------------- #
+import importlib.metadata
+import types
 
+dss_imported = False
+cwms_imported = False
+required_cwms_version = ">= '0.6.0'"
+required_dss_version = ">= '0.1.23'"
+
+def import_cwms() -> types.ModuleType:
+    try:
+        import cwms  # type: ignore
+
+        cwms_version = importlib.metadata.version("cwms-python")
+        cwms_imported = eval(f"'{cwms_version}' {required_cwms_version}")
+    except ImportError:
+        cwms_imported = False
+    if not cwms_imported:
+        raise ImportError(f"Cannot import module cwms. Please install or upgrade to {required_cwms_version}")
+    return cwms
+
+def import_hecdss() -> types.ModuleType:
+    try:
+        import hecdss
+        dss_version = importlib.metadata.version("hecdss")
+        dss_imported = eval(f"'{dss_version}' {required_dss_version}")
+    except ImportError:
+        dss_imported = False
+    if not dss_imported:
+        raise ImportError(f"Cannot import module hecdss. Please install or upgrade to {required_dss_version}")
+    return hecdss
 
 def is_leap(y: int) -> bool:
     """

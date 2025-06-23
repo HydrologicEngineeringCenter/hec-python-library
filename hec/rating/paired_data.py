@@ -1,11 +1,6 @@
 from typing import Sequence, Union, cast
 
-from hec.datastore import dss_imported, required_dss_version
-
-if not dss_imported:
-    raise ImportError(
-        f"Cannot import hec.rating.paired_data_rating module: please install the hec-dss-python module or upgrade to {required_dss_version}"
-    )
+import hec
 
 from typing import Any, Optional
 
@@ -13,8 +8,6 @@ import hecdss  # type: ignore
 import numpy as np
 import numpy.typing as npt
 import pandas as pd
-
-import hec
 
 
 class PairedDataException(hec.rating.rating_shared.RatingException):

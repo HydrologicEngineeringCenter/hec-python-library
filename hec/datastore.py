@@ -6,7 +6,6 @@ Comprises the classes:
 * [DssDataStore](#DssDataStore): Accesses HEC-DSS files
 """
 
-import importlib.metadata
 import math
 import os
 import re
@@ -22,8 +21,8 @@ import pandas as pd
 import tzlocal
 from typing_extensions import Literal
 
-import hec.rating.paired_data
-from hec import location, parameter, timeseries, unit
+import hec
+import hec.shared
 from hec.const import CWMS, DSS, UNDEFINED
 from hec.duration import Duration
 from hec.hectime import HecTime, get_time_window
@@ -44,26 +43,6 @@ __all__ = [
     "required_dss_version",
 ]
 
-required_cwms_version = ">= '0.6.0'"
-required_dss_version = ">= '0.1.23'"
-
-try:
-    import cwms  # type: ignore
-
-    cwms_version = importlib.metadata.version("cwms-python")
-    cwms_imported = eval(f"'{cwms_version}' {required_cwms_version}")
-except ImportError:
-    cwms_imported = False
-try:
-    from hecdss import DssPath, HecDss, IrregularTimeSeries  # type: ignore
-    from hecdss import PairedData as DssPD
-    from hecdss import RegularTimeSeries  # type: ignore
-    from hecdss.record_type import RecordType  # type: ignore
-
-    dss_version = importlib.metadata.version("hecdss")
-    dss_imported = eval(f"'{dss_version}' {required_dss_version}")
-except ImportError:
-    dss_imported = False
 
 A, B, D, D, E, F = 1, 2, 3, 4, 5, 6
 
@@ -366,14 +345,14 @@ class AbstractDataStore(ABC):
                         raise TypeError(
                             f"Expected str for 'vertical_datum', got {argval.__class__.__name__}"
                         )
-                    if not parameter._all_datums_pattern.match(argval):
+                    if not hec.parameter._all_datums_pattern.match(argval):
                         raise ValueError(
-                            f"Invalid vertical datum: {argval}. Must be one of {parameter._NGVD29}, {parameter._NAVD88} or {parameter._OTHER_DATUM}"
+                            f"Invalid vertical datum: {argval}. Must be one of {hec.parameter._NGVD29}, {hec.parameter._NAVD88} or {hec.parameter._OTHER_DATUM}"
                         )
-                    if parameter._ngvd29_pattern.match(argval):
-                        self._vertical_datum = parameter._NGVD29
-                    elif parameter._navd88_pattern.match(argval):
-                        self._vertical_datum = parameter._NAVD88
+                    if hec.parameter._ngvd29_pattern.match(argval):
+                        self._vertical_datum = hec.parameter._NGVD29
+                    elif hec.parameter._navd88_pattern.match(argval):
+                        self._vertical_datum = hec.parameter._NAVD88
                     else:
                         self._vertical_datum = None
 
@@ -657,16 +636,16 @@ class AbstractDataStore(ABC):
 
     @vertical_datum.setter
     def vertical_datum(self, _vertical_datum: str) -> None:
-        if not parameter._all_datums_pattern.match(_vertical_datum):
+        if not hec.parameter._all_datums_pattern.match(_vertical_datum):
             raise ValueError(
-                f"Invalid vertical datum: {_vertical_datum}. Must be one of {parameter._NGVD29}, {parameter._NAVD88} or {parameter._OTHER_DATUM}"
+                f"Invalid vertical datum: {_vertical_datum}. Must be one of {hec.parameter._NGVD29}, {hec.parameter._NAVD88} or {hec.parameter._OTHER_DATUM}"
             )
-        if parameter._ngvd29_pattern.match(_vertical_datum):
-            self._vertical_datum = parameter._NGVD29
-        elif parameter._navd88_pattern.match(_vertical_datum):
-            self._vertical_datum = parameter._NAVD88
+        if hec.parameter._ngvd29_pattern.match(_vertical_datum):
+            self._vertical_datum = hec.parameter._NGVD29
+        elif hec.parameter._navd88_pattern.match(_vertical_datum):
+            self._vertical_datum = hec.parameter._NAVD88
         else:
-            self._vertical_datum = parameter._OTHER_DATUM
+            self._vertical_datum = hec.parameter._OTHER_DATUM
 
 
 class DssDataStore(AbstractDataStore):
@@ -694,17 +673,15 @@ class DssDataStore(AbstractDataStore):
             trim (Optional[bool], must be passed by name): Specifies the data store's default setting to trim missing values from the beginning and end of any regular time series data set retrieved.
                 Defaults to True.
         """
+        global hecdss
         super().__init__()
-        if not dss_imported:
-            raise DataStoreException(
-                f"Cannot create a DssDataStore object: please install the hec-dss-python module or upgrade to {required_dss_version}"
-            )
+        hecdss = hec.shared.import_hecdss()
         if "name" not in kwargs:
             raise DataStoreException("No name specified for data store.")
         self._init(**kwargs)
         self._name = os.path.abspath(self._name)
         try:
-            self._hecdss = HecDss(self._name)
+            self._hecdss = hecdss.HecDss(self._name)
         except:
             raise
         self._is_open = True
@@ -805,21 +782,21 @@ class DssDataStore(AbstractDataStore):
         func = None
         if _data_type == _DssDataType.TIMESERIES:
             func = lambda p: self._hecdss.get_record_type(p) in (
-                RecordType.RegularTimeSeries,
-                RecordType.IrregularTimeSeries,
+                hecdss.RecordType.RegularTimeSeries,
+                hecdss.RecordType.IrregularTimeSeries,
             )
         elif _data_type == _DssDataType.PAIRED_DATA:
-            func = lambda p: self._hecdss.get_record_type(p) == RecordType.PairedData
+            func = lambda p: self._hecdss.get_record_type(p) == hecdss.RecordType.PairedData
         elif _data_type == _DssDataType.GRID:
-            func = lambda p: self._hecdss.get_record_type(p) == RecordType.Grid
+            func = lambda p: self._hecdss.get_record_type(p) == hecdss.RecordType.Grid
         elif _data_type == _DssDataType.TEXT:
-            func = lambda p: self._hecdss.get_record_type(p) == RecordType.Text
+            func = lambda p: self._hecdss.get_record_type(p) == hecdss.RecordType.Text
         elif _data_type == _DssDataType.ARRAY:
-            func = lambda p: self._hecdss.get_record_type(p) == RecordType.Array
+            func = lambda p: self._hecdss.get_record_type(p) == hecdss.RecordType.Array
         elif _data_type == _DssDataType.TIN:
-            func = lambda p: self._hecdss.get_record_type(p) == RecordType.Tin
+            func = lambda p: self._hecdss.get_record_type(p) == hecdss.RecordType.Tin
         elif _data_type == _DssDataType.LOCATION:
-            func = lambda p: self._hecdss.get_record_type(p) == RecordType.LocationInfo
+            func = lambda p: self._hecdss.get_record_type(p) == hecdss.RecordType.LocationInfo
         if func:
             pathnames = list(filter(func, pathnames))
         return pathnames
@@ -1053,7 +1030,7 @@ class DssDataStore(AbstractDataStore):
             ),
             trim=trim,
         )
-        if isinstance(obj, (RegularTimeSeries, IrregularTimeSeries)):
+        if isinstance(obj, (hecdss.RegularTimeSeries, hecdss.IrregularTimeSeries)):
             mask = np.isclose(obj.values, UNDEFINED)
             if obj.quality:
                 obj.quality[mask] = 5
@@ -1076,7 +1053,7 @@ class DssDataStore(AbstractDataStore):
                 index=pd.DatetimeIndex(obj.times, name="time"),
             )
             df.loc[df["value"].isna(), "quality"] = 5
-            if isinstance(obj, IrregularTimeSeries):
+            if isinstance(obj, hecdss.IrregularTimeSeries):
                 df = df[(~df["value"].isna())]
             ts._data = df
             if obj.time_zone_name:
@@ -1084,7 +1061,7 @@ class DssDataStore(AbstractDataStore):
                     ts._data.tz_localize(obj.time_zone_name)
                 ts._timezone = str(cast(pd.DatetimeIndex, ts._data.index).tzinfo)
             return ts
-        elif isinstance(obj, (DssPD)):
+        elif isinstance(obj, (hecdss.PairedData)):
             return hec.rating.paired_data.PairedData(obj)
         else:
             raise TypeError(f"Retrieving {type(obj).__name__} objects is not supported")
@@ -1104,7 +1081,7 @@ class DssDataStore(AbstractDataStore):
                 * **11**: Internal Diagnostic
                 * **13**: Internal Debug
         """
-        HecDss.set_global_debug_level(level)
+        hecdss.HecDss.set_global_debug_level(level)
 
     def store(self, obj: object, **kwargs: Any) -> None:
         """
@@ -1131,9 +1108,9 @@ class DssDataStore(AbstractDataStore):
                 obj = obj.copy()
                 obj.context = "DSS"
             if obj.interval.is_regular:
-                ts = RegularTimeSeries()
+                ts = hecdss.RegularTimeSeries()
             else:
-                ts = IrregularTimeSeries()
+                ts = hecdss.IrregularTimeSeries()
             ts.id = obj.name
             data = cast(pd.DataFrame, obj.data)
             ts.times = pd.to_datetime(data.index).tz_localize(None).tolist()
@@ -1185,12 +1162,10 @@ class CwmsDataStore(AbstractDataStore):
             units: (Optional[str], must be passed by name): "EN" or "SI", specifying English or metric unit system as the default unit system for the data store. Defaults to "EN"
             vertical_datum: (Optional[str], must be passed by name): "NGVD29", "NAVD88", or "NATIVE", specifying the data store's default vertical datum for retrieving elevation data. Defaults to "NATIVE"
         """
+        global cwms
         super().__init__()
         self._init(**kwargs)
-        if not cwms_imported:
-            raise DataStoreException(
-                f"Cannot create a CwmsDataStore object: please install the cwms-python module or upgrade to {required_cwms_version}"
-            )
+        cwms = hec.shared.import_cwms()
         if kwargs:
             argval: Any
             # ------------------ #
@@ -1396,14 +1371,14 @@ class CwmsDataStore(AbstractDataStore):
                         raise TypeError(
                             f"Expected str for 'vertical_datum', got {argval.__class__.__name__}"
                         )
-                    if not parameter._all_datums_pattern.match(argval):
+                    if not hec.parameter._all_datums_pattern.match(argval):
                         raise ValueError(
-                            f"Invalid vertical datum: {argval}. Must be one of {parameter._NGVD29}, {parameter._NAVD88} or {parameter._OTHER_DATUM}"
+                            f"Invalid vertical datum: {argval}. Must be one of {hec.parameter._NGVD29}, {hec.parameter._NAVD88} or {hec.parameter._OTHER_DATUM}"
                         )
-                    if parameter._ngvd29_pattern.match(argval):
-                        vertical_datum = parameter._NGVD29
-                    elif parameter._navd88_pattern.match(argval):
-                        vertical_datum = parameter._NAVD88
+                    if hec.parameter._ngvd29_pattern.match(argval):
+                        vertical_datum = hec.parameter._NGVD29
+                    elif hec.parameter._navd88_pattern.match(argval):
+                        vertical_datum = hec.parameter._NAVD88
                     else:
                         vertical_datum = None
         catalog = self.catalog(
@@ -1529,14 +1504,14 @@ class CwmsDataStore(AbstractDataStore):
                         raise TypeError(
                             f"Expected str for 'vertical_datum', got {argval.__class__.__name__}"
                         )
-                    if not parameter._all_datums_pattern.match(argval):
+                    if not hec.parameter._all_datums_pattern.match(argval):
                         raise ValueError(
-                            f"Invalid vertical datum: {argval}. Must be one of {parameter._NGVD29}, {parameter._NAVD88} or {parameter._OTHER_DATUM}"
+                            f"Invalid vertical datum: {argval}. Must be one of {hec.parameter._NGVD29}, {hec.parameter._NAVD88} or {hec.parameter._OTHER_DATUM}"
                         )
-                    if parameter._ngvd29_pattern.match(argval):
-                        vertical_datum = parameter._NGVD29
-                    elif parameter._navd88_pattern.match(argval):
-                        vertical_datum = parameter._NAVD88
+                    if hec.parameter._ngvd29_pattern.match(argval):
+                        vertical_datum = hec.parameter._NGVD29
+                    elif hec.parameter._navd88_pattern.match(argval):
+                        vertical_datum = hec.parameter._NAVD88
                     else:
                         vertical_datum = None
 
@@ -2243,16 +2218,16 @@ class CwmsDataStore(AbstractDataStore):
             if "vertical_datum" in kwargs:
                 argval = kwargs["vertical_datum"]
                 if isinstance(argval, str):
-                    if not parameter._all_datums_pattern.match(argval):
+                    if not hec.parameter._all_datums_pattern.match(argval):
                         raise DataStoreException(
-                            f"Invalid vertical_datum, expected {parameter._NGVD29}, {parameter._NGVD29}, or {parameter._OTHER_DATUM}"
+                            f"Invalid vertical_datum, expected {hec.parameter._NGVD29}, {hec.parameter._NGVD29}, or {hec.parameter._OTHER_DATUM}"
                         )
-                    if parameter._ngvd29_pattern.match(argval):
-                        vertical_datum = parameter._NGVD29
-                    elif parameter._navd88_pattern.match(argval):
-                        vertical_datum = parameter._NAVD88
+                    if hec.parameter._ngvd29_pattern.match(argval):
+                        vertical_datum = hec.parameter._NGVD29
+                    elif hec.parameter._navd88_pattern.match(argval):
+                        vertical_datum = hec.parameter._NAVD88
                     else:
-                        vertical_datum = parameter._OTHER_DATUM
+                        vertical_datum = hec.parameter._OTHER_DATUM
                 elif argval is None:
                     pass
                 else:
@@ -2707,9 +2682,9 @@ class CwmsDataStore(AbstractDataStore):
             version_time (Optional[Any], must be passed by name): Specifies the version date/time of the data to delete (time series types only). Must be an [`HecTime`](hectime.html#HecTime) object or a valid input to the `HecTime` constructor.
                 Defaults to the None, meaning non-versioned data.
         """
-        if timeseries._is_cwms_tsid(identifier):
+        if hec.timeseries._is_cwms_tsid(identifier):
             self._delete_time_series(identifier, **kwargs)
-        elif location._is_cwms_location(identifier):
+        elif hec.location._is_cwms_location(identifier):
             self._delete_location(identifier, **kwargs)
         else:
             raise ValueError(
@@ -2807,7 +2782,7 @@ class CwmsDataStore(AbstractDataStore):
             raise DataStoreException(
                 f"Office parameter must be specified since data store '{self}' has no default office"
             )
-        if location._is_cwms_location(identifier):
+        if hec.location._is_cwms_location(identifier):
             loc_id = identifier
         else:
             raise ValueError("Identifier must be a valid CWMS location identifier")
@@ -2974,9 +2949,9 @@ class CwmsDataStore(AbstractDataStore):
             Any: The [`Location`](location.html#Location) or [`TimeSeries`](timeseries.html#TimeSeries) object
         """
         self._assert_open()
-        if timeseries._is_cwms_tsid(identifier):
+        if hec.timeseries._is_cwms_tsid(identifier):
             return self._retrieve_time_series(identifier, **kwargs)
-        if location._is_cwms_location(identifier):
+        if hec.location._is_cwms_location(identifier):
             return self._retrieve_location(identifier, **kwargs)
         raise ValueError(f"Identifier {identifier} is not a recognized CWMS identifier")
 
