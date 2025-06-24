@@ -99,8 +99,7 @@ __all__ = [
 #     RatingTemplateException,
 # )
 
-from . import shared
-from . import rating
+from . import datastore, rating, shared
 from .const import Combine, Safety, Select, SelectionState
 from .datastore import (
     CwmsDataStore,

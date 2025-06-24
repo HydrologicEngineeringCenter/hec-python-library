@@ -1,16 +1,14 @@
-from typing import Sequence, Union, cast
-
-import hec
-
-from typing import Any, Optional
+from typing import Any, Optional, Sequence, Union, cast
 
 import hecdss  # type: ignore
 import numpy as np
 import numpy.typing as npt
 import pandas as pd
 
+import hec
 
-class PairedDataException(hec.rating.rating_shared.RatingException):
+
+class PairedDataException(hec.shared.RatingException):
     pass
 
 
@@ -38,7 +36,7 @@ class PairedData:
             )
         self._labels = paired_data.labels[:]
         num_curves = len(paired_data.values[0])
-        if len(self._labels) == 1 and not self._labels[0]:
+        if num_curves == 1 and not self._labels[0]:
             self._labels = ["dep"]
         for i in range(1, len(paired_data.values)):
             if len(paired_data.values[i]) != num_curves:
@@ -69,11 +67,16 @@ class PairedData:
         data = {"ind": ordinates}
         values_T = paired_data.values.T
         if num_curves > len(self._labels):
-            self._lables = []
-            for i in range(num_curves):
-                label = f"dep{i+1}"
-                self._lables.append(label)
-                data[label] = values_T[i]
+            if len(self._param_names) == 3 and num_curves == 2:
+                self._labels = self._param_names[1:]
+                for i in range(num_curves):
+                    data[self._labels[i]] = values_T[i]
+            else:
+                self._labels = []
+                for i in range(num_curves):
+                    label = f"dep{i+1}"
+                    self._labels.append(label)
+                    data[label] = values_T[i]
         else:
             for i in range(num_curves):
                 data[self._labels[i]] = values_T[i]
@@ -89,19 +92,23 @@ class PairedData:
     def rate(self, to_rate: Any, label: Optional[str] = None) -> Any:
         if to_rate is None:
             return None
-        elif isinstance(to_rate, float):
+        if label:
+            for lbl in self._labels:
+                if label.upper() == lbl.upper():
+                    _label = lbl
+                    break
+            else:
+                raise ValueError(f"No such column label: '{label}'")
+        else:
+            _label = "dep"
+        if isinstance(to_rate, float):
             # ------------------- #
             # rate a single value #
             # ------------------- #
-            if not label:
-                if len(self._data.columns) > 2:
-                    raise PairedDataException(
-                        "Multi-column PairedData object can't rate a single value with no label"
-                    )
-                else:
-                    label = "dep"
-            elif label not in self._labels:
-                raise ValueError(f"No such column label: '{label}'")
+            if len(self._data.columns) > 2:
+                raise PairedDataException(
+                    "Multi-column PairedData object can't rate a single value with no label"
+                )
             if self._ind_log:
                 to_rate = np.log(to_rate)
                 if np.isnan(cast(float, to_rate)):
@@ -109,7 +116,7 @@ class PairedData:
             rated = np.interp(
                 [to_rate],
                 self._data["ind"],
-                self._data[label],
+                self._data[_label],
                 left=np.nan,
                 right=np.nan,
             )[0]
@@ -122,14 +129,12 @@ class PairedData:
                     # ------------------------------------------------- #
                     # rate a list of 1-value inputs on specified column #
                     # ------------------------------------------------- #
-                    if label not in self._labels:
-                        raise ValueError(f"No such column label: '{label}'")
                     v = np.array(to_rate)
                     if self._ind_log:
                         rated = np.interp(
                             np.where(v > 0, np.log(v), np.nan),
                             self._data["ind"],
-                            self._data[label],
+                            self._data[_label],
                             left=np.nan,
                             right=np.nan,
                         )
@@ -137,10 +142,11 @@ class PairedData:
                         rated = np.interp(
                             v,
                             self._data["ind"],
-                            self._data[label],
+                            self._data[_label],
                             left=np.nan,
                             right=np.nan,
                         )
+                    return rated
                 elif len(to_rate) == 2:
                     # --------------------------- #
                     # rate a single 2-value input #
@@ -220,6 +226,9 @@ class PairedData:
                             left=np.nan,
                             right=np.nan,
                         )
+                    if self._dep_log:
+                        rated = np.exp(rated)
+                    return rated
             elif isinstance(to_rate[0], (list, tuple)):
                 # ----------------------------- #
                 # rate a list of 2-value inputs #
@@ -300,7 +309,7 @@ class PairedData:
                 raise ValueError("Cannot rate an empty time series")
             copy = to_rate.copy().iexpand()
             data = cast(pd.DataFrame, copy.data)
-            data["value"] = self.rate(data)["value"].to_list()
+            data["value"] = self.rate(data["value"].to_list(), label=label)
             return copy
         else:
             raise TypeError(

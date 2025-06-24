@@ -3,7 +3,7 @@ Module for various rounding classes
 """
 
 import math
-from typing import Any
+from typing import Any, Sequence
 
 
 class UsgsRounder:
@@ -13,14 +13,14 @@ class UsgsRounder:
     [ADAPS Section of the National Water Information System User's Manual]("http://pubs.usgs.gov/of/2003/ofr03123/").
 
     Specifically, the rounding specifications are strings of 10 digits with the following meanings (left to right):
-    1. Number of significant digits for values <0.01
-    2. Number of significant digits for values >= 0.01 and <0.1
-    3. Number of significant digits for values >= 0.1 and <1.0
-    4. Number of significant digits for values >= 1.0 and <10
-    5. Number of significant digits for values >= 10 and 100
-    6. Number of significant digits for values >= 100 and 1000
-    7. Number of significant digits for values >= 1,000 and 10,000
-    8. Number of significant digits for values >= 10,000 and 100,000
+    1. Number of significant digits for values < 0.01
+    2. Number of significant digits for values >= 0.01 and < 0.1
+    3. Number of significant digits for values >= 0.1 and < 1.0
+    4. Number of significant digits for values >= 1.0 and < 10
+    5. Number of significant digits for values >= 10 and < 100
+    6. Number of significant digits for values >= 100 and < 1000
+    7. Number of significant digits for values >= 1,000 and < 10,000
+    8. Number of significant digits for values >= 10,000 and < 100,000
     9. Number of significant digits for values >= 100,000
     10. Maximum number of decimal places regardless of magnitude
     """
@@ -42,38 +42,47 @@ class UsgsRounder:
     def __str__(self) -> str:
         return self._rounding_spec
 
-    def round_f(self, value: float, round_half_even: bool = True) -> float:
-        return float(self.round_s(value))
+    def round_f(
+        self, values: Sequence[float], round_half_even: bool = True
+    ) -> list[float]:
+        return [float(v) for v in self.round_s(values)]
 
-    def round_s(self, value: float, round_half_even: bool = True) -> str:
-        if not math.isfinite(value):
-            return str(value)
-        max_dec_places = int(self.rounding_spec[-1])
-        format = f".{max_dec_places}f"
-        if value == 0.0:
-            return f"{0.:{format}}"
-        magnitude = int(math.floor(math.log10(abs(value))))
-        index = min(5, max(-3, magnitude)) + 3
-        sig_digits = int(self._rounding_spec[index])
+    def round_s(
+        self, values: Sequence[float], round_half_even: bool = True
+    ) -> list[str]:
+        results: list[str] = []
+        for value in values:
+            if not math.isfinite(value):
+                results.append(str(value))
+                continue
+            max_dec_places = int(self.rounding_spec[-1])
+            format = f".{max_dec_places}f"
+            if value == 0.0:
+                results.append(f"{0.:{format}}")
+                continue
+            magnitude = int(math.floor(math.log10(abs(value))))
+            index = min(5, max(-3, magnitude)) + 3
+            sig_digits = int(self._rounding_spec[index])
 
-        if sig_digits + magnitude < sig_digits:
-            sig_digits = min(max_dec_places, sig_digits + magnitude + 1)
-        factor = math.pow(10, magnitude - sig_digits + 1)
-        value /= factor
-        sign = 1 if value > 0.0 else -1 if value < 0.0 else 0
-        integer = int(value)
-        fraction = abs(value - integer)
-        if abs(fraction - 0.5) < 1.0e-8:
-            if round_half_even and not integer % 2:
-                pass
+            if sig_digits + magnitude < sig_digits:
+                sig_digits = min(max_dec_places, sig_digits + magnitude + 1)
+            factor = math.pow(10, magnitude - sig_digits + 1)
+            value /= factor
+            sign = 1 if value > 0.0 else -1 if value < 0.0 else 0
+            integer = int(value)
+            fraction = abs(value - integer)
+            if abs(fraction - 0.5) < 1.0e-8:
+                if round_half_even and not integer % 2:
+                    pass
+                else:
+                    integer += sign
             else:
-                integer += sign
-        else:
-            integer = int(value + 0.5 * sign)
-        result = f"{float(integer * factor):{format}}".rstrip("0")
-        if result.endswith("."):
-            result += "0"
-        return result
+                integer = int(value + 0.5 * sign)
+            result = f"{float(integer * factor):{format}}".rstrip("0")
+            if result.endswith("."):
+                result += "0"
+            results.append(result)
+        return results
 
     @property
     def rounding_spec(self) -> str:

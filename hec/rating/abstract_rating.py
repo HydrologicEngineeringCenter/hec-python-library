@@ -12,7 +12,7 @@ from hec.rating.rating_specification import RatingSpecification
 from hec.rating.rating_template import RatingTemplate
 
 
-class AbstractRatingException(rating_shared.RatingException):
+class AbstractRatingException(hec.shared.RatingException):
     pass
 
 

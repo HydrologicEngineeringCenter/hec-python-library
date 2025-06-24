@@ -2,7 +2,8 @@ import warnings
 from typing import Any, Optional
 
 from hec.parameter import Parameter, ParameterException
-from hec.rating.rating_shared import LookupMethod, RatingException
+from hec.rating.rating_shared import LookupMethod
+from hec.shared import RatingException
 
 
 class RatingTemplateException(RatingException):

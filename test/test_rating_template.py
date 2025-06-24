@@ -1,6 +1,6 @@
 import pytest
 
-from hec import RatingTemplate, RatingTemplateException
+from hec.rating import RatingTemplate, RatingTemplateException
 
 
 def test_valid_construction() -> None:

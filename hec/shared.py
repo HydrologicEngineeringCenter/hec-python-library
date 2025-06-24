@@ -9,6 +9,7 @@ cwms_imported = False
 required_cwms_version = ">= '0.6.0'"
 required_dss_version = ">= '0.1.23'"
 
+
 def import_cwms() -> types.ModuleType:
     try:
         import cwms  # type: ignore
@@ -18,19 +19,26 @@ def import_cwms() -> types.ModuleType:
     except ImportError:
         cwms_imported = False
     if not cwms_imported:
-        raise ImportError(f"Cannot import module cwms. Please install or upgrade to {required_cwms_version}")
-    return cwms
+        raise ImportError(
+            f"Cannot import module cwms. Please install or upgrade to {required_cwms_version}"
+        )
+    return cwms  # type: ignore
+
 
 def import_hecdss() -> types.ModuleType:
     try:
-        import hecdss
+        import hecdss  # type: ignore
+
         dss_version = importlib.metadata.version("hecdss")
         dss_imported = eval(f"'{dss_version}' {required_dss_version}")
     except ImportError:
         dss_imported = False
     if not dss_imported:
-        raise ImportError(f"Cannot import module hecdss. Please install or upgrade to {required_dss_version}")
-    return hecdss
+        raise ImportError(
+            f"Cannot import module hecdss. Please install or upgrade to {required_dss_version}"
+        )
+    return hecdss  # type: ignore
+
 
 def is_leap(y: int) -> bool:
     """
@@ -79,3 +87,11 @@ def previous_month(y: int, m: int) -> tuple[int, int]:
         y -= 1
         m = 12
     return y, m
+
+
+class RatingException(Exception):
+    """
+    Base exception for all rating exceptions
+    """
+
+    pass

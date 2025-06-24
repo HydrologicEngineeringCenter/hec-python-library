@@ -1,8 +1,9 @@
 from typing import Any, Optional, Sequence, Union
 
 from hec.location import Location
-from hec.rating.rating_shared import LookupMethod, RatingException
+from hec.rating.rating_shared import LookupMethod
 from hec.rating.rating_template import RatingTemplate
+from hec.shared import RatingException
 
 DEFAULT_IN_RANGE_METHOD = LookupMethod.LINEAR
 DEFAULT_OUT_RANGE_LOW_METHOD = LookupMethod.NEXT

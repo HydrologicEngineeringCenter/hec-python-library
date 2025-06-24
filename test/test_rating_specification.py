@@ -2,8 +2,8 @@ import re
 
 import pytest
 
-from hec import (
-    Location,
+from hec import Location
+from hec.rating import (
     LookupMethod,
     RatingSpecification,
     RatingSpecificationException,

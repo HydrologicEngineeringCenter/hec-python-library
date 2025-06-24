@@ -13,6 +13,7 @@ import warnings
 from abc import ABC, abstractmethod
 from datetime import datetime, timezone
 from enum import Enum
+from types import ModuleType
 from typing import Any, Dict, List, Optional, Tuple, Type, Union, cast
 from zoneinfo import ZoneInfo
 
@@ -29,6 +30,7 @@ from hec.hectime import HecTime, get_time_window
 from hec.interval import Interval
 from hec.location import Location
 from hec.parameter import ElevParameter, Parameter, ParameterType
+from hec.rounding import UsgsRounder
 from hec.timeseries import TimeSeries
 from hec.unit import UnitQuantity
 
@@ -45,6 +47,9 @@ __all__ = [
 
 
 A, B, D, D, E, F = 1, 2, 3, 4, 5, 6
+
+hecdss: ModuleType
+cwms: ModuleType
 
 warnings.filterwarnings("always", category=UserWarning)
 
@@ -786,7 +791,10 @@ class DssDataStore(AbstractDataStore):
                 hecdss.RecordType.IrregularTimeSeries,
             )
         elif _data_type == _DssDataType.PAIRED_DATA:
-            func = lambda p: self._hecdss.get_record_type(p) == hecdss.RecordType.PairedData
+            func = (
+                lambda p: self._hecdss.get_record_type(p)
+                == hecdss.RecordType.PairedData
+            )
         elif _data_type == _DssDataType.GRID:
             func = lambda p: self._hecdss.get_record_type(p) == hecdss.RecordType.Grid
         elif _data_type == _DssDataType.TEXT:
@@ -796,7 +804,10 @@ class DssDataStore(AbstractDataStore):
         elif _data_type == _DssDataType.TIN:
             func = lambda p: self._hecdss.get_record_type(p) == hecdss.RecordType.Tin
         elif _data_type == _DssDataType.LOCATION:
-            func = lambda p: self._hecdss.get_record_type(p) == hecdss.RecordType.LocationInfo
+            func = (
+                lambda p: self._hecdss.get_record_type(p)
+                == hecdss.RecordType.LocationInfo
+            )
         if func:
             pathnames = list(filter(func, pathnames))
         return pathnames
@@ -988,7 +999,25 @@ class DssDataStore(AbstractDataStore):
         self._assert_open()
         trim = self._trim
         time_window = self._time_window
+        ind_rounder: Optional[UsgsRounder] = None
+        dep_rounder: Optional[UsgsRounder] = None
+        valid_argnames = [
+            "start_time",
+            "end_time",
+            "trim",
+            "rounding",
+            "ind_rounding",
+            "dep_rounding",
+        ]
+        for kw in kwargs:
+            if kw not in valid_argnames:
+                raise TypeError(f"retrieve() got an unexpected keyword argument '{kw}'")
         if kwargs:
+            # --------------------------- #
+            # dependent variable rounding #
+            # --------------------------- #
+            if "dep_rounding" in kwargs:
+                dep_rounder = UsgsRounder(str(kwargs["dep_rounding"]))
             # -------- #
             # end_time #
             # -------- #
@@ -997,6 +1026,11 @@ class DssDataStore(AbstractDataStore):
                     time_window[0],
                     None if kwargs["end_time"] is None else HecTime(kwargs["end_time"]),
                 )
+            # ----------------------------- #
+            # independent variable rounding #
+            # ----------------------------- #
+            if "ind_rounding" in kwargs:
+                ind_rounder = UsgsRounder(str(kwargs["ind_rounding"]))
             # ---------- #
             # start_time #
             # ---------- #
@@ -1009,6 +1043,12 @@ class DssDataStore(AbstractDataStore):
                     ),
                     time_window[1],
                 )
+            # --------------------------------------- #
+            # independent/dependent variable rounding #
+            # --------------------------------------- #
+            if "rounding" in kwargs:
+                ind_rounder = UsgsRounder(str(kwargs["rounding"]))
+                dep_rounder = UsgsRounder(str(kwargs["rounding"]))
             # ---- #
             # trim #
             # ---- #
@@ -1052,9 +1092,12 @@ class DssDataStore(AbstractDataStore):
                 },
                 index=pd.DatetimeIndex(obj.times, name="time"),
             )
-            df.loc[df["value"].isna(), "quality"] = 5
             if isinstance(obj, hecdss.IrregularTimeSeries):
                 df = df[(~df["value"].isna())]
+            else:
+                df.loc[df["value"].isna(), "quality"] = 5
+            if ind_rounder:
+                df.loc[:, "value"] = ind_rounder.round_f(df["value"].to_list())
             ts._data = df
             if obj.time_zone_name:
                 if not cast(pd.DatetimeIndex, ts._data.index).tzinfo:
@@ -1062,7 +1105,19 @@ class DssDataStore(AbstractDataStore):
                 ts._timezone = str(cast(pd.DatetimeIndex, ts._data.index).tzinfo)
             return ts
         elif isinstance(obj, (hecdss.PairedData)):
-            return hec.rating.paired_data.PairedData(obj)
+            hecpd = hec.rating.paired_data.PairedData(obj)
+            if ind_rounder:
+                hecpd._data.loc[:, "ind"] = ind_rounder.round_f(
+                    hecpd._data["ind"].to_list()
+                )
+            if dep_rounder:
+                for column in hecpd._data.columns.to_list():
+                    if column == "ind":
+                        continue
+                    hecpd._data.loc[:, column] = dep_rounder.round_f(
+                        hecpd._data[column].to_list()
+                    )
+            return hecpd
         else:
             raise TypeError(f"Retrieving {type(obj).__name__} objects is not supported")
 
