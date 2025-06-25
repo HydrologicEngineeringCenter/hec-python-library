@@ -1073,7 +1073,9 @@ class DssDataStore(AbstractDataStore):
         if isinstance(obj, (hecdss.RegularTimeSeries, hecdss.IrregularTimeSeries)):
             mask = np.isclose(obj.values, UNDEFINED)
             if obj.quality:
-                obj.quality[mask] = 5
+                quality = np.array(obj.quality)
+                quality[mask] = 5
+                obj.quality = quality.tolist()
             obj.values[mask] = np.nan
             ts = TimeSeries(obj.id)
             ts.iset_parameter_type(obj.data_type)

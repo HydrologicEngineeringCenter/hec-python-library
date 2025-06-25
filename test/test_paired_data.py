@@ -55,11 +55,21 @@ def test_paired_data(
             # single input, multiple outputs (e.g., elev-stor-area) #
             # ----------------------------------------------------- #
             for ts in expected_ts:
-                print(ts)
                 rated_ts = cast(hec.TimeSeries, dsspd.rate(input_ts[0], label = ts.parameter.name))
                 assert np.allclose(
                     ts.values[1:-1], rated_ts.values[1:-1], equal_nan=True
                 )
+    elif len(input_ts) == 2:
+        assert len(expected_ts) == 1
+        # --------------------------------------------- #
+        # gate rating with two inputs and single output #
+        # --------------------------------------------- #
+        rated_ts = cast(hec.TimeSeries, dsspd.rate(input_ts))
+        assert np.allclose(
+            expected_ts[0].values[1:-1], rated_ts.values[1:-1], equal_nan=True
+        )
+    else:
+        raise Exception(f"Expected inputs to be of length 1 or 2, got {len(input_ts)}")
 
 if __name__ == "__main__":
     dssf: hec.datastore.DssDataStore = hec.datastore.DssDataStore.open(
