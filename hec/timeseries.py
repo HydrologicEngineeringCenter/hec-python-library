@@ -25,7 +25,7 @@ import hec.unit
 from hec.const import CWMS, DSS, Combine, PercentileMethods, Select, SelectionState
 from hec.duration import Duration
 from hec.hectime import HecTime
-from hec.interval import Interval
+from hec.interval import Interval, IntervalException
 from hec.location import Location
 from hec.parameter import ElevParameter, Parameter, ParameterType
 from hec.quality import Quality
@@ -2001,25 +2001,29 @@ class TimeSeries:
             if self.is_irregular:
                 number_values = (
                     0
-                    if not self.data
+                    if self.data is None or self.data.empty
                     else 1 if len(self.data.shape) == 1 else self.data.shape[0]
                 )
-                seconds_per_year = timedelta(days=365).total_seconds()
-                time_range = cast(
-                    TimeSpan, (HecTime(self.times[-1]) - HecTime(self.times[0]))
-                ).total_seconds()
-                values_per_year = number_values / time_range * seconds_per_year
-                if values_per_year > 1000:
-                    intvl = Interval.get_any_dss(lambda i: i.name == "IR-Decade")
-                elif values_per_year > 100:
-                    intvl = Interval.get_any_dss(lambda i: i.name == "IR-Year")
-                elif values_per_year > 100.0 / 12:
+                if number_values == 1:
                     intvl = Interval.get_any_dss(lambda i: i.name == "IR-Month")
                 else:
-                    intvl = Interval.get_any_dss(lambda i: i.name == "IR-Day")
+                    seconds_per_year = timedelta(days=365).total_seconds()
+                    time_range = (datetime.fromisoformat(self.times[-1]) - datetime.fromisoformat(self.times[0])).total_seconds()
+                    values_per_year = number_values / time_range * seconds_per_year
+                    if values_per_year > 1000:
+                        intvl = Interval.get_any_dss(lambda i: i.name == "IR-Decade")
+                    elif values_per_year > 100:
+                        intvl = Interval.get_any_dss(lambda i: i.name == "IR-Year")
+                    elif values_per_year > 100.0 / 12:
+                        intvl = Interval.get_any_dss(lambda i: i.name == "IR-Month")
+                    else:
+                        intvl = Interval.get_any_dss(lambda i: i.name == "IR-Day")
             else:
                 if self.interval.is_local_regular or self.interval.is_pseudo_regular:
-                    intvl = Interval.get_dss(self.interval.name)
+                    try:
+                        intvl = Interval.get_dss(self.interval.name)
+                    except IntervalException as e:
+                        intvl = Interval.get_dss(self.interval.name[:-1])
                 else:
                     intvl = Interval.get_any_dss(
                         lambda i: i.is_regular == True

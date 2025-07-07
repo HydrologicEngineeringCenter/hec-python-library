@@ -783,26 +783,26 @@ class DssDataStore(AbstractDataStore):
         func = None
         if _data_type == _DssDataType.TIMESERIES:
             func = lambda p: self._hecdss.get_record_type(p) in (
-                hecdss.RecordType.RegularTimeSeries,
-                hecdss.RecordType.IrregularTimeSeries,
+                hecdss.record_type.RecordType.RegularTimeSeries,
+                hecdss.record_type.RecordType.IrregularTimeSeries,
             )
         elif _data_type == _DssDataType.PAIRED_DATA:
             func = (
                 lambda p: self._hecdss.get_record_type(p)
-                == hecdss.RecordType.PairedData
+                == hecdss.record_type.RecordType.PairedData
             )
         elif _data_type == _DssDataType.GRID:
-            func = lambda p: self._hecdss.get_record_type(p) == hecdss.RecordType.Grid
+            func = lambda p: self._hecdss.get_record_type(p) == hecdss.record_type.RecordType.Grid
         elif _data_type == _DssDataType.TEXT:
-            func = lambda p: self._hecdss.get_record_type(p) == hecdss.RecordType.Text
+            func = lambda p: self._hecdss.get_record_type(p) == hecdss.record_type.RecordType.Text
         elif _data_type == _DssDataType.ARRAY:
-            func = lambda p: self._hecdss.get_record_type(p) == hecdss.RecordType.Array
+            func = lambda p: self._hecdss.get_record_type(p) == hecdss.record_type.RecordType.Array
         elif _data_type == _DssDataType.TIN:
-            func = lambda p: self._hecdss.get_record_type(p) == hecdss.RecordType.Tin
+            func = lambda p: self._hecdss.get_record_type(p) == hecdss.record_type.RecordType.Tin
         elif _data_type == _DssDataType.LOCATION:
             func = (
                 lambda p: self._hecdss.get_record_type(p)
-                == hecdss.RecordType.LocationInfo
+                == hecdss.RecordType.record_type.LocationInfo
             )
         if func:
             pathnames = list(filter(func, pathnames))
