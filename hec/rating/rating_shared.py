@@ -3,7 +3,18 @@
 # ---------------------------------------------- #
 from enum import Enum
 from typing import Union
+import types
 
+
+def import_hec() -> types.ModuleType:
+    """
+    Lazy-imports the hec module to prevent circular imports
+
+    Returns:
+        types.ModuleType: the imported hec module
+    """
+    import hec
+    return hec
 
 class LookupMethod(Enum):
     NULL = (1, "Return null if between values or outside range")

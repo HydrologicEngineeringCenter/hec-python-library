@@ -1,19 +1,16 @@
 import json
 import re
 from typing import Any, Optional, Sequence, Union, cast
+from .rating_shared import import_hec
 
 import hecdss  # type: ignore
 import numpy as np
 import numpy.typing as npt
 import pandas as pd
-import types
-
-hec: types.ModuleType
 
 
 def _is_dss_pd_pathname(id: str) -> bool:
-    global hec
-    import hec
+    hec = import_hec()
     A, B, C, D, E, F = 1, 2, 3, 4, 5, 6
     parts = id.split("/")
     if len(parts) != 8:
@@ -81,8 +78,7 @@ class PairedData:
                     * **`labels` (array of strings, optional)**: The dependent sub-parameters or second independent parameter values, depending on usage.
                     * **`values` (array of array of numbers, required)**: The independent (first array) and dependent (subsequend arrays) parameter values.
         """
-        global hec
-        import hec
+        hec = import_hec()
         self._name: str
         self._parameters: Sequence[str]
         self._ind_unit: str
@@ -453,8 +449,7 @@ class PairedData:
         Returns:
             Any: The rated value(s)
         """
-        global hec
-        import hec
+        hec = import_hec()
         if to_rate is None:
             return None
         if label:
@@ -673,8 +668,7 @@ class PairedData:
         Returns:
             Any: The reverse rated value(s)
         """
-        global hec
-        import hec
+        hec = import_hec()
         if to_rate is None:
             return None
         if label:
