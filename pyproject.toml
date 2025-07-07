@@ -17,7 +17,7 @@ ignore_missing_imports = true
 
 [project]
 name = "hec-python-library"
-version = "0.9.3.2"
+version = "0.9.3.3"
 description = "Python 3 implementation of HEC Java/Jython utility classes"
 authors = [
     { name = "Michael Perryman", email = "michael.d.perryman@usace.army.mil" }
