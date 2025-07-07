@@ -2,8 +2,9 @@
 requires = ["setuptools>=42", "wheel"]
 build-backend = "setuptools.build_meta"
 
-[tool.setuptools]
-packages = ["hec"]
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["hec*"]
 
 [tool.setuptools.package-data]
 hec = ["resources/*"]
@@ -17,7 +18,7 @@ ignore_missing_imports = true
 
 [project]
 name = "hec-python-library"
-version = "0.9.3.3"
+version = "0.9.4"
 description = "Python 3 implementation of HEC Java/Jython utility classes"
 authors = [
     { name = "Michael Perryman", email = "michael.d.perryman@usace.army.mil" }
@@ -38,4 +39,3 @@ dependencies = [
     "Pint-pandas>=0.6.2",
     "tzlocal>=5.2"
 ]
-
