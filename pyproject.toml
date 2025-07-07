@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 packages = ["hec"]
 
 [tool.setuptools.package-data]
-hec = ["resources/*.txt"]
+hec = ["resources/*"]
 
 [tool.mypy]
 ignore_missing_imports = false
@@ -17,13 +17,13 @@ ignore_missing_imports = true
 
 [project]
 name = "hec-python-library"
-version = "0.9.2"
+version = "0.9.3"
 description = "Python 3 implementation of HEC Java/Jython utility classes"
 authors = [
     { name = "Michael Perryman", email = "michael.d.perryman@usace.army.mil" }
 ]
 # license = { file = "LICENSE" }
-# readme = "README.md"
+readme = "README.md"
 keywords = ["HEC", "timeseries", "time series", "DSS", "HEC-DSS", "CWMS"]
 classifiers = [
     "Programming Language :: Python :: 3",

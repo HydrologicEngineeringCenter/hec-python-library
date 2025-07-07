@@ -1,0 +1,190 @@
+"""
+This is a jython script.
+"""
+from hec.heclib.dss import HecDss
+from hec.heclib.util import Heclib, HecTime, HecTimeArray
+from hec.hecmath import PairedDataMath, TimeSeriesMath
+from hec.io import TimeSeriesContainer
+from java.lang import Exception as JavaException
+
+A, B, C, D, E, F = 1, 2, 3, 4, 5, 6
+def generate_test_data(pathname):
+    global dss, out
+    test_data = []
+    pdm = dss.read(pathname)
+    if not isinstance(pdm, PairedDataMath):
+        return
+    pathname_parts = pathname.split("/")
+    params = pathname_parts[C].split("-")
+    pdc = pdm.getData()
+    length = len(pdc.xOrdinates)
+    width = len(pdc.yOrdinates)
+    x1 = pdc.xOrdinates
+    x1vals = [x1[0] - (x1[1]-x1[0]) / 2., x1[0]]
+    for i in range(1, length):
+        x1vals.extend([(x1[i-1] + x1[i]) / 2., x1[i]])
+    x1vals.append(x1[-1] + (x1[-1] - x1[-2]) / 2.)
+    ht = HecTime()
+    ht.set("01Jan2025, 01:00")
+    base_time = ht.value()
+    new_pathname = "/{}/{}/{}//1Hour/Test/".format(pathname_parts[A], pathname_parts[B], params[0])
+    tsc1 = TimeSeriesContainer()
+    tsc1.setFullName(new_pathname)
+    tsc1.setValues(x1vals)
+    tsc1.quality = tsc1.numberValues * [0]
+    tsc1.setTimes(HecTimeArray([base_time + i * 60 for i in range(len(x1vals))]))
+    tsc1.setUnits(pdc.xunits)
+    tsc1.setType("INST-VAL")
+    tsc1.storeAsDoubles = True
+    tsm1 = TimeSeriesMath(tsc1)
+    if len(params) == 2:
+        if width == 1:
+            dss.put(tsc1)
+            tsc3 = pdm.ratingTableInterpolation(tsm1).getData()
+            dss.put(tsc3)
+            out.write("{}\t['{}']\t['{}']\n".format(pdc.fullName, tsc1.fullName, tsc3.fullName))
+        else:
+            pass
+            # try:
+            #     x2 = [float(label) for label in pdc.labels]
+            # except:
+            #     return
+            # assert pdc.numberCurves == len(pdc.labels)
+            # x2vals = [x2[0] - (x2[1]-x2[0]) / 2., x2[0]]
+            # for i in range(1, pdc.numberCurves):
+            #     x2vals.extend([(x2[i-1] + x2[i]) / 2., x2[i]])
+            # x2vals.append(x2[-1] + (x2[-1] - x2[-2]) / 2.)
+            # tsc2 = tsc1.clone()
+            # tsc2.setUnits(pdc.yunits)
+            # for x2 in x2vals:
+            #     tsc2.setFullName("{}-{}/".format(tsc1.fullName.replace(params[0], "Opening")[:-1], x2))
+            #     tsc2.setValues(tsc2.numberValues * [x2])
+            #     tsc3 = pdm.twoVariableRatingTableInterpolation(tsm1, TimeSeriesMath(tsc2)).getData()
+            #     tsc3.setFullName("{}-{}/".format(tsc1.fullName.replace(params[0], params[1])[:-1], x2))
+            #     dss.put(tsc1)
+            #     dss.put(tsc2)
+            #     dss.put(tsc3)
+            #     out.write("{}\t['{}', '{}']\t['()']\n".format()pdc.fullName, tsc1.fullName, tsc2.fullName, tsc3.fullName))
+            # ------------------------------------------------------------------------------------------------------------- #
+            # The above code always errored out on each call to twoVariableRatingTableInterpolation(), so I had to perform  #
+            # it separately by coding a temporary unit test in the monolith PairedDataMathTest.java using the code below.   #
+            # ------------------------------------------------------------------------------------------------------------- #
+            # @Test
+            # public void testRateElevsToFlows() throws Exception {
+            #     final String dssFilename = "U:/Devl/git/hec-python-library/test/resources/rating/Paired_Data.dss";
+            #     HecDss dssFile = HecDss.open(dssFilename);
+            #     PairedDataContainer pdc;
+            #     try
+            #     {
+            #         for (String pathname : (List<String>) dssFile.getCatalogedPathnames())
+            #         {
+            #             String[] pathnameParts = pathname.split("/", -1);
+            #             if (!pathnameParts[3].equalsIgnoreCase("Elev-Flow"))
+            #             {
+            #                 continue;
+            #             }
+            #             pdc = (PairedDataContainer) dssFile.get(pathname);
+            #             if (pdc.numberCurves < 2)
+            #             {
+            #                 continue;
+            #             }
+            #             if (pdc.labels == null || pdc.labels.length < pdc.numberCurves)
+            #             {
+            #                 continue;
+            #             }
+            #             PairedDataMath pdm = (PairedDataMath) new PairedDataMath(pdc);
+            #             List<Double> elevList = new ArrayList<Double>();
+            #             elevList.add(pdc.xOrdinates[0] + (pdc.xOrdinates[1] - pdc.xOrdinates[0]) / 2.);
+            #             elevList.add(pdc.xOrdinates[0]);
+            #             for (int i = 1; i < pdc.numberOrdinates; ++i) {
+            #                 elevList.add(pdc.xOrdinates[i-1] + (pdc.xOrdinates[i] - pdc.xOrdinates[i-1]) / 2.);
+            #                 elevList.add(pdc.xOrdinates[i]);
+            #             }
+            #             elevList.add(pdc.xOrdinates[pdc.numberOrdinates-1] + (pdc.xOrdinates[pdc.numberOrdinates-2] + pdc.xOrdinates[pdc.numberOrdinates-1]) / 2.);
+            #             double[] elevations = elevList.stream().mapToDouble(Double::doubleValue).toArray();
+            #             double[] openings = Arrays.stream(pdc.labels).mapToDouble(Double::parseDouble).toArray();
+            #             HecTime t = new HecTime();
+            #             t.set("01Jan2025; 01:00");
+            #             int t0 = t.value();
+            #             TimeSeriesContainer tscElevations = new TimeSeriesContainer();
+            #             pathnameParts[3] = "Elev";
+            #             pathnameParts[4] = "";
+            #             pathnameParts[5] = "1Hour";
+            #             pathnameParts[6] = "Test";
+            #             tscElevations.setFullName(String.format(String.join("/", pathnameParts)));
+            #             tscElevations.setValues(elevations);
+            #             tscElevations.setTimes(new HecTimeArray(IntStream
+            #                     .range(0, tscElevations.numberValues)
+            #                     .map(i -> t0 + i * 60)
+            #                     .toArray()));
+            #             tscElevations.setUnits(pdc.xunits);
+            #             tscElevations.setType("INST-VAL");
+            #             TimeSeriesMath tsmElevations = new TimeSeriesMath(tscElevations);
+            #             TimeSeriesContainer tscOpenings = (TimeSeriesContainer) tscElevations.clone();
+            #             tscOpenings.setUnits(pdc.yunits);
+            #             pathnameParts[3] = "Opening";
+            #             dssFile.put(tscElevations);
+            #             for (int i = 0; i < pdc.numberCurves; ++i)
+            #             {
+            #                 pathnameParts[6] = String.format("Test-%f", Double.parseDouble(pdc.labels[i]));
+            #                 tscOpenings.setFullName(String.format(String.format(String.join("/", pathnameParts))));
+            #                 tscOpenings.values = new double[tscOpenings.numberValues];
+            #                 Arrays.fill(tscOpenings.values, openings[i]);
+            #                 TimeSeriesMath tsmOpenings = new TimeSeriesMath(tscOpenings);
+            #                 TimeSeriesMath tsmFlows = pdm.twoVariableRatingTableInterpolation(tsmElevations, tsmOpenings);
+            #                 TimeSeriesContainer tscFlows = (TimeSeriesContainer) tsmFlows.getData();
+            #                 String[] flowPathnameParts = tscFlows.fullName.split("/", -1);
+            #                 flowPathnameParts[6] = String.format("Test-%f", Double.parseDouble(pdc.labels[i]));
+            #                 tscFlows.setFullName(String.format(String.format(String.join("/", flowPathnameParts))));
+            #                 dssFile.put(tscOpenings);
+            #                 dssFile.put(tscFlows);
+            #                 System.out.printf(
+            #                         "%s\t['%s', '%s']\t['%s']\n",
+            #                         pdc.fullName,
+            #                         tscElevations.fullName,
+            #                         tscOpenings.fullName,
+            #                         tscFlows.fullName
+            #                 );
+            #             }
+            #         }
+            #     } finally {
+            #         dssFile.close();
+            #     }
+            # }
+    elif len(params) > 2:
+        dss.put(tsc1)
+        pdcs = []
+        tscs = []
+        for i in range(1, len(params)):
+            pdcs.append(pdc.clone())
+            pathname_parts[C] = "{}-{}".format(params[0], params[i])
+            pdcs[-1].yparameter = params[i]
+            pdcs[-1].numberCurves = 1
+            pdcs[-1].yOrdinates = [pdc.yOrdinates[i-1]]
+        for pdc in pdcs:
+            tscs.append(PairedDataMath(pdc).ratingTableInterpolation(TimeSeriesMath(tsc1)).getData())
+            dss.put(tscs[-1])
+        out.write("{}\t['{}']\t['{}']\n".format(pdc.fullName, tsc1.fullName, "', '".join([tsc.fullName for tsc in tscs])))
+
+
+import os, sys
+dss_filename = os.path.join(os.path.dirname(sys.argv[0]), "Paired_Data.dss")
+out_filename = os.path.join(os.path.dirname(sys.argv[0]), "Paired_Data.tsv")
+assert os.path.exists(dss_filename), "File {} exists".format(dss_filename)
+dss = None
+out = None
+try:
+    Heclib.zset("MLVL", "", 0)
+    dss = HecDss.open(dss_filename)
+    out = open(out_filename, "wb")
+    out.write("# Tab-separated\n")
+    out.write("# Field 1: PairedData record in Paired_Data.dss file\n")
+    out.write("# Field 2: Input time series (comma separated)")
+    out.write("# Field 3: Expected output time series (comma separated)")
+    for pn in [pn for pn in dss.getCatalogedPathnames() if pn.split("/")[E] != "1Hour"]:
+        generate_test_data(pn)
+finally:
+    for resource in dss, out:
+        if resource:
+            resource.close()
+    

@@ -90,6 +90,10 @@ class Location:
             vertical_datum (Optional[str]): The native vertical datum of the specified elevation. Defaults to None.
             vertical_datum_info (Optional[Union[str, dict[str,Any]]]): The vertical datum info for the location. Overrides `elevation`, `elevation_unit`, and `vertical_datum` parameters, if also specified. Defaults to None.
         """
+        if not isinstance(name, str):
+            raise TypeError(f"Expected str for 'name', got {name.__class__.__name__}")
+        if not name:
+            raise ValueError("Name cannot be an empty string")
         self._name: str = name
         self._office: Optional[str] = office
         self._latitude: Optional[float] = latitude
@@ -157,8 +161,33 @@ class Location:
                     UserWarning,
                 )
 
+    def __eq__(self, other: Any) -> bool:
+        if not isinstance(other, Location):
+            return False
+        if other.name != self.name:
+            return False
+        if other.office != self.office:
+            return False
+        if other.latitude != self.latitude:
+            return False
+        if other.longitude != self.longitude:
+            return False
+        if other.horizontal_datum != self.horizontal_datum:
+            return False
+        if other.elevation != self.elevation:
+            return False
+        if other.vertical_datum != self.vertical_datum:
+            return False
+        if other.time_zone != self.time_zone:
+            return False
+        if other.kind != self.kind:
+            return False
+        if other.vertical_datum_json != self.vertical_datum_json:
+            return False
+        return True
+
     def __repr__(self) -> str:
-        s = f"Location(name='{self.name}'"
+        s = f"hec.Location(name='{self.name}'"
         if self.office is not None:
             s += f",office='{self.office}'"
         if self.latitude is not None:
@@ -196,6 +225,21 @@ class Location:
             Read Only
         """
         return self._name.split("-", 1)[0]
+
+    def copy(self) -> "Location":
+        return Location(
+            self.name,
+            self.office,
+            self.latitude,
+            self.longitude,
+            self.horizontal_datum,
+            self.elevation.magnitude if self.elevation else None,
+            self.elevation.specified_unit if self.elevation else None,
+            self.vertical_datum,
+            self.time_zone,
+            self.kind,
+            self.vertical_datum_json,
+        )
 
     @property
     def elevation(self) -> Optional[UnitQuantity]:

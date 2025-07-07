@@ -69,6 +69,7 @@ __all__ = [
     "TimeSpanException",
     "UnitQuantity",
     "UnitException",
+    "UsgsRounder",
     "const",
     "datastore",
     "duration",
@@ -77,13 +78,15 @@ __all__ = [
     "location",
     "parameter",
     "quality",
+    "rating",
     "shared",
     "timeseries",
     "timespan",
     "unit",
 ]
 
-from . import datastore
+
+from . import datastore, rating, shared
 from .const import Combine, Safety, Select, SelectionState
 from .datastore import (
     CwmsDataStore,
@@ -104,6 +107,7 @@ from .parameter import (
     ParameterTypeException,
 )
 from .quality import Quality, QualityException
+from .rounding import UsgsRounder
 from .timeseries import TimeSeries, TimeSeriesException, TimeSeriesValue
 from .timespan import TimeSpan, TimeSpanException
 from .unit import UnitException, UnitQuantity
@@ -114,11 +118,11 @@ from .unit import UnitException, UnitQuantity
 datastore.CwmsDataStore.__doc__ = f"""
     Class to facilitate cataloging, storing, retrieving, and deleting data in CWMS databases.
 
-    Requires installation of the [cwms-python](https://pypi.org/project/cwms-python/) {datastore._required_cwms_version}.
+    Requires installation of the [cwms-python](https://pypi.org/project/cwms-python/) {shared.required_cwms_version}.
     """
 
 datastore.DssDataStore.__doc__ = f"""
     Class to facilitate cataloging, storing, retrieving, and deleting data in HEC-DSS files.
 
-    Requires installation of the 'hecdss' package {datastore._required_dss_version}.
+    Requires installation of the 'hecdss' package {shared.required_dss_version}.
     """
