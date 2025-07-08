@@ -409,14 +409,10 @@ class AbstractDataStore(ABC):
 
     @end_time.setter
     def end_time(self, _end_time: Optional[Any]) -> None:
-        self._time_window = (
-            self._time_window[0],
-            (
-                _end_time
-                if _end_time is None
-                else HecTime(_end_time).label_as_time_zone(self._time_zone)
-            ),
-        )
+        new_end_time = _end_time if _end_time is None else HecTime(_end_time)
+        if new_end_time and not new_end_time.tzinfo:
+            new_end_time.label_as_time_zone(self.time_zone)
+        self._time_window = (self._time_window[0], new_end_time)
 
     @abstractmethod
     def get_extents(self, identifier: str, **kwargs: Any) -> List[HecTime]:
@@ -497,14 +493,10 @@ class AbstractDataStore(ABC):
 
     @start_time.setter
     def start_time(self, _start_time: Optional[Any]) -> None:
-        self._time_window = (
-            (
-                _start_time
-                if _start_time is None
-                else HecTime(_start_time).label_as_time_zone(self._time_zone)
-            ),
-            self._time_window[1],
-        )
+        new_start_time = _start_time if _start_time is None else HecTime(_start_time)
+        if new_start_time and not new_start_time.tzinfo:
+            new_start_time.label_as_time_zone(self.time_zone)
+        self._time_window = (new_start_time, self._time_window[1])
 
     @abstractmethod
     def store(self, obj: object, **kwargs: Any) -> None:
@@ -560,6 +552,8 @@ class AbstractDataStore(ABC):
     def time_zone(self) -> str:
         """
         The time zone associated with the data store
+
+        When setting the time zone, any time window values are **labeled with** the specified time zone and **not** converted to the time zone
 
         Operations:
             Read/Write
@@ -792,13 +786,25 @@ class DssDataStore(AbstractDataStore):
                 == hecdss.record_type.RecordType.PairedData
             )
         elif _data_type == _DssDataType.GRID:
-            func = lambda p: self._hecdss.get_record_type(p) == hecdss.record_type.RecordType.Grid
+            func = (
+                lambda p: self._hecdss.get_record_type(p)
+                == hecdss.record_type.RecordType.Grid
+            )
         elif _data_type == _DssDataType.TEXT:
-            func = lambda p: self._hecdss.get_record_type(p) == hecdss.record_type.RecordType.Text
+            func = (
+                lambda p: self._hecdss.get_record_type(p)
+                == hecdss.record_type.RecordType.Text
+            )
         elif _data_type == _DssDataType.ARRAY:
-            func = lambda p: self._hecdss.get_record_type(p) == hecdss.record_type.RecordType.Array
+            func = (
+                lambda p: self._hecdss.get_record_type(p)
+                == hecdss.record_type.RecordType.Array
+            )
         elif _data_type == _DssDataType.TIN:
-            func = lambda p: self._hecdss.get_record_type(p) == hecdss.record_type.RecordType.Tin
+            func = (
+                lambda p: self._hecdss.get_record_type(p)
+                == hecdss.record_type.RecordType.Tin
+            )
         elif _data_type == _DssDataType.LOCATION:
             func = (
                 lambda p: self._hecdss.get_record_type(p)
@@ -1067,6 +1073,10 @@ class DssDataStore(AbstractDataStore):
             trim=trim,
         )
         if isinstance(obj, (hecdss.RegularTimeSeries, hecdss.IrregularTimeSeries)):
+            if len(obj.values) == 0:
+                raise DataStoreException(
+                    f"No values in time window returned for {identifier}"
+                )
             mask = np.isclose(obj.values, UNDEFINED)
             if obj.quality:
                 quality = np.array(obj.quality)
@@ -1891,6 +1901,28 @@ class CwmsDataStore(AbstractDataStore):
             if obj.context == DSS:
                 obj = obj.copy()
                 obj.context = CWMS
+            # ----------------------------------------------------------------------- #
+            # We can't store missing values with cwms-python, so determine portions   #
+            # of time series with no missing values (value/5 is okay, but not null/5) #
+            # ----------------------------------------------------------------------- #
+            values = np.asarray(obj.values)
+            mask = np.isnan(values)
+            changes = np.flatnonzero(mask[1:] != mask[:-1]) + 1
+            changes = np.concatenate(([0], changes, [len(values)]))
+            count = len(changes)
+            slices = list(zip(changes[0:count:2], changes[1:count:2]))
+            df = cast(pd.DataFrame, obj.data)
+            if len(slices) > 1:
+                # ----------------------------- #
+                # store each portion separately #
+                # ----------------------------- #
+                slice_stop_exclusive = obj._slice_stop_exclusive
+                obj._slice_stop_exclusive = False
+                for s in slices:
+                    sub_ts = obj[df.index[s[0]] : df.index[s[1] - 1]]
+                    self._store_time_series(sub_ts, **kwargs)
+                obj._slice_stop_exclusive = slice_stop_exclusive
+                return
             df = (
                 cast(pd.DataFrame, obj.data)
                 .reset_index()
@@ -3100,9 +3132,9 @@ if __name__ == "__main__":
     ]:
         print(f"{pattern} => {_pattern_to_regex(pattern)}")
 
-    with DssDataStore.open("test/resources/rating/Paired_Data.dss") as dss:
-        dsspd = dss.retrieve(
-            "/Lake Shelbyville/Sluices-Gate Rating/Elev-Flow/PairedValuesExt///"
-        )
-        q = dsspd.rate([2.75, 613.20])
+    with DssDataStore.open(
+        r"U:\Devl\git\hec-python-library\WorkshopExample.dss"
+    ) as dss:
+        dss.time_window = "2025-06-01T01:00:00, 2025-07-01T00:00:00"
+        ts = dss.retrieve("//WorkshopExample/Power-Gen//15Minute/Rev-SCADA-cda/")
         pass

@@ -2008,7 +2008,10 @@ class TimeSeries:
                     intvl = Interval.get_any_dss(lambda i: i.name == "IR-Month")
                 else:
                     seconds_per_year = timedelta(days=365).total_seconds()
-                    time_range = (datetime.fromisoformat(self.times[-1]) - datetime.fromisoformat(self.times[0])).total_seconds()
+                    time_range = (
+                        datetime.fromisoformat(self.times[-1])
+                        - datetime.fromisoformat(self.times[0])
+                    ).total_seconds()
                     values_per_year = number_values / time_range * seconds_per_year
                     if values_per_year > 1000:
                         intvl = Interval.get_any_dss(lambda i: i.name == "IR-Decade")

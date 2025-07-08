@@ -1,9 +1,9 @@
 # ---------------------------------------------- #
 # DO NOT IMPORT ANY HEC MODULES FROM THIS MODULE #
 # ---------------------------------------------- #
+import types
 from enum import Enum
 from typing import Union
-import types
 
 
 def import_hec() -> types.ModuleType:
@@ -14,7 +14,9 @@ def import_hec() -> types.ModuleType:
         types.ModuleType: the imported hec module
     """
     import hec
+
     return hec
+
 
 class LookupMethod(Enum):
     NULL = (1, "Return null if between values or outside range")
