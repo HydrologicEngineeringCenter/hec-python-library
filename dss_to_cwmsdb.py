@@ -26,7 +26,7 @@ A, B, C, D, E, F = 1, 2, 3, 4, 5, 6  # pathname part indices
 new_locations = [
     # DSS Locations not already in CWMS db
     Location(
-        "WorkshopExample",
+        "WorkshopDemo",
         office="SWT",
         kind="PROJECT",
         latitude=34.5,
