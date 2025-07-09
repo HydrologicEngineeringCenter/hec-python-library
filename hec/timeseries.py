@@ -1956,6 +1956,7 @@ class TimeSeries:
             # ----------- #
             # dss to cwms #
             # ----------- #
+            e_pathname_part = self.name.split("/")[5]
             self._skip_validation = True
             self._context = ctx
             if self._watershed is not None:
@@ -1973,10 +1974,17 @@ class TimeSeries:
                 sn = sn.title().replace(" ", "_")
                 pn += f"-{sn}"
             self.iset_parameter(Parameter(pn, self.parameter.unit_name))
-            intvl = Interval.get_any_cwms(
-                lambda i: i.is_regular == self.is_regular
-                and i.minutes == self.interval.minutes
-            )
+            intvl: Optional[Interval]
+            if e_pathname_part.startswith("~"):
+                intvl = Interval.get_any_cwms(
+                    lambda i: i.is_pseudo_regular
+                    and i.name.upper().startswith(e_pathname_part.upper())
+                )
+            else:
+                intvl = Interval.get_any_cwms(
+                    lambda i: i.is_regular == self.is_regular
+                    and i.minutes == self.interval.minutes
+                )
             if intvl is None:
                 raise TimeSeriesException(
                     f"Could not find CWMS equivalent of DSS interval {self._interval}"
@@ -7437,6 +7445,30 @@ class TimeSeries:
     def selection_state(self, period: SelectionState) -> None:
         self._selection_state = period
 
+    @classmethod
+    def set_default_slice_stop_exclusive(cls, state: bool = True) -> None:
+        """
+        Set the default slicing behavior of new TimeSeries objects
+
+        Args:
+            state (bool, optional): Defaults to True.
+                * `True`: python behavior (stop value is excluded)
+                * `False`: DataFrame behavior (stop value is included)
+        """
+        cls._default_slice_stop_exclusive = state
+
+    @classmethod
+    def set_default_slice_stop_inclusive(cls, state: bool = True) -> None:
+        """
+        Set the default slicing behavior of new TimeSeries objects
+
+        Args:
+            state (bool, optional): Defaults to True.
+                * `True`: DataFrame behavior (stop value is included)
+                * `False`: python behavior (stop value is excluded)
+        """
+        cls._default_slice_stop_exclusive = not state
+
     def set_duration(
         self, value: Union[Duration, str, int], in_place: bool = False
     ) -> "TimeSeries":
@@ -7655,30 +7687,6 @@ class TimeSeries:
         else:
             data["quality"] = Quality(quality).code
         return target
-
-    @classmethod
-    def set_slice_stop_exclusive(cls, state: bool = True) -> None:
-        """
-        Set the default slicing behavior of new TimeSeries objects
-
-        Args:
-            state (bool, optional): Defaults to True.
-                * `True`: python behavior (stop value is excluded)
-                * `False`: DataFrame behavior (stop value is included)
-        """
-        cls._default_slice_stop_exclusive = state
-
-    @classmethod
-    def set_slice_stop_inclusive(cls, state: bool = True) -> None:
-        """
-        Set the default slicing behavior of new TimeSeries objects
-
-        Args:
-            state (bool, optional): Defaults to True.
-                * `True`: DataFrame behavior (stop value is included)
-                * `False`: python behavior (stop value is excluded)
-        """
-        cls._default_slice_stop_exclusive = not state
 
     def set_unit(self, value: Union[Unit, str], in_place: bool = False) -> "TimeSeries":
         """

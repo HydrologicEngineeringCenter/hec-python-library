@@ -1916,12 +1916,12 @@ class CwmsDataStore(AbstractDataStore):
                 # ----------------------------- #
                 # store each portion separately #
                 # ----------------------------- #
-                slice_stop_exclusive = obj._slice_stop_exclusive
-                obj._slice_stop_exclusive = False
+                slice_stop_exclusive = obj.slice_stop_exclusive
+                obj.slice_stop_exclusive = False
                 for s in slices:
                     sub_ts = obj[df.index[s[0]] : df.index[s[1] - 1]]
                     self._store_time_series(sub_ts, **kwargs)
-                obj._slice_stop_exclusive = slice_stop_exclusive
+                obj.slice_stop_exclusive = slice_stop_exclusive
                 return
             df = (
                 cast(pd.DataFrame, obj.data)
