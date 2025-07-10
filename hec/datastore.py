@@ -1901,33 +1901,12 @@ class CwmsDataStore(AbstractDataStore):
             if obj.context == DSS:
                 obj = obj.copy()
                 obj.context = CWMS
-            # ----------------------------------------------------------------------- #
-            # We can't store missing values with cwms-python, so determine portions   #
-            # of time series with no missing values (value/5 is okay, but not null/5) #
-            # ----------------------------------------------------------------------- #
-            values = np.asarray(obj.values)
-            mask = np.isnan(values)
-            changes = np.flatnonzero(mask[1:] != mask[:-1]) + 1
-            changes = np.concatenate(([0], changes, [len(values)]))
-            count = len(changes)
-            slices = list(zip(changes[0:count:2], changes[1:count:2]))
-            df = cast(pd.DataFrame, obj.data)
-            if len(slices) > 1:
-                # ----------------------------- #
-                # store each portion separately #
-                # ----------------------------- #
-                slice_stop_exclusive = obj.slice_stop_exclusive
-                obj.slice_stop_exclusive = False
-                for s in slices:
-                    sub_ts = obj[df.index[s[0]] : df.index[s[1] - 1]]
-                    self._store_time_series(sub_ts, **kwargs)
-                obj.slice_stop_exclusive = slice_stop_exclusive
-                return
             df = (
                 cast(pd.DataFrame, obj.data)
                 .reset_index()
                 .rename(columns={"time": "date-time", "quality": "quality-code"})
             )
+            df["value"] = df["value"].fillna(-3.4028234663852886e+38)
             name = obj.name
             if name.startswith(f"{self.office}/"):
                 name = name.split("/", 1)[1]
