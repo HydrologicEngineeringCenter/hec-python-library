@@ -1906,7 +1906,7 @@ class CwmsDataStore(AbstractDataStore):
                 .reset_index()
                 .rename(columns={"time": "date-time", "quality": "quality-code"})
             )
-            df["value"] = df["value"].fillna(-3.4028234663852886e+38)
+            df["value"] = df["value"].fillna(-3.4028234663852886e38)
             name = obj.name
             if name.startswith(f"{self.office}/"):
                 name = name.split("/", 1)[1]

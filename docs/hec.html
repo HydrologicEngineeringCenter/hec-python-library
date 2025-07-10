@@ -1338,6 +1338,12 @@
                                 <a class="variable" href="#TimeSeries.selection_state">selection_state</a>
                         </li>
                         <li>
+                                <a class="function" href="#TimeSeries.set_default_slice_stop_exclusive">set_default_slice_stop_exclusive</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#TimeSeries.set_default_slice_stop_inclusive">set_default_slice_stop_inclusive</a>
+                        </li>
+                        <li>
                                 <a class="function" href="#TimeSeries.set_duration">set_duration</a>
                         </li>
                         <li>
@@ -1360,12 +1366,6 @@
                         </li>
                         <li>
                                 <a class="function" href="#TimeSeries.set_quality">set_quality</a>
-                        </li>
-                        <li>
-                                <a class="function" href="#TimeSeries.set_slice_stop_exclusive">set_slice_stop_exclusive</a>
-                        </li>
-                        <li>
-                                <a class="function" href="#TimeSeries.set_slice_stop_inclusive">set_slice_stop_inclusive</a>
                         </li>
                         <li>
                                 <a class="function" href="#TimeSeries.set_unit">set_unit</a>
@@ -9422,7 +9422,7 @@ if the data times have the time zone specified</li>
 To use DataFrame behavior where the stop value is inclusive (returned in the data):</p>
 
 <ul>
-<li>call <code><a href="#TimeSeries.set_slice_stop_inclusive">TimeSeries.set_slice_stop_inclusive()</a></code> before creating any TimeSeries objects</li>
+<li>call <code>TimeSeries.set_slice_stop_inclusive()</code> before creating any TimeSeries objects</li>
 <li>set the <code><a href="#TimeSeries.slice_stop_exclusive">slice_stop_exclusive</a></code> property to False on existing TimeSeries objects.</li>
 </ul>
 
@@ -12873,6 +12873,58 @@ an automatic ts.select(<a href="#Select.NONE">Select.NONE</a>)) or maintained un
 
 
                             </div>
+                            <div id="TimeSeries.set_default_slice_stop_exclusive" class="classattr">
+                                <div class="attr function">
+                    <div class="decorator decorator-classmethod">@classmethod</div>
+
+        <span class="def">def</span>
+        <span class="name">set_default_slice_stop_exclusive</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">cls</span>, </span><span class="param"><span class="n">state</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span></span><span class="return-annotation">) -> <span class="kc">None</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#TimeSeries.set_default_slice_stop_exclusive"></a>
+    
+            <div class="docstring"><p>Set the default slicing behavior of new TimeSeries objects</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>state (bool, optional):</strong>  Defaults to True.
+<ul>
+<li><code>True</code>: python behavior (stop value is excluded)</li>
+<li><code>False</code>: DataFrame behavior (stop value is included)</li>
+</ul></li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="TimeSeries.set_default_slice_stop_inclusive" class="classattr">
+                                <div class="attr function">
+                    <div class="decorator decorator-classmethod">@classmethod</div>
+
+        <span class="def">def</span>
+        <span class="name">set_default_slice_stop_inclusive</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">cls</span>, </span><span class="param"><span class="n">state</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span></span><span class="return-annotation">) -> <span class="kc">None</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#TimeSeries.set_default_slice_stop_inclusive"></a>
+    
+            <div class="docstring"><p>Set the default slicing behavior of new TimeSeries objects</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>state (bool, optional):</strong>  Defaults to True.
+<ul>
+<li><code>True</code>: DataFrame behavior (stop value is included)</li>
+<li><code>False</code>: python behavior (stop value is excluded)</li>
+</ul></li>
+</ul>
+</div>
+
+
+                            </div>
                             <div id="TimeSeries.set_duration" class="classattr">
                                 <div class="attr function">
             
@@ -13130,58 +13182,6 @@ or a copy of this time series (False). Defaults to False.</li>
 <blockquote>
   <p>TimeSeries: The modified object</p>
 </blockquote>
-</div>
-
-
-                            </div>
-                            <div id="TimeSeries.set_slice_stop_exclusive" class="classattr">
-                                <div class="attr function">
-                    <div class="decorator decorator-classmethod">@classmethod</div>
-
-        <span class="def">def</span>
-        <span class="name">set_slice_stop_exclusive</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">cls</span>, </span><span class="param"><span class="n">state</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span></span><span class="return-annotation">) -> <span class="kc">None</span>:</span></span>
-
-        
-    </div>
-    <a class="headerlink" href="#TimeSeries.set_slice_stop_exclusive"></a>
-    
-            <div class="docstring"><p>Set the default slicing behavior of new TimeSeries objects</p>
-
-<h6 id="arguments">Arguments:</h6>
-
-<ul>
-<li><strong>state (bool, optional):</strong>  Defaults to True.
-<ul>
-<li><code>True</code>: python behavior (stop value is excluded)</li>
-<li><code>False</code>: DataFrame behavior (stop value is included)</li>
-</ul></li>
-</ul>
-</div>
-
-
-                            </div>
-                            <div id="TimeSeries.set_slice_stop_inclusive" class="classattr">
-                                <div class="attr function">
-                    <div class="decorator decorator-classmethod">@classmethod</div>
-
-        <span class="def">def</span>
-        <span class="name">set_slice_stop_inclusive</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">cls</span>, </span><span class="param"><span class="n">state</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span></span><span class="return-annotation">) -> <span class="kc">None</span>:</span></span>
-
-        
-    </div>
-    <a class="headerlink" href="#TimeSeries.set_slice_stop_inclusive"></a>
-    
-            <div class="docstring"><p>Set the default slicing behavior of new TimeSeries objects</p>
-
-<h6 id="arguments">Arguments:</h6>
-
-<ul>
-<li><strong>state (bool, optional):</strong>  Defaults to True.
-<ul>
-<li><code>True</code>: DataFrame behavior (stop value is included)</li>
-<li><code>False</code>: python behavior (stop value is excluded)</li>
-</ul></li>
-</ul>
 </div>
 
 
