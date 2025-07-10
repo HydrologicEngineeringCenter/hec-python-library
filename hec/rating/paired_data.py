@@ -1,12 +1,13 @@
 import json
 import re
 from typing import Any, Optional, Sequence, Union, cast
-from .rating_shared import import_hec
 
 import hecdss  # type: ignore
 import numpy as np
 import numpy.typing as npt
 import pandas as pd
+
+from .rating_shared import import_hec
 
 
 def _is_dss_pd_pathname(id: str) -> bool:

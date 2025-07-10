@@ -25,7 +25,7 @@ import hec.unit
 from hec.const import CWMS, DSS, Combine, PercentileMethods, Select, SelectionState
 from hec.duration import Duration
 from hec.hectime import HecTime
-from hec.interval import Interval
+from hec.interval import Interval, IntervalException
 from hec.location import Location
 from hec.parameter import ElevParameter, Parameter, ParameterType
 from hec.quality import Quality
@@ -1956,6 +1956,7 @@ class TimeSeries:
             # ----------- #
             # dss to cwms #
             # ----------- #
+            e_pathname_part = self.name.split("/")[5]
             self._skip_validation = True
             self._context = ctx
             if self._watershed is not None:
@@ -1973,10 +1974,17 @@ class TimeSeries:
                 sn = sn.title().replace(" ", "_")
                 pn += f"-{sn}"
             self.iset_parameter(Parameter(pn, self.parameter.unit_name))
-            intvl = Interval.get_any_cwms(
-                lambda i: i.is_regular == self.is_regular
-                and i.minutes == self.interval.minutes
-            )
+            intvl: Optional[Interval]
+            if e_pathname_part.startswith("~"):
+                intvl = Interval.get_any_cwms(
+                    lambda i: i.is_pseudo_regular
+                    and i.name.upper().startswith(e_pathname_part.upper())
+                )
+            else:
+                intvl = Interval.get_any_cwms(
+                    lambda i: i.is_regular == self.is_regular
+                    and i.minutes == self.interval.minutes
+                )
             if intvl is None:
                 raise TimeSeriesException(
                     f"Could not find CWMS equivalent of DSS interval {self._interval}"
@@ -2001,25 +2009,32 @@ class TimeSeries:
             if self.is_irregular:
                 number_values = (
                     0
-                    if not self.data
+                    if self.data is None or self.data.empty
                     else 1 if len(self.data.shape) == 1 else self.data.shape[0]
                 )
-                seconds_per_year = timedelta(days=365).total_seconds()
-                time_range = cast(
-                    TimeSpan, (HecTime(self.times[-1]) - HecTime(self.times[0]))
-                ).total_seconds()
-                values_per_year = number_values / time_range * seconds_per_year
-                if values_per_year > 1000:
-                    intvl = Interval.get_any_dss(lambda i: i.name == "IR-Decade")
-                elif values_per_year > 100:
-                    intvl = Interval.get_any_dss(lambda i: i.name == "IR-Year")
-                elif values_per_year > 100.0 / 12:
+                if number_values == 1:
                     intvl = Interval.get_any_dss(lambda i: i.name == "IR-Month")
                 else:
-                    intvl = Interval.get_any_dss(lambda i: i.name == "IR-Day")
+                    seconds_per_year = timedelta(days=365).total_seconds()
+                    time_range = (
+                        datetime.fromisoformat(self.times[-1])
+                        - datetime.fromisoformat(self.times[0])
+                    ).total_seconds()
+                    values_per_year = number_values / time_range * seconds_per_year
+                    if values_per_year > 1000:
+                        intvl = Interval.get_any_dss(lambda i: i.name == "IR-Decade")
+                    elif values_per_year > 100:
+                        intvl = Interval.get_any_dss(lambda i: i.name == "IR-Year")
+                    elif values_per_year > 100.0 / 12:
+                        intvl = Interval.get_any_dss(lambda i: i.name == "IR-Month")
+                    else:
+                        intvl = Interval.get_any_dss(lambda i: i.name == "IR-Day")
             else:
                 if self.interval.is_local_regular or self.interval.is_pseudo_regular:
-                    intvl = Interval.get_dss(self.interval.name)
+                    try:
+                        intvl = Interval.get_dss(self.interval.name)
+                    except IntervalException as e:
+                        intvl = Interval.get_dss(self.interval.name[:-1])
                 else:
                     intvl = Interval.get_any_dss(
                         lambda i: i.is_regular == True
@@ -7430,6 +7445,30 @@ class TimeSeries:
     def selection_state(self, period: SelectionState) -> None:
         self._selection_state = period
 
+    @classmethod
+    def set_default_slice_stop_exclusive(cls, state: bool = True) -> None:
+        """
+        Set the default slicing behavior of new TimeSeries objects
+
+        Args:
+            state (bool, optional): Defaults to True.
+                * `True`: python behavior (stop value is excluded)
+                * `False`: DataFrame behavior (stop value is included)
+        """
+        cls._default_slice_stop_exclusive = state
+
+    @classmethod
+    def set_default_slice_stop_inclusive(cls, state: bool = True) -> None:
+        """
+        Set the default slicing behavior of new TimeSeries objects
+
+        Args:
+            state (bool, optional): Defaults to True.
+                * `True`: DataFrame behavior (stop value is included)
+                * `False`: python behavior (stop value is excluded)
+        """
+        cls._default_slice_stop_exclusive = not state
+
     def set_duration(
         self, value: Union[Duration, str, int], in_place: bool = False
     ) -> "TimeSeries":
@@ -7648,30 +7687,6 @@ class TimeSeries:
         else:
             data["quality"] = Quality(quality).code
         return target
-
-    @classmethod
-    def set_slice_stop_exclusive(cls, state: bool = True) -> None:
-        """
-        Set the default slicing behavior of new TimeSeries objects
-
-        Args:
-            state (bool, optional): Defaults to True.
-                * `True`: python behavior (stop value is excluded)
-                * `False`: DataFrame behavior (stop value is included)
-        """
-        cls._default_slice_stop_exclusive = state
-
-    @classmethod
-    def set_slice_stop_inclusive(cls, state: bool = True) -> None:
-        """
-        Set the default slicing behavior of new TimeSeries objects
-
-        Args:
-            state (bool, optional): Defaults to True.
-                * `True`: DataFrame behavior (stop value is included)
-                * `False`: python behavior (stop value is excluded)
-        """
-        cls._default_slice_stop_exclusive = not state
 
     def set_unit(self, value: Union[Unit, str], in_place: bool = False) -> "TimeSeries":
         """

@@ -1250,7 +1250,9 @@ class ParameterType:
                 self._name = _parameter_types[key]
                 break
         else:
-            raise ParameterTypeException(f"{param_type} is not a valid parameter type")
+            raise ParameterTypeException(
+                f"'{param_type}' is not a valid parameter type"
+            )
         if context is not None:
             self.set_context(context)
 
