@@ -1,0 +1,4 @@
+p1()
+====
+
+The hec-python-library equivalent of Jython method **p1()**:

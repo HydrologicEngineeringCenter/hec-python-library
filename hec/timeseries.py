@@ -544,6 +544,13 @@ class TimeSeries:
             index=l_indx,
         )
 
+    def __abs__(self) -> "TimeSeries":
+        if self._data is None or self._data.empty:
+            raise TimeSeriesException("Operation is invalid with empty time series.")
+        copy = self.copy()
+        self._data["value"] = self._data["value"].abs()
+        return copy
+    
     def __add__(
         self, amount: Union["TimeSeries", UnitQuantity, float, int]
     ) -> "TimeSeries":

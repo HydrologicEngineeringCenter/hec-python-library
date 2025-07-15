@@ -9,12 +9,14 @@
 project = 'hec-python-library'
 copyright = '2025, CEIWR-HEC-WM'
 author = 'CEIWR-HEC-WM'
-release = '1.0'
+release = '0.9.5'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-extensions = []
+extensions = [
+    "sphinx_design"
+]
 
 templates_path = ['_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']

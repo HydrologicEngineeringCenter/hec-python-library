@@ -1,2 +1,153 @@
-Math Function Cross Reference
-=============================
+Math Function Reference
+=======================
+
+A guide for moving Jython scripts that use hec.hecmath classes and methods to the hec-python-library.
+
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Contents:
+
+
+The following list references the math functions as described in the `HEC-DSSVue User's Manual <https://www.hec.usace.army.mil/confluence/dssdocs/dssvueum/scripting/math-functions>`_
+
+.. dropdown:: Click to expand
+   - Absolute Value
+   - Accumulation (Running)
+   - Arccosine Trigonometric Function
+   - Add a Constant
+   - Add a Data Set
+   - Apply Multiple Linear Regression Equation
+   - Arcsine Trigonometric Function
+   - Arctangent Trigonometric Function
+   - Ceiling Function
+   - Centered Moving Average Smoothing
+   - Conic Interpolation from Elevation/Area Table
+   - Convert Values to English Units
+   - Convert Values to Metric (SI) Units
+   - Correlation Coefficients
+   - Cosine Trigonometric Function
+   - Cyclic Analysis (Time Series)
+   - Decaying Basin Wetness Parameter
+   - Divide by a Constant
+   - Divide by a Data Set
+   - Estimate Values for Missing Precipitation Data
+   - Estimate Values for Missing Data
+   - Exponent
+   - Exponentiation Function
+   - Exponentiation Timeseries Function
+   - Extract Time Series Data at Unique Time Specification
+   - First Valid Date
+   - First Valid Value
+   - Floor Function
+   - Flow Accumulator Gage (Compute Period Average Flows)
+   - Modulo Function with both Arguments are Greater than Zero
+   - Forward Moving Average Smoothing
+   - Forward Moving Average Smoothing of Time Series
+   - Generate Paired Data from Two Time Series
+   - Generate a Regular Interval Time Series
+   - Get Data Container
+   - Get Data Type for Time Series Data Set
+   - Get Units Label for Data Set
+   - Gmean
+   - Hmean
+   - Integer Division by a Constant
+   - Integer Divison by an Object
+   - Interpolate Time Series Data at Regular Intervals
+   - Inverse (1/X) Function
+   - Determine if Data is in English Units
+   - Determine if Data is in Metric Units
+   - Determine if Computation Stable for Given Muskingum Routing Parameters
+   - Last Valid Value's Date and Time
+   - Last Valid Value in a Time Series
+   - Natural Log, Base "e" Function
+   - Log Base 10 Function
+   - Maximum Value in a Time Series
+   - Maximum Value in a Time Series (tsMathArrary)
+   - Maximum Value's Date and Time
+   - Mean Time Series Value
+   - Mean Time Series Value (tsMathArray)
+   - Median Time Series Value
+   - Merge Paired Data Sets
+   - Merge Two Time Series Data Sets
+   - Minimum Value in a Time Series
+   - Minimum Value in a Time Series (tsMathArray)
+   - Minimum Value's Date and Time
+   - Modified Puls or Working R&D Routing Function
+   - Modulo
+   - Modulo (tsMath)
+   - Multiple Linear Regression Coefficients
+   - Multiply by a Constant
+   - Multiply by a Data Set
+   - Muskingum Hydrologic Routing Function
+   - Negation Function
+   - Number of Invalid Values in a Time Series
+   - Number of Missing Values in a Time Series
+   - Number of Questioned Values in a Time Series
+   - Number of Rejected Values in a Time Series
+   - Number of Valid Values in a Time Series
+   - Olympic Smoothing
+   - P1 Function
+   - P2 Function
+   - P5 Function
+   - P10 Function
+   - P20 Function
+   - P25 Function
+   - P75 Function
+   - P80 Function
+   - P89 Function
+   - P90 Function
+   - P95 Function
+   - P99 Function
+   - Period Constants Generation
+   - Polynomial Transformation
+   - Polynomial Transformation with Integral
+   - Product Function
+   - Rating Table Interpolation
+   - Replace Specific Values
+   - Reverse Rating Table Interpolation
+   - RMS Function
+   - Round to Nearest Whole Number
+   - Round Off to Specified Precision
+   - Screen for Erroneous Values Based on Constant Value
+   - Screen for Erroneous Values Based on Duration Magnitude
+   - Screen for Erroneous Values Based on Forward Moving Average
+   - Screen for Erroneous Values Based on Forward Moving Average (Missing Values)
+   - Screen for Erroneous Values Based on Maximum/Minimum Range (Missing Values)
+   - Screen for Erroneous Values Based on Maximum/Minimum Range
+   - Screen for Erroneous Values Based on Maximum/Minimum Range (Quality)
+   - Screen for Erroneous Values Based on Maximum/Minimum Range (Limits)
+   - Screen for Erroneous Values Based on Rate of Change
+   - Select a Paired Data Curve by Curve Label
+   - Select a Paired Data Curve by Curve Number
+   - Set Data Container
+   - Set Location Name for Data Set
+   - Set Parameter for Data Set
+   - Set Pathname for Data Set
+   - Set Time Interval for Data Set
+   - Set Data Type for Time Series Data Set
+   - Set Units Label for Data Set
+   - Set Version Name for Data Set
+   - Set Watershed Name for Data Set
+   - Shift Adjustment of Time Series Data
+   - Shift Time Series in Time
+   - Sign Function
+   - Sine Trigonometric Function
+   - Skew Coefficient
+   - Snap Irregular Times to Nearest Regular Period
+   - Square Root
+   - Standard Deviation of Time Series
+   - Standard Deviation of Time Series (tsMathArray)
+   - Straddle Stagger Hydrologic Routing
+   - Subtract a Constant
+   - Subtract a Data Set
+   - Successive Differences for Time Series
+   - Sum Values in Time Series
+   - Sum Values in Time Series (tsMathArray)
+   - Tangent Trigonometric Function
+   - Time Derivative (Difference per Unit Time)
+   - Transform Time Series to Regular Interval
+   - Transform Time Series to Irregular Interval
+   - Truncate to Whole Numbers
+   - Two Variable Rating Table Interpolation
+   - Variance Function

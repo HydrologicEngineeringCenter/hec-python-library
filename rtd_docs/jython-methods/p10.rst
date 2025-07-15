@@ -1,0 +1,4 @@
+p10()
+=====
+
+The hec-python-library equivalent of Jython method **p10()**:

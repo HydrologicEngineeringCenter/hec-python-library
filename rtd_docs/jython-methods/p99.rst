@@ -1,0 +1,4 @@
+p99()
+=====
+
+The hec-python-library equivalent of Jython method **p99()**:
