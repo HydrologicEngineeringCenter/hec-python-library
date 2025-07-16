@@ -1,3 +1,5 @@
+.. include:: _not_implemented.rst
+
 ``TimeSeries`` objects use the ``to`` method (or ``ito`` for in-place) various conversions, including converting to a specific
 unit or the default unit of the parameter in a specified unit system.
 

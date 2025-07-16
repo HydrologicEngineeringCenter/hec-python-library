@@ -3,9 +3,9 @@ ceil()
 
 The hec-python-library equivalent of Jython method **ceil()**:
 
-.. include:: _not_supported.rst
+.. include:: _not_implemented.rst
 
-You can work around this in the following manner.
+The following example performs the equivalent:
 
 .. code-block:: python
 

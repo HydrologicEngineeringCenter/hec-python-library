@@ -3,9 +3,9 @@ cos()
 
 The hec-python-library equivalent of Jython method **cos()**:
 
-.. include:: _not_supported.rst
+.. include:: _not_implemented.rst
 
-You can work around this in the following manner.
+The following example performs the equivalent:
 
 .. code-block:: python
 
@@ -13,3 +13,5 @@ You can work around this in the following manner.
     import numpy as np
 
     ts.data["value"] = np.cos(ts.data["value"])
+
+See the `numpy documentation <https://numpy.org/doc/stable/reference/generated/numpy.cos.html>`_ for details

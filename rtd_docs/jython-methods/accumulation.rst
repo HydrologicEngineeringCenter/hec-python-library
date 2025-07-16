@@ -34,6 +34,7 @@ If a selection is present, all non-selected items are set to missing before the 
     iaccum() -> TimeSeries
 
 Convenience method for executing ``accum(...)`` with ``in_place=True``.
+
 **Example:**
 
 .. code-block:: python

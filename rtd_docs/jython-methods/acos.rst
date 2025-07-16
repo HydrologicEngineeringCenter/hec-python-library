@@ -3,9 +3,9 @@ acos()
 
 The hec-python-library equivalent of Jython method **acos()**:
 
-.. include:: _not_supported.rst
+.. include:: _not_implemented.rst
 
-You can work around this in the following manner.
+The following example performs the equivalent:
 
 .. code-block:: python
 
@@ -14,3 +14,5 @@ You can work around this in the following manner.
 
     ts.data["value"] = np.arccos(ts.data["value"])
 
+
+See the `numpy documentation <https://numpy.org/doc/stable/reference/generated/numpy.acos.html>`_ for details
