@@ -17,6 +17,8 @@ screenWithDurationMagnitude()
         in_place: bool = False
     ) -> TimeSeries:
 
+`Detailed Documentation <https://hydrologicengineeringcenter.github.io/hec-python-library/hec/timeseries.html#TimeSeries.screen_with_duration_magnitude>`_
+
 The hec-python-library equivalent of Jython method **screenWithDurationMagnitude()**:
 
 .. include:: _in_place.rst

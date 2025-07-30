@@ -13,6 +13,8 @@ skewCoefficient()
         ]
     ) -> Any
 
+`Detailed Documentation <https://hydrologicengineeringcenter.github.io/hec-python-library/hec/timeseries.html#TimeSeries.aggregate>`_
+
 The hec-python-library equivalent of Jython method **skewCoefficient()**:
 
 **Example:**

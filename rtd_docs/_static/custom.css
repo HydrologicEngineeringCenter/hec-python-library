@@ -1,0 +1,5 @@
+.monospace-table td,
+.monospace-table th {
+    font-family: monospace;
+    white-space: pre;
+}

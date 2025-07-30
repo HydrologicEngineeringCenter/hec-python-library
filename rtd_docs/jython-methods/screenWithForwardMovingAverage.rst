@@ -14,6 +14,8 @@ screenWithForwardMovingAverage()
         in_place: bool = False
     ) -> TimeSeries
 
+`Detailed Documentation <https://hydrologicengineeringcenter.github.io/hec-python-library/hec/timeseries.html#TimeSeries.screen_with_forward_moving_average>`_
+
 The hec-python-library equivalent of Jython method **screenWithForwardMovingAverage()**:
 
 .. include:: _in_place.rst

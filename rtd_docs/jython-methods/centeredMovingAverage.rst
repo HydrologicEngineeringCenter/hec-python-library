@@ -12,6 +12,8 @@ centeredMovingAverage()
         in_place: bool = False
     ) -> TimeSeries
 
+`Detailed Documentation <https://hydrologicengineeringcenter.github.io/hec-python-library/hec/timeseries.html#TimeSeries.centered_moving_average>`_
+
 The hec-python-library equivalent of Jython method **centeredMovingAverage()**:
 
 Computes and returns a time series that is the centered moving average of this time series.

@@ -12,6 +12,8 @@ olympicSmoothing()
         in_place: bool = False
     ) -> TimeSeries
 
+`Detailed Documentation <https://hydrologicengineeringcenter.github.io/hec-python-library/hec/timeseries.html#TimeSeries.olympic_moving_average>`_
+
 The hec-python-library equivalent of Jython method **olympicSmoothing()**:
 
 Computes and returns a time series that is the olympic moving average of this time series.

@@ -7,6 +7,8 @@ reverseRatingTableInterpolation()
 
     reverse_rate(to_rate: Any, label: Optional[str] = None) -> Any
 
+`Detailed Documentation <https://hydrologicengineeringcenter.github.io/hec-python-library/hec/rating.html#PairedData.reverse_rate>`_
+
 The hec-python-library equivalent of Jython method **reverseRatingTableInterpolation()**:
 
 **Example:**

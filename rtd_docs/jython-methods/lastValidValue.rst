@@ -7,6 +7,8 @@ lastValidValue()
 
     last_valid_value: Optional[float]
 
+`Detailed Documentation <https://hydrologicengineeringcenter.github.io/hec-python-library/hec/timeseries.html#TimeSeries.last_valid_value>`_
+
 The hec-python-library equivalent of Jython method **lastValidValue()**:
 
 .. include:: _property.rst

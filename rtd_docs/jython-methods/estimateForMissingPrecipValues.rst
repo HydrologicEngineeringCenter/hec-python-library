@@ -13,6 +13,8 @@ estimateForMissingPrecipValues()
         in_place: bool = False
     ) -> TimeSeries
 
+`Detailed Documentation <https://hydrologicengineeringcenter.github.io/hec-python-library/hec/timeseries.html#TimeSeries.estimate_missing_values>`_
+
 The hec-python-library equivalent of Jython method **estimateForMissingPrecipValues()**:
 
 For estimating accumulated precipitation, set the ``accumulation`` parameter to ``True``.

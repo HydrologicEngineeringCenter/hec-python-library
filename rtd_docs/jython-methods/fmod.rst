@@ -9,6 +9,8 @@ fmod()
         divisor: Union[TimeSeries, UnitQuantity, float, int],
         in_place: bool = False)
 
+`Detailed Documentation <https://hydrologicengineeringcenter.github.io/hec-python-library/hec/timeseries.html#TimeSeries.fmod>`_
+
 The hec-python-library equivalent of Jython method **fmod()**:
 
 .. include:: _in_place.rst

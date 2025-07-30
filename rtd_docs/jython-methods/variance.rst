@@ -13,6 +13,8 @@ variance()
         ]
     ) -> Any
 
+`Detailed Documentation <https://hydrologicengineeringcenter.github.io/hec-python-library/hec/timeseries.html#TimeSeries.aggregate>`_
+
 **Signature 2:**
 
 .. code-block:: python
@@ -25,6 +27,8 @@ variance()
         ],
         timeseries: list[TimeSeries]
     ) -> TimeSeries
+
+`Detailed Documentation <https://hydrologicengineeringcenter.github.io/hec-python-library/hec/timeseries.html#TimeSeries.aggregate_ts>`_
 
 The hec-python-library equivalent of Jython method **variance()**:
 

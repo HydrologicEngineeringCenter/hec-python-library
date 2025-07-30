@@ -112,7 +112,7 @@ class PairedData:
                     )
             if not "ind_unit" in info:
                 raise ValueError("JSON string must contain 'ind_unit'")
-            if not isinstance(info["name"], str):
+            if not isinstance(info["ind_unit"], str):
                 raise TypeError(
                     f"Exepected JSON 'ind_unit' item to be str, got {info['ind_unit'].__class__.__name__}"
                 )
@@ -125,7 +125,7 @@ class PairedData:
                 self._ind_log = info["ind_log"]
             if not "dep_unit" in info:
                 raise ValueError("JSON string must contain 'dep_unit'")
-            if not isinstance(info["name"], str):
+            if not isinstance(info["dep_unit"], str):
                 raise TypeError(
                     f"Exepected JSON 'dep_unit' item to be str, got {info['dep_unit'].__class__.__name__}"
                 )

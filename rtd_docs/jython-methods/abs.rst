@@ -11,7 +11,7 @@ The hec-python-library equivalent of Jython method **abs()**:
 
 Returns a ``TimeSeries`` object whose values are the absolute values of ``TimeSeries`` on which it is called.
 
-This is not a ``TimeSeries`` method but the standard python ``abs()`` function applit to a ``TimeSeries``
+This is not a ``TimeSeries`` method but the standard python ``abs()`` function applied to a ``TimeSeries``
 
 **Example:**
 

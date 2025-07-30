@@ -10,6 +10,8 @@ setParameterPart()
         in_place: bool = False
     ) -> TimeSeries
 
+`Detailed Documentation <https://hydrologicengineeringcenter.github.io/hec-python-library/hec/timeseries.html#TimeSeries.set_parameter>`_
+
 The hec-python-library equivalent of Jython method **setParameterPart()**:
 
 .. include:: _in_place.rst

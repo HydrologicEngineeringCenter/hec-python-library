@@ -7,6 +7,8 @@ firstValidDate()
 
     first_valid_time: Optional[numpy.datetime64]
 
+`Detailed Documentation <https://hydrologicengineeringcenter.github.io/hec-python-library/hec/timeseries.html#TimeSeries.first_valid_time>`_
+
 The hec-python-library equivalent of Jython method **firstValidDate()**:
 
 .. include:: _property.rst

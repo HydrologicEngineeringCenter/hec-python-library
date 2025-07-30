@@ -11,6 +11,8 @@ roundOff()
         in_place: bool = False
     ) -> TimeSeries
 
+`Detailed Documentation <https://hydrologicengineeringcenter.github.io/hec-python-library/hec/timeseries.html#TimeSeries.round_off>`_
+
 The hec-python-library equivalent of Jython method **roundOff()**:
 
 .. include:: _in_place.rst

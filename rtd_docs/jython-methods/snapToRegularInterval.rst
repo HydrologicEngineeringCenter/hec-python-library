@@ -31,6 +31,8 @@ snapToRegularInterval()
         in_place: bool = False
     ) -> TimeSeries
 
+`Detailed Documentation <https://hydrologicengineeringcenter.github.io/hec-python-library/hec/timeseries.html#TimeSeries.snap_to_regular>`_
+
 The hec-python-library equivalent of Jython method **snapToRegularInterval()**:
 
 .. include:: _in_place.rst

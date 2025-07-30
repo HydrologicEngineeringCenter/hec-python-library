@@ -7,6 +7,8 @@ accumulation()
 
     accum(in_place: bool = False) -> TimeSeries
 
+`Detailed Documentation <https://hydrologicengineeringcenter.github.io/hec-python-library/hec/timeseries.html#TimeSeries.accum>`_
+
 The hec-python-library equivalent of Jython method **accumulation()**:
 
 Returns a time series whose values are the accumulation of values in this time series.

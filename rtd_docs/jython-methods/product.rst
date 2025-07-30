@@ -11,5 +11,6 @@ The following example performs the equivalent:
 
     ts_list: list[TimeSeries]
     
-    for ts in ts_list:
-        ts1 *= ts
+    ts_prod = ts_list[1].copy()
+    for ts in ts_list[1:]:
+        ts_prod *= ts

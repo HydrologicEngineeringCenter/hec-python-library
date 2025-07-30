@@ -1,3 +1,3 @@
 Not Implemented
 -------------
-This method is not implemented in version |release|.
+This method is not implemented in release |release|

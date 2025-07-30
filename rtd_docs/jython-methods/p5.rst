@@ -11,6 +11,8 @@ p5()
         timeseries: list[TimeSeries]
     ) -> TimeSeries
 
+`Detailed Documentation <https://hydrologicengineeringcenter.github.io/hec-python-library/hec/timeseries.html#TimeSeries.percentile_ts>`_
+
 The hec-python-library equivalent of Jython method **p5()**
 
 **Notes:**

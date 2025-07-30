@@ -13,6 +13,8 @@ screenWithMaxMin()
         in_place: bool = False
     ) -> TimeSeries
 
+`Detailed Documentation <https://hydrologicengineeringcenter.github.io/hec-python-library/hec/timeseries.html#TimeSeries.screen_with_value_range>`_
+
 The hec-python-library equivalent of Jython method **screenWithMaxMin()**:
 
 .. include:: _in_place.rst

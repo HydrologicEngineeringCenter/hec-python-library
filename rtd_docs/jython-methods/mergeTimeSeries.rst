@@ -10,6 +10,8 @@ mergeTimeSeries()
         in_place: bool = False
     ) -> TimeSeries
 
+`Detailed Documentation <https://hydrologicengineeringcenter.github.io/hec-python-library/hec/timeseries.html#TimeSeries.merge>`_
+
 The hec-python-library equivalent of Jython method **mergeTimeSeries()**:
 
 .. include:: _in_place.rst

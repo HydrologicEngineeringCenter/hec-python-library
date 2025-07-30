@@ -7,6 +7,8 @@ mean()
 
     mean(self) -> float
 
+`Detailed Documentation <https://hydrologicengineeringcenter.github.io/hec-python-library/hec/timeseries.html#TimeSeries.mean>`_
+
 **Signature 2:**
 
 .. code-block:: python
@@ -19,6 +21,8 @@ mean()
             ],
         timeseries: list[TimeSeries]
     ) -> TimeSeries
+
+`Detailed Documentation <https://hydrologicengineeringcenter.github.io/hec-python-library/hec/timeseries.html#TimeSeries.aggregate_ts>`_
 
 The hec-python-library equivalent of Jython method **mean()**:
 

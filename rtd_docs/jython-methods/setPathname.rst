@@ -7,6 +7,8 @@ setPathname()
 
     name: str
 
+`Detailed Documentation <https://hydrologicengineeringcenter.github.io/hec-python-library/hec/timeseries.html#TimeSeries.name>`_
+
 The hec-python-library equivalent of Jython method **setPathname()**:
 
 .. include:: _property.rst

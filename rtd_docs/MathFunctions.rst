@@ -1,268 +1,266 @@
-Math Function Reference
-=======================
+Math Function Cross Reference
+=============================
 
 A guide for moving Jython scripts that use hec.hecmath classes and methods to the hec-python-library.
 
-
 .. dropdown:: Lookup by topic in `HEC-DSSVue User's Manual <https://www.hec.usace.army.mil/confluence/dssdocs/dssvueum/scripting/math-functions>`_
 
-   - Absolute Value: :doc:`jython-methods/abs`
-   - Accumulation (Running) :doc:`jython-methods/accumulation`
-   - Arccosine Trigonometric Function :doc:`jython-methods/acos`
-   - Add a Constant :doc:`jython-methods/add`
-   - Add a Data Set :doc:`jython-methods/add`
-   - Apply Multiple Linear Regression Equation :doc:`jython-methods/add`
-   - Arcsine Trigonometric Function :doc:`/jython-methods/applyMultipleLinearRegression`
-   - Arctangent Trigonometric Function :doc:`/jython-methods/atan`
-   - Ceiling Function :doc:`/jython-methods/ceil`
-   - Centered Moving Average Smoothing :doc:`/jython-methods/centeredMovingAverage`
-   - Conic Interpolation from Elevation/Area Table :doc:`/jython-methods/conicInterpolation`
-   - Convert Values to English Units :doc:`/jython-methods/convertToEnglishUnits`
-   - Convert Values to Metric (SI) Units :doc:`/jython-methods/convertToMetricUnits`
-   - Correlation Coefficients :doc:`/jython-methods/correlationCoefficients`
-   - Cosine Trigonometric Function :doc:`jython-methods/cos`
-   - Cyclic Analysis (Time Series) :doc:`/jython-methods/cyclicAnalysis`
-   - Decaying Basin Wetness Parameter :doc:`/jython-methods/decayingBasinWetnessParameter`
-   - Divide by a Constant :doc:`/jython-methods/divide`
-   - Divide by a Data Set :doc:`/jython-methods/divide`
-   - Estimate Values for Missing Precipitation Data :doc:`/jython-methods/estimateForMissingPrecipValues`
-   - Estimate Values for Missing Data :doc:`/jython-methods/estimateForMissingValues`
-   - Exponent :doc:`/jython-methods/exp`
-   - Exponentiation Function :doc:`/jython-methods/exponentiation`
-   - Exponentiation Timeseries Function :doc:`/jython-methods/exponentiation`
-   - Extract Time Series Data at Unique Time Specification :doc:`/jython-methods/extractTimeSeriesDataForTimeSpecification`
-   - First Valid Date :doc:`/jython-methods/firstValidDate`
-   - First Valid Value :doc:`/jython-methods/firstValidValue`
-   - Floor Function :doc:`/jython-methods/floor`
-   - Flow Accumulator Gage (Compute Period Average Flows) :doc:`/jython-methods/flowAccumulatorGageProcessor`
-   - Modulo Function with both Arguments are Greater than Zero :doc:`/jython-methods/fmod`
-   - Forward Moving Average Smoothing :doc:`/jython-methods/forwardMovingAverage`
-   - Forward Moving Average Smoothing of Time Series :doc:`/jython-methods/forwardMovingAverage`
-   - Generate Paired Data from Two Time Series :doc:`/jython-methods/generatePairedData`
-   - Generate a Regular Interval Time Series :doc:`/jython-methods/generateRegularIntervalTimeSeries`
-   - Get Data Container :doc:`/jython-methods/getData`
-   - Get Data Type for Time Series Data Set :doc:`/jython-methods/getType`
-   - Get Units Label for Data Set :doc:`/jython-methods/getUnits`
-   - Gmean :doc:`/jython-methods/gmean`
-   - Hmean :doc:`/jython-methods/hmean`
-   - Integer Division by a Constant :doc:`/jython-methods/integerDivide`
-   - Integer Divison by an Object :doc:`/jython-methods/integerDivide`
-   - Interpolate Time Series Data at Regular Intervals :doc:`/jython-methods/interpolateDataAtRegularInterval`
-   - Inverse (1/X) Function :doc:`/jython-methods/inverse`
-   - Determine if Data is in English Units :doc:`/jython-methods/isEnglish`
-   - Determine if Data is in Metric Units :doc:`/jython-methods/isMetric`
-   - Determine if Computation Stable for Given Muskingum Routing Parameters :doc:`/jython-methods/isMuskingumRoutingStable`
-   - Last Valid Value's Date and Time :doc:`/jython-methods/lastValidDate`
-   - Last Valid Value in a Time Series :doc:`/jython-methods/lastValidValue`
-   - Natural Log, Base "e" Function :doc:`/jython-methods/log`
-   - Log Base 10 Function :doc:`/jython-methods/log10`
-   - Maximum Value in a Time Series :doc:`/jython-methods/max`
-   - Maximum Value in a Time Series (tsMathArrary) :doc:`/jython-methods/max`
-   - Maximum Value's Date and Time :doc:`/jython-methods/maxDate`
-   - Mean Time Series Value :doc:`/jython-methods/mean`
-   - Mean Time Series Value (tsMathArray) :doc:`/jython-methods/mean`
-   - Median Time Series Value :doc:`/jython-methods/med`
-   - Merge Paired Data Sets :doc:`/jython-methods/mergePairedData`
-   - Merge Two Time Series Data Sets :doc:`/jython-methods/mergeTimeSeries`
-   - Minimum Value in a Time Series :doc:`/jython-methods/min`
-   - Minimum Value in a Time Series (tsMathArray) :doc:`/jython-methods/min`
-   - Minimum Value's Date and Time :doc:`/jython-methods/minDate`
-   - Modified Puls or Working R&D Routing Function :doc:`/jython-methods/modifiedPulsRouting`
-   - Modulo :doc:`/jython-methods/modulo`
-   - Modulo (tsMath) :doc:`/jython-methods/modulo`
-   - Multiple Linear Regression Coefficients :doc:`/jython-methods/multipleLinearRegression`
-   - Multiply by a Constant :doc:`/jython-methods/multiply`
-   - Multiply by a Data Set :doc:`/jython-methods/multiply`
-   - Muskingum Hydrologic Routing Function :doc:`/jython-methods/muskingumRouting`
-   - Negation Function :doc:`/jython-methods/negative`
-   - Number of Invalid Values in a Time Series :doc:`/jython-methods/numberInvalidValues`
-   - Number of Missing Values in a Time Series :doc:`/jython-methods/numberMissingValues`
-   - Number of Questioned Values in a Time Series :doc:`/jython-methods/numberQuestionedValues`
-   - Number of Rejected Values in a Time Series :doc:`/jython-methods/numberRejectedValues`
-   - Number of Valid Values in a Time Series :doc:`/jython-methods/numberValidValues`
-   - Olympic Smoothing :doc:`/jython-methods/olympicSmoothing`
-   - P1 Function :doc:`/jython-methods/p1`
-   - P2 Function :doc:`/jython-methods/p2`
-   - P5 Function :doc:`/jython-methods/p5`
-   - P10 Function :doc:`/jython-methods/p10`
-   - P20 Function :doc:`/jython-methods/p20`
-   - P25 Function :doc:`/jython-methods/p25`
-   - P75 Function :doc:`/jython-methods/p75`
-   - P80 Function :doc:`/jython-methods/p80`
-   - *P89 Function (mislabeled in doc)* :doc:`/jython-methods/p98`
-   - P90 Function :doc:`/jython-methods/p90`
-   - P95 Function :doc:`/jython-methods/p95`
-   - *P98 Function (missing from doc)* :doc:`/jython-methods/p98`
-   - P99 Function :doc:`/jython-methods/p99`
-   - Period Constants Generation :doc:`/jython-methods/periodConstants`
-   - Polynomial Transformation :doc:`/jython-methods/polynomialTransformation`
-   - Polynomial Transformation with Integral :doc:`/jython-methods/polynomialTransformationWithIntegral`
-   - Product Function :doc:`/jython-methods/product`
-   - Rating Table Interpolation :doc:`/jython-methods/ratingTableInterpolation`
-   - Replace Specific Values :doc:`/jython-methods/replaceSpecificValues`
-   - Reverse Rating Table Interpolation :doc:`/jython-methods/reverseRatingTableInterpolation`
-   - RMS Function :doc:`/jython-methods/rms`
-   - Round to Nearest Whole Number :doc:`/jython-methods/round`
-   - Round Off to Specified Precision :doc:`/jython-methods/roundOff`
-   - Screen for Erroneous Values Based on Constant Value :doc:`/jython-methods/screenWithConstantValue`
-   - Screen for Erroneous Values Based on Duration Magnitude :doc:`/jython-methods/screenWithDurationMagnitude`
-   - Screen for Erroneous Values Based on Forward Moving Average :doc:`/jython-methods/screenWithForwardMovingAverage`
-   - Screen for Erroneous Values Based on Forward Moving Average (Missing Values) :doc:`/jython-methods/screenWithForwardMovingAverage`
-   - Screen for Erroneous Values Based on Maximum/Minimum Range (Missing Values) :doc:`/jython-methods/screenWithMaxMin`
-   - Screen for Erroneous Values Based on Maximum/Minimum Range :doc:`/jython-methods/screenWithMaxMin`
-   - Screen for Erroneous Values Based on Maximum/Minimum Range (Quality) :doc:`/jython-methods/screenWithMaxMin`
-   - Screen for Erroneous Values Based on Maximum/Minimum Range (Limits) :doc:`/jython-methods/screenWithMaxMin`
-   - Screen for Erroneous Values Based on Rate of Change :doc:`/jython-methods/screenWithRateOfChange`
-   - Select a Paired Data Curve by Curve Label :doc:`/jython-methods/setCurve`
-   - Select a Paired Data Curve by Curve Number :doc:`/jython-methods/setCurve`
-   - Set Data Container :doc:`/jython-methods/setData`
-   - Set Location Name for Data Set :doc:`/jython-methods/setLocation`
-   - Set Parameter for Data Set :doc:`/jython-methods/setParameterPart`
-   - Set Pathname for Data Set :doc:`/jython-methods/setPathname`
-   - Set Time Interval for Data Set :doc:`/jython-methods/setTimeInterval`
-   - Set Data Type for Time Series Data Set :doc:`/jython-methods/setType`
-   - Set Units Label for Data Set :doc:`/jython-methods/setUnits`
-   - Set Version Name for Data Set :doc:`/jython-methods/setVersion`
-   - Set Watershed Name for Data Set :doc:`/jython-methods/setWatershed`
-   - Shift Adjustment of Time Series Data :doc:`/jython-methods/shiftAdjustment`
-   - Shift Time Series in Time :doc:`/jython-methods/shiftInTime`
-   - Sign Function :doc:`/jython-methods/sign`
-   - Sine Trigonometric Function :doc:`/jython-methods/sin`
-   - Skew Coefficient :doc:`/jython-methods/skewCoefficient`
-   - Snap Irregular Times to Nearest Regular Period :doc:`/jython-methods/snapToRegularInterval`
-   - Square Root :doc:`/jython-methods/sqrt`
-   - Standard Deviation of Time Series :doc:`/jython-methods/standardDeviation`
-   - Standard Deviation of Time Series (tsMathArray) :doc:`/jython-methods/standardDeviation`
-   - Straddle Stagger Hydrologic Routing :doc:`/jython-methods/straddleStaggerRouting`
-   - Subtract a Constant :doc:`/jython-methods/subtract`
-   - Subtract a Data Set :doc:`/jython-methods/subtract`
-   - Successive Differences for Time Series :doc:`/jython-methods/successiveDifferences`
-   - Sum Values in Time Series :doc:`/jython-methods/sum`
-   - Sum Values in Time Series (tsMathArray) :doc:`/jython-methods/sum`
-   - Tangent Trigonometric Function :doc:`/jython-methods/tan`
-   - Time Derivative (Difference per Unit Time) :doc:`/jython-methods/timeDerivative`
-   - Transform Time Series to Regular Interval :doc:`/jython-methods/transformTimeSeries`
-   - Transform Time Series to Irregular Interval :doc:`/jython-methods/transformTimeSeries`
-   - Truncate to Whole Numbers :doc:`/jython-methods/truncate`
-   - Two Variable Rating Table Interpolation :doc:`/jython-methods/twoVariableRatingTableInterpolation`
-   - Variance Function :doc:`/jython-methods/variance`
+   - :doc:`Absolute Value <jython-methods/abs>`
+   - :doc:`Accumulation (Running) <jython-methods/accumulation>`
+   - :doc:`Arccosine Trigonometric Function <jython-methods/acos>`
+   - :doc:`Add a Constant <jython-methods/add>`
+   - :doc:`Add a Data Set <jython-methods/add>`
+   - :doc:`Apply Multiple Linear Regression Equation <jython-methods/add>`
+   - :doc:`Arcsine Trigonometric Function <jython-methods/applyMultipleLinearRegression>`
+   - :doc:`Arctangent Trigonometric Function <jython-methods/atan>`
+   - :doc:`Ceiling Function <jython-methods/ceil>`
+   - :doc:`Centered Moving Average Smoothing <jython-methods/centeredMovingAverage>`
+   - :doc:`Conic Interpolation from Elevation/Area Table <jython-methods/conicInterpolation>`
+   - :doc:`Convert Values to English Units <jython-methods/convertToEnglishUnits>`
+   - :doc:`Convert Values to Metric (SI) Units <jython-methods/convertToMetricUnits>`
+   - :doc:`Correlation Coefficients <jython-methods/correlationCoefficients>`
+   - :doc:`Cosine Trigonometric Function <jython-methods/cos>`
+   - :doc:`Cyclic Analysis (Time Series) <jython-methods/cyclicAnalysis>`
+   - :doc:`Decaying Basin Wetness Parameter <jython-methods/decayingBasinWetnessParameter>`
+   - :doc:`Divide by a Constant <jython-methods/divide>`
+   - :doc:`Divide by a Data Set <jython-methods/divide>`
+   - :doc:`Estimate Values for Missing Precipitation Data <jython-methods/estimateForMissingPrecipValues>`
+   - :doc:`Estimate Values for Missing Data <jython-methods/estimateForMissingValues>`
+   - :doc:`Exponent <jython-methods/exp>`
+   - :doc:`Exponentiation Function <jython-methods/exponentiation>`
+   - :doc:`Exponentiation Timeseries Function <jython-methods/exponentiation>`
+   - :doc:`Extract Time Series Data at Unique Time Specification <jython-methods/extractTimeSeriesDataForTimeSpecification>`
+   - :doc:`First Valid Date <jython-methods/firstValidDate>`
+   - :doc:`First Valid Value <jython-methods/firstValidValue>`
+   - :doc:`Floor Function <jython-methods/floor>`
+   - :doc:`Flow Accumulator Gage (Compute Period Average Flows) <jython-methods/flowAccumulatorGageProcessor>`
+   - :doc:`Modulo Function with both Arguments are Greater than Zero <jython-methods/fmod>`
+   - :doc:`Forward Moving Average Smoothing <jython-methods/forwardMovingAverage>`
+   - :doc:`Forward Moving Average Smoothing of Time Series <jython-methods/forwardMovingAverage>`
+   - :doc:`Generate Paired Data from Two Time Series <jython-methods/generatePairedData>`
+   - :doc:`Generate a Regular Interval Time Series <jython-methods/generateRegularIntervalTimeSeries>`
+   - :doc:`Get Data Container <jython-methods/getData>`
+   - :doc:`Get Data Type for Time Series Data Set <jython-methods/getType>`
+   - :doc:`Get Units Label for Data Set <jython-methods/getUnits>`
+   - :doc:`Gmean <jython-methods/gmean>`
+   - :doc:`Hmean <jython-methods/hmean>`
+   - :doc:`Integer Division by a Constant <jython-methods/integerDivide>`
+   - :doc:`Integer Divison by an Object <jython-methods/integerDivide>`
+   - :doc:`Interpolate Time Series Data at Regular Intervals <jython-methods/interpolateDataAtRegularInterval>`
+   - :doc:`Inverse (1/X) Function <jython-methods/inverse>`
+   - :doc:`Determine if Data is in English Units <jython-methods/isEnglish>`
+   - :doc:`Determine if Data is in Metric Units <jython-methods/isMetric>`
+   - :doc:`Determine if Computation Stable for Given Muskingum Routing Parameters <jython-methods/isMuskingumRoutingStable>`
+   - :doc:`Last Valid Value's Date and Time <jython-methods/lastValidDate>`
+   - :doc:`Last Valid Value in a Time Series <jython-methods/lastValidValue>`
+   - :doc:`Natural Log, Base "e" Function <jython-methods/log>`
+   - :doc:`Log Base 10 Function <jython-methods/log10>`
+   - :doc:`Maximum Value in a Time Series <jython-methods/max>`
+   - :doc:`Maximum Value in a Time Series (tsMathArrary) <jython-methods/max>`
+   - :doc:`Maximum Value's Date and Time <jython-methods/maxDate>`
+   - :doc:`Mean Time Series Value <jython-methods/mean>`
+   - :doc:`Mean Time Series Value (tsMathArray) <jython-methods/mean>`
+   - :doc:`Median Time Series Value <jython-methods/med>`
+   - :doc:`Merge Paired Data Sets <jython-methods/mergePairedData>`
+   - :doc:`Merge Two Time Series Data Sets <jython-methods/mergeTimeSeries>`
+   - :doc:`Minimum Value in a Time Series <jython-methods/min>`
+   - :doc:`Minimum Value in a Time Series (tsMathArray) <jython-methods/min>`
+   - :doc:`Minimum Value's Date and Time <jython-methods/minDate>`
+   - :doc:`Modified Puls or Working R&D Routing Function <jython-methods/modifiedPulsRouting>`
+   - :doc:`Modulo <jython-methods/modulo>`
+   - :doc:`Modulo (tsMath) <jython-methods/modulo>`
+   - :doc:`Multiple Linear Regression Coefficients <jython-methods/multipleLinearRegression>`
+   - :doc:`Multiply by a Constant <jython-methods/multiply>`
+   - :doc:`Multiply by a Data Set <jython-methods/multiply>`
+   - :doc:`Muskingum Hydrologic Routing Function <jython-methods/muskingumRouting>`
+   - :doc:`Negation Function <jython-methods/negative>`
+   - :doc:`Number of Invalid Values in a Time Series <jython-methods/numberInvalidValues>`
+   - :doc:`Number of Missing Values in a Time Series <jython-methods/numberMissingValues>`
+   - :doc:`Number of Questioned Values in a Time Series <jython-methods/numberQuestionedValues>`
+   - :doc:`Number of Rejected Values in a Time Series <jython-methods/numberRejectedValues>`
+   - :doc:`Number of Valid Values in a Time Series <jython-methods/numberValidValues>`
+   - :doc:`Olympic Smoothing <jython-methods/olympicSmoothing>`
+   - :doc:`P1 Function <jython-methods/p1>`
+   - :doc:`P2 Function <jython-methods/p2>`
+   - :doc:`P5 Function <jython-methods/p5>`
+   - :doc:`P10 Function <jython-methods/p10>`
+   - :doc:`P20 Function <jython-methods/p20>`
+   - :doc:`P25 Function <jython-methods/p25>`
+   - :doc:`P75 Function <jython-methods/p75>`
+   - :doc:`P80 Function <jython-methods/p80>`
+   - :doc:`P89 Function <jython-methods/p98>`
+   - :doc:`P90 Function <jython-methods/p90>`
+   - :doc:`P95 Function <jython-methods/p95>`
+   - :doc:`P98 Function <jython-methods/p98>`
+   - :doc:`P99 Function <jython-methods/p99>`
+   - :doc:`Period Constants Generation <jython-methods/periodConstants>`
+   - :doc:`Polynomial Transformation <jython-methods/polynomialTransformation>`
+   - :doc:`Polynomial Transformation with Integral <jython-methods/polynomialTransformationWithIntegral>`
+   - :doc:`Product Function <jython-methods/product>`
+   - :doc:`Rating Table Interpolation <jython-methods/ratingTableInterpolation>`
+   - :doc:`Replace Specific Values <jython-methods/replaceSpecificValues>`
+   - :doc:`Reverse Rating Table Interpolation <jython-methods/reverseRatingTableInterpolation>`
+   - :doc:`RMS Function <jython-methods/rms>`
+   - :doc:`Round to Nearest Whole Number <jython-methods/round>`
+   - :doc:`Round Off to Specified Precision <jython-methods/roundOff>`
+   - :doc:`Screen for Erroneous Values Based on Constant Value <jython-methods/screenWithConstantValue>`
+   - :doc:`Screen for Erroneous Values Based on Duration Magnitude <jython-methods/screenWithDurationMagnitude>`
+   - :doc:`Screen for Erroneous Values Based on Forward Moving Average <jython-methods/screenWithForwardMovingAverage>`
+   - :doc:`Screen for Erroneous Values Based on Forward Moving Average (Missing Values) <jython-methods/screenWithForwardMovingAverage>`
+   - :doc:`Screen for Erroneous Values Based on Maximum/Minimum Range (Missing Values) <jython-methods/screenWithMaxMin>`
+   - :doc:`Screen for Erroneous Values Based on Maximum/Minimum Range <jython-methods/screenWithMaxMin>`
+   - :doc:`Screen for Erroneous Values Based on Maximum/Minimum Range (Quality) <jython-methods/screenWithMaxMin>`
+   - :doc:`Screen for Erroneous Values Based on Maximum/Minimum Range (Limits) <jython-methods/screenWithMaxMin>`
+   - :doc:`Screen for Erroneous Values Based on Rate of Change <jython-methods/screenWithRateOfChange>`
+   - :doc:`Select a Paired Data Curve by Curve Label <jython-methods/setCurve>`
+   - :doc:`Select a Paired Data Curve by Curve Number <jython-methods/setCurve>`
+   - :doc:`Set Data Container <jython-methods/setData>`
+   - :doc:`Set Location Name for Data Set <jython-methods/setLocation>`
+   - :doc:`Set Parameter for Data Set <jython-methods/setParameterPart>`
+   - :doc:`Set Pathname for Data Set <jython-methods/setPathname>`
+   - :doc:`Set Time Interval for Data Set <jython-methods/setTimeInterval>`
+   - :doc:`Set Data Type for Time Series Data Set <jython-methods/setType>`
+   - :doc:`Set Units Label for Data Set <jython-methods/setUnits>`
+   - :doc:`Set Version Name for Data Set <jython-methods/setVersion>`
+   - :doc:`Set Watershed Name for Data Set <jython-methods/setWatershed>`
+   - :doc:`Shift Adjustment of Time Series Data <jython-methods/shiftAdjustment>`
+   - :doc:`Shift Time Series in Time <jython-methods/shiftInTime>`
+   - :doc:`Sign Function <jython-methods/sign>`
+   - :doc:`Sine Trigonometric Function <jython-methods/sin>`
+   - :doc:`Skew Coefficient <jython-methods/skewCoefficient>`
+   - :doc:`Snap Irregular Times to Nearest Regular Period <jython-methods/snapToRegularInterval>`
+   - :doc:`Square Root <jython-methods/sqrt>`
+   - :doc:`Standard Deviation of Time Series <jython-methods/standardDeviation>`
+   - :doc:`Standard Deviation of Time Series (tsMathArray) <jython-methods/standardDeviation>`
+   - :doc:`Straddle Stagger Hydrologic Routing <jython-methods/straddleStaggerRouting>`
+   - :doc:`Subtract a Constant <jython-methods/subtract>`
+   - :doc:`Subtract a Data Set <jython-methods/subtract>`
+   - :doc:`Successive Differences for Time Series <jython-methods/successiveDifferences>`
+   - :doc:`Sum Values in Time Series <jython-methods/sum>`
+   - :doc:`Sum Values in Time Series (tsMathArray) <jython-methods/sum>`
+   - :doc:`Tangent Trigonometric Function <jython-methods/tan>`
+   - :doc:`Time Derivative (Difference per Unit Time) <jython-methods/timeDerivative>`
+   - :doc:`Transform Time Series to Regular Interval <jython-methods/transformTimeSeries>`
+   - :doc:`Transform Time Series to Irregular Interval <jython-methods/transformTimeSeries>`
+   - :doc:`Truncate to Whole Numbers <jython-methods/truncate>`
+   - :doc:`Two Variable Rating Table Interpolation <jython-methods/twoVariableRatingTableInterpolation>`
+   - :doc:`Variance Function <jython-methods/variance>`
 
-.. toctree::
-   :maxdepth: 1
-   :caption: Jython method names:
 
-   jython-methods/abs
-   jython-methods/accumulation
-   jython-methods/acos
-   jython-methods/add
-   jython-methods/applyMultipleLinearRegression
-   jython-methods/asin
-   jython-methods/atan
-   jython-methods/ceil
-   jython-methods/centeredMovingAverage
-   jython-methods/conicInterpolation
-   jython-methods/convertToEnglishUnits
-   jython-methods/convertToMetricUnits
-   jython-methods/correlationCoefficients
-   jython-methods/cos
-   jython-methods/cyclicAnalysis
-   jython-methods/decayingBasinWetnessParameter
-   jython-methods/divide
-   jython-methods/estimateForMissingPrecipValues
-   jython-methods/exp
-   jython-methods/exponentiation
-   jython-methods/extractTimeSeriesDataForTimeSpecification
-   jython-methods/firstValidDate
-   jython-methods/firstValidValue
-   jython-methods/floor
-   jython-methods/flowAccumulatorGageProcessor
-   jython-methods/fmod
-   jython-methods/forwardMovingAverage
-   jython-methods/generatePairedData
-   jython-methods/generateRegularIntervalTimeSeries
-   jython-methods/getData
-   jython-methods/getType
-   jython-methods/getUnits
-   jython-methods/hmean
-   jython-methods/integerDivide
-   jython-methods/interpolateDataAtRegularInterval
-   jython-methods/inverse
-   jython-methods/isEnglish
-   jython-methods/isMetric
-   jython-methods/isMuskingumRoutingStable
-   jython-methods/lastValidDate
-   jython-methods/lastValidValue
-   jython-methods/log
-   jython-methods/log10
-   jython-methods/max
-   jython-methods/maxDate
-   jython-methods/mean
-   jython-methods/med
-   jython-methods/mergePairedData
-   jython-methods/min
-   jython-methods/minDate
-   jython-methods/modifiedPulsRouting
-   jython-methods/modulo
-   jython-methods/multipleLinearRegression
-   jython-methods/multiply
-   jython-methods/muskingumRouting
-   jython-methods/negative
-   jython-methods/numberInvalidValues
-   jython-methods/numberMissingValues
-   jython-methods/numberQuestionedValues
-   jython-methods/numberValidValues
-   jython-methods/olympicSmoothing
-   jython-methods/p1
-   jython-methods/p2
-   jython-methods/p5
-   jython-methods/p10
-   jython-methods/p20
-   jython-methods/p25
-   jython-methods/p75
-   jython-methods/p80
-   jython-methods/p89
-   jython-methods/p90
-   jython-methods/p95
-   jython-methods/p99
-   jython-methods/periodConstants
-   jython-methods/polynomialTransformation
-   jython-methods/product
-   jython-methods/ratingTableInterpolation
-   jython-methods/replaceSpecificValues
-   jython-methods/reverseRatingTableInterpolation
-   jython-methods/rms
-   jython-methods/round
-   jython-methods/roundOff
-   jython-methods/screenWithConstantValue
-   jython-methods/screenWithDurationMagnitude
-   jython-methods/screenWithForwardMovingAverage
-   jython-methods/screenWithMaxMin
-   jython-methods/screenWithRateOfChange
-   jython-methods/setCurve
-   jython-methods/setData
-   jython-methods/setLocation
-   jython-methods/setParameterPart
-   jython-methods/setPathname
-   jython-methods/setTimeInterval
-   jython-methods/setType
-   jython-methods/setUnits
-   jython-methods/setVersion
-   jython-methods/setWatershed
-   jython-methods/shiftAdjustment
-   jython-methods/shiftInTime
-   jython-methods/sign
-   jython-methods/sin
-   jython-methods/skewCoefficient
-   jython-methods/snapToRegularInterval
-   jython-methods/sqrt
-   jython-methods/standardDeviation
-   jython-methods/straddleStaggerRouting
-   jython-methods/subtract
-   jython-methods/successiveDifferences
-   jython-methods/sum
-   jython-methods/tan
-   jython-methods/timeDerivative
-   jython-methods/transformTimeSeries
-   jython-methods/truncate
-   jython-methods/twoVariableRatingTableInterpolation
-   jython-methods/variance
+.. dropdown:: Lookup by Jython method name
+
+   - :doc:`jython-methods/abs`
+   - :doc:`jython-methods/accumulation`
+   - :doc:`jython-methods/acos`
+   - :doc:`jython-methods/add`
+   - :doc:`jython-methods/applyMultipleLinearRegression`
+   - :doc:`jython-methods/asin`
+   - :doc:`jython-methods/atan`
+   - :doc:`jython-methods/ceil`
+   - :doc:`jython-methods/centeredMovingAverage`
+   - :doc:`jython-methods/conicInterpolation`
+   - :doc:`jython-methods/convertToEnglishUnits`
+   - :doc:`jython-methods/convertToMetricUnits`
+   - :doc:`jython-methods/correlationCoefficients`
+   - :doc:`jython-methods/cos`
+   - :doc:`jython-methods/cyclicAnalysis`
+   - :doc:`jython-methods/decayingBasinWetnessParameter`
+   - :doc:`jython-methods/divide`
+   - :doc:`jython-methods/estimateForMissingPrecipValues`
+   - :doc:`jython-methods/exp`
+   - :doc:`jython-methods/exponentiation`
+   - :doc:`jython-methods/extractTimeSeriesDataForTimeSpecification`
+   - :doc:`jython-methods/firstValidDate`
+   - :doc:`jython-methods/firstValidValue`
+   - :doc:`jython-methods/floor`
+   - :doc:`jython-methods/flowAccumulatorGageProcessor`
+   - :doc:`jython-methods/fmod`
+   - :doc:`jython-methods/forwardMovingAverage`
+   - :doc:`jython-methods/generatePairedData`
+   - :doc:`jython-methods/generateRegularIntervalTimeSeries`
+   - :doc:`jython-methods/getData`
+   - :doc:`jython-methods/getType`
+   - :doc:`jython-methods/getUnits`
+   - :doc:`jython-methods/hmean`
+   - :doc:`jython-methods/integerDivide`
+   - :doc:`jython-methods/interpolateDataAtRegularInterval`
+   - :doc:`jython-methods/inverse`
+   - :doc:`jython-methods/isEnglish`
+   - :doc:`jython-methods/isMetric`
+   - :doc:`jython-methods/isMuskingumRoutingStable`
+   - :doc:`jython-methods/lastValidDate`
+   - :doc:`jython-methods/lastValidValue`
+   - :doc:`jython-methods/log`
+   - :doc:`jython-methods/log10`
+   - :doc:`jython-methods/max`
+   - :doc:`jython-methods/maxDate`
+   - :doc:`jython-methods/mean`
+   - :doc:`jython-methods/med`
+   - :doc:`jython-methods/mergePairedData`
+   - :doc:`jython-methods/min`
+   - :doc:`jython-methods/minDate`
+   - :doc:`jython-methods/modifiedPulsRouting`
+   - :doc:`jython-methods/modulo`
+   - :doc:`jython-methods/multipleLinearRegression`
+   - :doc:`jython-methods/multiply`
+   - :doc:`jython-methods/muskingumRouting`
+   - :doc:`jython-methods/negative`
+   - :doc:`jython-methods/numberInvalidValues`
+   - :doc:`jython-methods/numberMissingValues`
+   - :doc:`jython-methods/numberQuestionedValues`
+   - :doc:`jython-methods/numberValidValues`
+   - :doc:`jython-methods/olympicSmoothing`
+   - :doc:`jython-methods/p1`
+   - :doc:`jython-methods/p2`
+   - :doc:`jython-methods/p5`
+   - :doc:`jython-methods/p10`
+   - :doc:`jython-methods/p20`
+   - :doc:`jython-methods/p25`
+   - :doc:`jython-methods/p75`
+   - :doc:`jython-methods/p80`
+   - :doc:`jython-methods/p90`
+   - :doc:`jython-methods/p95`
+   - :doc:`jython-methods/p98`
+   - :doc:`jython-methods/p99`
+   - :doc:`jython-methods/periodConstants`
+   - :doc:`jython-methods/polynomialTransformation`
+   - :doc:`jython-methods/product`
+   - :doc:`jython-methods/ratingTableInterpolation`
+   - :doc:`jython-methods/replaceSpecificValues`
+   - :doc:`jython-methods/reverseRatingTableInterpolation`
+   - :doc:`jython-methods/rms`
+   - :doc:`jython-methods/round`
+   - :doc:`jython-methods/roundOff`
+   - :doc:`jython-methods/screenWithConstantValue`
+   - :doc:`jython-methods/screenWithDurationMagnitude`
+   - :doc:`jython-methods/screenWithForwardMovingAverage`
+   - :doc:`jython-methods/screenWithMaxMin`
+   - :doc:`jython-methods/screenWithRateOfChange`
+   - :doc:`jython-methods/setCurve`
+   - :doc:`jython-methods/setData`
+   - :doc:`jython-methods/setLocation`
+   - :doc:`jython-methods/setParameterPart`
+   - :doc:`jython-methods/setPathname`
+   - :doc:`jython-methods/setTimeInterval`
+   - :doc:`jython-methods/setType`
+   - :doc:`jython-methods/setUnits`
+   - :doc:`jython-methods/setVersion`
+   - :doc:`jython-methods/setWatershed`
+   - :doc:`jython-methods/shiftAdjustment`
+   - :doc:`jython-methods/shiftInTime`
+   - :doc:`jython-methods/sign`
+   - :doc:`jython-methods/sin`
+   - :doc:`jython-methods/skewCoefficient`
+   - :doc:`jython-methods/snapToRegularInterval`
+   - :doc:`jython-methods/sqrt`
+   - :doc:`jython-methods/standardDeviation`
+   - :doc:`jython-methods/straddleStaggerRouting`
+   - :doc:`jython-methods/subtract`
+   - :doc:`jython-methods/successiveDifferences`
+   - :doc:`jython-methods/sum`
+   - :doc:`jython-methods/tan`
+   - :doc:`jython-methods/timeDerivative`
+   - :doc:`jython-methods/transformTimeSeries`
+   - :doc:`jython-methods/truncate`
+   - :doc:`jython-methods/twoVariableRatingTableInterpolation`
+   - :doc:`jython-methods/variance`

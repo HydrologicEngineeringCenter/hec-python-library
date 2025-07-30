@@ -16,6 +16,8 @@ generateRegularIntervalTimeSeries()
         qualities: Union[list[Union[hec.Quality, int]], hec.Quality, int, NoneType] = None
     ) -> TimeSeries    
 
+`Detailed Documentation <https://hydrologicengineeringcenter.github.io/hec-python-library/hec/timeseries.html#TimeSeries.new_regular_time_series>`_
+
 The hec-python-library equivalent of Jython method **generateRegularIntervalTimeSeries()**:
 
 Generates and returns a new regular (possibly local regular) interval time series with the
