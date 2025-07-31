@@ -3,6 +3,9 @@ Parameter Class
 
 `API Documentation <https://hydrologicengineeringcenter.github.io/hec-python-library/hec.html#Parameter>`_
 
+`Example Usage <https://github.com/HydrologicEngineeringCenter/hec-python-library/blob/main/examples/parameter_examples.ipynb>`_
+
+
 General
 -------
 Parameter objects are named objects that indicate abstract or physical elements subject to measurement, computation, or estimation.

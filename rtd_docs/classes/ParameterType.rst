@@ -3,6 +3,8 @@ ParameterType Class
 
 `API Documentation <https://hydrologicengineeringcenter.github.io/hec-python-library/hec.html#ParameterType>`_
 
+`Example Usage <https://github.com/HydrologicEngineeringCenter/hec-python-library/blob/main/examples/parameter_examples.ipynb>`_
+
 General
 -------
 ParameterType objects are named objects that indicate how the values in a :doc:`time series </classes/TimeSeries>` are to be interpreted with respect to the
@@ -42,6 +44,6 @@ ParameterType context-specific names and descriptions:
 |                   |           | ``INST-VAL`` (for others)          |                                         |
 +-------------------+-----------+------------------------------------+-----------------------------------------+
 
-.. [1] HEC-DSS time series do not specified separate intervals and durations, so the implied duration is the interval
+.. [1] HEC-DSS time series do not specify separate intervals and durations, so the implied duration is the interval
 
 .. [2] Value at beginning of duration for BOP durations

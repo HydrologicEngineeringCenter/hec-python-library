@@ -3,6 +3,8 @@ Location Class
 
 `API Documentation <https://hydrologicengineeringcenter.github.io/hec-python-library/hec.html#Location>`_
 
+`Example Usage <https://github.com/HydrologicEngineeringCenter/hec-python-library/blob/main/examples/location_examples.ipynb>`_
+
 General
 -------
 Location objects are named objects that indicate sites with which information is associated.

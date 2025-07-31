@@ -38,9 +38,9 @@ Signature 2 is a static method and must be called on the ``TimeSeries`` class in
 
 .. code-block:: python
 
-    skew_coeff: float
+    stddev: float
 
-    skew_coeff = ts.aggregate("std")
+    stddev = ts.aggregate("std")
 
 
 **Example 2:**
