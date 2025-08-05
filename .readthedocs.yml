@@ -10,6 +10,8 @@ python:
   install:
     - method: pip
       path: .
+      extra_requirements:
+        - docs
 
 sphinx:
   configuration: rtd_docs/conf.py
