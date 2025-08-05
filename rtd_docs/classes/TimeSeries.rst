@@ -31,13 +31,15 @@ Optional Information
 Notes
 -----
 
-A TimeSeries with a missing or empty ``data`` field is considered empty
+A TimeSeries with a missing or empty ``_data`` [1]_ field is considered empty
 
-The ``data`` field has the following format:
+The ``_data`` field has the following format:
 
- - index: ``pandas.DatetimeIndex`` [1]_
+ - index: ``pandas.DatetimeIndex`` [2]_
  - ``"value"`` column: ``numpy.float64``
  - ``"quality"`` column: ``numpy.int64``
 
 
-.. [1] The ``pandas.Timestamp`` type used by ``pandas.DatetimeIndex`` has a year range of approximately 1677..2262 which results in the inability of ``TimeSeries`` objects to include dates outside this range, which may occur in HEC-DSS files.
+.. [1] The ``_data`` field is accessible through the ``data`` property.
+
+.. [2] The ``pandas.Timestamp`` type used by ``pandas.DatetimeIndex`` has a year range of approximately 1677..2262, which results in the inability of ``TimeSeries`` objects to include dates outside this range, which may occur in HEC-DSS files.
