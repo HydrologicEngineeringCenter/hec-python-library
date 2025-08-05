@@ -2000,12 +2000,10 @@ class CwmsDataStore(AbstractDataStore):
         """
         Retrieves CWMS identifiers for the specified data type, optionally with extents for specific data types.
 
-        Currently only time series objects may be cataloged.
-
         Args:
             data_type (str): Must be one of the following (case insensitive):
-                * **'TIMESERIES'**: specifies cataloging CWMS time series objects in the data store
                 * **'LOCATION'**: specfies catalog CWMS locations in the data store
+                * **'TIMESERIES'**: specifies cataloging CWMS time series objects in the data store
             pattern (Optional[str], must be passed by name): An extended wildcard pattern to use for matching identifiers. `regex` takes precedence if both are specified. Defaults to None.
                 <table>
                 <pre>

@@ -1,0 +1,29 @@
+p5()
+====
+
+
+**Signature:**
+
+.. code-block:: python
+
+    percentile_ts(
+        pct: float,
+        timeseries: list[TimeSeries]
+    ) -> TimeSeries
+
+`Detailed Documentation <https://hydrologicengineeringcenter.github.io/hec-python-library/hec/timeseries.html#TimeSeries.percentile_ts>`_
+
+The hec-python-library equivalent of Jython method **p5()**
+
+**Notes:**
+
+1. ``percentile_ts()`` is a static method that must be called on the ``TimeSeries`` class and not on an instnace.
+2. There is a ``percentile()`` method that returns a specified perctile of the values in a time series
+
+**Example:**
+
+.. code-block:: python
+
+    ts_list: list[TimeSeries]
+
+    ts_p5 = TimeSeries.percentile_ts(5.0, ts_list)

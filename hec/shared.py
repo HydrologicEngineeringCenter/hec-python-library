@@ -7,7 +7,7 @@ import types
 dss_imported = False
 cwms_imported = False
 required_cwms_version = ">= '0.6.0'"
-required_dss_version = ">= '0.1.23'"
+required_dss_version = ">= '0.1.24'"
 
 
 def import_cwms() -> types.ModuleType:

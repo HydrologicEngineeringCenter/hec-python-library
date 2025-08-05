@@ -625,6 +625,57 @@ for unit_name in pint_units_by_unit_name:
         unit_names_by_pint_repr[eval(pint_repr)] = unit_name
 
 
+def add_unit_alias(unit: Union[str, pint.Unit], alias: str) -> None:
+    """
+    Registers unit alias for the specified unit
+
+    Args:
+        unit (Union[str, pint.Unit]): The unit to register the alias for
+        alias (str): The alias to register
+
+    Raises:
+        UnitException: if `alias` is already used or of `unit` is invalid
+    """
+    try:
+        get_unit_name(alias)
+    except KeyError:
+        pass
+    else:
+        raise UnitException(f"Alias '{alias}' is already a unit or a unit alias")
+    unit_str = str(unit)
+    try:
+        unit_name = get_unit_name(unit_str)
+    except KeyError:
+        raise UnitException(f"'{unit_str}' is not a recognized unit")
+    if unit_name.upper() != unit_str.upper():
+        raise UnitException(f"'{unit_str}' is not a unit but an alias for '{unit_name}'")
+    unit_names_by_alias[alias] = unit_name
+
+def delete_unit_alias(unit: Union[str, pint.Unit], alias: str) -> None:
+    """
+    Unregisters a unit alias for the specified unit.
+
+    Silently succeeds if the specified alias is not registered for any unit.
+
+    Args:
+        unit (Union[str, pint.Unit]): The unit to unregister the alias for
+        alias (str): The alias to unregister
+
+    Raises:
+        UnitException: if alias is a unit or an alias for a unit other than the specified unit
+    """
+    try:
+        unit_name = get_unit_name(alias)
+    except KeyError:
+        return
+    unit_str = str(unit)
+    if unit_name.upper() != unit_str.upper():
+        if unit_name.upper() == alias.upper():
+            raise UnitException(f"'{alias}' is not an alias for '{unit_str}' a unit name")
+        else:
+            raise UnitException(f"'{alias}' is not an alias for '{unit_str}' but for '{unit_name}'")
+    del unit_names_by_alias[alias]
+
 def get_unit_registry() -> pint.registry.UnitRegistry:
     """
     Returns the Pint unit registry. Pint doesn't share unit information between
@@ -701,7 +752,6 @@ def get_unit_name(name_alias_or_unit: Union[str, pint.Unit]) -> str:
     except KeyError:
         return unit_names_by_alias[unit_str]
 
-
 def get_unit_aliases(unit: Union[str, pint.Unit]) -> list[str]:
     """
     Returns a list of aliases for the specified unit
@@ -716,16 +766,13 @@ def get_unit_aliases(unit: Union[str, pint.Unit]) -> list[str]:
     Returns:
         list[str]: A list of aliases for the specified unit
     """
-    if unit == "lb":
-        unit_name = "lb"
-    else:
-        unit_name_or_alias = str(unit)
-        try:
-            unit_name = unit_names_by_alias[unit_name_or_alias]
-        except KeyError:
-            unit_name = unit_name_or_alias
-        if unit_name not in pint_units_by_unit_name:
-            raise KeyError(unit_name)
+    unit_name_or_alias = str(unit)
+    try:
+        unit_name = unit_names_by_alias[unit_name_or_alias]
+    except KeyError:
+        unit_name = unit_name_or_alias
+    if unit_name not in pint_units_by_unit_name:
+        raise KeyError(unit_name)
     return [k for k in unit_names_by_alias if unit_names_by_alias[k] == unit_name]
 
 

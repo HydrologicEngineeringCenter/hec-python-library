@@ -1,0 +1,1 @@
+This method is implemented as a property of the ``TimeSeries`` class.

@@ -544,6 +544,13 @@ class TimeSeries:
             index=l_indx,
         )
 
+    def __abs__(self) -> "TimeSeries":
+        if self._data is None or self._data.empty:
+            raise TimeSeriesException("Operation is invalid with empty time series.")
+        copy = self.copy()
+        self._data["value"] = self._data["value"].abs()
+        return copy
+    
     def __add__(
         self, amount: Union["TimeSeries", UnitQuantity, float, int]
     ) -> "TimeSeries":
@@ -4414,6 +4421,83 @@ class TimeSeries:
             else float(df.loc[valid_indices[0]]["value"])
         )
 
+    def fmod(
+        self, amount: Union["TimeSeries", UnitQuantity, float, int], in_place: bool = False
+    ) -> "TimeSeries":
+        """
+        Returns the result of fmod() of the values of this time series with either 
+        a constant or another time series.
+
+        Args:
+            amount (Union[TimeSeries, UnitQuantity, float, int]): The constant or time series to use in the operation
+            in_place (bool, optional): Whether to modify and return this time series. Defaults to False.
+
+
+        Returns:
+            TimeSeries: the resulting time series
+        """
+        if self._data is None:
+            raise TimeSeriesException("Operation is invalid with empty time series.")
+        if isinstance(amount, (float, int)):
+            # -------------------------------------- #
+            # mod time series with a unitless scalar #
+            # -------------------------------------- #
+            target = self if in_place else self.copy()
+            data = cast(pd.DataFrame, target._data)
+            if target.has_selection:
+                data.loc[data["selected"], ["value"]] %= amount
+                if self.selection_state == SelectionState.TRANSIENT:
+                    self.iselect(Select.ALL)
+                    if target is not self:
+                        target.iselect(Select.ALL)
+            else:
+                data["value"] = np.fmod(data["value"], amount)
+            return target
+        elif isinstance(amount, UnitQuantity):
+            # --------------------------------------- #
+            # mod time series with a scalar with unit #
+            # --------------------------------------- #
+            if UnitQuantity(1, amount.unit).unit.dimensionless:
+                to_unit = "n/a"
+            else:
+                to_unit = self.unit
+            return self.fmod(amount.to(to_unit).magnitude)
+        elif isinstance(amount, TimeSeries):
+            # ---------------------------------------- #
+            # mod time series with another time series #
+            # ---------------------------------------- #
+            if amount._data is None:
+                raise TimeSeriesException(
+                    "Operation is invalid with empty time series."
+                )
+            this = self._data
+            if UnitQuantity(1, amount.unit).unit.dimensionless:
+                that = cast(pd.DataFrame, amount.to("n/a")._data)
+            else:
+                that = cast(pd.DataFrame, amount.to(self.unit)._data)
+            target = self.copy(include_data=False)
+            target._data = pd.merge(
+                this[this["selected"]] if "selected" in this.columns else this,
+                that[that["selected"]] if "selected" in that.columns else that,
+                left_index=True,
+                right_index=True,
+                suffixes=("_1", "_2"),
+            )
+            target._data["value"] = np.fmod(target._data["value_1"], target._data["value_2"])
+            target._data["quality"] = 0
+            target._data.drop(
+                columns=["value_1", "value_2", "quality_1", "quality_2"], inplace=True
+            )
+            # ------------------------------ #
+            # reset any transient selections #
+            # ------------------------------ #
+            for ts in self, target, amount:
+                if ts.selection_state == SelectionState.TRANSIENT:
+                    ts.iselect(Select.ALL)
+            return target
+        else:
+            return NotImplemented
+
     def format_time_for_index(self, item: Union[HecTime, datetime, str]) -> str:
         """
         Formats a time item for indexing into the times of this object. The formatting depends on
@@ -4618,6 +4702,14 @@ class TimeSeries:
         return self.forward_moving_average(
             window, only_valid, use_reduced, in_place=True
         )
+        
+    def ifmod(
+        self, amount: Union["TimeSeries", UnitQuantity, float, int]
+    ) -> "TimeSeries":
+        """
+        Convenience method for executing [fmod(...)](#TimeSeries.fmod) with `in_place=True`.
+        """
+        return self.fmod(amount, in_place=True)
 
     def imap(self, func: Callable[[float], float]) -> "TimeSeries":
         """
@@ -8418,7 +8510,7 @@ class TimeSeries:
         The watershed (DSS A pathname part)
 
         Operations:
-            Read Only
+            Read/Write
         """
         return self._watershed
 

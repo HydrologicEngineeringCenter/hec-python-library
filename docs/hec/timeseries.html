@@ -127,6 +127,9 @@
                                 <a class="variable" href="#TimeSeries.first_valid_value">first_valid_value</a>
                         </li>
                         <li>
+                                <a class="function" href="#TimeSeries.fmod">fmod</a>
+                        </li>
+                        <li>
                                 <a class="function" href="#TimeSeries.format_time_for_index">format_time_for_index</a>
                         </li>
                         <li>
@@ -167,6 +170,9 @@
                         </li>
                         <li>
                                 <a class="function" href="#TimeSeries.iforward_moving_average">iforward_moving_average</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#TimeSeries.ifmod">ifmod</a>
                         </li>
                         <li>
                                 <a class="function" href="#TimeSeries.imap">imap</a>
@@ -1702,6 +1708,35 @@ will contain only the selected or unselected items in the original time series.<
 
 
                             </div>
+                            <div id="TimeSeries.fmod" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">fmod</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="bp">self</span>,</span><span class="param">	<span class="n">amount</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n"><a href="#TimeSeries">TimeSeries</a></span><span class="p">,</span> <span class="n"><a href="../hec.html#UnitQuantity">hec.UnitQuantity</a></span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span>,</span><span class="param">	<span class="n">in_place</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></span><span class="return-annotation">) -> <span class="n"><a href="#TimeSeries">TimeSeries</a></span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#TimeSeries.fmod"></a>
+    
+            <div class="docstring"><p>Returns the result of fmod() of the values of this time series with either 
+a constant or another time series.</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>amount (Union[TimeSeries, UnitQuantity, float, int]):</strong>  The constant or time series to use in the operation</li>
+<li><strong>in_place (bool, optional):</strong>  Whether to modify and return this time series. Defaults to False.</li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>TimeSeries: the resulting time series</p>
+</blockquote>
+</div>
+
+
+                            </div>
                             <div id="TimeSeries.format_time_for_index" class="classattr">
                                 <div class="attr function">
             
@@ -1997,6 +2032,21 @@ Otherwise this time series is not modified. Defaults to False.</li>
     <a class="headerlink" href="#TimeSeries.iforward_moving_average"></a>
     
             <div class="docstring"><p>Convenience method for executing <a href="#TimeSeries.forward_moving_average">forward_moving_average(...)</a> with <code>in_place=True</code>.</p>
+</div>
+
+
+                            </div>
+                            <div id="TimeSeries.ifmod" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">ifmod</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="bp">self</span>,</span><span class="param">	<span class="n">amount</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n"><a href="#TimeSeries">TimeSeries</a></span><span class="p">,</span> <span class="n"><a href="../hec.html#UnitQuantity">hec.UnitQuantity</a></span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="n"><a href="#TimeSeries">TimeSeries</a></span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#TimeSeries.ifmod"></a>
+    
+            <div class="docstring"><p>Convenience method for executing <a href="#TimeSeries.fmod">fmod(...)</a> with <code>in_place=True</code>.</p>
 </div>
 
 
@@ -5136,7 +5186,7 @@ selected after trim even though their location in the data may change.</p>
 <h6 id="operations">Operations:</h6>
 
 <blockquote>
-  <p>Read Only</p>
+  <p>Read/Write</p>
 </blockquote>
 </div>
 
