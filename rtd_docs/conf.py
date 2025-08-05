@@ -19,7 +19,7 @@ with pyproject_path.open("rb") as f:
 
 release = pyproject["project"]["version"]
 project = f'hec-python-library {release}'
-copyright = 'Developed by U.S. Government. No copyright applies.'
+copyright = 'Not Copyrighted'
 author = 'CEIWR-HEC-WM'
 
 # -- General configuration ---------------------------------------------------
