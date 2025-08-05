@@ -648,8 +648,11 @@ def add_unit_alias(unit: Union[str, pint.Unit], alias: str) -> None:
     except KeyError:
         raise UnitException(f"'{unit_str}' is not a recognized unit")
     if unit_name.upper() != unit_str.upper():
-        raise UnitException(f"'{unit_str}' is not a unit but an alias for '{unit_name}'")
+        raise UnitException(
+            f"'{unit_str}' is not a unit but an alias for '{unit_name}'"
+        )
     unit_names_by_alias[alias] = unit_name
+
 
 def delete_unit_alias(unit: Union[str, pint.Unit], alias: str) -> None:
     """
@@ -671,10 +674,15 @@ def delete_unit_alias(unit: Union[str, pint.Unit], alias: str) -> None:
     unit_str = str(unit)
     if unit_name.upper() != unit_str.upper():
         if unit_name.upper() == alias.upper():
-            raise UnitException(f"'{alias}' is not an alias for '{unit_str}' a unit name")
+            raise UnitException(
+                f"'{alias}' is not an alias for '{unit_str}' a unit name"
+            )
         else:
-            raise UnitException(f"'{alias}' is not an alias for '{unit_str}' but for '{unit_name}'")
+            raise UnitException(
+                f"'{alias}' is not an alias for '{unit_str}' but for '{unit_name}'"
+            )
     del unit_names_by_alias[alias]
+
 
 def get_unit_registry() -> pint.registry.UnitRegistry:
     """
@@ -751,6 +759,7 @@ def get_unit_name(name_alias_or_unit: Union[str, pint.Unit]) -> str:
         return unit_names_by_pint_repr[unit_str]
     except KeyError:
         return unit_names_by_alias[unit_str]
+
 
 def get_unit_aliases(unit: Union[str, pint.Unit]) -> list[str]:
     """
@@ -1026,8 +1035,8 @@ def convert_units(
                 f"From unit of {from_unit} differs from data unit of {to_convert.json['units']}"
             )
         factor: float = convert_units(1, src_unit, dst_unit)
-        converted = to_convert if in_place else copy.deepcopy(to_convert)
-        json = converted.json
+        cwms_data = to_convert if in_place else copy.deepcopy(to_convert)
+        json = cwms_data.json
         if convert_units(10, src_unit, dst_unit) == 10 * factor:
             json["values"] = [[v[0], v[1] * factor, v[2]] for v in json["values"]]
         else:
@@ -1048,9 +1057,9 @@ def convert_units(
                 )
             vdi["unit"] = to_unit
 
-        converted.json = json
-        converted._df = None
-        return converted
+        cwms_data.json = json
+        cwms_data._df = None
+        return cwms_data
         # ----- #
         # other #
         # ----- #

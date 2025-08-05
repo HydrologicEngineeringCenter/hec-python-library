@@ -27,6 +27,8 @@ The hec-python-library equivalent of Jython method **timeDerivative()**:
 
     itime_derivative() -> TimeSeries
 
+Convenience method for calling ``timeDerivative(...)`` with ``in_place=True``.
+
 **Example:**
 
 .. code-block:: python

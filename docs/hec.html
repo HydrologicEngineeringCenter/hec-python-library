@@ -1796,15 +1796,13 @@ Defaults to True.</li>
     
             <div class="docstring"><p>Retrieves CWMS identifiers for the specified data type, optionally with extents for specific data types.</p>
 
-<p>Currently only time series objects may be cataloged.</p>
-
 <h6 id="arguments">Arguments:</h6>
 
 <ul>
 <li><strong>data_type (str):</strong>  Must be one of the following (case insensitive):
 <ul>
-<li><strong>'TIMESERIES'</strong>: specifies cataloging CWMS time series objects in the data store</li>
 <li><strong>'LOCATION'</strong>: specfies catalog CWMS locations in the data store</li>
+<li><strong>'TIMESERIES'</strong>: specifies cataloging CWMS time series objects in the data store</li>
 </ul></li>
 <li><p><strong>pattern (Optional[str], must be passed by name):</strong>  An extended wildcard pattern to use for matching identifiers. <code>regex</code> takes precedence if both are specified. Defaults to None.</p>
 
@@ -2355,7 +2353,7 @@ Defaults to the None, which uses the data store's default vertical datum.</li>
     
             <div class="docstring"><p>Class to facilitate cataloging, storing, retrieving, and deleting data in HEC-DSS files.</p>
 
-<p>Requires installation of the 'hecdss' package &gt;= '0.1.23'.</p>
+<p>Requires installation of the 'hecdss' package &gt;= '0.1.24'.</p>
 </div>
 
 
@@ -10360,7 +10358,7 @@ will contain only the selected or unselected items in the original time series.<
     </div>
     <a class="headerlink" href="#TimeSeries.fmod"></a>
     
-            <div class="docstring"><p>Returns the result of fmod() of the values of this time series with either 
+            <div class="docstring"><p>Returns the result of fmod() of the values of this time series with either
 a constant or another time series.</p>
 
 <h6 id="arguments">Arguments:</h6>

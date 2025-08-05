@@ -550,7 +550,7 @@ class TimeSeries:
         copy = self.copy()
         self._data["value"] = self._data["value"].abs()
         return copy
-    
+
     def __add__(
         self, amount: Union["TimeSeries", UnitQuantity, float, int]
     ) -> "TimeSeries":
@@ -765,7 +765,7 @@ class TimeSeries:
                         stop = None
                     else:
                         raise
-            other._data = self._data.loc[start:stop:step]
+            other._data = self._data.loc[start:stop:step]  # type: ignore
         else:
             other._data = cast(pd.DataFrame, self._data.loc[self.index_of(key)])
         return other
@@ -4422,10 +4422,12 @@ class TimeSeries:
         )
 
     def fmod(
-        self, amount: Union["TimeSeries", UnitQuantity, float, int], in_place: bool = False
+        self,
+        amount: Union["TimeSeries", UnitQuantity, float, int],
+        in_place: bool = False,
     ) -> "TimeSeries":
         """
-        Returns the result of fmod() of the values of this time series with either 
+        Returns the result of fmod() of the values of this time series with either
         a constant or another time series.
 
         Args:
@@ -4483,7 +4485,9 @@ class TimeSeries:
                 right_index=True,
                 suffixes=("_1", "_2"),
             )
-            target._data["value"] = np.fmod(target._data["value_1"], target._data["value_2"])
+            target._data["value"] = np.fmod(
+                target._data["value_1"], target._data["value_2"]
+            )
             target._data["quality"] = 0
             target._data.drop(
                 columns=["value_1", "value_2", "quality_1", "quality_2"], inplace=True
@@ -4702,7 +4706,7 @@ class TimeSeries:
         return self.forward_moving_average(
             window, only_valid, use_reduced, in_place=True
         )
-        
+
     def ifmod(
         self, amount: Union["TimeSeries", UnitQuantity, float, int]
     ) -> "TimeSeries":

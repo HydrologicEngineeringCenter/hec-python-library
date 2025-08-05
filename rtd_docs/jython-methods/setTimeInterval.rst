@@ -38,6 +38,7 @@ The hec-python-library equivalent of Jython method **setTimeInterval()**:
 
     iset_interval(value: Union[hec.Interval, str, int]) -> TimeSeries
 
+Convenience method for calling ``setTimeInterval(...)`` with ``in_place=True``.
 
 **Example:**
 
