@@ -3,11 +3,13 @@
 # For the full list of built-in configuration values, see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 
+# imports
+import os, platform
+from pathlib import Path
+
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-import platform
-from pathlib import Path
 if list(map(int, platform.python_version_tuple()[:2])) < [3, 11]:
     import tomli as tomllib
 else:
@@ -37,7 +39,11 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
-html_theme = "sphinx_rtd_theme"
+on_rtd = os.environ.get("READTHEDOCS") == "True"
+if not on_rtd:
+    html_theme = "alabaster"  # fallback theme for local preview
+else:
+    html_theme = "sphinx_rtd_theme"
 html_static_path = ["_static"]
 
 # -- Generate a base parameter table -----------------------------------------
