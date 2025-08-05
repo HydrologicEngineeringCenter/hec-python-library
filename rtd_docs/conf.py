@@ -26,7 +26,7 @@ author = 'CEIWR-HEC-WM'
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
 extensions = [
-    "sphinx_design"
+    # "sphinx_design"
 ]
 
 templates_path = ['_templates']
