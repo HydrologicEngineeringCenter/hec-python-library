@@ -88,6 +88,7 @@ The hec-python-library equivalent of Jython method **periodConstants()**:
         after: Union[str, float] = 'LAST',
     ) -> TimeSeries    
 
+Convenience method for calling ``periodConstants(...)`` with ``in_place=True``.
 
 **Example:**
 

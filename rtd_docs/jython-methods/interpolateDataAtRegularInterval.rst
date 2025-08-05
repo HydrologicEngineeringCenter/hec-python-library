@@ -92,6 +92,7 @@ The hec-python-library equivalent of Jython method **interpolateDataAtRegularInt
         after: Union[str, float] = 'LAST',
     ) -> TimeSeries    
 
+Convenience method for calling ``interpolateDataAtRegularInterval(...)`` with ``in_place=True``.
 
 **Example:**
 

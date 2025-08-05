@@ -27,6 +27,8 @@ The hec-python-library equivalent of Jython method **successiveDifferences()**:
 
     idiff() -> TimeSeries
 
+Convenience method for calling ``successiveDifferences(...)`` with ``in_place=True``.
+
 **Example:**
 
 .. code-block:: python

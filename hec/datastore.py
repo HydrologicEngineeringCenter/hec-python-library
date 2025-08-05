@@ -3094,24 +3094,17 @@ class CwmsDataStore(AbstractDataStore):
             raise TypeError(f"Expected TimeSeries, got {obj.__class__.__name__}")
 
 
-if __name__ == "__main__":
-    for pattern in [
-        "abc",
-        "ab{2,3}c{2}",
-        "a*b?c",
-        "[abc]",
-        "^[abc]$",
-        "[!abc]",
-        "[_a-z0-9]",
-        "[!a-z0-9]",
-        "(abc|def)",
-        "(OUTLET|TURBINE)",
-    ]:
-        print(f"{pattern} => {_pattern_to_regex(pattern)}")
-
-    with DssDataStore.open(
-        r"U:\Devl\git\hec-python-library\WorkshopExample.dss"
-    ) as dss:
-        dss.time_window = "2025-06-01T01:00:00, 2025-07-01T00:00:00"
-        ts = dss.retrieve("//WorkshopExample/Power-Gen//15Minute/Rev-SCADA-cda/")
-        pass
+# if __name__ == "__main__":
+#     for pattern in [
+#         "abc",
+#         "ab{2,3}c{2}",
+#         "a*b?c",
+#         "[abc]",
+#         "^[abc]$",
+#         "[!abc]",
+#         "[_a-z0-9]",
+#         "[!a-z0-9]",
+#         "(abc|def)",
+#         "(OUTLET|TURBINE)",
+#     ]:
+#         print(f"{pattern} => {_pattern_to_regex(pattern)}")
