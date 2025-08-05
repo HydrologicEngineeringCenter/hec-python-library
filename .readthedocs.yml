@@ -8,7 +8,8 @@ build:
 
 python:
   install:
-    - requirements: rtd_docs/requirements.txt
+    - method: pip
+      path: .
 
 sphinx:
   configuration: rtd_docs/conf.py

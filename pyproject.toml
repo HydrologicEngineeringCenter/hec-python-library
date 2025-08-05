@@ -39,3 +39,10 @@ dependencies = [
     "Pint-pandas>=0.6.2",
     "tzlocal>=5.2"
 ]
+
+[project.optional-dependencies]
+docs = [
+  "sphinx",
+  "sphinx_rtd_theme",
+  "sphinx-design"
+]
