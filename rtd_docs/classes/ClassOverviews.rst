@@ -52,7 +52,6 @@ Ratings:
 Data Stores:
 ------------
 
-- AbstractDataStore: :doc:`/classes/AbstractDataStore`
 - CwmsDataStore: :doc:`/classes/CwmsDataStore`
 - DssDataStore: :doc:`/classes/DssDataStore`
 
