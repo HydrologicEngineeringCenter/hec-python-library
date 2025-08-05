@@ -1,0 +1,4 @@
+div#footer, hr.docutils {
+    display: none !important;
+    visibility: hidden;
+}
