@@ -1,4 +1,4 @@
-Math Function Cross Reference
+Jython/Java Method Cross Reference
 =============================
 
 A guide for moving Jython scripts that use hec.hecmath classes and methods to the hec-python-library.
