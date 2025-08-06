@@ -97,7 +97,10 @@ def _pattern_to_regex(pattern: Optional[str]) -> Optional[str]:
 
 class _CwmsDataType(Enum):
     LOCATION = 1
-    TIMESERIES = 2
+    RATING = 2
+    RATING_SPECIFICATION = 3
+    RATING_TEMPLATE = 4
+    TIMESERIES = 5
 
 
 class _DssDataType(Enum):
@@ -153,6 +156,38 @@ _valid_catalog_fields = {
             "aliases",
             "description",
             "type",
+        ],
+        _CwmsDataType.RATING.name: [
+            "identifier",
+            "office",
+            "location",
+            "template",
+            "specification-version",
+            "lookup-methods",
+            "active",
+            "auto-flags",
+            "rounding-specs",
+            "effective-dates",
+        ],
+        _CwmsDataType.RATING_SPECIFICATION.name: [
+            "identifier",
+            "office",
+            "location",
+            "template",
+            "version",
+            "lookup-methods",
+            "active",
+            "auto-flags",
+            "rounding-specs",
+            "effective-dates",
+        ],
+        _CwmsDataType.RATING_TEMPLATE.name: [
+            "identifier",
+            "office",
+            "independent-parameters",
+            "dependent-parameter",
+            "version",
+            "lookup-methods",
         ],
         _CwmsDataType.TIMESERIES.name: [
             "identifier",
@@ -2003,7 +2038,10 @@ class CwmsDataStore(AbstractDataStore):
         Args:
             data_type (str): Must be one of the following (case insensitive):
                 * **'LOCATION'**: specfies catalog CWMS locations in the data store
-                * **'TIMESERIES'**: specifies cataloging CWMS time series objects in the data store
+                * **'RATING'**: specifies cataloging CWMSs in the database
+                * **'RATING_SPECIFICATION'**: specifies cataloging CWMS rating specifications in the database
+                * **'RATING_TEMPLATE'**: specifies cataloging CWMS rating templates in the database
+                * **'TIMESERIES'**: specifies cataloging CWMS time series in the data store
             pattern (Optional[str], must be passed by name): An extended wildcard pattern to use for matching identifiers. `regex` takes precedence if both are specified. Defaults to None.
                 <table>
                 <pre>
@@ -2021,7 +2059,7 @@ class CwmsDataStore(AbstractDataStore):
                 </pre>
                 </table>
             regex (Optional[str], must be passed by name): Regular expression to use for matching identifiers. Takes precedence over `pattern` if both are specified. Defaults to None.
-            bounding_office (Optional[str]), must be passed by name): Specifies cataloging only identifiers that are physically located within the boundaries of the specified office.
+            bounding_office (Optional[str]), must be passed by name, LOCATION and TIMESERIES only): Specifies cataloging only identifiers that are physically located within the boundaries of the specified office.
                 Can be a wildcard pattern. Matching is affected by `case_sensitive`.
             case_sensitive (Optional[bool], must be passed by name): Specifies whether and pattern or regular expression matching is case-sensitive.
             category (Optional[str], must be passed by name, LOCATION only): Specifies cataloging only locations in a location group belonging to the specified catgory(ies). Can be a wildcard pattern.
@@ -2038,6 +2076,39 @@ class CwmsDataStore(AbstractDataStore):
                     * `earliest-time`: The earliest time in the database for this time series, or <None> if no data
                     * `latest-time`: The latest time in the database for this time seires of <None> if no data
                     * `last-update`: The most recent time this time series has been updated, or <None> of no data
+                * **`RATING`**:
+                    * `identifier`: The rating specification
+                    * `office`: The CWMS office for the rating
+                    * `name`: Same as `identifier`
+                    * `location`: The location identifier
+                    * `template`: The rating template identifier
+                    * `specification-version`: The specification version
+                    * `lookup-methods`: A comma-delimited string of effective date lookup methods (order = within-time-range, before-time-range, after-time-range)
+                    * `active`: Whether the specification is active
+                    * `auto-flags`: True or False values for auto-update, auto-activate and auto-migrate-extensions
+                    * `rounding-specs`: A comma-delimited string of rounding specifications for each indepedent and dependent parameter
+                    * `effective-dates`: A dictionary with effective date/times as the keys. Each value is a dictionary with the following keys:
+                        * 'units': The native
+                * **`RATING_SPECIFICATION`**:
+                    * `identifier`: The rating specification
+                    * `office`: The CWMS office for the rating specification
+                    * `name`: Same as `identifier`
+                    * `location`: The location identifier
+                    * `template`: The rating template identifier
+                    * `version`: The specification version
+                    * `lookup-methods`: A comma-delimited string of effective date lookup methods (order = within-time-range, before-time-range, after-time-range)
+                    * `active`: Whether the specification is active
+                    * `auto-flags`: True or False values for auto-update, auto-activate and auto-migrate-extensions
+                    * `rounding-specs`: A comma-delimited string of rounding specifications for each indepedent and dependent parameter
+                    * `effective-dates`: A comma-delimited string of effective date/times for ratings with this specification
+                * **`RATING_TEMPLATE`**:
+                    * `identifier`: The rating template identifier
+                    * `office`: The CWMS office for the rating template
+                    * `name`: Same as `identifier`
+                    * `independent-parameters`: A comma-delimited string of independent parameter names
+                    * `dependent-parameter`: The dependent parameter name
+                    * `version` The template version
+                    * `lookup-methods`: A semicolon-delimited string of comma-delimited lookup methods for each independent parameter (order = in-range, below-range, above-range)
                 * **`LOCATION`**:
                     * `identifier`: The location identifier
                     * `office`: The CWMS office for the location
@@ -2115,11 +2186,19 @@ class CwmsDataStore(AbstractDataStore):
             raise DataStoreException(
                 f"Invalid data type: '{data_type}', must be one of {list(_CwmsDataType.__members__)}"
             )
+        catalog_type = _CwmsDataType[data_type.upper()]
         if kwargs:
-            # --------------- #
-            # bounding_office #
-            # --------------- #
+            # ------------------------------------------------ #
+            # bounding_office (locations and time series only) #
+            # ------------------------------------------------ #
             if "bounding_office" in kwargs:
+                if catalog_type not in [
+                    _CwmsDataType.LOCATION,
+                    _CwmsDataType.TIMESERIES,
+                ]:
+                    raise ValueError(
+                        f"Keyword argument 'bounding_office' is not allowed for catalog type {catalog_type.name}"
+                    )
                 argval = kwargs["bounding_office"]
                 if isinstance(argval, str):
                     bounding_office = argval
@@ -2146,6 +2225,10 @@ class CwmsDataStore(AbstractDataStore):
             # category (locations only) #
             # ------------------------- #
             if "category" in kwargs:
+                if catalog_type != _CwmsDataType.LOCATION:
+                    raise ValueError(
+                        f"Keyword argument 'category' is not allowed for catalog type {catalog_type.name}"
+                    )
                 argval = kwargs["category"]
                 if isinstance(argval, str):
                     category = argval
@@ -2172,6 +2255,10 @@ class CwmsDataStore(AbstractDataStore):
             # group (location only) #
             # --------------------- #
             if "group" in kwargs:
+                if catalog_type != _CwmsDataType.LOCATION:
+                    raise ValueError(
+                        f"Keyword argument 'category' is not allowed for catalog type {catalog_type.name}"
+                    )
                 argval = kwargs["group"]
                 if isinstance(argval, str):
                     group = argval
@@ -2198,6 +2285,10 @@ class CwmsDataStore(AbstractDataStore):
             # kind (locations only) #
             # --------------------- #
             if "kind" in kwargs:
+                if catalog_type != _CwmsDataType.LOCATION:
+                    raise ValueError(
+                        f"Keyword argument 'category' is not allowed for catalog type {catalog_type.name}"
+                    )
                 argval = kwargs["kind"]
                 if isinstance(argval, str):
                     kind = argval
@@ -2303,7 +2394,6 @@ class CwmsDataStore(AbstractDataStore):
                 f"Office parameter must be specified since data store '{self}' has no default office"
             )
         header_str = None
-        catalog_type = _CwmsDataType[data_type.upper()]
         valid_fields = _valid_catalog_fields[CWMS][catalog_type.name]
         catalog_items: List[str] = []
         if catalog_type == _CwmsDataType.TIMESERIES:
@@ -2453,6 +2543,91 @@ class CwmsDataStore(AbstractDataStore):
                             catalog_items,
                         )
                     )
+        elif catalog_type == _CwmsDataType.RATING_TEMPLATE:
+            fieldstr = None if not fieldstr else fieldstr.lower().strip()
+            name_field = None
+            if fieldstr:
+                fields = [
+                    "identifier" if f == "name" else f
+                    for f in re.split(r"\s*,\s*", fieldstr)
+                ]
+                invalid_fields = [f for f in fields if f not in valid_fields]
+                if invalid_fields:
+                    raise DataStoreException(
+                        f"Invalid field(s) specified: [{', '.join(invalid_fields)}], must be one of [{', '.join(valid_fields)}]"
+                    )
+            if header:
+                header_str = f"#{chr(9).join(fields)}"
+            field_map = {
+                "identifier": "id",
+                "name": "id",
+                "office": "office-id",
+                "dependent-parameter": "dependent-paraneter",
+                "version": "version",
+            }
+            for field_name in ["identifier", "name"]:
+                try:
+                    name_field = fields.index(field_name)
+                except:
+                    pass
+                else:
+                    break
+            ind_param_names: Optional[list[str]] = None
+            ind_param_lookups: Optional[list[str]] = None
+            data = cwms.ratings.ratings_template.get_rating_templates(
+                office_id=office if office else self._office,
+                template_id_mask=_regex,
+            )
+            if not data.df.empty:
+                if "independent-parameters" in fields or "lookup-methods" in fields:
+                    ind_param_specs = data.df["independent-parameter-specs"].to_list()
+                    if "independent-parameters" in fields:
+                        ind_param_names = [
+                            ",".join([s["parameter"] for s in spec])
+                            for spec in ind_param_specs
+                        ]
+                    if "lookup-methods" in fields:
+                        ind_param_lookups = [
+                            ";".join(
+                                [
+                                    ",".join(
+                                        (
+                                            s["in-range-method"],
+                                            s["out-range-low-method"],
+                                            s["out-range-high-method"],
+                                        )
+                                    )
+                                    for s in spec
+                                ]
+                            )
+                            for spec in ind_param_specs
+                        ]
+                field_items = {}
+                for field in fields:
+                    if field == "independent-parameters":
+                        field_items[field] = cast(list[str], ind_param_names)
+                    elif field == "lookup-methods":
+                        field_items[field] = cast(list[str], ind_param_lookups)
+                    else:
+                        field_items[field] = list(
+                            map(str, data.df[field_map[field]].to_list())
+                        )
+                catalog_items.extend(
+                    list(
+                        map(
+                            "\t".join,
+                            list(zip(*(field_items[f] for f in fields))),
+                        )
+                    )
+                )
+            if catalog_items and _regex and case_sensitive and name_field is not None:
+                # API uses case insensitive matching
+                def keep(s: str) -> bool:  # lambda with same code would fail(?!?!?)
+                    parts = s.split("\t")
+                    return bool(pat.match(parts[cast(int, name_field)]))
+
+                pat = re.compile(_regex)
+                catalog_items = list(filter(keep, catalog_items))
         elif catalog_type == _CwmsDataType.LOCATION:
             fieldstr = None if not fieldstr else fieldstr.lower().strip()
             name_field = None
@@ -3094,17 +3269,27 @@ class CwmsDataStore(AbstractDataStore):
             raise TypeError(f"Expected TimeSeries, got {obj.__class__.__name__}")
 
 
-# if __name__ == "__main__":
-#     for pattern in [
-#         "abc",
-#         "ab{2,3}c{2}",
-#         "a*b?c",
-#         "[abc]",
-#         "^[abc]$",
-#         "[!abc]",
-#         "[_a-z0-9]",
-#         "[!a-z0-9]",
-#         "(abc|def)",
-#         "(OUTLET|TURBINE)",
-#     ]:
-#         print(f"{pattern} => {_pattern_to_regex(pattern)}")
+if __name__ == "__main__":
+    for pattern in [
+        "abc",
+        "ab{2,3}c{2}",
+        "a*b?c",
+        "[abc]",
+        "^[abc]$",
+        "[!abc]",
+        "[_a-z0-9]",
+        "[!a-z0-9]",
+        "(abc|def)",
+        "(OUTLET|TURBINE)",
+    ]:
+        print(f"{pattern} => {_pattern_to_regex(pattern)}")
+
+    with CwmsDataStore.open(office="SWT") as db:
+        cat = db.catalog(
+            "RATING_TEMPLATE",
+            pattern="Count*",
+            case_sensitive=True,
+            fields="version,name,independent-parameters,lookup-methods",
+        )
+        for item in cat:
+            print(item)

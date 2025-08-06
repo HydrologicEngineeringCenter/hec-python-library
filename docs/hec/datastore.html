@@ -304,7 +304,10 @@ Defaults to True.</li>
 <li><strong>data_type (str):</strong>  Must be one of the following (case insensitive):
 <ul>
 <li><strong>'LOCATION'</strong>: specfies catalog CWMS locations in the data store</li>
-<li><strong>'TIMESERIES'</strong>: specifies cataloging CWMS time series objects in the data store</li>
+<li><strong>'RATING'</strong>: specifies cataloging CWMSs in the database</li>
+<li><strong>'RATING_SPECIFICATION'</strong>: specifies cataloging CWMS rating specifications in the database</li>
+<li><strong>'RATING_TEMPLATE'</strong>: specifies cataloging CWMS rating templates in the database</li>
+<li><strong>'TIMESERIES'</strong>: specifies cataloging CWMS time series in the data store</li>
 </ul></li>
 <li><p><strong>pattern (Optional[str], must be passed by name):</strong>  An extended wildcard pattern to use for matching identifiers. <code>regex</code> takes precedence if both are specified. Defaults to None.</p>
 
@@ -324,7 +327,7 @@ Defaults to True.</li>
 </pre>
 </table></li>
 <li><p><strong>regex (Optional[str], must be passed by name):</strong>  Regular expression to use for matching identifiers. Takes precedence over <code>pattern</code> if both are specified. Defaults to None.</p></li>
-<li><strong>bounding_office (Optional[str]), must be passed by name):</strong>  Specifies cataloging only identifiers that are physically located within the boundaries of the specified office.
+<li><strong>bounding_office (Optional[str]), must be passed by name, LOCATION and TIMESERIES only):</strong>  Specifies cataloging only identifiers that are physically located within the boundaries of the specified office.
 Can be a wildcard pattern. Matching is affected by <code>case_sensitive</code>.</li>
 <li><strong>case_sensitive (Optional[bool], must be passed by name):</strong>  Specifies whether and pattern or regular expression matching is case-sensitive.</li>
 <li><strong>category (Optional[str], must be passed by name, LOCATION only):</strong>  Specifies cataloging only locations in a location group belonging to the specified catgory(ies). Can be a wildcard pattern.
@@ -343,6 +346,47 @@ The catalog will include the fields in the order specified. Defaults to <code>id
 <li><code>earliest-time</code>: The earliest time in the database for this time series, or <None> if no data</li>
 <li><code>latest-time</code>: The latest time in the database for this time seires of <None> if no data</li>
 <li><code>last-update</code>: The most recent time this time series has been updated, or <None> of no data</li>
+</ul></li>
+<li><strong><code>RATING</code></strong>:
+<ul>
+<li><code>identifier</code>: The rating specification</li>
+<li><code><a href="#CwmsDataStore.office">office</a></code>: The CWMS office for the rating</li>
+<li><code><a href="#CwmsDataStore.name">name</a></code>: Same as <code>identifier</code></li>
+<li><code>location</code>: The location identifier</li>
+<li><code>template</code>: The rating template identifier</li>
+<li><code>specification-version</code>: The specification version</li>
+<li><code>lookup-methods</code>: A comma-delimited string of effective date lookup methods (order = within-time-range, before-time-range, after-time-range)</li>
+<li><code>active</code>: Whether the specification is active</li>
+<li><code>auto-flags</code>: True or False values for auto-update, auto-activate and auto-migrate-extensions</li>
+<li><code>rounding-specs</code>: A comma-delimited string of rounding specifications for each indepedent and dependent parameter</li>
+<li><code>effective-dates</code>: A dictionary with effective date/times as the keys. Each value is a dictionary with the following keys:
+<ul>
+<li>'units': The native</li>
+</ul></li>
+</ul></li>
+<li><strong><code>RATING_SPECIFICATION</code></strong>:
+<ul>
+<li><code>identifier</code>: The rating specification</li>
+<li><code><a href="#CwmsDataStore.office">office</a></code>: The CWMS office for the rating specification</li>
+<li><code><a href="#CwmsDataStore.name">name</a></code>: Same as <code>identifier</code></li>
+<li><code>location</code>: The location identifier</li>
+<li><code>template</code>: The rating template identifier</li>
+<li><code>version</code>: The specification version</li>
+<li><code>lookup-methods</code>: A comma-delimited string of effective date lookup methods (order = within-time-range, before-time-range, after-time-range)</li>
+<li><code>active</code>: Whether the specification is active</li>
+<li><code>auto-flags</code>: True or False values for auto-update, auto-activate and auto-migrate-extensions</li>
+<li><code>rounding-specs</code>: A comma-delimited string of rounding specifications for each indepedent and dependent parameter</li>
+<li><code>effective-dates</code>: A comma-delimited string of effective date/times for ratings with this specification</li>
+</ul></li>
+<li><strong><code>RATING_TEMPLATE</code></strong>:
+<ul>
+<li><code>identifier</code>: The rating template identifier</li>
+<li><code><a href="#CwmsDataStore.office">office</a></code>: The CWMS office for the rating template</li>
+<li><code><a href="#CwmsDataStore.name">name</a></code>: Same as <code>identifier</code></li>
+<li><code>independent-parameters</code>: A comma-delimited string of independent parameter names</li>
+<li><code>dependent-parameter</code>: The dependent parameter name</li>
+<li><code>version</code> The template version</li>
+<li><code>lookup-methods</code>: A semicolon-delimited string of comma-delimited lookup methods for each independent parameter (order = in-range, below-range, above-range)</li>
 </ul></li>
 <li><strong><code>LOCATION</code></strong>:
 <ul>
