@@ -2076,9 +2076,9 @@ class HecTime:
 
     def __init__(self, *args: Any):
         """
-        <a id="HecTime.__init__">Initializes a newly-created `HecTime` object.</a>
+        Initializes a newly-created `HecTime` object.
 
-        <h6 id="arguments">Arguments:</h6>
+        Arguments:
         - **`HecTime()`** initializes granularity to [`MINUTE_GRANULARITY`](#MINUTE_GRANULARITY) and time to [`UNDEFINED_TIME`](#UNDEFINED_TIME)
         - **`HecTime(granularity: int)`** initializes granularity to `granularity` and time to [`UNDEFINED_TIME`](#UNDEFINED_TIME)
         - **`HecTime(values: Union[list[int],tuple[int,...]])`** initializes granularity to [`MINUTE_GRANULARITY`](#MINUTE_GRANULARITY) and time to `values`

@@ -1,7 +1,7 @@
 Location Class
 ==============
 
-`API Documentation <https://hydrologicengineeringcenter.github.io/hec-python-library/hec.html#Location>`_
+`API Documentation <https://hydrologicengineeringcenter.github.io/hec-python-library/hec/location.html#Location>`_
 
 `Example Usage <https://github.com/HydrologicEngineeringCenter/hec-python-library/blob/main/examples/location_examples.ipynb>`_
 

@@ -47,8 +47,5 @@ More Info
 ---------
  - :doc:`classes/ClassOverviews`
  - :doc:`MathFunctions`
-
-External Links
---------------
  - `API Documentation <https://hydrologicengineeringcenter.github.io/hec-python-library/hec.html>`_
  - `Examples <https://github.com/HydrologicEngineeringCenter/hec-python-library/tree/main/examples>`_

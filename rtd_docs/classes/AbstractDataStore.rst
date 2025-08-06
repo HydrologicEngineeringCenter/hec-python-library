@@ -1,7 +1,7 @@
 AbstractDataStore Class
 =======================
 
-`API Documentation <https://hydrologicengineeringcenter.github.io/hec-python-library/hec.html#AbstractDataStore>`_
+`API Documentation <https://hydrologicengineeringcenter.github.io/hec-python-library/hec/datastore.html#AbstractDataStore>`_
 
 General
 -------

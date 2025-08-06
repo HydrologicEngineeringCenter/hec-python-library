@@ -8,6 +8,7 @@ Quick links to Constants:
 * [SelectionState](#SelectionState)
 
 Quick links to Classes:
+* [AbstractDataStore](#AbstractDataStore)
 * [CwmsDataStore](#CwmsDataStore)
 * [DssDataStore](#DssDataStore)
 * [Duration](#Duration)
@@ -38,6 +39,7 @@ Quick links to Exceptions:
 """
 
 __all__ = [
+    "AbstractDataStore",
     "Combine",
     "CwmsDataStore",
     "DataStoreException",
@@ -89,6 +91,7 @@ __all__ = [
 from . import datastore, rating, shared
 from .const import Combine, Safety, Select, SelectionState
 from .datastore import (
+    AbstractDataStore,
     CwmsDataStore,
     DataStoreException,
     DeleteAction,

@@ -42,6 +42,69 @@
             <h2>API Documentation</h2>
                 <ul class="memberlist">
             <li>
+                    <a class="class" href="#AbstractDataStore">AbstractDataStore</a>
+                            <ul class="memberlist">
+                        <li>
+                                <a class="function" href="#AbstractDataStore.catalog">catalog</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#AbstractDataStore.close">close</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#AbstractDataStore.delete">delete</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#AbstractDataStore.end_time">end_time</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#AbstractDataStore.get_extents">get_extents</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#AbstractDataStore.native_data_store">native_data_store</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#AbstractDataStore.name">name</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#AbstractDataStore.office">office</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#AbstractDataStore.open">open</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#AbstractDataStore.is_open">is_open</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#AbstractDataStore.is_read_only">is_read_only</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#AbstractDataStore.retrieve">retrieve</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#AbstractDataStore.start_time">start_time</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#AbstractDataStore.store">store</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#AbstractDataStore.time_window">time_window</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#AbstractDataStore.time_zone">time_zone</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#AbstractDataStore.trim">trim</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#AbstractDataStore.units">units</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#AbstractDataStore.vertical_datum">vertical_datum</a>
+                        </li>
+                </ul>
+
+            </li>
+            <li>
                     <a class="class" href="#Combine">Combine</a>
                             <ul class="memberlist">
                         <li>
@@ -1601,6 +1664,7 @@ hec    </h1>
 <p>Quick links to Classes:</p>
 
 <ul>
+<li><a href="#AbstractDataStore">AbstractDataStore</a></li>
 <li><a href="#CwmsDataStore">CwmsDataStore</a></li>
 <li><a href="#DssDataStore">DssDataStore</a></li>
 <li><a href="#Duration">Duration</a></li>
@@ -1637,6 +1701,353 @@ hec    </h1>
                 
                 
             </section>
+                <section id="AbstractDataStore">
+                    <div class="attr class">
+            
+    <span class="def">class</span>
+    <span class="name">AbstractDataStore</span><wbr>(<span class="base">abc.ABC</span>):
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractDataStore"></a>
+    
+            <div class="docstring"><p>Abstract base class for data store classes</p>
+</div>
+
+
+                            <div id="AbstractDataStore.catalog" class="classattr">
+                                <div class="attr function">
+                    <div class="decorator decorator-abstractmethod">@abstractmethod</div>
+
+        <span class="def">def</span>
+        <span class="name">catalog</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">data_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>, </span><span class="param"><span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span></span><span class="return-annotation">) -> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractDataStore.catalog"></a>
+    
+    
+
+                            </div>
+                            <div id="AbstractDataStore.close" class="classattr">
+                                <div class="attr function">
+                    <div class="decorator decorator-abstractmethod">@abstractmethod</div>
+
+        <span class="def">def</span>
+        <span class="name">close</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span><span class="return-annotation">) -> <span class="kc">None</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractDataStore.close"></a>
+    
+            <div class="docstring"><p>Explicitly closes the data store, preventing further access.</p>
+
+<p>The data store is implicitly closed upon deletion or exiting a context manager ('with' block)</p>
+</div>
+
+
+                            </div>
+                            <div id="AbstractDataStore.delete" class="classattr">
+                                <div class="attr function">
+                    <div class="decorator decorator-abstractmethod">@abstractmethod</div>
+
+        <span class="def">def</span>
+        <span class="name">delete</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">identifier</span><span class="p">:</span> <span class="nb">str</span>, </span><span class="param"><span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span></span><span class="return-annotation">) -> <span class="kc">None</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractDataStore.delete"></a>
+    
+    
+
+                            </div>
+                            <div id="AbstractDataStore.end_time" class="classattr">
+                                <div class="attr variable">
+            <span class="name">end_time</span><span class="annotation">: Optional[<a href="#HecTime">HecTime</a>]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractDataStore.end_time"></a>
+    
+            <div class="docstring"><p>The end time of the data store's time window (if any)</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read/Write</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="AbstractDataStore.get_extents" class="classattr">
+                                <div class="attr function">
+                    <div class="decorator decorator-abstractmethod">@abstractmethod</div>
+
+        <span class="def">def</span>
+        <span class="name">get_extents</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">identifier</span><span class="p">:</span> <span class="nb">str</span>, </span><span class="param"><span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span></span><span class="return-annotation">) -> <span class="n">List</span><span class="p">[</span><span class="n"><a href="#HecTime">HecTime</a></span><span class="p">]</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractDataStore.get_extents"></a>
+    
+    
+
+                            </div>
+                            <div id="AbstractDataStore.native_data_store" class="classattr">
+                                <div class="attr variable">
+            <span class="name">native_data_store</span><span class="annotation">: Any</span>
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractDataStore.native_data_store"></a>
+    
+    
+
+                            </div>
+                            <div id="AbstractDataStore.name" class="classattr">
+                                <div class="attr variable">
+            <span class="name">name</span><span class="annotation">: str</span>
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractDataStore.name"></a>
+    
+            <div class="docstring"><p>The name of the data store as provided in the constructor or <code><a href="#AbstractDataStore.open">open()</a></code> method</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read Only</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="AbstractDataStore.office" class="classattr">
+                                <div class="attr variable">
+            <span class="name">office</span><span class="annotation">: Optional[str]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractDataStore.office"></a>
+    
+            <div class="docstring"><p>The office associated with the data store, if any</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read/Write</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="AbstractDataStore.open" class="classattr">
+                                <div class="attr function">
+                    <div class="decorator decorator-staticmethod">@staticmethod</div>
+        <div class="decorator decorator-abstractmethod">@abstractmethod</div>
+
+        <span class="def">def</span>
+        <span class="name">open</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span></span><span class="return-annotation">) -> <span class="n"><a href="#AbstractDataStore">AbstractDataStore</a></span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractDataStore.open"></a>
+    
+    
+
+                            </div>
+                            <div id="AbstractDataStore.is_open" class="classattr">
+                                <div class="attr variable">
+            <span class="name">is_open</span><span class="annotation">: bool</span>
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractDataStore.is_open"></a>
+    
+            <div class="docstring"><p>Whether this data store is open for cataloging and reading.</p>
+
+<p>A data store is open from its construction or call to <code><a href="#AbstractDataStore.open">open()</a></code> until a call to <code><a href="#AbstractDataStore.close">close()</a></code> or deletiion</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read Only</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="AbstractDataStore.is_read_only" class="classattr">
+                                <div class="attr variable">
+            <span class="name">is_read_only</span><span class="annotation">: bool</span>
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractDataStore.is_read_only"></a>
+    
+            <div class="docstring"><p>Whether this data store is open for storing and deleting. Meaningless if <code><a href="#AbstractDataStore.is_open">is_open</a></code> is False</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read/Write</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="AbstractDataStore.retrieve" class="classattr">
+                                <div class="attr function">
+                    <div class="decorator decorator-abstractmethod">@abstractmethod</div>
+
+        <span class="def">def</span>
+        <span class="name">retrieve</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">identifier</span><span class="p">:</span> <span class="nb">str</span>, </span><span class="param"><span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span></span><span class="return-annotation">) -> <span class="n">Any</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractDataStore.retrieve"></a>
+    
+    
+
+                            </div>
+                            <div id="AbstractDataStore.start_time" class="classattr">
+                                <div class="attr variable">
+            <span class="name">start_time</span><span class="annotation">: Optional[<a href="#HecTime">HecTime</a>]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractDataStore.start_time"></a>
+    
+            <div class="docstring"><p>The start time of the data store's time window (if any)</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read/Write</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="AbstractDataStore.store" class="classattr">
+                                <div class="attr function">
+                    <div class="decorator decorator-abstractmethod">@abstractmethod</div>
+
+        <span class="def">def</span>
+        <span class="name">store</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">obj</span><span class="p">:</span> <span class="nb">object</span>, </span><span class="param"><span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span></span><span class="return-annotation">) -> <span class="kc">None</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractDataStore.store"></a>
+    
+    
+
+                            </div>
+                            <div id="AbstractDataStore.time_window" class="classattr">
+                                <div class="attr variable">
+            <span class="name">time_window</span><span class="annotation">: Tuple[Optional[<a href="#HecTime">HecTime</a>], Optional[<a href="#HecTime">HecTime</a>]]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractDataStore.time_window"></a>
+    
+            <div class="docstring"><p>The data store's time window (if any)</p>
+
+<ul>
+<li><strong>Getting</strong>: same as (ds.start_time, ds.end_time)</li>
+<li><strong>Setting</strong>: same as ds.start_time, ds.end_time = tw</li>
+</ul>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read/Write</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="AbstractDataStore.time_zone" class="classattr">
+                                <div class="attr variable">
+            <span class="name">time_zone</span><span class="annotation">: str</span>
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractDataStore.time_zone"></a>
+    
+            <div class="docstring"><p>The time zone associated with the data store</p>
+
+<p>When setting the time zone, any time window values are <strong>labeled with</strong> the specified time zone and <strong>not</strong> converted to the time zone</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read/Write</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="AbstractDataStore.trim" class="classattr">
+                                <div class="attr variable">
+            <span class="name">trim</span><span class="annotation">: bool</span>
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractDataStore.trim"></a>
+    
+            <div class="docstring"><p>Whether the datastore will trim missing values from the edges of retrieved regular time series</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read/Write</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="AbstractDataStore.units" class="classattr">
+                                <div class="attr variable">
+            <span class="name">units</span><span class="annotation">: str</span>
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractDataStore.units"></a>
+    
+            <div class="docstring"><p>The unit system ('EN' or 'SI') associated with the data store</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read/Write</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="AbstractDataStore.vertical_datum" class="classattr">
+                                <div class="attr variable">
+            <span class="name">vertical_datum</span><span class="annotation">: Optional[str]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractDataStore.vertical_datum"></a>
+    
+            <div class="docstring"><p>The vertical datum ('NGVD29', 'NAVD88', 'OTHER') associated with the data store</p>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>Optional[str]: _description_</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                </section>
                 <section id="Combine">
                     <div class="attr class">
             
@@ -1724,7 +2135,7 @@ hec    </h1>
                     <div class="attr class">
             
     <span class="def">class</span>
-    <span class="name">CwmsDataStore</span><wbr>(<span class="base"><a href="hec/datastore.html#AbstractDataStore">hec.datastore.AbstractDataStore</a></span>):
+    <span class="name">CwmsDataStore</span><wbr>(<span class="base"><a href="#AbstractDataStore">hec.AbstractDataStore</a></span>):
 
         
     </div>
@@ -2259,17 +2670,17 @@ Defaults to the None, which uses the data store's default vertical datum.</li>
                             <div class="inherited">
                                 <h5>Inherited Members</h5>
                                 <dl>
-                                    <div><dt><a href="hec/datastore.html#AbstractDataStore">hec.datastore.AbstractDataStore</a></dt>
-                                <dd id="CwmsDataStore.end_time" class="variable"><a href="hec/datastore.html#AbstractDataStore.end_time">end_time</a></dd>
-                <dd id="CwmsDataStore.name" class="variable"><a href="hec/datastore.html#AbstractDataStore.name">name</a></dd>
-                <dd id="CwmsDataStore.office" class="variable"><a href="hec/datastore.html#AbstractDataStore.office">office</a></dd>
-                <dd id="CwmsDataStore.is_read_only" class="variable"><a href="hec/datastore.html#AbstractDataStore.is_read_only">is_read_only</a></dd>
-                <dd id="CwmsDataStore.start_time" class="variable"><a href="hec/datastore.html#AbstractDataStore.start_time">start_time</a></dd>
-                <dd id="CwmsDataStore.time_window" class="variable"><a href="hec/datastore.html#AbstractDataStore.time_window">time_window</a></dd>
-                <dd id="CwmsDataStore.time_zone" class="variable"><a href="hec/datastore.html#AbstractDataStore.time_zone">time_zone</a></dd>
-                <dd id="CwmsDataStore.trim" class="variable"><a href="hec/datastore.html#AbstractDataStore.trim">trim</a></dd>
-                <dd id="CwmsDataStore.units" class="variable"><a href="hec/datastore.html#AbstractDataStore.units">units</a></dd>
-                <dd id="CwmsDataStore.vertical_datum" class="variable"><a href="hec/datastore.html#AbstractDataStore.vertical_datum">vertical_datum</a></dd>
+                                    <div><dt><a href="#AbstractDataStore">AbstractDataStore</a></dt>
+                                <dd id="CwmsDataStore.end_time" class="variable"><a href="#AbstractDataStore.end_time">end_time</a></dd>
+                <dd id="CwmsDataStore.name" class="variable"><a href="#AbstractDataStore.name">name</a></dd>
+                <dd id="CwmsDataStore.office" class="variable"><a href="#AbstractDataStore.office">office</a></dd>
+                <dd id="CwmsDataStore.is_read_only" class="variable"><a href="#AbstractDataStore.is_read_only">is_read_only</a></dd>
+                <dd id="CwmsDataStore.start_time" class="variable"><a href="#AbstractDataStore.start_time">start_time</a></dd>
+                <dd id="CwmsDataStore.time_window" class="variable"><a href="#AbstractDataStore.time_window">time_window</a></dd>
+                <dd id="CwmsDataStore.time_zone" class="variable"><a href="#AbstractDataStore.time_zone">time_zone</a></dd>
+                <dd id="CwmsDataStore.trim" class="variable"><a href="#AbstractDataStore.trim">trim</a></dd>
+                <dd id="CwmsDataStore.units" class="variable"><a href="#AbstractDataStore.units">units</a></dd>
+                <dd id="CwmsDataStore.vertical_datum" class="variable"><a href="#AbstractDataStore.vertical_datum">vertical_datum</a></dd>
 
             </div>
                                 </dl>
@@ -2345,7 +2756,7 @@ Defaults to the None, which uses the data store's default vertical datum.</li>
                     <div class="attr class">
             
     <span class="def">class</span>
-    <span class="name">DssDataStore</span><wbr>(<span class="base"><a href="hec/datastore.html#AbstractDataStore">hec.datastore.AbstractDataStore</a></span>):
+    <span class="name">DssDataStore</span><wbr>(<span class="base"><a href="#AbstractDataStore">hec.AbstractDataStore</a></span>):
 
         
     </div>
@@ -2682,17 +3093,17 @@ Defaults to the data store's trim setting.</li>
                             <div class="inherited">
                                 <h5>Inherited Members</h5>
                                 <dl>
-                                    <div><dt><a href="hec/datastore.html#AbstractDataStore">hec.datastore.AbstractDataStore</a></dt>
-                                <dd id="DssDataStore.end_time" class="variable"><a href="hec/datastore.html#AbstractDataStore.end_time">end_time</a></dd>
-                <dd id="DssDataStore.name" class="variable"><a href="hec/datastore.html#AbstractDataStore.name">name</a></dd>
-                <dd id="DssDataStore.office" class="variable"><a href="hec/datastore.html#AbstractDataStore.office">office</a></dd>
-                <dd id="DssDataStore.is_read_only" class="variable"><a href="hec/datastore.html#AbstractDataStore.is_read_only">is_read_only</a></dd>
-                <dd id="DssDataStore.start_time" class="variable"><a href="hec/datastore.html#AbstractDataStore.start_time">start_time</a></dd>
-                <dd id="DssDataStore.time_window" class="variable"><a href="hec/datastore.html#AbstractDataStore.time_window">time_window</a></dd>
-                <dd id="DssDataStore.time_zone" class="variable"><a href="hec/datastore.html#AbstractDataStore.time_zone">time_zone</a></dd>
-                <dd id="DssDataStore.trim" class="variable"><a href="hec/datastore.html#AbstractDataStore.trim">trim</a></dd>
-                <dd id="DssDataStore.units" class="variable"><a href="hec/datastore.html#AbstractDataStore.units">units</a></dd>
-                <dd id="DssDataStore.vertical_datum" class="variable"><a href="hec/datastore.html#AbstractDataStore.vertical_datum">vertical_datum</a></dd>
+                                    <div><dt><a href="#AbstractDataStore">AbstractDataStore</a></dt>
+                                <dd id="DssDataStore.end_time" class="variable"><a href="#AbstractDataStore.end_time">end_time</a></dd>
+                <dd id="DssDataStore.name" class="variable"><a href="#AbstractDataStore.name">name</a></dd>
+                <dd id="DssDataStore.office" class="variable"><a href="#AbstractDataStore.office">office</a></dd>
+                <dd id="DssDataStore.is_read_only" class="variable"><a href="#AbstractDataStore.is_read_only">is_read_only</a></dd>
+                <dd id="DssDataStore.start_time" class="variable"><a href="#AbstractDataStore.start_time">start_time</a></dd>
+                <dd id="DssDataStore.time_window" class="variable"><a href="#AbstractDataStore.time_window">time_window</a></dd>
+                <dd id="DssDataStore.time_zone" class="variable"><a href="#AbstractDataStore.time_zone">time_zone</a></dd>
+                <dd id="DssDataStore.trim" class="variable"><a href="#AbstractDataStore.trim">trim</a></dd>
+                <dd id="DssDataStore.units" class="variable"><a href="#AbstractDataStore.units">units</a></dd>
+                <dd id="DssDataStore.vertical_datum" class="variable"><a href="#AbstractDataStore.vertical_datum">vertical_datum</a></dd>
 
             </div>
                                 </dl>
@@ -3498,9 +3909,9 @@ t = <a href="#HecTime.now">HecTime.now()</a>.adjust_to_interval_offset(intvl, 0)
     </div>
     <a class="headerlink" href="#HecTime.__init__"></a>
     
-            <div class="docstring"><p><a id="<a href="#HecTime.__init__">HecTime.__init__</a>">Initializes a newly-created <code><a href="#HecTime">HecTime</a></code> object.</a></p>
+            <div class="docstring"><p>Initializes a newly-created <code><a href="#HecTime">HecTime</a></code> object.</p>
 
-<h6 id="arguments">Arguments:</h6>
+<p>Arguments:</p>
 
 <ul>
 <li><strong><code><a href="#HecTime">HecTime()</a></code></strong> initializes granularity to <a href="#MINUTE_GRANULARITY"><code>MINUTE_GRANULARITY</code></a> and time to <a href="#UNDEFINED_TIME"><code>UNDEFINED_TIME</code></a></li>
