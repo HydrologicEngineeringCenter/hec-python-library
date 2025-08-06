@@ -1,7 +1,7 @@
 Quality Class
 =============
 
-`API Documentation <https://hydrologicengineeringcenter.github.io/hec-python-library/hec/quality.html#Quality>`_
+`Detailed Documentation <https://hydrologicengineeringcenter.github.io/hec-python-library/hec/quality.html#Quality>`_
 
 `Example Usage <https://github.com/HydrologicEngineeringCenter/hec-python-library/blob/main/examples/quality_examples.ipynb>`_
 

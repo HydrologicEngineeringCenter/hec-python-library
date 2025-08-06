@@ -45,7 +45,7 @@ on these modules, but they must be installed in order to utilize the data stores
    
 More Info
 ---------
+ - :doc:`CrossReference`
  - :doc:`classes/ClassOverviews`
- - :doc:`MathFunctions`
- - `API Documentation <https://hydrologicengineeringcenter.github.io/hec-python-library/hec.html>`_
  - `Examples <https://github.com/HydrologicEngineeringCenter/hec-python-library/tree/main/examples>`_
+ - `Detailed Documentation <https://hydrologicengineeringcenter.github.io/hec-python-library/hec.html>`_
