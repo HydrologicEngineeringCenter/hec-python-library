@@ -1,7 +1,7 @@
 Duration Class
 ==============
 
-`API Documentation <https://hydrologicengineeringcenter.github.io/hec-python-library/hec/duration.html#Duration>`_
+`Detailed Documentation <https://hydrologicengineeringcenter.github.io/hec-python-library/hec/duration.html#Duration>`_
 
 `Example Usage <https://github.com/HydrologicEngineeringCenter/hec-python-library/blob/main/examples/duration_examples.ipynb>`_
 

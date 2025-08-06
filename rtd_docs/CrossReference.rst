@@ -1,4 +1,4 @@
-Jython/Java Method Cross Reference
+Jython (Java) Method Cross Reference
 =============================
 
 A guide for moving Jython scripts that use hec.hecmath classes and methods to the hec-python-library.
@@ -147,7 +147,7 @@ A guide for moving Jython scripts that use hec.hecmath classes and methods to th
    - :doc:`Variance Function <jython-methods/variance>`
 
 
-.. dropdown:: Lookup by Jython method name
+.. dropdown:: Lookup by Jython (Java) method name
 
    - :doc:`jython-methods/abs`
    - :doc:`jython-methods/accumulation`

@@ -1,7 +1,7 @@
 Interval Class
 ==============
 
-`API Documentation <https://hydrologicengineeringcenter.github.io/hec-python-library/hec/interval.html#Interval>`_
+`Detailed Documentation <https://hydrologicengineeringcenter.github.io/hec-python-library/hec/interval.html#Interval>`_
 
 `Example Usage <https://github.com/HydrologicEngineeringCenter/hec-python-library/blob/main/examples/interval_examples.ipynb>`_
 

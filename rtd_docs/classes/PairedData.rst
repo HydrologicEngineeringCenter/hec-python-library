@@ -1,7 +1,7 @@
 PairedData Class
 ================
 
-`API Documentation <https://hydrologicengineeringcenter.github.io/hec-python-library/hec/rating.html#PairedData>`_
+`Detailed Documentation <https://hydrologicengineeringcenter.github.io/hec-python-library/hec/rating.html#PairedData>`_
 
 `Example Usage <https://github.com/HydrologicEngineeringCenter/hec-python-library/blob/main/examples/paired_data_examples.ipynb>`_
 

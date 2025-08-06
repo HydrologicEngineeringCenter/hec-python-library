@@ -1,7 +1,7 @@
 TimeSeriesValue Class
 =====================
 
-`API Documentation <https://hydrologicengineeringcenter.github.io/hec-python-library/hec/timeseries.html#TimeSeriesValue>`_
+`Detailed Documentation <https://hydrologicengineeringcenter.github.io/hec-python-library/hec/timeseries.html#TimeSeriesValue>`_
 
 `Example Usage <https://github.com/HydrologicEngineeringCenter/hec-python-library/blob/main/examples/timeseries_examples.ipynb>`_
 

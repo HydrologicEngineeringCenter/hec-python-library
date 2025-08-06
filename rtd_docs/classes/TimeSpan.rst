@@ -1,7 +1,7 @@
 TimeSpan Class
 ==============
 
-`API Documentation <https://hydrologicengineeringcenter.github.io/hec-python-library/hec/timespan.html#TimeSpan>`_
+`Detailed Documentation <https://hydrologicengineeringcenter.github.io/hec-python-library/hec/timespan.html#TimeSpan>`_
 
 `Example Usage <https://github.com/HydrologicEngineeringCenter/hec-python-library/blob/main/examples/timespan_examples.ipynb>`_
 

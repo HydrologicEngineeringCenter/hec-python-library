@@ -1,7 +1,7 @@
 DssDataStore Class
 ==================
 
-`API Documentation <https://hydrologicengineeringcenter.github.io/hec-python-library/hec/datastore.html#DssDataStore>`_
+`Detailed Documentation <https://hydrologicengineeringcenter.github.io/hec-python-library/hec/datastore.html#DssDataStore>`_
 
 `Example Usage <https://github.com/HydrologicEngineeringCenter/hec-python-library/blob/main/examples/datastore_examples.ipynb>`_
 

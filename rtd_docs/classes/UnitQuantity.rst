@@ -1,7 +1,7 @@
 UnitQuantity Class
 ==================
 
-`API Documentation <https://hydrologicengineeringcenter.github.io/hec-python-library/hec/unit.html#UnitQuantity>`_
+`Detailed Documentation <https://hydrologicengineeringcenter.github.io/hec-python-library/hec/unit.html#UnitQuantity>`_
 
 `Example Usage <https://github.com/HydrologicEngineeringCenter/hec-python-library/blob/main/examples/unit_examples.ipynb>`_
 

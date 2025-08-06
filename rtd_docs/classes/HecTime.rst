@@ -1,7 +1,7 @@
 HecTime Class
 =============
 
-`API Documentation <https://hydrologicengineeringcenter.github.io/hec-python-library/hec/hectime.html#HecTime>`_
+`Detailed Documentation <https://hydrologicengineeringcenter.github.io/hec-python-library/hec/hectime.html#HecTime>`_
 
 `Example Usage <https://github.com/HydrologicEngineeringCenter/hec-python-library/blob/main/examples/hectime_examples.ipynb>`_
 
