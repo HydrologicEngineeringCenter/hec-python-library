@@ -10,3 +10,5 @@ The following example performs the equivalent:
 .. code-block:: python
 
     ts.data["value"] = 1 / ts.data["value"]
+
+.. include:: _data_warning.rst

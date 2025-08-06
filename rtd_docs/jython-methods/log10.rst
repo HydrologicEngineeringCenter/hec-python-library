@@ -14,5 +14,7 @@ The following example performs the equivalent:
 
     ts.data["value"] = np.log10(ts.data["value"])
 
+.. include:: _data_warning.rst
+
 See the `numpy documentation <https://numpy.org/doc/stable/reference/generated/numpy.log10.html>`_ for details
 
