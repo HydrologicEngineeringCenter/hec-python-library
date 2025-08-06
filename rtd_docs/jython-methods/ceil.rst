@@ -13,3 +13,7 @@ The following example performs the equivalent:
     import numpy as np
 
     ts.data["value"] = np.ceil(ts.data["value"])
+
+.. include:: _data_warning.rst
+
+See the `numpy documentation <https://numpy.org/doc/stable/reference/generated/numpy.ceil.html>`_ for details
