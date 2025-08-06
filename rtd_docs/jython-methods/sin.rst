@@ -14,4 +14,6 @@ The following example performs the equivalent:
 
     ts.data["value"] = np.sin(ts.data["value"])
 
+.. include:: _data_warning.rst
+
 See the `numpy documentation <https://numpy.org/doc/stable/reference/generated/numpy.sin.html>`_ for details

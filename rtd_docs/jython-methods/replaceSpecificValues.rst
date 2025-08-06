@@ -16,4 +16,7 @@ The following example performs the equivalent:
 
     ts.data["value"] = ts.data["value"].replace(old_val, new_val)
 
+.. include:: _data_warning.rst
+
+
 

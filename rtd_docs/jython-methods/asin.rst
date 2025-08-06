@@ -14,5 +14,6 @@ The following example performs the equivalent:
 
     ts.data["value"] = np.arcsin(ts.data["value"])
 
+.. include:: _data_warning.rst
 
 See the `numpy documentation <https://numpy.org/doc/stable/reference/generated/numpy.asin.html>`_ for details
