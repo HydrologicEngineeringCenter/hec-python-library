@@ -128,9 +128,69 @@ class DeleteAction(Enum):
     DELETE_KEY = 3
 
 
+_valid_catalog_kwargs: dict[str, dict[str, list[str]]] = {
+    CWMS: {
+        _CwmsDataType.LOCATION.name: [
+            "bounding_office",
+            "case_sensitive",
+            "category",
+            "fields",
+            "group",
+            "header",
+            "kind",
+            "limit",
+            "office",
+            "pattern",
+            "regex",
+            "units",
+            "vertical_datum",
+        ],
+        _CwmsDataType.RATING.name: [
+            "case_sensitive",
+            "fields",
+            "header",
+            "office",
+            "pattern",
+            "regex",
+        ],
+        _CwmsDataType.RATING_SPECIFICATION.name: [
+            "case_sensitive",
+            "fields",
+            "header",
+            "office",
+            "pattern",
+            "regex",
+        ],
+        _CwmsDataType.RATING_TEMPLATE.name: [
+            "case_sensitive",
+            "fields",
+            "header",
+            "office",
+            "pattern",
+            "regex",
+        ],
+        _CwmsDataType.TIMESERIES.name: [
+            "bounding_office",
+            "case_sensitive",
+            "fields",
+            "header",
+            "limit",
+            "office",
+            "pattern",
+            "regex",
+            "units",
+            "vertical_datum",
+        ],
+    },
+    DSS: {
+        _DssDataType.TIMESERIES.name: [],
+    },
+}
+
 _valid_catalog_fields = {
     CWMS: {
         _CwmsDataType.LOCATION.name: [
+            "name",
             "identifier",
             "office",
             "name",
@@ -158,6 +218,7 @@ _valid_catalog_fields = {
             "type",
         ],
         _CwmsDataType.RATING.name: [
+            "name",
             "identifier",
             "office",
             "location",
@@ -170,6 +231,7 @@ _valid_catalog_fields = {
             "effective-dates",
         ],
         _CwmsDataType.RATING_SPECIFICATION.name: [
+            "name",
             "identifier",
             "office",
             "location",
@@ -183,6 +245,7 @@ _valid_catalog_fields = {
             "description",
         ],
         _CwmsDataType.RATING_TEMPLATE.name: [
+            "name",
             "identifier",
             "office",
             "independent-parameters",
@@ -191,6 +254,7 @@ _valid_catalog_fields = {
             "lookup-methods",
         ],
         _CwmsDataType.TIMESERIES.name: [
+            "name",
             "identifier",
             "office",
             "name",
@@ -2156,10 +2220,10 @@ class CwmsDataStore(AbstractDataStore):
             header (Optional[bool], must be passed by name): Specifies whether to include a header line in the catalog that identifies the fields
             kind (Optional[str], must be passed by name, LOCATION only): Specifies cataloging only locations of the specified location kind. Can be a wildcard pattern.
                 Matching is affected by `case_sensitive`.
-            limit (Optional[int], must be passed by name): The maximum number of identifiers to return. If None, no limit is imposed. Defaults to None.
+            limit (Optional[int], must be passed by name, LOCATION and TIMESERIES only): The maximum number of identifiers to return. If None, no limit is imposed. Defaults to None.
             office (Optional[str], must be passed by name): The CWMS office to generate the catalog for. Defaults to None, which uses the data store's default office.
-            units (Optional[str], must be passed by name): The unit system ("EN" or "SI") to return the elevation values in. Defaults to None.
-            vertical_datum (Optional[str], must be passed by name): The vertical datum ("NGVD29", "NAVD88", or "LOCAL") to return the elevation values in. Defaults to None (Native datum).
+            units (Optional[str], must be passed by name, LOCATION and TIMESERIES only): The unit system ("EN" or "SI") to return the elevation values in. Defaults to None.
+            vertical_datum (Optional[str], must be passed by name, LOCATION and TIMESERIES only): The vertical datum ("NGVD29", "NAVD88", or "LOCAL") to return the elevation values in. Defaults to None (Native datum).
 
         Raises:
             DataStoreException: if the data store is not open or an invalid `data_type` is specified
@@ -2181,6 +2245,7 @@ class CwmsDataStore(AbstractDataStore):
         units: Optional[str] = None
         vertical_datum: Optional[str] = None
         _regex: Optional[str] = None
+        name_field: Optional[int] = None
         if not data_type:
             raise DataStoreException(
                 f"Parameter data_type must be specified and must be one of {list(_CwmsDataType.__members__)}"
@@ -2191,17 +2256,19 @@ class CwmsDataStore(AbstractDataStore):
             )
         catalog_type = _CwmsDataType[data_type.upper()]
         if kwargs:
-            # ------------------------------------------------ #
-            # bounding_office (locations and time series only) #
-            # ------------------------------------------------ #
+            invalid_kwargs = [
+                kw
+                for kw in kwargs
+                if kw not in _valid_catalog_kwargs[CWMS][catalog_type.name]
+            ]
+            if invalid_kwargs:
+                raise DataStoreException(
+                    f"Received invalid keyword argment(s) for {catalog_type.name}: {invalid_kwargs}"
+                )
+            # ----------------#
+            # bounding_office #
+            # ----------------#
             if "bounding_office" in kwargs:
-                if catalog_type not in [
-                    _CwmsDataType.LOCATION,
-                    _CwmsDataType.TIMESERIES,
-                ]:
-                    raise ValueError(
-                        f"Keyword argument 'bounding_office' is not allowed for catalog type {catalog_type.name}"
-                    )
                 argval = kwargs["bounding_office"]
                 if isinstance(argval, str):
                     bounding_office = argval
@@ -2224,14 +2291,10 @@ class CwmsDataStore(AbstractDataStore):
                     raise TypeError(
                         f"Expected str or bool for 'case_sensitive', got {argval.__class__.__name__}"
                     )
-            # ------------------------- #
-            # category (locations only) #
-            # ------------------------- #
+            # -------- #
+            # category #
+            # -------- #
             if "category" in kwargs:
-                if catalog_type != _CwmsDataType.LOCATION:
-                    raise ValueError(
-                        f"Keyword argument 'category' is not allowed for catalog type {catalog_type.name}"
-                    )
                 argval = kwargs["category"]
                 if isinstance(argval, str):
                     category = argval
@@ -2247,21 +2310,28 @@ class CwmsDataStore(AbstractDataStore):
             if "fields" in kwargs:
                 argval = kwargs["fields"]
                 if isinstance(argval, str):
-                    fieldstr = argval
+                    fieldstr = None if not argval else argval.lower().strip()
                 elif argval is None:
                     pass
                 else:
                     raise TypeError(
                         f"Expected str for 'fields', got {argval.__class__.__name__}"
                     )
-            # --------------------- #
-            # group (location only) #
-            # --------------------- #
-            if "group" in kwargs:
-                if catalog_type != _CwmsDataType.LOCATION:
-                    raise ValueError(
-                        f"Keyword argument 'category' is not allowed for catalog type {catalog_type.name}"
+                if fieldstr:
+                    fields = re.split(r"\s*,\s*", fieldstr)
+                invalid_fields = [
+                    f
+                    for f in fields
+                    if f not in _valid_catalog_fields[CWMS][catalog_type.name]
+                ]
+                if invalid_fields:
+                    raise DataStoreException(
+                        f"Received invalid field(s) for {catalog_type.name}: {invalid_fields}"
                     )
+            # ----- #
+            # group #
+            # ----- #
+            if "group" in kwargs:
                 argval = kwargs["group"]
                 if isinstance(argval, str):
                     group = argval
@@ -2284,14 +2354,10 @@ class CwmsDataStore(AbstractDataStore):
                     raise TypeError(
                         f"Expected str or bool for 'case_sensitive', got {argval.__class__.__name__}"
                     )
-            # --------------------- #
-            # kind (locations only) #
-            # --------------------- #
+            # ---- #
+            # kind #
+            # ---- #
             if "kind" in kwargs:
-                if catalog_type != _CwmsDataType.LOCATION:
-                    raise ValueError(
-                        f"Keyword argument 'kind' is not allowed for catalog type {catalog_type.name}"
-                    )
                 argval = kwargs["kind"]
                 if isinstance(argval, str):
                     kind = argval
@@ -2305,13 +2371,6 @@ class CwmsDataStore(AbstractDataStore):
             # limit #
             # ----- #
             if "limit" in kwargs:
-                if catalog_type not in [
-                    _CwmsDataType.LOCATION,
-                    _CwmsDataType.TIMESERIES,
-                ]:
-                    raise ValueError(
-                        f"Keyword argument 'limit' is not allowed for catalog type {catalog_type.name}"
-                    )
                 argval = kwargs["limit"]
                 if isinstance(argval, int):
                     limit = argval
@@ -2347,9 +2406,9 @@ class CwmsDataStore(AbstractDataStore):
                     raise TypeError(
                         f"Expected str for 'pattern', got {argval.__class__.__name__}"
                     )
-            # ------------------------------------- #
-            # regex (takes precedence over pattern) #
-            # ------------------------------------- #
+            # ----- #
+            # regex #
+            # ----- #
             if "regex" in kwargs:
                 argval = kwargs["regex"]
                 if isinstance(argval, str):
@@ -2403,21 +2462,11 @@ class CwmsDataStore(AbstractDataStore):
             raise DataStoreException(
                 f"Office parameter must be specified since data store '{self}' has no default office"
             )
-        header_str = None
-        valid_fields = _valid_catalog_fields[CWMS][catalog_type.name]
-        catalog_items: List[str] = []
+        catalog_items: List[str] = [f"#{chr(9).join(fields)}"] if header else []
         if catalog_type == _CwmsDataType.TIMESERIES:
-            fieldstr = None if not fieldstr else fieldstr.lower().strip()
-            name_field = None
-            if fieldstr:
-                fields = re.split(r"\s*,\s*", fieldstr)
-                invalid_fields = [f for f in fields if f not in valid_fields]
-                if invalid_fields:
-                    raise DataStoreException(
-                        f"Invalid field(s) specified: [{', '.join(invalid_fields)}], must be one of [{', '.join(valid_fields)}]"
-                    )
-            if header:
-                header_str = f"#{chr(9).join(fields)}"
+            # ------------------ #
+            # TIMESERIES catalog #
+            # ------------------ #
             for i in range(len(fields)):
                 if fields[i] == "identifier":
                     fields[i] = "name"
@@ -2554,20 +2603,10 @@ class CwmsDataStore(AbstractDataStore):
                         )
                     )
         elif catalog_type == _CwmsDataType.RATING_TEMPLATE:
-            fieldstr = None if not fieldstr else fieldstr.lower().strip()
+            # ----------------------- #
+            # RATING_TEMPLATE catalog #
+            # ----------------------- #
             name_field = None
-            if fieldstr:
-                fields = [
-                    "identifier" if f == "name" else f
-                    for f in re.split(r"\s*,\s*", fieldstr)
-                ]
-                invalid_fields = [f for f in fields if f not in valid_fields]
-                if invalid_fields:
-                    raise DataStoreException(
-                        f"Invalid field(s) specified: [{', '.join(invalid_fields)}], must be one of [{', '.join(valid_fields)}]"
-                    )
-            if header:
-                header_str = f"#{chr(9).join(fields)}"
             field_map = {
                 "identifier": "id",
                 "name": "id",
@@ -2639,22 +2678,12 @@ class CwmsDataStore(AbstractDataStore):
                 pat = re.compile(_regex)
                 catalog_items = list(filter(keep, catalog_items))
         elif catalog_type == _CwmsDataType.RATING_SPECIFICATION:
-            fieldstr = None if not fieldstr else fieldstr.lower().strip()
-            name_field = None
-            if fieldstr:
-                fields = [
-                    "identifier" if f == "name" else f
-                    for f in re.split(r"\s*,\s*", fieldstr)
-                ]
-                invalid_fields = [f for f in fields if f not in valid_fields]
-                if invalid_fields:
-                    raise DataStoreException(
-                        f"Invalid field(s) specified: [{', '.join(invalid_fields)}], must be one of [{', '.join(valid_fields)}]"
-                    )
-            if header:
-                header_str = f"#{chr(9).join(fields)}"
+            # ---------------------------- #
+            # RATING_SPECIFICATION catalog #
+            # ---------------------------- #
             field_map = {
                 "identifier": "rating-id",
+                "name": "rating-id",
                 "office": "office-id",
                 "location": "location-id",
                 "template": "template-id",
@@ -2715,7 +2744,7 @@ class CwmsDataStore(AbstractDataStore):
                     ]
                 if "description" in fields:
                     descriptions = [
-                        d if isinstance(d, str) else ""
+                        d if isinstance(d, str) else "<None>"
                         for d in data.df["description"].to_list()
                     ]
                 if "effective-dates" in fields:
@@ -2767,17 +2796,9 @@ class CwmsDataStore(AbstractDataStore):
                 pat = re.compile(_regex)
                 catalog_items = list(filter(keep, catalog_items))
         elif catalog_type == _CwmsDataType.LOCATION:
-            fieldstr = None if not fieldstr else fieldstr.lower().strip()
-            name_field = None
-            if fieldstr:
-                fields = re.split(r"\s*,\s*", fieldstr)
-                invalid_fields = [f for f in fields if f not in valid_fields]
-                if invalid_fields:
-                    raise DataStoreException(
-                        f"Invalid field(s) specified: [{', '.join(invalid_fields)}], must be one of [{', '.join(valid_fields)}]"
-                    )
-            if header:
-                header_str = f"#{chr(9).join(fields)}"
+            # ---------------- #
+            # LOCATION catalog #
+            # ---------------- #
             for i in range(len(fields)):
                 if fields[i] == "identifier":
                     fields[i] = "name"
@@ -2958,6 +2979,7 @@ class CwmsDataStore(AbstractDataStore):
                         )
                         field_items = {}
                         for field in fields:
+                            items = []
                             try:
                                 items = list(map(str, df[field].to_list()))
                             except KeyError:
@@ -3030,8 +3052,6 @@ class CwmsDataStore(AbstractDataStore):
                 )
         else:
             raise DataStoreException(f"Unexpected error with data type {data_type}")
-        if header_str:
-            catalog_items.insert(0, header_str)
         return catalog_items
 
     def close(self) -> None:
@@ -3428,7 +3448,7 @@ if __name__ == "__main__":
         catalog = db.catalog(
             "RATING_SPECIFICATION",
             pattern=pattern,
-            fields="name,effective-dates",
+            fields="name,description,effective-dates",
             header=True,
         )
         for item in catalog:
