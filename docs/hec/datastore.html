@@ -357,13 +357,14 @@ The catalog will include the fields in the order specified. Defaults to <code>id
 <li><code>specification-version</code>: The specification version</li>
 <li><code>description</code>: The description for the rating specification</li>
 <li><code>lookup-methods</code>: A comma-delimited string of effective date lookup methods (order = within-time-range, before-time-range, after-time-range)</li>
-<li><code>active</code>: Whether the specification is active</li>
+<li><code>specification-active</code>: Whether the specification is active</li>
 <li><code>auto-flags</code>: True or False values for auto-update, auto-activate and auto-migrate-extensions, respectively</li>
-<li><code>rounding-specs</code>: A comma-delimited string of rounding specifications for each indepedent and dependent parameter</li>
-<li><code>effective-dates</code>: A dictionary with effective date/times as the keys. Each value is a dictionary with the following keys:
-<ul>
-<li>'units': The native</li>
-</ul></li>
+<li><code>rounding-specs</code>: A delimited string of rounding specifications for each indepedent and dependent parameter. Independent parameter roundings are comma-delimited; the dependent parameter rounding is semicolon-delimited.</li>
+<li><code>effective-date</code>: The effective date of the rating</li>
+<li><code>create-date</code>: The creation date date of the rating</li>
+<li><code><a href="#CwmsDataStore.units">units</a></code>: The native units of the rating. Independent parameter units are comma-delimited; the dependent parameter unit is semicolon-delimited.</li>
+<li><code>active</code>: Whether the rating is active</li>
+<li><code>type</code>: The rating type</li>
 </ul></li>
 <li><strong><code>RATING_SPECIFICATION</code></strong>:
 <ul>
@@ -377,8 +378,8 @@ The catalog will include the fields in the order specified. Defaults to <code>id
 <li><code>lookup-methods</code>: A comma-delimited string of effective date lookup methods (order = within-time-range, before-time-range, after-time-range)</li>
 <li><code>active</code>: Whether the specification is active</li>
 <li><code>auto-flags</code>: True or False values for auto-update, auto-activate and auto-migrate-extensions, respectively</li>
-<li><code>rounding-specs</code>: A comma-delimited string of rounding specifications for each indepedent and dependent parameter</li>
-<li><code>effective-dates</code>: A comma-delimited string of effective date/times for ratings with this specification</li>
+<li><code>rounding-specs</code>: A delimited string of rounding specifications for each indepedent and dependent parameter. Independent parameter roundings are comma-delimited; the dependent parameter rounding is semicolon-delimited.</li>
+<li><code>effective-date</code>: A comma-delimited string of effective date/times for ratings with this specification</li>
 </ul></li>
 <li><strong><code>RATING_TEMPLATE</code></strong>:
 <ul>
