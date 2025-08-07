@@ -9,7 +9,7 @@
             "env": {
                 "PYTHONPATH": "${workspaceFolder}",
                 "cda_api_root": "https://wm.swt.ds.usace.army.mil:8243/swt-data/",
-                "cda_api_key": "TNKOaGFYhFMkOiPleSLYiZ06nD41Dr5ZbfqIhMSFkZhoxpLl3oKvddLKvfKNrqws9rK3DQ925o64wh49ZqVERrpZ7ly39ZmNmGToVAO5uuyDe13HuvIStVpvNTFn9jDqlBx6WTnQo9FEl0mERH3AQsu12dbgCUJ2nf7NkkDl5FMYXPxl3ygH0ZS4NnJmuAbRPGK1REdnY3eHUTT3ACTZm97aNEh5bGl4sMIvgNkZYlrtRUhNtsXTmsMEKqhOt3cp",
+                "cda_api_key": "",
                 "cda_api_office": "SWT",
                 "REQUESTS_CA_BUNDLE": "/home/rockylinux/Downloads/combined.pem"
             }
