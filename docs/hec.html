@@ -2348,10 +2348,10 @@ Matching is affected by <code>case_sensitive</code>. Note that specifying <code>
 <li><strong>header (Optional[bool], must be passed by name):</strong>  Specifies whether to include a header line in the catalog that identifies the fields</li>
 <li><strong>kind (Optional[str], must be passed by name, LOCATION only):</strong>  Specifies cataloging only locations of the specified location kind. Can be a wildcard pattern.
 Matching is affected by <code>case_sensitive</code>.</li>
-<li><strong>limit (Optional[int], must be passed by name):</strong>  The maximum number of identifiers to return. If None, no limit is imposed. Defaults to None.</li>
+<li><strong>limit (Optional[int], must be passed by name, LOCATION and TIMESERIES only):</strong>  The maximum number of identifiers to return. If None, no limit is imposed. Defaults to None.</li>
 <li><strong>office (Optional[str], must be passed by name):</strong>  The CWMS office to generate the catalog for. Defaults to None, which uses the data store's default office.</li>
-<li><strong>units (Optional[str], must be passed by name):</strong>  The unit system ("EN" or "SI") to return the elevation values in. Defaults to None.</li>
-<li><strong>vertical_datum (Optional[str], must be passed by name):</strong>  The vertical datum ("NGVD29", "NAVD88", or "LOCAL") to return the elevation values in. Defaults to None (Native datum).</li>
+<li><strong>units (Optional[str], must be passed by name, LOCATION and TIMESERIES only):</strong>  The unit system ("EN" or "SI") to return the elevation values in. Defaults to None.</li>
+<li><strong>vertical_datum (Optional[str], must be passed by name, LOCATION and TIMESERIES only):</strong>  The vertical datum ("NGVD29", "NAVD88", or "LOCAL") to return the elevation values in. Defaults to None (Native datum).</li>
 </ul>
 
 <h6 id="raises">Raises:</h6>
