@@ -183,11 +183,16 @@ _valid_catalog_kwargs: dict[str, dict[str, list[str]]] = {
         ],
     },
     DSS: {
-        _DssDataType.TIMESERIES.name: [],
+        _DssDataType.TIMESERIES.name: [
+            "case_sensitive",
+            "condensed",
+            "pattern",
+            "regex",
+        ],
     },
 }
 
-_valid_catalog_fields = {
+_valid_catalog_fields: dict[str, dict[str, list[str]]] = {
     CWMS: {
         _CwmsDataType.LOCATION.name: [
             "name",
@@ -225,10 +230,15 @@ _valid_catalog_fields = {
             "template",
             "specification-version",
             "lookup-methods",
-            "active",
+            "specification-active",
             "auto-flags",
             "rounding-specs",
-            "effective-dates",
+            "effective-date",
+            "description",
+            "create-date",
+            "units",
+            "active",
+            "type",
         ],
         _CwmsDataType.RATING_SPECIFICATION.name: [
             "name",
@@ -241,7 +251,7 @@ _valid_catalog_fields = {
             "active",
             "auto-flags",
             "rounding-specs",
-            "effective-dates",
+            "effective-date",
             "description",
         ],
         _CwmsDataType.RATING_TEMPLATE.name: [
@@ -267,12 +277,7 @@ _valid_catalog_fields = {
         ],
     },
     DSS: {
-        _DssDataType.TIMESERIES.name: [
-            "identifier",
-            "name",
-            "earliest-time",
-            "latest-time",
-        ],
+        _DssDataType.TIMESERIES.name: [],
     },
 }
 
@@ -2150,11 +2155,14 @@ class CwmsDataStore(AbstractDataStore):
                     * `specification-version`: The specification version
                     * `description`: The description for the rating specification
                     * `lookup-methods`: A comma-delimited string of effective date lookup methods (order = within-time-range, before-time-range, after-time-range)
-                    * `active`: Whether the specification is active
+                    * `specification-active`: Whether the specification is active
                     * `auto-flags`: True or False values for auto-update, auto-activate and auto-migrate-extensions, respectively
-                    * `rounding-specs`: A comma-delimited string of rounding specifications for each indepedent and dependent parameter
-                    * `effective-dates`: A dictionary with effective date/times as the keys. Each value is a dictionary with the following keys:
-                        * 'units': The native
+                    * `rounding-specs`: A delimited string of rounding specifications for each indepedent and dependent parameter. Independent parameter roundings are comma-delimited; the dependent parameter rounding is semicolon-delimited.
+                    * `effective-date`: The effective date of the rating
+                    * `create-date`: The creation date date of the rating
+                    * `units`: The native units of the rating. Independent parameter units are comma-delimited; the dependent parameter unit is semicolon-delimited.
+                    * `active`: Whether the rating is active
+                    * `type`: The rating type
                 * **`RATING_SPECIFICATION`**:
                     * `identifier`: The rating specification
                     * `office`: The CWMS office for the rating specification
@@ -2166,8 +2174,8 @@ class CwmsDataStore(AbstractDataStore):
                     * `lookup-methods`: A comma-delimited string of effective date lookup methods (order = within-time-range, before-time-range, after-time-range)
                     * `active`: Whether the specification is active
                     * `auto-flags`: True or False values for auto-update, auto-activate and auto-migrate-extensions, respectively
-                    * `rounding-specs`: A comma-delimited string of rounding specifications for each indepedent and dependent parameter
-                    * `effective-dates`: A comma-delimited string of effective date/times for ratings with this specification
+                    * `rounding-specs`: A delimited string of rounding specifications for each indepedent and dependent parameter. Independent parameter roundings are comma-delimited; the dependent parameter rounding is semicolon-delimited.
+                    * `effective-date`: A comma-delimited string of effective date/times for ratings with this specification
                 * **`RATING_TEMPLATE`**:
                     * `identifier`: The rating template identifier
                     * `office`: The CWMS office for the rating template
@@ -2602,81 +2610,62 @@ class CwmsDataStore(AbstractDataStore):
                             catalog_items,
                         )
                     )
-        elif catalog_type == _CwmsDataType.RATING_TEMPLATE:
-            # ----------------------- #
-            # RATING_TEMPLATE catalog #
-            # ----------------------- #
-            name_field = None
-            field_map = {
-                "identifier": "id",
-                "name": "id",
+        elif catalog_type == _CwmsDataType.RATING:
+            # -------------- #
+            # RATING catalog #
+            # -------------- #
+            spec_field_map = {
+                "identifier": "rating-id",
+                "name": "rating-id",
                 "office": "office-id",
-                "dependent-parameter": "dependent-paraneter",
-                "version": "version",
+                "location": "location-id",
+                "template": "template-id",
+                "specification-version": "version",
+                "specification-active": "active",
             }
-            for field_name in ["identifier", "name"]:
-                try:
-                    name_field = fields.index(field_name)
-                except:
-                    pass
-                else:
-                    break
-            ind_param_names: Optional[list[str]] = None
-            ind_param_lookups: Optional[list[str]] = None
-            data = cwms.ratings.ratings_template.get_rating_templates(
-                office_id=office if office else self._office,
-                template_id_mask=_regex,
-            )
-            if not data.df.empty:
-                if "independent-parameters" in fields or "lookup-methods" in fields:
-                    ind_param_specs = data.df["independent-parameter-specs"].to_list()
-                    if "independent-parameters" in fields:
-                        ind_param_names = [
-                            ",".join([s["parameter"] for s in spec])
-                            for spec in ind_param_specs
-                        ]
-                    if "lookup-methods" in fields:
-                        ind_param_lookups = [
-                            ";".join(
-                                [
-                                    ",".join(
-                                        (
-                                            s["in-range-method"],
-                                            s["out-range-low-method"],
-                                            s["out-range-high-method"],
-                                        )
-                                    )
-                                    for s in spec
-                                ]
+            rating_field_map = {
+                "effective-date": "effective-date",
+                "create-date": "create-date",
+                "units": "units-id",
+                "type": "rating-type",
+            }
+            endpoint = "ratings/metadata"
+            params = {
+                "office": office if office else self.office,
+                "rating-id-mask": _regex,
+                "start": str(self.start_time) if self.start_time else None,
+                "end": str(self.end_time) if self.end_time else None,
+                "timezone": self.time_zone,
+                "page": None,
+                "page-size": 50000,
+            }
+            response = cwms.api.get(endpoint, params)
+            for spec_data in response["rating-metadata"]:
+                sdata = spec_data["rating-spec"]
+                for rdata in spec_data["ratings"]:
+                    items = []
+                    for f in fields:
+                        if f == "lookup-methods":
+                            items.append(
+                                f"{sdata['in-range-method']},{sdata['out-range-low-method']},{sdata['out-range-high-method']}"
                             )
-                            for spec in ind_param_specs
-                        ]
-                field_items = {}
-                for field in fields:
-                    if field == "independent-parameters":
-                        field_items[field] = cast(list[str], ind_param_names)
-                    elif field == "lookup-methods":
-                        field_items[field] = cast(list[str], ind_param_lookups)
-                    else:
-                        field_items[field] = list(
-                            map(str, data.df[field_map[field]].to_list())
-                        )
-                catalog_items.extend(
-                    list(
-                        map(
-                            "\t".join,
-                            list(zip(*(field_items[f] for f in fields))),
-                        )
-                    )
-                )
-            if catalog_items and _regex and case_sensitive and name_field is not None:
-                # API uses case insensitive matching
-                def keep(s: str) -> bool:  # lambda with same code would fail(?!?!?)
-                    parts = s.split("\t")
-                    return bool(pat.match(parts[cast(int, name_field)]))
-
-                pat = re.compile(_regex)
-                catalog_items = list(filter(keep, catalog_items))
+                        elif f == "auto-flags":
+                            items.append(
+                                f"{sdata['auto_update']},{sdata['auto-activate']},{sdata['auto-migrate-extenstion']}"
+                            )
+                        elif f == "rounding-specs":
+                            items.append(
+                                f"{','.join([rs['value'] for rs in sdata['independent-rounding-specs']])};{sdata['dependent-rounding-spec']}"
+                            )
+                        elif f in spec_field_map:
+                            items.append(sdata[spec_field_map[f]])
+                        elif f in rating_field_map:
+                            items.append(rdata[rating_field_map[f]])
+                        else:
+                            raise DataStoreException(
+                                f"Unexpected field specified: {f}"
+                            )  # shouldn't happen
+                    catalog_items.append("\t".join(items))
         elif catalog_type == _CwmsDataType.RATING_SPECIFICATION:
             # ---------------------------- #
             # RATING_SPECIFICATION catalog #
@@ -2747,7 +2736,7 @@ class CwmsDataStore(AbstractDataStore):
                         d if isinstance(d, str) else "<None>"
                         for d in data.df["description"].to_list()
                     ]
-                if "effective-dates" in fields:
+                if "effective-date" in fields:
 
                     def tz_convert(t: str) -> str:
                         ht = HecTime(t)
@@ -2771,10 +2760,85 @@ class CwmsDataStore(AbstractDataStore):
                         field_items[field] = cast(list[str], rounding_specs)
                     elif field == "description":
                         field_items[field] = cast(list[str], descriptions)
-                    elif field == "effective-dates":
+                    elif field == "effective-date":
                         field_items[field] = cast(
                             list[str], map(str, cast(list[list[str]], effective_dates))
                         )
+                    else:
+                        field_items[field] = list(
+                            map(str, data.df[field_map[field]].to_list())
+                        )
+                catalog_items.extend(
+                    list(
+                        map(
+                            "\t".join,
+                            list(zip(*(field_items[f] for f in fields))),
+                        )
+                    )
+                )
+            if catalog_items and _regex and case_sensitive and name_field is not None:
+                # API uses case insensitive matching
+                def keep(s: str) -> bool:  # lambda with same code would fail(?!?!?)
+                    parts = s.split("\t")
+                    return bool(pat.match(parts[cast(int, name_field)]))
+
+                pat = re.compile(_regex)
+                catalog_items = list(filter(keep, catalog_items))
+        elif catalog_type == _CwmsDataType.RATING_TEMPLATE:
+            # ----------------------- #
+            # RATING_TEMPLATE catalog #
+            # ----------------------- #
+            name_field = None
+            field_map = {
+                "identifier": "id",
+                "name": "id",
+                "office": "office-id",
+                "dependent-parameter": "dependent-paraneter",
+                "version": "version",
+            }
+            for field_name in ["identifier", "name"]:
+                try:
+                    name_field = fields.index(field_name)
+                except:
+                    pass
+                else:
+                    break
+            ind_param_names: Optional[list[str]] = None
+            ind_param_lookups: Optional[list[str]] = None
+            data = cwms.ratings.ratings_template.get_rating_templates(
+                office_id=office if office else self._office,
+                template_id_mask=_regex,
+            )
+            if not data.df.empty:
+                if "independent-parameters" in fields or "lookup-methods" in fields:
+                    ind_param_specs = data.df["independent-parameter-specs"].to_list()
+                    if "independent-parameters" in fields:
+                        ind_param_names = [
+                            ",".join([s["parameter"] for s in spec])
+                            for spec in ind_param_specs
+                        ]
+                    if "lookup-methods" in fields:
+                        ind_param_lookups = [
+                            ";".join(
+                                [
+                                    ",".join(
+                                        (
+                                            s["in-range-method"],
+                                            s["out-range-low-method"],
+                                            s["out-range-high-method"],
+                                        )
+                                    )
+                                    for s in spec
+                                ]
+                            )
+                            for spec in ind_param_specs
+                        ]
+                field_items = {}
+                for field in fields:
+                    if field == "independent-parameters":
+                        field_items[field] = cast(list[str], ind_param_names)
+                    elif field == "lookup-methods":
+                        field_items[field] = cast(list[str], ind_param_lookups)
                     else:
                         field_items[field] = list(
                             map(str, data.df[field_map[field]].to_list())
@@ -3442,14 +3506,14 @@ if __name__ == "__main__":
     ]:
         print(f"{pattern} => {_pattern_to_regex(pattern)}")
 
+    import json
+
     with CwmsDataStore.open(office="SWT", time_zone="US/Pacific") as db:
-        pattern = "keys*"
-        print(f"\nCataloging rating specifications matching {pattern}")
         catalog = db.catalog(
-            "RATING_SPECIFICATION",
-            pattern=pattern,
-            fields="name,description,effective-dates",
+            "RATING",
+            pattern="KEYS*",
+            fields="name,create-date,effective-date, units, lookup-methods, rounding-specs",
             header=True,
         )
         for item in catalog:
-            print(f"\t{item}")
+            print(item)
