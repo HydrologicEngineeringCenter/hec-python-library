@@ -7,7 +7,11 @@
             "program":"${file}",
             "console":"integratedTerminal",
             "env": {
-                "PYTHONPATH": "${workspaceFolder}"
+                "PYTHONPATH": "${workspaceFolder}",
+                "cda_api_root": "https://wm.swt.ds.usace.army.mil:8243/swt-data/",
+                "cda_api_key": "",
+                "cda_api_office": "SWT",
+                "REQUESTS_CA_BUNDLE": "/home/rockylinux/Downloads/combined.pem"
             }
         }
     ]
