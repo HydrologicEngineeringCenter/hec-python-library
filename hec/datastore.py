@@ -2239,6 +2239,23 @@ class CwmsDataStore(AbstractDataStore):
         Returns:
             List[str]: The CWMS identifiers that match the specified parameters, up to the specified limit, if any
         """
+
+        def _tz_convert(t: str) -> str:
+            """
+            Converts CWMS catalog date/time strings to the time zone of the CwmsDataStore
+
+            Args:
+                t (str): The date/time string (effective_date, create_date, etc...), will be in UTC (e.g., 2012-07-11T14:37:00Z)
+
+            Returns:
+                str: The converted date/time string
+            """
+            ht = HecTime(t)
+            ht.midnight_as_2400 = False
+            return str(ht.convert_to_time_zone(self.time_zone)).replace(
+                "+00:00", "Z"
+            )
+        
         self._assert_open()
         bounding_office: Optional[str] = None
         case_sensitive: Optional[bool] = False
@@ -2624,8 +2641,6 @@ class CwmsDataStore(AbstractDataStore):
                 "specification-active": "active",
             }
             rating_field_map = {
-                "effective-date": "effective-date",
-                "create-date": "create-date",
                 "units": "units-id",
                 "type": "rating-type",
             }
@@ -2657,6 +2672,8 @@ class CwmsDataStore(AbstractDataStore):
                             items.append(
                                 f"{','.join([rs['value'] for rs in sdata['independent-rounding-specs']])};{sdata['dependent-rounding-spec']}"
                             )
+                        elif f in ("create-date", "effective-date"):
+                            items.append(_tz_convert(rdata[f]))
                         elif f in spec_field_map:
                             items.append(sdata[spec_field_map[f]])
                         elif f in rating_field_map:
@@ -2737,19 +2754,11 @@ class CwmsDataStore(AbstractDataStore):
                         for d in data.df["description"].to_list()
                     ]
                 if "effective-date" in fields:
-
-                    def tz_convert(t: str) -> str:
-                        ht = HecTime(t)
-                        ht.midnight_as_2400 = False
-                        return str(ht.convert_to_time_zone(self.time_zone)).replace(
-                            "+00:00", "Z"
-                        )
-
                     effective_dates = cast(
                         list[list[str]], data.df["effective-dates"].to_list()
                     )
                     for i in range(len(effective_dates)):
-                        effective_dates[i] = list(map(tz_convert, effective_dates[i]))
+                        effective_dates[i] = list(map(_tz_convert, effective_dates[i]))
                 field_items = {}
                 for field in fields:
                     if field == "lookup-methods":
