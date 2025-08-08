@@ -2252,10 +2252,8 @@ class CwmsDataStore(AbstractDataStore):
             """
             ht = HecTime(t)
             ht.midnight_as_2400 = False
-            return str(ht.convert_to_time_zone(self.time_zone)).replace(
-                "+00:00", "Z"
-            )
-        
+            return str(ht.convert_to_time_zone(self.time_zone)).replace("+00:00", "Z")
+
         self._assert_open()
         bounding_office: Optional[str] = None
         case_sensitive: Optional[bool] = False
@@ -2655,29 +2653,29 @@ class CwmsDataStore(AbstractDataStore):
                 "page-size": 50000,
             }
             response = cwms.api.get(endpoint, params)
-            for spec_data in response["rating-metadata"]:
-                sdata = spec_data["rating-spec"]
-                for rdata in spec_data["ratings"]:
+            for data in response["rating-metadata"]:
+                spec_data = data["rating-spec"]
+                for rating_data in data["ratings"]:
                     items = []
                     for f in fields:
                         if f == "lookup-methods":
                             items.append(
-                                f"{sdata['in-range-method']},{sdata['out-range-low-method']},{sdata['out-range-high-method']}"
+                                f"{spec_data['in-range-method']},{spec_data['out-range-low-method']},{spec_data['out-range-high-method']}"
                             )
                         elif f == "auto-flags":
                             items.append(
-                                f"{sdata['auto_update']},{sdata['auto-activate']},{sdata['auto-migrate-extenstion']}"
+                                f"{spec_data['auto_update']},{spec_data['auto-activate']},{spec_data['auto-migrate-extenstion']}"
                             )
                         elif f == "rounding-specs":
                             items.append(
-                                f"{','.join([rs['value'] for rs in sdata['independent-rounding-specs']])};{sdata['dependent-rounding-spec']}"
+                                f"{','.join([rs['value'] for rs in spec_data['independent-rounding-specs']])};{spec_data['dependent-rounding-spec']}"
                             )
                         elif f in ("create-date", "effective-date"):
-                            items.append(_tz_convert(rdata[f]))
+                            items.append(_tz_convert(rating_data[f]))
                         elif f in spec_field_map:
-                            items.append(sdata[spec_field_map[f]])
+                            items.append(spec_data[spec_field_map[f]])
                         elif f in rating_field_map:
-                            items.append(rdata[rating_field_map[f]])
+                            items.append(rating_data[rating_field_map[f]])
                         else:
                             raise DataStoreException(
                                 f"Unexpected field specified: {f}"
