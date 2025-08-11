@@ -1,5 +1,8 @@
+import re
 import warnings
 from typing import Any, Optional
+
+from lxml import etree
 
 from hec.parameter import Parameter, ParameterException
 from hec.rating.rating_shared import LookupMethod
@@ -144,6 +147,12 @@ class RatingTemplate:
         return self.name
 
     def copy(self) -> "RatingTemplate":
+        """
+        Returns a copy of the rating template
+
+        Returns:
+            RatingTemplate: The copy
+        """
         copy = RatingTemplate(self.name)
         copy.office = self.office
         copy.lookup = self.lookup
@@ -152,6 +161,12 @@ class RatingTemplate:
 
     @property
     def dep_param(self) -> str:
+        """
+        The depdendent parameter
+
+        Operations:
+            Read/Write
+        """
         return self._dep_param
 
     @dep_param.setter
@@ -166,6 +181,12 @@ class RatingTemplate:
 
     @property
     def description(self) -> Optional[str]:
+        """
+        The rating template description
+
+        Operations:
+            Read/Write
+        """
         return self._description
 
     @description.setter
@@ -174,16 +195,125 @@ class RatingTemplate:
             raise TypeError(f"Expected str, got {value.__class__.__name__}")
         self._description = value
 
+    @staticmethod
+    def from_xml(xml: str) -> "RatingTemplate":
+        """
+        Generates a RatingTemplate object from an XML string representation
+
+        Args:
+            xml (str): The XML string representation
+
+        Raises:
+            RatingTemplateException: if there is an error in the XML string
+
+        Returns:
+            RatingTemplate: _description_
+        """
+        template_elem = etree.fromstring(xml)
+        if template_elem.tag != "rating-template":
+            raise RatingTemplateException(
+                f"Expected <rating-template>, got <{template_elem.tag}>"
+            )
+        office = template_elem.get("office")
+        if not office:
+            raise RatingTemplateException("No office specified in <rating-template>")
+        parameters = template_elem.findtext("parameters-id")
+        if not parameters:
+            raise RatingTemplateException("No data found for <parameters-id>")
+        parts = parameters.split(";")
+        if len(parts) != 2:
+            raise RatingTemplateException(f"Mal-formed <parameter-id>: {parameters}")
+        dep_param = template_elem.findtext("dep-parameter")
+        if dep_param != parts[1]:
+            raise RatingTemplateException(
+                f"<dep-parameter> of {dep_param} doesn't match parameter in <parameters-id> of {parts[1]}"
+            )
+        version = template_elem.findtext("version")
+        if not version:
+            raise RatingTemplateException("No data found for <version>")
+        description = template_elem.findtext("description")
+        ind_params = parts[0].split(",")
+        ind_param_count = len(ind_params)
+        lookups: list[list[str]] = ind_param_count * []
+        specs_elems = template_elem.findall("./ind-parameter-specs")
+        if len(specs_elems) != 1:
+            raise RatingTemplateException(
+                f"Expected 1 <ind-parameter-specs> element, got {len(specs_elems)}"
+            )
+        specs_elem = specs_elems[0]
+        spec_elems = specs_elem.findall("./ind-parameter-spec")
+        if len(spec_elems) != ind_param_count:
+            raise RatingTemplateException(
+                f"Expected {ind_param_count} <ind-parameter-spec> elements, got {len(spec_elems)}"
+            )
+        for i in range(ind_param_count):
+            lookups.append([])
+            pos = spec_elems[i].get("position")
+            if pos is None or not pos.isdigit() or int(pos) != i + 1:
+                raise RatingTemplateException(
+                    f'Expected attribute of position="{i+1}" on <ind-parameter-spec>[{i}], got {pos}'
+                )
+            param = spec_elems[i].findtext("parameter")
+            if param != ind_params[i]:
+                raise RatingTemplateException(
+                    f"Expected <parameter> of {ind_params[i]} on <ind-parameter-spec>[{i}], got {param}"
+                )
+            method = spec_elems[i].findtext("in-range-method")
+            if not method:
+                raise RatingTemplateException(
+                    f"No data found for <in-range-method> on <ind-parameter-spec>[{i}]"
+                )
+            lookups[-1].append(method)
+            method = spec_elems[i].findtext("out-range-low-method")
+            if not method:
+                raise RatingTemplateException(
+                    f"No data found for <out-range-low-method> on <ind-parameter-spec>[{i}]"
+                )
+            lookups[-1].append(method)
+            method = spec_elems[i].findtext("out-range-high-method")
+            if not method:
+                raise RatingTemplateException(
+                    f"No data found for <out-range-high-method> on <ind-parameter-spec>[{i}]"
+                )
+            lookups[-1].append(method)
+
+        template = RatingTemplate(
+            f"{parameters}.{version}",
+            office=office,
+            lookup=lookups,
+            description=description,
+        )
+        return template
+
     @property
     def ind_param_count(self) -> int:
+        """
+        The number of independent parameters
+
+        Operations:
+            Read-Only
+        """
         return len(self._ind_params)
 
     @property
     def ind_params(self) -> list[str]:
+        """
+        The indepdendent parameters as a list of strings
+
+        Operations:
+            Read-Only
+        """
         return [self._ind_params[i].name for i in range(self.ind_param_count)]
 
     @property
     def lookup(self) -> list[list[str]]:
+        """
+        The rating independent parameter lookup behaviors in in-range, out-range-low, out-range-high order
+        as a list of lists of strings (one list for each independent parameter)
+
+        Operations:
+            Read/Write
+        """
         return [
             [
                 i.in_range_method,
@@ -246,10 +376,22 @@ class RatingTemplate:
 
     @property
     def name(self) -> str:
+        """
+        The rating template identifier
+
+        Operations:
+            Read-Only
+        """
         return f"{','.join([i._name for i in self._ind_params])};{self._dep_param}.{self._version}"
 
     @property
     def office(self) -> Optional[str]:
+        """
+        The rating template office
+
+        Operations:
+            Read/Write
+        """
         return self._office
 
     @office.setter
@@ -258,8 +400,45 @@ class RatingTemplate:
             raise TypeError(f"Expected str, got {value.__class__.__name__}")
         self._office = value
 
+    def to_xml(self, indent: str = "  ", prepend: Optional[str] = None) -> str:
+        """
+        Returns a formatted xml representation of the rating template.
+
+        For unformatted xml use `etree.tostring(<template_obj>.xml_element)`
+
+        Args:
+            indent (str, optional): _description_. Defaults to "  ".
+            prepend (Optional[str], optional): _description_. Defaults to None.
+
+        Returns:
+            str: The formatted xml
+        """
+
+        def replace_indent(s: str, new_indent: str) -> str:
+            old_indent = "  "
+            pattern = f"^(?:{re.escape(old_indent)})+"
+
+            def repl(match: re.Match[str]) -> str:
+                count = len(match.group(0)) // len(old_indent)
+                return new_indent * count
+
+            return re.sub(pattern, repl, s, flags=re.MULTILINE)
+
+        xml = etree.tostring(self.xml_element, pretty_print=True).decode()
+        if indent != "  ":
+            xml = replace_indent(xml, indent)
+        if prepend:
+            xml = "".join([prepend + line for line in xml.splitlines(keepends=True)])
+        return xml
+
     @property
     def version(self) -> str:
+        """
+        The rating template version
+
+        Operations:
+            Read/Write
+        """
         return self._version
 
     @version.setter
@@ -269,3 +448,41 @@ class RatingTemplate:
         if not value:
             raise ValueError("Version cannot be an empty string")
         self._version = value
+
+    @property
+    def xml_element(self) -> etree._Element:
+        """
+        The rating template an lxml.etree.Element object
+
+        Operations:
+            Read-Only
+        """
+        template_elem = etree.Element(
+            "rating-template", office=self.office if self.office else ""
+        )
+        parameters_id_elem = etree.SubElement(template_elem, "parameters-id")
+        parameters_id_elem.text = f"{','.join(self.ind_params)};{self._dep_param}"
+        version_elem = etree.SubElement(template_elem, "version")
+        version_elem.text = self.version
+        ind_params_elem = etree.SubElement(template_elem, "ind-parameter-specs")
+        for i in range(self.ind_param_count):
+            ind_param_elem = etree.SubElement(
+                ind_params_elem, "ind-parameter-spec", position=str(i + 1)
+            )
+            parameter_elem = etree.SubElement(ind_param_elem, "parameter")
+            parameter_elem.text = self._ind_params[i].name
+            in_range_elem = etree.SubElement(ind_param_elem, "in-range-method")
+            in_range_elem.text = self._ind_params[i].in_range_method
+            out_range_low_elem = etree.SubElement(
+                ind_param_elem, "out-range-low-method"
+            )
+            out_range_low_elem.text = self._ind_params[i].out_range_low_method
+            out_range_high_elem = etree.SubElement(
+                ind_param_elem, "out-range-high-method"
+            )
+            out_range_high_elem.text = self._ind_params[i].out_range_high_method
+        dep_param_elem = etree.SubElement(template_elem, "dep-parameter")
+        dep_param_elem.text = self.dep_param
+        description_elem = etree.SubElement(template_elem, "description")
+        description_elem.text = self.description
+        return template_elem

@@ -1,4 +1,5 @@
 import pytest
+from lxml import etree
 
 from hec.rating import RatingTemplate, RatingTemplateException
 
@@ -219,6 +220,53 @@ def test_invalid_construction() -> None:
         )
 
 
+def test_xml_operations() -> None:
+
+    xml_str = """<rating-template office="SWT">
+  <parameters-id>Count-Conduit_Gates,Opening-Conduit_Gates,Elev;Flow-Conduit_Gates</parameters-id>
+  <version>Standard</version>
+  <ind-parameter-specs>
+    <ind-parameter-spec position="1">
+      <parameter>Count-Conduit_Gates</parameter>
+      <in-range-method>ERROR</in-range-method>
+      <out-range-low-method>ERROR</out-range-low-method>
+      <out-range-high-method>ERROR</out-range-high-method>
+    </ind-parameter-spec>
+    <ind-parameter-spec position="2">
+      <parameter>Opening-Conduit_Gates</parameter>
+      <in-range-method>LINEAR</in-range-method>
+      <out-range-low-method>NULL</out-range-low-method>
+      <out-range-high-method>NULL</out-range-high-method>
+    </ind-parameter-spec>
+    <ind-parameter-spec position="3">
+      <parameter>Elev</parameter>
+      <in-range-method>LINEAR</in-range-method>
+      <out-range-low-method>ERROR</out-range-low-method>
+      <out-range-high-method>LINEAR</out-range-high-method>
+    </ind-parameter-spec>
+  </ind-parameter-specs>
+  <dep-parameter>Flow-Conduit_Gates</dep-parameter>
+  <description>Gate Rating (Number, Opening, Elev) --&gt; Flow</description>
+</rating-template>
+"""
+
+    template = RatingTemplate(
+        "Count-Conduit_Gates,Opening-Conduit_Gates,Elev;Flow-Conduit_Gates.Standard",
+        office="SWT",
+        lookup=[
+            ["error", "error", "error"],
+            ["linear", "null", "null"],
+            ["linear", "error", "linear"],
+        ],
+        description="Gate Rating (Number, Opening, Elev) --> Flow",
+    )
+    assert template.to_xml() == xml_str
+
+    template2 = RatingTemplate.from_xml(xml_str)
+    assert template2.to_xml() == xml_str
+
+
 if __name__ == "__main__":
     test_valid_construction()
     test_invalid_construction()
+    test_xml_operations()
