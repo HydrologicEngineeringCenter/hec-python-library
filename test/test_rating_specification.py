@@ -399,6 +399,11 @@ def test_constuct_and_set_all() -> None:
     spec.template = template
     spec.lookup = lookup
     spec.rounding = rounding
+    spec.agency = "USACE"
+    spec.active = True
+    spec.auto_update = True
+    spec.auto_activate = False
+    spec.auto_migrate_extension = True
     assert (
         spec.name
         == "COUN.Count-Conduit_Gates,Opening-Conduit_Gates,Elev;Flow-Conduit_Gates.Standard.Production"
@@ -408,7 +413,95 @@ def test_constuct_and_set_all() -> None:
     assert spec.version == "Production"
     assert spec.lookup == lookup
     assert spec.rounding == rounding
+    assert spec.agency == "USACE"
+    assert spec.active == True
+    assert spec.auto_update == True
+    assert spec.auto_activate == False
+    assert spec.auto_migrate_extension == True
+
+    spec2 = RatingSpecification(
+        "COUN.Count-Conduit_Gates,Opening-Conduit_Gates,Elev;Flow-Conduit_Gates.Standard.Production",
+        location=location,
+        template=template,
+        lookup=lookup,
+        rounding=rounding,
+        agency="USACE",
+        active=True,
+        auto_update=True,
+        auto_activate=False,
+        auto_migrate_extension=True,
+    )
+    assert spec2 == spec
+
+
+def test_xml_operations() -> None:
+    xml_str = """<rating-spec office="SWT">
+  <rating-spec-id>COUN.Count-Conduit_Gates,Opening-Conduit_Gates,Elev;Flow-Conduit_Gates.Standard.Production</rating-spec-id>
+  <template-id>Count-Conduit_Gates,Opening-Conduit_Gates,Elev;Flow-Conduit_Gates.Standard</template-id>
+  <location-id>COUN</location-id>
+  <version>Production</version>
+  <source-agency>USACE</source-agency>
+  <in-range-method>LINEAR</in-range-method>
+  <out-range-low-method>ERROR</out-range-low-method>
+  <out-range-high-method>ERROR</out-range-high-method>
+  <active>true</active>
+  <auto-update>true</auto-update>
+  <auto-activate>false</auto-activate>
+  <auto-migrate-extension>true</auto-migrate-extension>
+  <ind-rounding-specs>
+    <ind-rounding-spec position="1">1234567899</ind-rounding-spec>
+    <ind-rounding-spec position="2">1234567899</ind-rounding-spec>
+    <ind-rounding-spec position="3">1234567899</ind-rounding-spec>
+  </ind-rounding-specs>
+  <dep-rounding-spec>4444444449</dep-rounding-spec>
+  <description>This is a test rating</description>
+</rating-spec>
+"""
+    location = Location(
+        "COUN",
+        "SWT",
+        34.1234,
+        -95.1234,
+        "NAD83",
+        783.23,
+        "ft",
+        "NGVD-29",
+        "US/Central",
+        "PROJECT",
+    )
+    template = RatingTemplate(
+        "Count-Conduit_Gates,Opening-Conduit_Gates,Elev;Flow-Conduit_Gates.Standard",
+        office="SWT",
+        lookup=[
+            ["error", "error", "error"],
+            ["linear", "error", "error"],
+            ["linear", "error", "null"],
+        ],
+        description="Test Template",
+    )
+    lookup = [
+        LookupMethod.LINEAR.name,
+        LookupMethod.ERROR.name,
+        LookupMethod.ERROR.name,
+    ]
+    rounding = ["1234567899", "1234567899", "1234567899", DEFAULT_ROUNDING_SPEC]
+    spec = RatingSpecification(
+        "COUN.Count-Conduit_Gates,Opening-Conduit_Gates,Elev;Flow-Conduit_Gates.Standard.Production",
+        location=location,
+        template=template,
+        lookup=lookup,
+        rounding=rounding,
+        agency="USACE",
+        active=True,
+        auto_update=True,
+        auto_activate=False,
+        auto_migrate_extension=True,
+        description="This is a test rating",
+    )
+    assert spec.to_xml() == xml_str
+    spec2 = RatingSpecification.from_xml(xml_str)
+    assert spec2.to_xml() == xml_str
 
 
 if __name__ == "__main__":
-    test_construct_with_template()
+    test_xml_operations()

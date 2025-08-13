@@ -23,7 +23,15 @@ DEFAULT_OUT_RANGE_HIGH_METHOD = LookupMethod.PREVIOUS
 
 
 class RatingTemplate:
+    """
+    Holds independent and dependent parameter names, independent parameter lookup methods, and version string for all associated ratings.
+
+    Ratings are associated by using a rating identifier that includes the template identifier.
+    """
     class IndParameter:
+        """
+        Associates lookup methods with an independent parameter for a RatingTemplate object
+        """
         def __init__(
             self,
             name: str,
@@ -31,6 +39,25 @@ class RatingTemplate:
                 tuple[LookupMethod, LookupMethod, LookupMethod]
             ] = None,
         ):
+            """
+            Initializes the IndParameter object
+
+            Args:
+                name (str): The associated independent parameter name
+                **lookup_methods (Optional[ tuple[
+                    [LookupMethod](rating.html#LookupMethod),
+                    [LookupMethod](rating.html#LookupMethod),
+                    [LookupMethod](rating.html#LookupMethod)
+                    ] ]):** The lookup methods associated with the independent parameter. Defaults to None.
+                    If specified, the lookup methods are in the order of in-range, out-of-range-low, out-of-range-high. If not specified, the default methods of [
+                    [LINEAR](rating.html#LookupMethod.LINEAR),
+                    [NEXT](rating.html#LookupMethod.NEXT),
+                    [PREVIOUS](rating.html#LookupMethod.PREVIOUS)
+                    ] are used.
+
+            Raises:
+                ValueError: if the name is not a valid [Parameter](https://hydrologicengineeringcenter.github.io/hec-python-library/hec/parameter.html#Parameter) name
+            """
             try:
                 Parameter(name)
             except ParameterException as e:
@@ -47,21 +74,59 @@ class RatingTemplate:
 
         @property
         def name(self) -> str:
+            """
+            The independent parameter name
+
+            Operations:
+                Read-Only
+
+            """
             return self._name
 
         @property
         def in_range_method(self) -> str:
+            """
+            The in-range lookup behavior for the independent parameter
+
+            Operations:
+                Read-Only
+
+            """
             return self._in_range_method.name
 
         @property
         def out_range_low_method(self) -> str:
+            """
+            The out-of-range-low lookup behavior for the independent parameter
+
+            Operations:
+                Read-Only
+
+            """
             return self._out_range_low_method.name
 
         @property
         def out_range_high_method(self) -> str:
+            """
+            The out-of-range-low lookup behavior for the independent parameter
+
+            Operations:
+                Read-Only
+
+            """
             return self._out_range_high_method.name
 
     def __init__(self, name: str, **kwargs: Any):
+        """
+        Initializes the RatingTemplate object
+
+        Args:
+            name (str): The rating template identifier
+            lookup_methods (Optional[ tuple[LookupMethod, LookupMethod, LookupMethod] ]): _description_. Defaults to None.
+
+        Raises:
+            ValueError: _description_
+        """
         if not isinstance(name, str):
             raise TypeError(f"Expected str for 'name', got {name.__class__.__name__}")
         self._office: Optional[str] = None
@@ -207,7 +272,7 @@ class RatingTemplate:
             RatingTemplateException: if there is an error in the XML string
 
         Returns:
-            RatingTemplate: _description_
+            RatingTemplate: The generated RatingTemplate object
         """
         template_elem = etree.fromstring(xml)
         if template_elem.tag != "rating-template":
@@ -407,8 +472,8 @@ class RatingTemplate:
         For unformatted xml use `etree.tostring(<template_obj>.xml_element)`
 
         Args:
-            indent (str, optional): _description_. Defaults to "  ".
-            prepend (Optional[str], optional): _description_. Defaults to None.
+            indent (str, optional): The string to use for each level of indentation. Defaults to "  ".
+            prepend (Optional[str], optional): A string to prepend to each line. Defaults to None.
 
         Returns:
             str: The formatted xml
@@ -452,7 +517,7 @@ class RatingTemplate:
     @property
     def xml_element(self) -> etree._Element:
         """
-        The rating template an lxml.etree.Element object
+        The rating template as an lxml.etree.Element object
 
         Operations:
             Read-Only

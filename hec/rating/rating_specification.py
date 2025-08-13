@@ -1,4 +1,8 @@
+import re
+import warnings
 from typing import Any, Optional, Sequence, Union
+
+from lxml import etree
 
 from hec.location import Location
 from hec.rating.rating_shared import LookupMethod
@@ -21,11 +25,17 @@ class RatingSpecification:
         self._location: Location
         self._template: RatingTemplate
         self._version: str
+        self._agency: Optional[str] = None
         self._in_range_method = DEFAULT_IN_RANGE_METHOD
         self._out_range_low_method = DEFAULT_OUT_RANGE_LOW_METHOD
         self._out_range_high_method = DEFAULT_OUT_RANGE_HIGH_METHOD
         self._ind_rounding: list[str] = []
         self._dep_rounding = DEFAULT_ROUNDING_SPEC
+        self._active: bool = True
+        self._auto_update: bool = False
+        self._auto_activate: bool = False
+        self._auto_migrate_extension: bool = False
+        self._description: Optional[str] = None
         if not isinstance(name, str):
             raise TypeError(f"Expected str for 'name', got {name.__class__.__name__}")
         parts = name.split(".")
@@ -39,34 +49,66 @@ class RatingSpecification:
             raise ValueError("Version cannot be an empty string")
         self._version = parts[3]
 
-        if "location" in kwargs:
-            argval = kwargs["location"]
-            self.location = argval
-        if "template" in kwargs:
-            argval = kwargs["template"]
-            self.template = argval
+        kw: Any
+        argval: Any
+
+        def assert_type(argtype: Union[type, tuple[type, type]]) -> None:
+            nonlocal kw, argval
+            if not isinstance(argval, argtype):
+                raise TypeError(
+                    f"Expected {argtype} for '{kw}', got {argval.__class__.__name__}"
+                )
 
         for kw in kwargs:
             argval = kwargs[kw]
-            if kw == "office":
-                if not isinstance(argval, str):
-                    raise TypeError(
-                        f"Expected str for '{kw}', to {argval.__class__.__name__}"
+            if kw == "location":
+                assert_type(Location)
+                if argval.name != self._location.name:
+                    raise RatingSpecificationException(
+                        f"Expected location ID to be {self._location.name}, got {argval.name}"
+                    )
+                self._location = argval.copy()
+            elif kw == "template":
+                assert_type(RatingTemplate)
+                if argval.name != self._template.name:
+                    raise RatingSpecificationException(
+                        f"Expected template ID to be {self._template.name}, got {argval.name}"
+                    )
+                self._template = argval.copy()
+            elif kw == "office":
+                assert_type(str)
+                if self._location.office and self._location.office != argval:
+                    warnings.warn(
+                        f"Overriding existing location office of {self._location.office} with specified office of {argval}"
                     )
                 if self._template.office and self._template.office != argval:
-                    raise RatingSpecificationException(
-                        f"Rating specification for office {argval} cannot use template for office {self._template.office}"
+                    warnings.warn(
+                        f"Overriding existing template office of {self._template.office} with specified office of {argval}"
                     )
-                self._template.office = argval
                 self._location.office = argval
+                self._template.office = argval
+            elif kw == "agency":
+                assert_type((str, type(None)))
+                self._agency = argval
             elif kw == "lookup":
                 self.lookup = argval
-            elif kw == "template_lookup":
-                self._template.lookup = argval
             elif kw == "rounding":
                 self.rounding = argval
-            elif kw in ("location", "template"):
-                pass
+            elif kw == "active":
+                assert_type(bool)
+                self.active = argval
+            elif kw == "auto_update":
+                assert_type(bool)
+                self.auto_update = argval
+            elif kw == "auto_activate":
+                assert_type(bool)
+                self.auto_activate = argval
+            elif kw == "auto_migrate_extension":
+                assert_type(bool)
+                self.auto_migrate_extension = argval
+            elif kw == "description":
+                assert_type(str)
+                self.description = argval
             else:
                 raise TypeError(
                     f"'{kw}' is an invalid keyword argument for RatingSpecification()"
@@ -84,14 +126,26 @@ class RatingSpecification:
         if self._template.office and not self._location.office:
             self._location.office = self._template.office
 
-    def copy(self) -> "RatingSpecification":
-        copy = RatingSpecification(
-            self.name,
-            location=self.location,
-            template=self.template,
-            rounding=self.rounding,
-        )
-        return copy
+    def __eq__(self, other: Any) -> bool:
+        if not isinstance(other, RatingSpecification):
+            return False
+        if other.name != self.name:
+            return False
+        if other.location != self.location:
+            return False
+        if other.template != self.template:
+            return False
+        if other.rounding != self.rounding:
+            return False
+        if other._agency != self._agency:
+            return False
+        if other._auto_update != self._auto_update:
+            return False
+        if other._auto_activate != self._auto_activate:
+            return False
+        if other._auto_migrate_extension != self._auto_migrate_extension:
+            return False
+        return True
 
     def __repr__(self) -> str:
         default_lookup = [
@@ -135,6 +189,190 @@ class RatingSpecification:
 
     def __str__(self) -> str:
         return self.name
+
+    @property
+    def active(self) -> bool:
+        return self._active
+
+    @active.setter
+    def active(self, active: bool) -> None:
+        self._active = active
+
+    @property
+    def agency(self) -> Optional[str]:
+        return self._agency
+
+    @agency.setter
+    def agency(self, agency: Optional[str]) -> None:
+        self._agency = agency
+
+    @property
+    def auto_update(self) -> bool:
+        return self._auto_update
+
+    @auto_update.setter
+    def auto_update(self, auto_update: bool) -> None:
+        self._auto_update = auto_update
+
+    @property
+    def auto_activate(self) -> bool:
+        return self._auto_activate
+
+    @auto_activate.setter
+    def auto_activate(self, auto_activate: bool) -> None:
+        self._auto_activate = auto_activate
+
+    @property
+    def auto_migrate_extension(self) -> bool:
+        return self._auto_migrate_extension
+
+    @auto_migrate_extension.setter
+    def auto_migrate_extension(self, auto_migrate_extension: bool) -> None:
+        self._auto_migrate_extension = auto_migrate_extension
+
+    def copy(self) -> "RatingSpecification":
+        copy = RatingSpecification(
+            self.name,
+            location=self.location,
+            template=self.template,
+            rounding=self.rounding,
+            agency=self._agency,
+            active=self._active,
+            auto_update=self._auto_update,
+            auto_activate=self._auto_activate,
+            auto_migrate_extension=self._auto_migrate_extension,
+        )
+        return copy
+
+    @property
+    def description(self) -> Optional[str]:
+        return self._description
+
+    @description.setter
+    def description(self, description: Optional[str]) -> None:
+        self._description = description
+
+    @staticmethod
+    def from_xml(xml: str) -> "RatingSpecification":
+        """
+        Generates a RatingSpecification object from an XML string representation
+
+        Args:
+            xml (str): The XML string representation
+
+        Raises:
+            RatingSpecificationException: if there is an error in the XML string
+
+        Returns:
+            RatingSpecification: The generated RatingSpecification object
+        """
+
+        def str_to_bool(s: Optional[str]) -> Optional[bool]:
+            if s is None:
+                return None
+            if s not in ("true", "false"):
+                raise RatingSpecificationException(
+                    f"Expected value of true or false, got {s}"
+                )
+            return s == "true"
+
+        spec_elem = etree.fromstring(xml)
+        if spec_elem.tag != "rating-spec":
+            raise RatingSpecificationException(
+                f"Expected <rating-spec>, got <{spec_elem.tag}>"
+            )
+        office = spec_elem.get("office")
+        if not office:
+            raise RatingSpecificationException(
+                "No office specified in <rating-template>"
+            )
+        spec_id = spec_elem.findtext("rating-spec-id")
+        if not spec_id:
+            raise RatingSpecificationException("No data found for <rating-spec-id>")
+        parts = spec_id.split(".")
+        if len(parts) != 4:
+            raise RatingSpecificationException(f"Invalid <rating-spec-id> of {spec_id}")
+        template = ".".join(parts[1:3])
+        ind_param_count = len(parts[1].split(","))
+        template_id = spec_elem.findtext("template-id")
+        if not template_id:
+            raise RatingSpecificationException("No data found for <template-id>")
+        if template_id != template:
+            raise RatingSpecificationException(
+                f"<template-id> of {template_id} doesn't match template specified in <rating-spec-id> of {template}"
+            )
+        location_id = spec_elem.findtext("location-id")
+        if not location_id:
+            raise RatingSpecificationException(f"No data found for <location-id>")
+        if location_id != parts[0]:
+            raise RatingSpecificationException(
+                f"<location-id> of {location_id} doesn't match location specified in <rating-spec-id> of {parts[0]}"
+            )
+        version = spec_elem.findtext("version")
+        if not version:
+            raise RatingSpecificationException(f"No data found for <version>")
+        if version != parts[3]:
+            raise RatingSpecificationException(
+                f"<version> of {version} doesn't match location specified in <rating-spec-id> of {parts[3]}"
+            )
+        agency = spec_elem.findtext("source-agency")
+        in_range_method = spec_elem.findtext("in-range-method")
+        if not in_range_method:
+            raise RatingSpecificationException(f"No data found for <in-range-method>")
+        out_range_low_method = spec_elem.findtext("out-range-low-method")
+        if not out_range_low_method:
+            raise RatingSpecificationException(
+                f"No data found for <out-range-low-method>"
+            )
+        out_range_high_method = spec_elem.findtext("out-range-high-method")
+        if not out_range_high_method:
+            raise RatingSpecificationException(
+                f"No data found for <out-range-high-method>"
+            )
+        active = str_to_bool(spec_elem.findtext("active"))
+        auto_update = str_to_bool(spec_elem.findtext("auto-update"))
+        auto_activate = str_to_bool(spec_elem.findtext("auto-activate"))
+        auto_migrate_extension = str_to_bool(
+            spec_elem.findtext("auto-migrate-extension")
+        )
+        ind_rounding = []
+        ind_rounding_specs_elems = spec_elem.findall("./ind-rounding-specs")
+        if len(ind_rounding_specs_elems) > 1:
+            raise RatingSpecificationException(
+                f"Expected 0 or 1 <ind-rounding-specs> element, got {len(ind_rounding_specs_elems)}"
+            )
+        if ind_rounding_specs_elems:
+            ind_rounding_spec_elems = ind_rounding_specs_elems[0].findall(
+                "./ind-rounding-spec"
+            )
+            if len(ind_rounding_spec_elems) != ind_param_count:
+                raise RatingSpecificationException(
+                    f"Expected {ind_param_count} <ind-rounding-spec> elements, got {len(ind_rounding_spec_elems)}"
+                )
+            for i in range(ind_param_count):
+                pos = ind_rounding_spec_elems[i].get("position")
+                if pos is None or not pos.isdigit() or int(pos) != i + 1:
+                    raise RatingSpecificationException(
+                        f'Expected attribute of position="{i+1}" on <ind-rounding-spec>[{i}], got {pos}'
+                    )
+                ind_rounding.append(ind_rounding_spec_elems[i].text)
+        dep_rounding = spec_elem.findtext("dep-rounding-spec")
+        description = spec_elem.findtext("description")
+        kwargs: dict[str, Any] = {
+            "office": office,
+            "lookup": [in_range_method, out_range_low_method, out_range_high_method],
+            "agency": agency,
+            "active": active,
+            "auto_update": auto_update,
+            "auto_activate": auto_activate,
+            "auto_migrate_extension": auto_migrate_extension,
+            "description": description,
+        }
+        if ind_rounding or dep_rounding:
+            rounding = ind_rounding if ind_rounding else 3 * [DEFAULT_ROUNDING_SPEC]
+            rounding.append(dep_rounding if dep_rounding else DEFAULT_ROUNDING_SPEC)
+            kwargs["rounding"] = rounding
+        return RatingSpecification(spec_id, **kwargs)
 
     @property
     def location(self) -> Location:
@@ -239,6 +477,37 @@ class RatingSpecification:
         else:
             self.location.office = self.template.office
 
+    def to_xml(self, indent: str = "  ", prepend: Optional[str] = None) -> str:
+        """
+        Returns a formatted xml representation of the rating specification.
+
+        For unformatted xml use `etree.tostring(<specification_obj>.xml_element)`
+
+        Args:
+            indent (str, optional): The string to use for each level of indentation. Defaults to "  ".
+            prepend (Optional[str], optional): A string to prepend to each line. Defaults to None.
+
+        Returns:
+            str: The formatted xml
+        """
+
+        def replace_indent(s: str, new_indent: str) -> str:
+            old_indent = "  "
+            pattern = f"^(?:{re.escape(old_indent)})+"
+
+            def repl(match: re.Match[str]) -> str:
+                count = len(match.group(0)) // len(old_indent)
+                return new_indent * count
+
+            return re.sub(pattern, repl, s, flags=re.MULTILINE)
+
+        xml = etree.tostring(self.xml_element, pretty_print=True).decode()
+        if indent != "  ":
+            xml = replace_indent(xml, indent)
+        if prepend:
+            xml = "".join([prepend + line for line in xml.splitlines(keepends=True)])
+        return xml
+
     @property
     def version(self) -> str:
         return self._version
@@ -250,3 +519,52 @@ class RatingSpecification:
         if not value:
             raise ValueError("version cannot be an empty string")
         self._version = value
+
+    @property
+    def xml_element(self) -> etree._Element:
+        """
+        The rating specification as an lxml.etree.Element object
+
+        Operations:
+            Read-Only
+        """
+        spec_elem = etree.Element(
+            "rating-spec", office=self.template.office if self.template.office else ""
+        )
+        spec_id_elem = etree.SubElement(spec_elem, "rating-spec-id")
+        spec_id_elem.text = self.name
+        templ_id_elem = etree.SubElement(spec_elem, "template-id")
+        templ_id_elem.text = self.template.name
+        loc_id_elem = etree.SubElement(spec_elem, "location-id")
+        loc_id_elem.text = self.location.name
+        vers_elem = etree.SubElement(spec_elem, "version")
+        vers_elem.text = self.version
+        agency_elem = etree.SubElement(spec_elem, "source-agency")
+        if self._agency:
+            agency_elem.text = self._agency
+        in_range_elem = etree.SubElement(spec_elem, "in-range-method")
+        in_range_elem.text = self._in_range_method.name
+        out_range_low_elem = etree.SubElement(spec_elem, "out-range-low-method")
+        out_range_low_elem.text = self._out_range_low_method.name
+        out_range_high_elem = etree.SubElement(spec_elem, "out-range-high-method")
+        out_range_high_elem.text = self._out_range_high_method.name
+        active_elem = etree.SubElement(spec_elem, "active")
+        active_elem.text = str(self.active).lower()
+        auto_update_elem = etree.SubElement(spec_elem, "auto-update")
+        auto_update_elem.text = str(self.auto_update).lower()
+        auto_activate_elem = etree.SubElement(spec_elem, "auto-activate")
+        auto_activate_elem.text = str(self.auto_activate).lower()
+        auto_migrate_elem = etree.SubElement(spec_elem, "auto-migrate-extension")
+        auto_migrate_elem.text = str(self.auto_migrate_extension).lower()
+        ind_rounding_specs_elem = etree.SubElement(spec_elem, "ind-rounding-specs")
+        for i in range(len(self._ind_rounding)):
+            ind_rounding_spec = etree.SubElement(
+                ind_rounding_specs_elem, "ind-rounding-spec", position=str(i + 1)
+            )
+            ind_rounding_spec.text = self._ind_rounding[i]
+        dep_rounding_specs_elem = etree.SubElement(spec_elem, "dep-rounding-spec")
+        dep_rounding_specs_elem.text = self._dep_rounding
+        description_elem = etree.SubElement(spec_elem, "description")
+        if self._description:
+            description_elem.text = self._description
+        return spec_elem

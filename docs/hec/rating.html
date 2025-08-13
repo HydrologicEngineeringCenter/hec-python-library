@@ -149,7 +149,28 @@
                                 <a class="function" href="#RatingSpecification.__init__">RatingSpecification</a>
                         </li>
                         <li>
+                                <a class="variable" href="#RatingSpecification.active">active</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#RatingSpecification.agency">agency</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#RatingSpecification.auto_update">auto_update</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#RatingSpecification.auto_activate">auto_activate</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#RatingSpecification.auto_migrate_extension">auto_migrate_extension</a>
+                        </li>
+                        <li>
                                 <a class="function" href="#RatingSpecification.copy">copy</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#RatingSpecification.description">description</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#RatingSpecification.from_xml">from_xml</a>
                         </li>
                         <li>
                                 <a class="variable" href="#RatingSpecification.location">location</a>
@@ -167,7 +188,13 @@
                                 <a class="variable" href="#RatingSpecification.template">template</a>
                         </li>
                         <li>
+                                <a class="function" href="#RatingSpecification.to_xml">to_xml</a>
+                        </li>
+                        <li>
                                 <a class="variable" href="#RatingSpecification.version">version</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#RatingSpecification.xml_element">xml_element</a>
                         </li>
                 </ul>
 
@@ -215,6 +242,9 @@
                                 <a class="variable" href="#RatingTemplate.description">description</a>
                         </li>
                         <li>
+                                <a class="function" href="#RatingTemplate.from_xml">from_xml</a>
+                        </li>
+                        <li>
                                 <a class="variable" href="#RatingTemplate.ind_param_count">ind_param_count</a>
                         </li>
                         <li>
@@ -230,7 +260,13 @@
                                 <a class="variable" href="#RatingTemplate.office">office</a>
                         </li>
                         <li>
+                                <a class="function" href="#RatingTemplate.to_xml">to_xml</a>
+                        </li>
+                        <li>
                                 <a class="variable" href="#RatingTemplate.version">version</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#RatingTemplate.xml_element">xml_element</a>
                         </li>
                 </ul>
 
@@ -914,6 +950,61 @@ dependent parameters or sub-parameters. Defaults to None.</li>
     
 
                             </div>
+                            <div id="RatingSpecification.active" class="classattr">
+                                <div class="attr variable">
+            <span class="name">active</span><span class="annotation">: bool</span>
+
+        
+    </div>
+    <a class="headerlink" href="#RatingSpecification.active"></a>
+    
+    
+
+                            </div>
+                            <div id="RatingSpecification.agency" class="classattr">
+                                <div class="attr variable">
+            <span class="name">agency</span><span class="annotation">: Optional[str]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#RatingSpecification.agency"></a>
+    
+    
+
+                            </div>
+                            <div id="RatingSpecification.auto_update" class="classattr">
+                                <div class="attr variable">
+            <span class="name">auto_update</span><span class="annotation">: bool</span>
+
+        
+    </div>
+    <a class="headerlink" href="#RatingSpecification.auto_update"></a>
+    
+    
+
+                            </div>
+                            <div id="RatingSpecification.auto_activate" class="classattr">
+                                <div class="attr variable">
+            <span class="name">auto_activate</span><span class="annotation">: bool</span>
+
+        
+    </div>
+    <a class="headerlink" href="#RatingSpecification.auto_activate"></a>
+    
+    
+
+                            </div>
+                            <div id="RatingSpecification.auto_migrate_extension" class="classattr">
+                                <div class="attr variable">
+            <span class="name">auto_migrate_extension</span><span class="annotation">: bool</span>
+
+        
+    </div>
+    <a class="headerlink" href="#RatingSpecification.auto_migrate_extension"></a>
+    
+    
+
+                            </div>
                             <div id="RatingSpecification.copy" class="classattr">
                                 <div class="attr function">
             
@@ -925,6 +1016,51 @@ dependent parameters or sub-parameters. Defaults to None.</li>
     <a class="headerlink" href="#RatingSpecification.copy"></a>
     
     
+
+                            </div>
+                            <div id="RatingSpecification.description" class="classattr">
+                                <div class="attr variable">
+            <span class="name">description</span><span class="annotation">: Optional[str]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#RatingSpecification.description"></a>
+    
+    
+
+                            </div>
+                            <div id="RatingSpecification.from_xml" class="classattr">
+                                <div class="attr function">
+                    <div class="decorator decorator-staticmethod">@staticmethod</div>
+
+        <span class="def">def</span>
+        <span class="name">from_xml</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">xml</span><span class="p">:</span> <span class="nb">str</span></span><span class="return-annotation">) -> <span class="n"><a href="#RatingSpecification">RatingSpecification</a></span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#RatingSpecification.from_xml"></a>
+    
+            <div class="docstring"><p>Generates a RatingSpecification object from an XML string representation</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>xml (str):</strong>  The XML string representation</li>
+</ul>
+
+<h6 id="raises">Raises:</h6>
+
+<ul>
+<li><strong>RatingSpecificationException:</strong>  if there is an error in the XML string</li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>RatingSpecification: The generated RatingSpecification object</p>
+</blockquote>
+</div>
+
 
                             </div>
                             <div id="RatingSpecification.location" class="classattr">
@@ -982,6 +1118,36 @@ dependent parameters or sub-parameters. Defaults to None.</li>
     
 
                             </div>
+                            <div id="RatingSpecification.to_xml" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">to_xml</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">indent</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;  &#39;</span>, </span><span class="param"><span class="n">prepend</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></span><span class="return-annotation">) -> <span class="nb">str</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#RatingSpecification.to_xml"></a>
+    
+            <div class="docstring"><p>Returns a formatted xml representation of the rating specification.</p>
+
+<p>For unformatted xml use <code>etree.tostring(&lt;specification_obj&gt;.xml_element)</code></p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>indent (str, optional):</strong>  The string to use for each level of indentation. Defaults to "  ".</li>
+<li><strong>prepend (Optional[str], optional):</strong>  A string to prepend to each line. Defaults to None.</li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>str: The formatted xml</p>
+</blockquote>
+</div>
+
+
+                            </div>
                             <div id="RatingSpecification.version" class="classattr">
                                 <div class="attr variable">
             <span class="name">version</span><span class="annotation">: str</span>
@@ -991,6 +1157,25 @@ dependent parameters or sub-parameters. Defaults to None.</li>
     <a class="headerlink" href="#RatingSpecification.version"></a>
     
     
+
+                            </div>
+                            <div id="RatingSpecification.xml_element" class="classattr">
+                                <div class="attr variable">
+            <span class="name">xml_element</span><span class="annotation">: lxml.etree._Element</span>
+
+        
+    </div>
+    <a class="headerlink" href="#RatingSpecification.xml_element"></a>
+    
+            <div class="docstring"><p>The rating specification as an lxml.etree.Element object</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read-Only</p>
+</blockquote>
+</div>
+
 
                             </div>
                 </section>
@@ -1019,7 +1204,11 @@ dependent parameters or sub-parameters. Defaults to None.</li>
     </div>
     <a class="headerlink" href="#RatingTemplate"></a>
     
-    
+            <div class="docstring"><p>Holds independent and dependent parameter names, independent parameter lookup methods, and version string for all associated ratings.</p>
+
+<p>Ratings are associated by using a rating identifier that includes the template identifier.</p>
+</div>
+
 
                             <div id="RatingTemplate.__init__" class="classattr">
                                 <div class="attr function">
@@ -1030,7 +1219,22 @@ dependent parameters or sub-parameters. Defaults to None.</li>
     </div>
     <a class="headerlink" href="#RatingTemplate.__init__"></a>
     
-    
+            <div class="docstring"><p>Initializes the RatingTemplate object</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>name (str):</strong>  The rating template identifier</li>
+<li><strong>lookup_methods (Optional[ tuple[LookupMethod, LookupMethod, LookupMethod] ]):</strong>  _description_. Defaults to None.</li>
+</ul>
+
+<h6 id="raises">Raises:</h6>
+
+<ul>
+<li><strong>ValueError:</strong>  _description_</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="RatingTemplate.copy" class="classattr">
@@ -1043,7 +1247,15 @@ dependent parameters or sub-parameters. Defaults to None.</li>
     </div>
     <a class="headerlink" href="#RatingTemplate.copy"></a>
     
-    
+            <div class="docstring"><p>Returns a copy of the rating template</p>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>RatingTemplate: The copy</p>
+</blockquote>
+</div>
+
 
                             </div>
                             <div id="RatingTemplate.dep_param" class="classattr">
@@ -1054,7 +1266,15 @@ dependent parameters or sub-parameters. Defaults to None.</li>
     </div>
     <a class="headerlink" href="#RatingTemplate.dep_param"></a>
     
-    
+            <div class="docstring"><p>The depdendent parameter</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read/Write</p>
+</blockquote>
+</div>
+
 
                             </div>
                             <div id="RatingTemplate.description" class="classattr">
@@ -1065,7 +1285,49 @@ dependent parameters or sub-parameters. Defaults to None.</li>
     </div>
     <a class="headerlink" href="#RatingTemplate.description"></a>
     
+            <div class="docstring"><p>The rating template description</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read/Write</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="RatingTemplate.from_xml" class="classattr">
+                                <div class="attr function">
+                    <div class="decorator decorator-staticmethod">@staticmethod</div>
+
+        <span class="def">def</span>
+        <span class="name">from_xml</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">xml</span><span class="p">:</span> <span class="nb">str</span></span><span class="return-annotation">) -> <span class="n"><a href="#RatingTemplate">RatingTemplate</a></span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#RatingTemplate.from_xml"></a>
     
+            <div class="docstring"><p>Generates a RatingTemplate object from an XML string representation</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>xml (str):</strong>  The XML string representation</li>
+</ul>
+
+<h6 id="raises">Raises:</h6>
+
+<ul>
+<li><strong>RatingTemplateException:</strong>  if there is an error in the XML string</li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>RatingTemplate: The generated RatingTemplate object</p>
+</blockquote>
+</div>
+
 
                             </div>
                             <div id="RatingTemplate.ind_param_count" class="classattr">
@@ -1076,7 +1338,15 @@ dependent parameters or sub-parameters. Defaults to None.</li>
     </div>
     <a class="headerlink" href="#RatingTemplate.ind_param_count"></a>
     
-    
+            <div class="docstring"><p>The number of independent parameters</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read-Only</p>
+</blockquote>
+</div>
+
 
                             </div>
                             <div id="RatingTemplate.ind_params" class="classattr">
@@ -1087,7 +1357,15 @@ dependent parameters or sub-parameters. Defaults to None.</li>
     </div>
     <a class="headerlink" href="#RatingTemplate.ind_params"></a>
     
-    
+            <div class="docstring"><p>The indepdendent parameters as a list of strings</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read-Only</p>
+</blockquote>
+</div>
+
 
                             </div>
                             <div id="RatingTemplate.lookup" class="classattr">
@@ -1098,7 +1376,16 @@ dependent parameters or sub-parameters. Defaults to None.</li>
     </div>
     <a class="headerlink" href="#RatingTemplate.lookup"></a>
     
-    
+            <div class="docstring"><p>The rating independent parameter lookup behaviors in in-range, out-range-low, out-range-high order
+as a list of lists of strings (one list for each independent parameter)</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read/Write</p>
+</blockquote>
+</div>
+
 
                             </div>
                             <div id="RatingTemplate.name" class="classattr">
@@ -1109,7 +1396,15 @@ dependent parameters or sub-parameters. Defaults to None.</li>
     </div>
     <a class="headerlink" href="#RatingTemplate.name"></a>
     
-    
+            <div class="docstring"><p>The rating template identifier</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read-Only</p>
+</blockquote>
+</div>
+
 
                             </div>
                             <div id="RatingTemplate.office" class="classattr">
@@ -1120,7 +1415,45 @@ dependent parameters or sub-parameters. Defaults to None.</li>
     </div>
     <a class="headerlink" href="#RatingTemplate.office"></a>
     
+            <div class="docstring"><p>The rating template office</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read/Write</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="RatingTemplate.to_xml" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">to_xml</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">indent</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;  &#39;</span>, </span><span class="param"><span class="n">prepend</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></span><span class="return-annotation">) -> <span class="nb">str</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#RatingTemplate.to_xml"></a>
     
+            <div class="docstring"><p>Returns a formatted xml representation of the rating template.</p>
+
+<p>For unformatted xml use <code>etree.tostring(&lt;template_obj&gt;.xml_element)</code></p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>indent (str, optional):</strong>  The string to use for each level of indentation. Defaults to "  ".</li>
+<li><strong>prepend (Optional[str], optional):</strong>  A string to prepend to each line. Defaults to None.</li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>str: The formatted xml</p>
+</blockquote>
+</div>
+
 
                             </div>
                             <div id="RatingTemplate.version" class="classattr">
@@ -1131,7 +1464,34 @@ dependent parameters or sub-parameters. Defaults to None.</li>
     </div>
     <a class="headerlink" href="#RatingTemplate.version"></a>
     
+            <div class="docstring"><p>The rating template version</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read/Write</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="RatingTemplate.xml_element" class="classattr">
+                                <div class="attr variable">
+            <span class="name">xml_element</span><span class="annotation">: lxml.etree._Element</span>
+
+        
+    </div>
+    <a class="headerlink" href="#RatingTemplate.xml_element"></a>
     
+            <div class="docstring"><p>The rating template as an lxml.etree.Element object</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read-Only</p>
+</blockquote>
+</div>
+
 
                             </div>
                 </section>
@@ -1145,7 +1505,9 @@ dependent parameters or sub-parameters. Defaults to None.</li>
     </div>
     <a class="headerlink" href="#RatingTemplate.IndParameter"></a>
     
-    
+            <div class="docstring"><p>Associates lookup methods with an independent parameter for a RatingTemplate object</p>
+</div>
+
 
                             <div id="RatingTemplate.IndParameter.__init__" class="classattr">
                                 <div class="attr function">
@@ -1156,7 +1518,31 @@ dependent parameters or sub-parameters. Defaults to None.</li>
     </div>
     <a class="headerlink" href="#RatingTemplate.IndParameter.__init__"></a>
     
-    
+            <div class="docstring"><p>Initializes the IndParameter object</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>name (str):</strong>  The associated independent parameter name</li>
+<li><strong>lookup_methods (Optional[ tuple[
+<a href="rating.html#LookupMethod">LookupMethod</a>,
+<a href="rating.html#LookupMethod">LookupMethod</a>,
+<a href="rating.html#LookupMethod">LookupMethod</a>
+] ]):</strong> The lookup methods associated with the independent parameter. Defaults to None.
+If specified, the lookup methods are in the order of in-range, out-of-range-low, out-of-range-high. If not specified, the default methods of [
+<a href="rating.html#LookupMethod.LINEAR">LINEAR</a>,
+<a href="rating.html#LookupMethod.NEXT">NEXT</a>,
+<a href="rating.html#LookupMethod.PREVIOUS">PREVIOUS</a>
+] are used.</li>
+</ul>
+
+<h6 id="raises">Raises:</h6>
+
+<ul>
+<li><strong>ValueError:</strong>  if the name is not a valid <a href="https://hydrologicengineeringcenter.github.io/hec-python-library/hec/parameter.html#Parameter">Parameter</a> name</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="RatingTemplate.IndParameter.name" class="classattr">
@@ -1167,7 +1553,15 @@ dependent parameters or sub-parameters. Defaults to None.</li>
     </div>
     <a class="headerlink" href="#RatingTemplate.IndParameter.name"></a>
     
-    
+            <div class="docstring"><p>The independent parameter name</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read-Only</p>
+</blockquote>
+</div>
+
 
                             </div>
                             <div id="RatingTemplate.IndParameter.in_range_method" class="classattr">
@@ -1178,7 +1572,15 @@ dependent parameters or sub-parameters. Defaults to None.</li>
     </div>
     <a class="headerlink" href="#RatingTemplate.IndParameter.in_range_method"></a>
     
-    
+            <div class="docstring"><p>The in-range lookup behavior for the independent parameter</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read-Only</p>
+</blockquote>
+</div>
+
 
                             </div>
                             <div id="RatingTemplate.IndParameter.out_range_low_method" class="classattr">
@@ -1189,7 +1591,15 @@ dependent parameters or sub-parameters. Defaults to None.</li>
     </div>
     <a class="headerlink" href="#RatingTemplate.IndParameter.out_range_low_method"></a>
     
-    
+            <div class="docstring"><p>The out-of-range-low lookup behavior for the independent parameter</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read-Only</p>
+</blockquote>
+</div>
+
 
                             </div>
                             <div id="RatingTemplate.IndParameter.out_range_high_method" class="classattr">
@@ -1200,7 +1610,15 @@ dependent parameters or sub-parameters. Defaults to None.</li>
     </div>
     <a class="headerlink" href="#RatingTemplate.IndParameter.out_range_high_method"></a>
     
-    
+            <div class="docstring"><p>The out-of-range-low lookup behavior for the independent parameter</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read-Only</p>
+</blockquote>
+</div>
+
 
                             </div>
                 </section>
