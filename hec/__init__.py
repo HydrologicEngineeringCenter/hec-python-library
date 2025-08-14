@@ -23,6 +23,7 @@ Quick links to Classes:
 * [TimeSeriesValue](#TimeSeriesValue)
 * [TimeSpan](#TimeSpan)
 * [UnitQuantity](#UnitQuantity)
+* [UsgsRounder](#UsgsRounder)
 
 Quick links to Exceptions:
 * [DataStoreException](#DataStoreException)

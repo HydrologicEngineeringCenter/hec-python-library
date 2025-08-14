@@ -20,8 +20,34 @@ class RatingSpecificationException(RatingException):
 
 
 class RatingSpecification:
+    """
+    Holds the following information about ratings and rating sets;
 
+    - rating idendifier, comprised of
+      - location identifier
+      - template identifier
+        - independent parameters
+        - dependent parameter
+        - template version
+      - specification version
+    - source agency
+    - [lookup methods](rating.html#LookupMethod) for multiple effective dates in rating sets
+      - method for value times within the range of effective dates
+      - method for value times before the earliest effective date
+      - method for value times after the latest effective date
+    - [rounding specifications](../hec/rounding.html#UsgsRounder)
+      - one for each independent parameter
+      - one for the dependent parameter
+    - whether the specification is active (should be used)  
+    - whether the ratings with this specification should be automatically updated from the source agency
+    - whether automatically updated ratings should be set to active
+    - whether automatically updated ratings should have any rating extension migrated to the new rating
+    - a description of the rating specification
+    """
     def __init__(self, name: str, **kwargs: Any):
+        """
+        Actual docstring is in /hec/rating.__init__.py so that it can have dynamic content
+        """
         self._location: Location
         self._template: RatingTemplate
         self._version: str
@@ -192,6 +218,12 @@ class RatingSpecification:
 
     @property
     def active(self) -> bool:
+        """
+        Whether ratings using this specification are active (should be used)
+
+        Operations:
+            Read/Write
+        """
         return self._active
 
     @active.setter
@@ -200,6 +232,12 @@ class RatingSpecification:
 
     @property
     def agency(self) -> Optional[str]:
+        """
+        The agency responsible for generating ratings using this specification
+
+        Operations:
+            Read/Write
+        """
         return self._agency
 
     @agency.setter
@@ -208,6 +246,12 @@ class RatingSpecification:
 
     @property
     def auto_update(self) -> bool:
+        """
+        Whether the ratings with this specification should be automatically updated from the source agency
+
+        Operations:
+            Read/Write
+        """
         return self._auto_update
 
     @auto_update.setter
@@ -216,6 +260,12 @@ class RatingSpecification:
 
     @property
     def auto_activate(self) -> bool:
+        """
+        Whether automatically updated ratings should be set to active
+
+        Operations:
+            Read/Write
+        """
         return self._auto_activate
 
     @auto_activate.setter
@@ -224,6 +274,12 @@ class RatingSpecification:
 
     @property
     def auto_migrate_extension(self) -> bool:
+        """
+        Whether automatically updated ratings should have any rating extension migrated to the new rating
+
+        Operations:
+            Read/Write
+        """
         return self._auto_migrate_extension
 
     @auto_migrate_extension.setter
@@ -231,6 +287,12 @@ class RatingSpecification:
         self._auto_migrate_extension = auto_migrate_extension
 
     def copy(self) -> "RatingSpecification":
+        """
+        Creates and returns a copy of this specificaiton
+
+        Returns:
+            RatingSpecification: The copy
+        """
         copy = RatingSpecification(
             self.name,
             location=self.location,
@@ -246,6 +308,12 @@ class RatingSpecification:
 
     @property
     def description(self) -> Optional[str]:
+        """
+        The description of the rating specification
+
+        Operations:
+            Read/Write
+        """
         return self._description
 
     @description.setter
@@ -376,6 +444,12 @@ class RatingSpecification:
 
     @property
     def location(self) -> Location:
+        """
+        The location object of the specification
+
+        Operations:
+            Read/Write
+        """
         return self._location.copy()
 
     @location.setter
@@ -402,6 +476,12 @@ class RatingSpecification:
 
     @property
     def lookup(self) -> list[str]:
+        """
+        The lookup methods of the specification
+
+        Operations:
+            Read/Write
+        """
         return [
             self._in_range_method.name,
             self._out_range_low_method.name,
@@ -427,10 +507,22 @@ class RatingSpecification:
 
     @property
     def name(self) -> str:
+        """
+        The specification identifier
+
+        Operations:
+            Read-Only
+        """
         return f"{self.location.name}.{self.template.name}.{self.version}"
 
     @property
     def rounding(self) -> list[str]:
+        """
+        The rounding specifications of the specification
+
+        Operations:
+            Read/Write
+        """
         return self._ind_rounding + [self._dep_rounding]
 
     @rounding.setter
@@ -455,6 +547,12 @@ class RatingSpecification:
 
     @property
     def template(self) -> RatingTemplate:
+        """
+        The RatingTemplate of the specification
+
+        Operations:
+            Read/Write
+        """
         return self._template.copy()
 
     @template.setter
@@ -510,6 +608,12 @@ class RatingSpecification:
 
     @property
     def version(self) -> str:
+        """
+        The version string of the specification
+
+        Operations:
+            Read/Write
+        """
         return self._version
 
     @version.setter

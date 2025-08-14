@@ -936,7 +936,40 @@ dependent parameters or sub-parameters. Defaults to None.</li>
     </div>
     <a class="headerlink" href="#RatingSpecification"></a>
     
-    
+            <div class="docstring"><p>Holds the following information about ratings and rating sets;</p>
+
+<ul>
+<li>rating idendifier, comprised of
+<ul>
+<li>location identifier</li>
+<li>template identifier
+<ul>
+<li>independent parameters</li>
+<li>dependent parameter</li>
+<li>template version</li>
+</ul></li>
+<li>specification version</li>
+</ul></li>
+<li>source agency</li>
+<li><a href="rating.html#LookupMethod">lookup methods</a> for multiple effective dates in rating sets
+<ul>
+<li>method for value times within the range of effective dates</li>
+<li>method for value times before the earliest effective date</li>
+<li>method for value times after the latest effective date</li>
+</ul></li>
+<li><a href="../hec/rounding.html#UsgsRounder">rounding specifications</a>
+<ul>
+<li>one for each independent parameter</li>
+<li>one for the dependent parameter</li>
+</ul></li>
+<li>whether the specification is active (should be used)  </li>
+<li>whether the ratings with this specification should be automatically updated from the source agency</li>
+<li>whether automatically updated ratings should be set to active</li>
+<li>whether automatically updated ratings should have any rating extension migrated to the new rating</li>
+<li>a description of the rating specification</li>
+</ul>
+</div>
+
 
                             <div id="RatingSpecification.__init__" class="classattr">
                                 <div class="attr function">
@@ -947,7 +980,51 @@ dependent parameters or sub-parameters. Defaults to None.</li>
     </div>
     <a class="headerlink" href="#RatingSpecification.__init__"></a>
     
-    
+            <div class="docstring"><p>Initializer for RatingSpecification objects</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>name (str):</strong>  The rating specification identifier</li>
+<li><strong>location (Optional[<a href="../hec/location.html#Location">Location</a>], must be passed by name):</strong>  A <a href="../hec/location.html#Location">Location</a> object for the specification. 
+Defaults to None. If specified, the location name must match the location portion of the rating specification identifier</li>
+<li><strong>template (Optional[<a href="#RatingTemplate">RatingTemplate</a>], must be passed by name):</strong>  A <a href="#RatingTemplate">RatingTemplate</a> object for the specification.
+Defaults to None. If specified, the rating template identifier must match the template portion of the rating specification identifier.</li>
+<li><strong>office (Optional[str], must be passed by name):</strong>  The office for the rating specification. Defaults to None. If specified, overrides any office in the
+<code><a href="#RatingSpecification.location">location</a></code> and <code><a href="#RatingSpecification.template">template</a></code> parameters.</li>
+<li><strong>agency (Optional[str], must be passed by name):</strong>  The agency that generates the ratings for this specification. Defaults to None.</li>
+<li><strong>lookup (Optional[list[str]], must be passed by value):</strong>  <a href="#LookupMethod">Methods</a> for time-based lookups using effective dates in rating sets with this specification.
+  Defaults to None. If specified, must be an array of three strings, in the following order
+<ul>
+<li>method for value times within the range of effective dates</li>
+<li>method for value times before the earliest effective date</li>
+<li>method for value times after the latest effective date<br />
+If not specified, lookup methods of ['LINEAR', 'NEXT', 'PREVIOUS'] will be used. </li>
+</ul></li>
+<li><strong>rounding (Optional[list[str]], must be passed by name):</strong>  Rounding specifications. Defaults to None. If specified:
+<ul>
+<li>must be the length of the number of independent parameters plus 1</li>
+<li>all but the last item are applied to the independent parameters in position order</li>
+<li>the last item is applied to the dependent parameter</li>
+<li>each item must be a valid <a href="../hec/rounding.html#UsgsRounder">rounding specification</a><br />
+If not specified, the rounding specification of 4444444449 is used for all parameters</li>
+</ul></li>
+<li><strong>active (Optional[bool], must be passed by name):</strong>  Whether ratings and rating sets using this specification are active (should be used). Defaults to True.</li>
+<li><strong>auto_update (Optional[bool], must be passed by name):</strong>  Whether ratings and rating sets using this specification are active (should be used). Defaults to False.</li>
+<li><strong>auto_activate (Optional[bool], must be passed by name):</strong>  Whether automatically updated ratings should be set to active. Defaults to False.</li>
+<li><strong>auto_update_migration (Optional[bool], must be passed by name):</strong>  Whether automatically updated ratings should have any rating extension migrated to the new rating. Defaults to False.</li>
+<li><strong>description (Optional[str], must be passed by name):</strong>  A description for the rating specification. Defaults to None.</li>
+</ul>
+
+<h6 id="raises">Raises:</h6>
+
+<ul>
+<li><strong>ValueError:</strong>  if the <code><a href="#RatingSpecification.name">name</a></code> parameter is not a properly-formed rating specification identifier</li>
+<li><strong>TypeError:</strong>  if one of the named parameters has an unexpected type</li>
+<li><strong>RatingSpecificationException:</strong>  if one of the named parameters is inconsistent with the rating specification identifier</li>
+</ul>
+</div>
+
 
                             </div>
                             <div id="RatingSpecification.active" class="classattr">
@@ -958,7 +1035,15 @@ dependent parameters or sub-parameters. Defaults to None.</li>
     </div>
     <a class="headerlink" href="#RatingSpecification.active"></a>
     
-    
+            <div class="docstring"><p>Whether ratings using this specification are active (should be used)</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read/Write</p>
+</blockquote>
+</div>
+
 
                             </div>
                             <div id="RatingSpecification.agency" class="classattr">
@@ -969,7 +1054,15 @@ dependent parameters or sub-parameters. Defaults to None.</li>
     </div>
     <a class="headerlink" href="#RatingSpecification.agency"></a>
     
-    
+            <div class="docstring"><p>The agency responsible for generating ratings using this specification</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read/Write</p>
+</blockquote>
+</div>
+
 
                             </div>
                             <div id="RatingSpecification.auto_update" class="classattr">
@@ -980,7 +1073,15 @@ dependent parameters or sub-parameters. Defaults to None.</li>
     </div>
     <a class="headerlink" href="#RatingSpecification.auto_update"></a>
     
-    
+            <div class="docstring"><p>Whether the ratings with this specification should be automatically updated from the source agency</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read/Write</p>
+</blockquote>
+</div>
+
 
                             </div>
                             <div id="RatingSpecification.auto_activate" class="classattr">
@@ -991,7 +1092,15 @@ dependent parameters or sub-parameters. Defaults to None.</li>
     </div>
     <a class="headerlink" href="#RatingSpecification.auto_activate"></a>
     
-    
+            <div class="docstring"><p>Whether automatically updated ratings should be set to active</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read/Write</p>
+</blockquote>
+</div>
+
 
                             </div>
                             <div id="RatingSpecification.auto_migrate_extension" class="classattr">
@@ -1002,7 +1111,15 @@ dependent parameters or sub-parameters. Defaults to None.</li>
     </div>
     <a class="headerlink" href="#RatingSpecification.auto_migrate_extension"></a>
     
-    
+            <div class="docstring"><p>Whether automatically updated ratings should have any rating extension migrated to the new rating</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read/Write</p>
+</blockquote>
+</div>
+
 
                             </div>
                             <div id="RatingSpecification.copy" class="classattr">
@@ -1015,7 +1132,15 @@ dependent parameters or sub-parameters. Defaults to None.</li>
     </div>
     <a class="headerlink" href="#RatingSpecification.copy"></a>
     
-    
+            <div class="docstring"><p>Creates and returns a copy of this specificaiton</p>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>RatingSpecification: The copy</p>
+</blockquote>
+</div>
+
 
                             </div>
                             <div id="RatingSpecification.description" class="classattr">
@@ -1026,7 +1151,15 @@ dependent parameters or sub-parameters. Defaults to None.</li>
     </div>
     <a class="headerlink" href="#RatingSpecification.description"></a>
     
-    
+            <div class="docstring"><p>The description of the rating specification</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read/Write</p>
+</blockquote>
+</div>
+
 
                             </div>
                             <div id="RatingSpecification.from_xml" class="classattr">
@@ -1071,7 +1204,15 @@ dependent parameters or sub-parameters. Defaults to None.</li>
     </div>
     <a class="headerlink" href="#RatingSpecification.location"></a>
     
-    
+            <div class="docstring"><p>The location object of the specification</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read/Write</p>
+</blockquote>
+</div>
+
 
                             </div>
                             <div id="RatingSpecification.lookup" class="classattr">
@@ -1082,7 +1223,15 @@ dependent parameters or sub-parameters. Defaults to None.</li>
     </div>
     <a class="headerlink" href="#RatingSpecification.lookup"></a>
     
-    
+            <div class="docstring"><p>The lookup methods of the specification</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read/Write</p>
+</blockquote>
+</div>
+
 
                             </div>
                             <div id="RatingSpecification.name" class="classattr">
@@ -1093,7 +1242,15 @@ dependent parameters or sub-parameters. Defaults to None.</li>
     </div>
     <a class="headerlink" href="#RatingSpecification.name"></a>
     
-    
+            <div class="docstring"><p>The specification identifier</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read-Only</p>
+</blockquote>
+</div>
+
 
                             </div>
                             <div id="RatingSpecification.rounding" class="classattr">
@@ -1104,7 +1261,15 @@ dependent parameters or sub-parameters. Defaults to None.</li>
     </div>
     <a class="headerlink" href="#RatingSpecification.rounding"></a>
     
-    
+            <div class="docstring"><p>The rounding specifications of the specification</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read/Write</p>
+</blockquote>
+</div>
+
 
                             </div>
                             <div id="RatingSpecification.template" class="classattr">
@@ -1115,7 +1280,15 @@ dependent parameters or sub-parameters. Defaults to None.</li>
     </div>
     <a class="headerlink" href="#RatingSpecification.template"></a>
     
-    
+            <div class="docstring"><p>The RatingTemplate of the specification</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read/Write</p>
+</blockquote>
+</div>
+
 
                             </div>
                             <div id="RatingSpecification.to_xml" class="classattr">
@@ -1156,7 +1329,15 @@ dependent parameters or sub-parameters. Defaults to None.</li>
     </div>
     <a class="headerlink" href="#RatingSpecification.version"></a>
     
-    
+            <div class="docstring"><p>The version string of the specification</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read/Write</p>
+</blockquote>
+</div>
+
 
                             </div>
                             <div id="RatingSpecification.xml_element" class="classattr">
