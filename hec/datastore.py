@@ -24,6 +24,7 @@ from typing_extensions import Literal
 
 import hec
 import hec.shared
+from .rating import AbstractRatingSet
 from hec.const import CWMS, DSS, UNDEFINED
 from hec.duration import Duration
 from hec.hectime import HecTime, get_time_window
@@ -1594,6 +1595,67 @@ class CwmsDataStore(AbstractDataStore):
         if vertical_datum and loc.vertical_datum_info:
             loc.vertical_datum_info.ito(vertical_datum)
         return loc
+
+    def _retrieve_rating_set(
+        self, identifier: str, **kwargs: Any
+    ) -> AbstractRatingSet:
+        reference_rating_set: bool = True
+        office: Optional[str] = None
+        for kw in kwargs:
+            argval = kwargs[kw]
+            if kw == "reference":
+                if not isinstance(argval, bool):
+                    raise TypeError(
+                        f"Expected bool for reference, got {argval.__class__.__name__}"
+                    )
+                reference_rating_set = argval
+            elif kw == "office":
+                if not isinstance(argval, str):
+                    raise TypeError(
+                        f"Expected str for office, got {argval.__class.__name}"
+                    )
+                office = argval
+            else:
+                raise ValueError(f"Unexpected keyword parameter: {kw}")
+        if not office:
+            if not self._office:
+                raise DataStoreException(
+                    f"Office parameter must be specified since data store '{self}' has no default office"
+                )
+            office = self.office
+        data = cwms.ratings.ratings_template.get_rating_template(
+            template_id=".".join(identifier.split(".")[1:3]), office_id=office
+        )
+        rating_template = hec.rating.RatingTemplate(
+            name=data.json["id"],
+            office=data.json["office-id"],
+            lookup=[
+                [
+                    spec["in-range-method"],
+                    spec["out-range-low-method"],
+                    spec["out-range-high-method"],
+                ]
+                for spec in data.json["independent-parameter-specs"]
+            ],
+            description=(
+                data.json["description"] if "description" in data.json else ""
+            ),
+        )
+        data = cwms.ratings.ratings_spec.get_rating_spec(
+            rating_id=identifier, office_id=office
+        )
+        xml = cwms.ratings.ratings_spec.rating_spec_df_to_xml(data.df)
+        xml = "\n".join(xml.splitlines(keepends=True)[1:])
+        rating_spec = hec.rating.RatingSpecification.from_xml(xml)
+        rating_spec.template = rating_template
+        rating_set: AbstractRatingSet
+        if reference_rating_set:
+            rating_set = hec.rating.ReferenceRatingSet(
+                specification=rating_spec, datastore=self
+            )
+        else:
+            raise DataStoreException("Cannot yet create ConcreteRating objects")
+        return rating_set
 
     def _retrieve_time_series(self, identifier: str, **kwargs: Any) -> TimeSeries:
         office = self._office
@@ -3393,7 +3455,7 @@ class CwmsDataStore(AbstractDataStore):
         """
         Retrieves a data set from the data store.
 
-        Currently only locations and time series may be retrieved. To retrieve all data for a time series, specifiy `start_time=None` and `end_time=None`
+        Currently only locations, rating sets and time series may be retrieved. To retrieve all data for a time series, specifiy `start_time=None` and `end_time=None`
 
         Args:
             office (Optional[str], must be passed by name): The CWMS office to retrieve data for. Defaults to None, which uses the data store's default office.
@@ -3401,7 +3463,12 @@ class CwmsDataStore(AbstractDataStore):
             Location Arguments:<br>
                 * <b>units (Optional[str], must be passed by name):</b> "EN" or "SI", specifying to retrieve data in English or metric units. Defaults to None, which uses the default unit system for the data store
                 * <b>vertical_datum (Optional[str], must be passed by name):</b> "NGVD29", "NAVD88", or "NATIVE", specifying the vertical datum to retrieve elevation data for. Defaults to None, which uses the data store's default vertical datum
-            TimeSeries Arguments:<br>
+            Rating Set Arguments:<br>
+                * <b>reference (Optional[bool], must be passed by name):</b> Whether to retrieve a reference or concrete rating set. Defaults to True.
+                    * If `True`,  a [ReferenceRatingSet](rating.html#ReferenceRatingSet) is retrieved, where all values are sent to the database to be rated.
+                    * If `False`, a [ConcreteRatingSet](rating.html#ConcreteRatingSet) is retrieved, where all ratings are performed in python code. Individual ratings in the rating set are retrieved from
+                        the database on first use, preventing the loading of unneeded ratings.
+            Time Series Arguments:<br>
                 * <b>start_time (Optional[Any], must be passed by name):</b> Specifies the start of the time window to retrieve data. Must be an [`HecTime`](hectime.html#HecTime) object or a valid input to the `HecTime` constructor.
                     Defaults to the start of the data store's time window. If None or not specified and the data store's time window doesn't have a start time, the current time minus 24 hours is used
                 * <b>end_time (Optional[Any], must be passed by name):</b> Specifies the end of the time window to retrieve data. Must be an [`HecTime`](hectime.html#HecTime) object or a valid input to the `HecTime` constructor.
@@ -3421,6 +3488,8 @@ class CwmsDataStore(AbstractDataStore):
             return self._retrieve_time_series(identifier, **kwargs)
         if hec.location._is_cwms_location(identifier):
             return self._retrieve_location(identifier, **kwargs)
+        if hec.rating.rating_specification._is_rating_specification(identifier):
+            return self._retrieve_rating_set(identifier, **kwargs)
         raise ValueError(f"Identifier {identifier} is not a recognized CWMS identifier")
 
     def store(self, obj: object, **kwargs: Any) -> None:

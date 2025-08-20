@@ -3,6 +3,8 @@ Sub-module to provide rating capabilities to hec module
 """
 
 __all__ = [
+    "AbstractRating",
+    "AbstractRatingSet",
     "LookupMethod",
     "PairedData",
     "PairedDataException",
@@ -10,17 +12,23 @@ __all__ = [
     "RatingSpecificationException",
     "RatingTemplate",
     "RatingTemplateException",
+    "ReferenceRatingSet",
+    "abstract_rating",
+    "abstract_rating_set",
+    "reference_rating_set",
     "rating_shared",
 ]
 
-from . import rating_shared
+from . import rating_shared, rating_specification
 from .abstract_rating import AbstractRating
+from .abstract_rating_set import AbstractRatingSet
 from .paired_data import PairedData, PairedDataException
 from .rating_shared import LookupMethod
 from .rating_specification import RatingSpecification, RatingSpecificationException
 from .rating_template import RatingTemplate, RatingTemplateException
+from .reference_rating_set import ReferenceRatingSet
 
-RatingSpecification.__init__.__doc__ =  f"""
+RatingSpecification.__init__.__doc__ = f"""
     Initializer for RatingSpecification objects
 
     Args:
