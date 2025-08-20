@@ -35,6 +35,8 @@ from hec.rounding import UsgsRounder
 from hec.timeseries import TimeSeries
 from hec.unit import UnitQuantity
 
+from .rating import AbstractRatingSet
+
 __all__ = [
     "DataStoreException",
     "CwmsDataStore",
