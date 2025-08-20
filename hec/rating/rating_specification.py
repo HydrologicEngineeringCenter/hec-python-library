@@ -4,7 +4,7 @@ from typing import Any, Optional, Sequence, Union
 
 from lxml import etree
 
-from hec.location import Location
+from hec.location import Location, _is_cwms_location
 from hec.rating.rating_shared import LookupMethod
 from hec.rating.rating_template import RatingTemplate
 from hec.shared import RatingException
@@ -13,6 +13,20 @@ DEFAULT_IN_RANGE_METHOD = LookupMethod.LINEAR
 DEFAULT_OUT_RANGE_LOW_METHOD = LookupMethod.NEXT
 DEFAULT_OUT_RANGE_HIGH_METHOD = LookupMethod.PREVIOUS
 DEFAULT_ROUNDING_SPEC = "4444444449"
+
+
+def _is_rating_specification(id: str) -> bool:
+    parts = id.split(".")
+    if len(parts) != 4:
+        return False
+    if not _is_cwms_location(parts[0]):
+        return False
+    if not parts[2] or not parts[3]:
+        return False
+    parts = parts[1].split(";")
+    if not len(parts) == 2:
+        return False
+    return True
 
 
 class RatingSpecificationException(RatingException):
@@ -38,12 +52,13 @@ class RatingSpecification:
     - [rounding specifications](../hec/rounding.html#UsgsRounder)
       - one for each independent parameter
       - one for the dependent parameter
-    - whether the specification is active (should be used)  
+    - whether the specification is active (should be used)
     - whether the ratings with this specification should be automatically updated from the source agency
     - whether automatically updated ratings should be set to active
     - whether automatically updated ratings should have any rating extension migrated to the new rating
     - a description of the rating specification
     """
+
     def __init__(self, name: str, **kwargs: Any):
         """
         Actual docstring is in /hec/rating.__init__.py so that it can have dynamic content
@@ -349,7 +364,7 @@ class RatingSpecification:
             raise RatingSpecificationException(
                 f"Expected <rating-spec>, got <{spec_elem.tag}>"
             )
-        office = spec_elem.get("office")
+        office = spec_elem.get("office-id")
         if not office:
             raise RatingSpecificationException(
                 "No office specified in <rating-template>"

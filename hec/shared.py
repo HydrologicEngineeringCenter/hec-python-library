@@ -6,7 +6,7 @@ import types
 
 dss_imported = False
 cwms_imported = False
-required_cwms_version = ">= '0.6.0'"
+required_cwms_version = ">= '0.8.2'"
 required_dss_version = ">= '0.1.24'"
 
 

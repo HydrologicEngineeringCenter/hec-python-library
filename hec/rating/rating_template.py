@@ -28,10 +28,12 @@ class RatingTemplate:
 
     Ratings are associated by using a rating identifier that includes the template identifier.
     """
+
     class IndParameter:
         """
         Associates lookup methods with an independent parameter for a RatingTemplate object
         """
+
         def __init__(
             self,
             name: str,

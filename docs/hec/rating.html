@@ -29,11 +29,125 @@
 
             <h2>Submodules</h2>
             <ul>
+                    <li><a href="rating/abstract_rating.html">abstract_rating</a></li>
+                    <li><a href="rating/abstract_rating_set.html">abstract_rating_set</a></li>
+                    <li><a href="rating/reference_rating_set.html">reference_rating_set</a></li>
                     <li><a href="rating/rating_shared.html">rating_shared</a></li>
             </ul>
 
             <h2>API Documentation</h2>
                 <ul class="memberlist">
+            <li>
+                    <a class="class" href="#AbstractRating">AbstractRating</a>
+                            <ul class="memberlist">
+                        <li>
+                                <a class="variable" href="#AbstractRating.active">active</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#AbstractRating.create_time">create_time</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#AbstractRating.default_data_time">default_data_time</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#AbstractRating.default_data_units">default_data_units</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#AbstractRating.default_data_vertical_datum">default_data_vertical_datum</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#AbstractRating.description">description</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#AbstractRating.effective_time">effective_time</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#AbstractRating.from_xml">from_xml</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#AbstractRating.office">office</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#AbstractRating.rate">rate</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#AbstractRating.rating_time">rating_time</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#AbstractRating.rating_units">rating_units</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#AbstractRating.reverse_rate">reverse_rate</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#AbstractRating.specification">specification</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#AbstractRating.specification_id">specification_id</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#AbstractRating.template">template</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#AbstractRating.template_id">template_id</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#AbstractRating.transition_start_time">transition_start_time</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#AbstractRating.to_xml">to_xml</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#AbstractRating.vertical_datum_info">vertical_datum_info</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#AbstractRating.vertical_datum_json">vertical_datum_json</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#AbstractRating.vertical_datum_xml">vertical_datum_xml</a>
+                        </li>
+                </ul>
+
+            </li>
+            <li>
+                    <a class="class" href="#AbstractRatingSet">AbstractRatingSet</a>
+                            <ul class="memberlist">
+                        <li>
+                                <a class="function" href="#AbstractRatingSet.__init__">AbstractRatingSet</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#AbstractRatingSet.default_data_time">default_data_time</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#AbstractRatingSet.default_data_units">default_data_units</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#AbstractRatingSet.default_vertical_datum">default_vertical_datum</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#AbstractRatingSet.rate_time_series">rate_time_series</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#AbstractRatingSet.rate_values">rate_values</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#AbstractRatingSet.rating_units">rating_units</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#AbstractRatingSet.reverse_rate_time_series">reverse_rate_time_series</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#AbstractRatingSet.reverse_rate_values">reverse_rate_values</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#AbstractRatingSet.specification">specification</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#AbstractRatingSet.template">template</a>
+                        </li>
+                </ul>
+
+            </li>
             <li>
                     <a class="class" href="#LookupMethod">LookupMethod</a>
                             <ul class="memberlist">
@@ -277,6 +391,21 @@
                 </ul>
 
             </li>
+            <li>
+                    <a class="class" href="#ReferenceRatingSet">ReferenceRatingSet</a>
+                            <ul class="memberlist">
+                        <li>
+                                <a class="function" href="#ReferenceRatingSet.__init__">ReferenceRatingSet</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#ReferenceRatingSet.rate_values">rate_values</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#ReferenceRatingSet.reverse_rate_values">reverse_rate_values</a>
+                        </li>
+                </ul>
+
+            </li>
     </ul>
 
 
@@ -300,6 +429,618 @@
                 
                 
             </section>
+                <section id="AbstractRating">
+                    <div class="attr class">
+            
+    <span class="def">class</span>
+    <span class="name">AbstractRating</span><wbr>(<span class="base">abc.ABC</span>):
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractRating"></a>
+    
+            <div class="docstring"><p>Abstract class for all rating classes;</p>
+</div>
+
+
+                            <div id="AbstractRating.active" class="classattr">
+                                <div class="attr variable">
+            <span class="name">active</span><span class="annotation">: bool</span>
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractRating.active"></a>
+    
+    
+
+                            </div>
+                            <div id="AbstractRating.create_time" class="classattr">
+                                <div class="attr variable">
+            <span class="name">create_time</span><span class="annotation">: Optional[datetime.datetime]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractRating.create_time"></a>
+    
+    
+
+                            </div>
+                            <div id="AbstractRating.default_data_time" class="classattr">
+                                <div class="attr variable">
+            <span class="name">default_data_time</span><span class="annotation">: Optional[datetime.datetime]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractRating.default_data_time"></a>
+    
+    
+
+                            </div>
+                            <div id="AbstractRating.default_data_units" class="classattr">
+                                <div class="attr variable">
+            <span class="name">default_data_units</span><span class="annotation">: list[str]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractRating.default_data_units"></a>
+    
+    
+
+                            </div>
+                            <div id="AbstractRating.default_data_vertical_datum" class="classattr">
+                                <div class="attr variable">
+            <span class="name">default_data_vertical_datum</span><span class="annotation">: Optional[str]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractRating.default_data_vertical_datum"></a>
+    
+    
+
+                            </div>
+                            <div id="AbstractRating.description" class="classattr">
+                                <div class="attr variable">
+            <span class="name">description</span><span class="annotation">: Optional[str]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractRating.description"></a>
+    
+    
+
+                            </div>
+                            <div id="AbstractRating.effective_time" class="classattr">
+                                <div class="attr variable">
+            <span class="name">effective_time</span><span class="annotation">: Optional[datetime.datetime]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractRating.effective_time"></a>
+    
+    
+
+                            </div>
+                            <div id="AbstractRating.from_xml" class="classattr">
+                                <div class="attr function">
+                    <div class="decorator decorator-staticmethod">@staticmethod</div>
+        <div class="decorator decorator-abstractmethod">@abstractmethod</div>
+
+        <span class="def">def</span>
+        <span class="name">from_xml</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">xml_str</span><span class="p">:</span> <span class="nb">str</span></span><span class="return-annotation">) -> <span class="n"><a href="#AbstractRating">AbstractRating</a></span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractRating.from_xml"></a>
+    
+    
+
+                            </div>
+                            <div id="AbstractRating.office" class="classattr">
+                                <div class="attr variable">
+            <span class="name">office</span><span class="annotation">: Optional[str]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractRating.office"></a>
+    
+    
+
+                            </div>
+                            <div id="AbstractRating.rate" class="classattr">
+                                <div class="attr function">
+                    <div class="decorator decorator-abstractmethod">@abstractmethod</div>
+
+        <span class="def">def</span>
+        <span class="name">rate</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">value</span><span class="p">:</span> <span class="n">Any</span></span><span class="return-annotation">) -> <span class="n">Any</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractRating.rate"></a>
+    
+    
+
+                            </div>
+                            <div id="AbstractRating.rating_time" class="classattr">
+                                <div class="attr variable">
+            <span class="name">rating_time</span><span class="annotation">: Optional[datetime.datetime]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractRating.rating_time"></a>
+    
+    
+
+                            </div>
+                            <div id="AbstractRating.rating_units" class="classattr">
+                                <div class="attr variable">
+            <span class="name">rating_units</span><span class="annotation">: list[str]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractRating.rating_units"></a>
+    
+    
+
+                            </div>
+                            <div id="AbstractRating.reverse_rate" class="classattr">
+                                <div class="attr function">
+                    <div class="decorator decorator-abstractmethod">@abstractmethod</div>
+
+        <span class="def">def</span>
+        <span class="name">reverse_rate</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">value</span><span class="p">:</span> <span class="n">Any</span></span><span class="return-annotation">) -> <span class="n">Any</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractRating.reverse_rate"></a>
+    
+    
+
+                            </div>
+                            <div id="AbstractRating.specification" class="classattr">
+                                <div class="attr variable">
+            <span class="name">specification</span><span class="annotation">: <a href="#RatingSpecification">RatingSpecification</a></span>
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractRating.specification"></a>
+    
+    
+
+                            </div>
+                            <div id="AbstractRating.specification_id" class="classattr">
+                                <div class="attr variable">
+            <span class="name">specification_id</span><span class="annotation">: str</span>
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractRating.specification_id"></a>
+    
+    
+
+                            </div>
+                            <div id="AbstractRating.template" class="classattr">
+                                <div class="attr variable">
+            <span class="name">template</span><span class="annotation">: <a href="#RatingTemplate">RatingTemplate</a></span>
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractRating.template"></a>
+    
+    
+
+                            </div>
+                            <div id="AbstractRating.template_id" class="classattr">
+                                <div class="attr variable">
+            <span class="name">template_id</span><span class="annotation">: str</span>
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractRating.template_id"></a>
+    
+    
+
+                            </div>
+                            <div id="AbstractRating.transition_start_time" class="classattr">
+                                <div class="attr variable">
+            <span class="name">transition_start_time</span><span class="annotation">: Optional[datetime.datetime]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractRating.transition_start_time"></a>
+    
+    
+
+                            </div>
+                            <div id="AbstractRating.to_xml" class="classattr">
+                                <div class="attr function">
+                    <div class="decorator decorator-abstractmethod">@abstractmethod</div>
+
+        <span class="def">def</span>
+        <span class="name">to_xml</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">indent_str</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;  &#39;</span>, </span><span class="param"><span class="n">indent_level</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span></span><span class="return-annotation">) -> <span class="nb">str</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractRating.to_xml"></a>
+    
+    
+
+                            </div>
+                            <div id="AbstractRating.vertical_datum_info" class="classattr">
+                                <div class="attr variable">
+            <span class="name">vertical_datum_info</span><span class="annotation">: Optional[hec.parameter.ElevParameter._VerticalDatumInfo]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractRating.vertical_datum_info"></a>
+    
+    
+
+                            </div>
+                            <div id="AbstractRating.vertical_datum_json" class="classattr">
+                                <div class="attr variable">
+            <span class="name">vertical_datum_json</span><span class="annotation">: Optional[str]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractRating.vertical_datum_json"></a>
+    
+    
+
+                            </div>
+                            <div id="AbstractRating.vertical_datum_xml" class="classattr">
+                                <div class="attr variable">
+            <span class="name">vertical_datum_xml</span><span class="annotation">: Optional[str]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractRating.vertical_datum_xml"></a>
+    
+    
+
+                            </div>
+                </section>
+                <section id="AbstractRatingSet">
+                    <div class="attr class">
+            
+    <span class="def">class</span>
+    <span class="name">AbstractRatingSet</span><wbr>(<span class="base">abc.ABC</span>):
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractRatingSet"></a>
+    
+            <div class="docstring"><p>Abstract class for all rating set classes.</p>
+
+<p>Specifies required methods for sub-classes, holds information and implements code common one or more sub-classes.</p>
+</div>
+
+
+                            <div id="AbstractRatingSet.__init__" class="classattr">
+                                <div class="attr function">
+            
+        <span class="name">AbstractRatingSet</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">specification</span><span class="p">:</span> <span class="n">Any</span>, </span><span class="param"><span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span></span>)</span>
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractRatingSet.__init__"></a>
+    
+            <div class="docstring"><p>Initializer for AbstractRatingSet objects.</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>specification (Any):</strong>  A <a href="#RatingSpecification">RatingSpecification</a> object to initialize from.
+This is typed as <code>Any</code> to avoid circular import dependencies.</li>
+</ul>
+
+<h6 id="raises">Raises:</h6>
+
+<ul>
+<li><strong>TypeError:</strong>  if <code><a href="#AbstractRatingSet.specification">specification</a></code> is not a <a href="#RatingSpecification">RatingSpecification</a> object.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="AbstractRatingSet.default_data_time" class="classattr">
+                                <div class="attr variable">
+            <span class="name">default_data_time</span><span class="annotation">: Optional[datetime.datetime]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractRatingSet.default_data_time"></a>
+    
+            <div class="docstring"><p>The default data time of the rating set.</p>
+
+<p>If not None, the default data time is used to rate values that don't otherwise have times specified.</p>
+
+<p>If None, the current time is used as the default data time</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read/Write</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="AbstractRatingSet.default_data_units" class="classattr">
+                                <div class="attr variable">
+            <span class="name">default_data_units</span><span class="annotation">: Optional[list[str]]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractRatingSet.default_data_units"></a>
+    
+            <div class="docstring"><p>The units to use for independent and dependent parameter values when no units are specified for
+<a href="#AbstractRatingSet.rate_values">rate_values</a> or <a href="#AbstractRatingSet.reverse_rate_values">reverse_rate_values</a>.</p>
+
+<p>If the default data units are None, the rating set's rating units are used.</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read/Write</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="AbstractRatingSet.default_vertical_datum" class="classattr">
+                                <div class="attr variable">
+            <span class="name">default_vertical_datum</span><span class="annotation">: Optional[str]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractRatingSet.default_vertical_datum"></a>
+    
+            <div class="docstring"><p>The default vertical datum for rating Elev parameter values.</p>
+
+<p>If not None, Elev parameter values will be converted to the default vertical datum before (input values) or after (output values) the rating is performed.</p>
+
+<p>If None, the native vertical datum will be used.</p>
+
+<p>When setting, must be None, NGVD-29, NAVD-99, or OTHER.</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read/Write</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="AbstractRatingSet.rate_time_series" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">rate_time_series</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="bp">self</span>,</span><span class="param">	<span class="n">ts</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n"><a href="../hec.html#TimeSeries">hec.TimeSeries</a></span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="n"><a href="../hec.html#TimeSeries">hec.TimeSeries</a></span><span class="p">]]</span>,</span><span class="param">	<span class="n">rating_time</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="nb">round</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></span><span class="return-annotation">) -> <span class="n"><a href="../hec.html#TimeSeries">hec.TimeSeries</a></span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractRatingSet.rate_time_series"></a>
+    
+            <div class="docstring"><p>Rates an independent parameter time series (or list of such) and returns a dependent parameter time series</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>ts (Union[TimeSeries, Sequence[TimeSeries]]):</strong>  If a list/tuple of TimeSeries:
+<ul>
+<li>Must be the same number as the number of independent parameters of the rating set.</li>
+<li>Each time series must have the same times.</li>
+</ul></li>
+<li><strong>rating_time (Optional[datetime]):</strong>  The maximum create date for the rating set to use to perform the rating. Defaults to None.
+Causes the rating to be performed as if the current date/time were the specified date (no ratings with create dates
+later than this time will be used).</li>
+<li><strong>round (bool, optional):</strong>  Whether to use the rating set's specification's dependent rounding specification . Defaults to False.</li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>TimeSeries: The rated (dependent value) time series</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="AbstractRatingSet.rate_values" class="classattr">
+                                <div class="attr function">
+                    <div class="decorator decorator-abstractmethod">@abstractmethod</div>
+
+        <span class="def">def</span>
+        <span class="name">rate_values</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="bp">self</span>,</span><span class="param">	<span class="n">ind_values</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span>,</span><span class="param">	<span class="n">value_times</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">units</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">rating_time</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="nb">round</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></span><span class="return-annotation">) -> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractRatingSet.rate_values"></a>
+    
+            <div class="docstring"><p>Rates list(s) of independent parameter values</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>ind_values (list[list[float]]):</strong>  The independent parameter values. Values for each parameter are in its own list
+in the same order as the rating independent parameters. All parameter lists must be of the same length.</li>
+<li><strong>value_times (Optional[list[datetime]]):</strong>  The date/times of the independent parameter values. Defaults to None.
+<ul>
+<li>If specified and not None:
+<ul>
+<li>If shorter than the independent parameter value list(s), the last time will be used for the remainging values.</li>
+<li>If longer than the independent parameter values list(s), the beginning portion of the list will be used.</li>
+</ul></li>
+<li>If None or not specified:
+<ul>
+<li>If the rating set's default data time is not None, that time is used for each value</li>
+<li>If the rating set's default data time is None, the current time is used for each value</li>
+</ul></li>
+</ul></li>
+<li><strong>units (Optional[str]):</strong>  The units of the independent parameter values and the rated values.A comma-delimited string of
+independent value units concatendated with a semicolon and the dependent parameter unit. Defaults to None.
+<ul>
+<li>If not specified, the rating's default data units are used, if specified. If the rating has no default data units,
+the rating units are used.</li>
+</ul></li>
+<li><strong>rating_time (Optional[datetime]):</strong>  The maximum create date for the rating set to use to perform the rating. Defaults to None.
+Causes the rating to be performed as if the current date/time were the specified date (no ratings with create dates
+later than this time will be used).</li>
+<li><strong>round (bool, optional):</strong>  Whether to use the rating set's specification's dependent rounding specification . Defaults to False.</li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>list[float]: The rated (dependent parameter) values</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="AbstractRatingSet.rating_units" class="classattr">
+                                <div class="attr variable">
+            <span class="name">rating_units</span><span class="annotation">: list[str]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractRatingSet.rating_units"></a>
+    
+            <div class="docstring"><p>The units of the rating set, on for each independent parameter and one for the dependent parameter</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read-Only</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="AbstractRatingSet.reverse_rate_time_series" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">reverse_rate_time_series</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="bp">self</span>,</span><span class="param">	<span class="n">ts</span><span class="p">:</span> <span class="n"><a href="../hec.html#TimeSeries">hec.TimeSeries</a></span>,</span><span class="param">	<span class="n">rating_time</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="nb">round</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></span><span class="return-annotation">) -> <span class="n"><a href="../hec.html#TimeSeries">hec.TimeSeries</a></span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractRatingSet.reverse_rate_time_series"></a>
+    
+            <div class="docstring"><p>Reverse rates a dependent parameter time series and returns an independent parameter time series</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>ts (TimeSeries):</strong>  The dependent value time series to reverse-rate</li>
+<li><strong>rating_time (Optional[datetime]):</strong>  The maximum create date for the rating set to use to perform the rating. Defaults to None.
+Causes the rating to be performed as if the current date/time were the specified date (no ratings with create dates
+later than this time will be used).</li>
+<li><strong>round (bool, optional):</strong>  Whether to use the rating set's specification's independent rounding specification . Defaults to False.</li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>TimeSeries: The rated (independent value) time series</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="AbstractRatingSet.reverse_rate_values" class="classattr">
+                                <div class="attr function">
+                    <div class="decorator decorator-abstractmethod">@abstractmethod</div>
+
+        <span class="def">def</span>
+        <span class="name">reverse_rate_values</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="bp">self</span>,</span><span class="param">	<span class="n">dep_values</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span>,</span><span class="param">	<span class="n">value_times</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">units</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">rating_time</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="nb">round</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></span><span class="return-annotation">) -> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractRatingSet.reverse_rate_values"></a>
+    
+            <div class="docstring"><p>Rates a list of dependent parameter values.</p>
+
+<p>May only be used on rating sets with a single independent parameter.</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>dep_values (list[float]):</strong>  The dependent parameter values.</li>
+<li><strong>value_times (Optional[list[datetime]]):</strong>  The date/times of the independent parameter values. Defaults to None.
+<ul>
+<li>If specified and not None:
+<ul>
+<li>If shorter than the independent parameter value list(s), the last time will be used for the remainging values.</li>
+<li>If longer than the independent parameter values list(s), the beginning portion of the list will be used.</li>
+</ul></li>
+<li>If None or not specified:
+<ul>
+<li>If the rating set's default data time is not None, that time is used for each value</li>
+<li>If the rating set's default data time is None, the current time is used for each value</li>
+</ul></li>
+</ul></li>
+<li><strong>units (Optional[str]):</strong>  The units of the independent parameter values and the rated values.A comma-delimited string of
+independent value units concatendated with a semicolon and the dependent parameter unit. Defaults to None.
+<ul>
+<li>If not specified, the rating's default data units are used, if specified. If the rating has no default data units,
+the rating units are used.</li>
+</ul></li>
+<li><strong>rating_time (Optional[datetime]):</strong>  The maximum create date for the rating set to use to perform the rating. Defaults to None.
+Causes the rating to be performed as if the current date/time were the specified date (no ratings with create dates
+later than this time will be used).</li>
+<li><strong>round (bool, optional):</strong>  Whether to use the rating set's specification's independent rounding specification . Defaults to False.</li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>list[float]: The rated (independent parameter) values</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="AbstractRatingSet.specification" class="classattr">
+                                <div class="attr variable">
+            <span class="name">specification</span><span class="annotation">: <a href="#RatingSpecification">RatingSpecification</a></span>
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractRatingSet.specification"></a>
+    
+            <div class="docstring"><p>The <a href="#RatingSpecification">RatingSpecification</a> of the rating set</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read-Only</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="AbstractRatingSet.template" class="classattr">
+                                <div class="attr variable">
+            <span class="name">template</span><span class="annotation">: <a href="#RatingTemplate">RatingTemplate</a></span>
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractRatingSet.template"></a>
+    
+            <div class="docstring"><p>The <a href="#RatingTemplate">RatingTemplate</a> of the rating set</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read-Only</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                </section>
                 <section id="LookupMethod">
                     <div class="attr class">
             
@@ -962,7 +1703,7 @@ dependent parameters or sub-parameters. Defaults to None.</li>
 <li>one for each independent parameter</li>
 <li>one for the dependent parameter</li>
 </ul></li>
-<li>whether the specification is active (should be used)  </li>
+<li>whether the specification is active (should be used)</li>
 <li>whether the ratings with this specification should be automatically updated from the source agency</li>
 <li>whether automatically updated ratings should be set to active</li>
 <li>whether automatically updated ratings should have any rating extension migrated to the new rating</li>
@@ -1817,6 +2558,169 @@ If specified, the lookup methods are in the order of in-range, out-of-range-low,
 </div>
 
 
+                </section>
+                <section id="ReferenceRatingSet">
+                    <div class="attr class">
+            
+    <span class="def">class</span>
+    <span class="name">ReferenceRatingSet</span><wbr>(<span class="base"><a href="#AbstractRatingSet">hec.rating.AbstractRatingSet</a></span>):
+
+        
+    </div>
+    <a class="headerlink" href="#ReferenceRatingSet"></a>
+    
+            <div class="docstring"><p>A sub-class of <a href="#AbstractRatingSet">AbstractRatingSet</a> that performs all ratings in the CWMS database</p>
+</div>
+
+
+                            <div id="ReferenceRatingSet.__init__" class="classattr">
+                                <div class="attr function">
+            
+        <span class="name">ReferenceRatingSet</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">specification</span><span class="p">:</span> <span class="n">Any</span>, </span><span class="param"><span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span></span>)</span>
+
+        
+    </div>
+    <a class="headerlink" href="#ReferenceRatingSet.__init__"></a>
+    
+            <div class="docstring"><p>Initializer for ReferenceRatingSet objects.</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>specification (Any):</strong>  A <a href="#RatingSpecification">RatingSpecification</a> object to initialize from.
+This is typed as <code>Any</code> to avoid circular import dependencies.</li>
+<li><strong>datastore (<a href="datastore.html#CwmsDataStore">CwmsDataStore</a>, must be passed by name):</strong>  The <a href="datastore.html#CwmsDataStore">CwmsDataStore</a>
+object used to perform the ratings in the database.</li>
+</ul>
+
+<h6 id="raises">Raises:</h6>
+
+<ul>
+<li><strong>TypeError:</strong>  if <code><a href="#ReferenceRatingSet.specification">specification</a></code> is not a <a href="#RatingSpecification">RatingSpecification</a> object.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="ReferenceRatingSet.rate_values" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">rate_values</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="bp">self</span>,</span><span class="param">	<span class="n">ind_values</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span>,</span><span class="param">	<span class="n">value_times</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">units</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">rating_time</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="nb">round</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></span><span class="return-annotation">) -> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#ReferenceRatingSet.rate_values"></a>
+    
+            <div class="docstring"><p>Rates list(s) of independent parameter values</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>ind_values (list[list[float]]):</strong>  The independent parameter values. Values for each parameter are in its own list
+in the same order as the rating independent parameters. All parameter lists must be of the same length.</li>
+<li><strong>value_times (Optional[list[datetime]]):</strong>  The date/times of the independent parameter values. Defaults to None.
+<ul>
+<li>If specified and not None:
+<ul>
+<li>If shorter than the independent parameter value list(s), the last time will be used for the remainging values.</li>
+<li>If longer than the independent parameter values list(s), the beginning portion of the list will be used.</li>
+</ul></li>
+<li>If None or not specified:
+<ul>
+<li>If the rating set's default data time is not None, that time is used for each value</li>
+<li>If the rating set's default data time is None, the current time is used for each value</li>
+</ul></li>
+</ul></li>
+<li><strong>units (Optional[str]):</strong>  The units of the independent parameter values and the rated values.A comma-delimited string of
+independent value units concatendated with a semicolon and the dependent parameter unit. Defaults to None.
+<ul>
+<li>If not specified, the rating's default data units are used, if specified. If the rating has no default data units,
+the rating units are used.</li>
+</ul></li>
+<li><strong>rating_time (Optional[datetime]):</strong>  The maximum create date for the rating set to use to perform the rating. Defaults to None.
+Causes the rating to be performed as if the current date/time were the specified date (no ratings with create dates
+later than this time will be used).</li>
+<li><strong>round (bool, optional):</strong>  Whether to use the rating set's specification's dependent rounding specification . Defaults to False.</li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>list[float]: The rated (dependent parameter) values</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="ReferenceRatingSet.reverse_rate_values" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">reverse_rate_values</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="bp">self</span>,</span><span class="param">	<span class="n">dep_values</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span>,</span><span class="param">	<span class="n">value_times</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">units</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">rating_time</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="nb">round</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></span><span class="return-annotation">) -> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#ReferenceRatingSet.reverse_rate_values"></a>
+    
+            <div class="docstring"><p>Rates a list of dependent parameter values.</p>
+
+<p>May only be used on rating sets with a single independent parameter.</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>dep_values (list[float]):</strong>  The dependent parameter values.</li>
+<li><strong>value_times (Optional[list[datetime]]):</strong>  The date/times of the independent parameter values. Defaults to None.
+<ul>
+<li>If specified and not None:
+<ul>
+<li>If shorter than the independent parameter value list(s), the last time will be used for the remainging values.</li>
+<li>If longer than the independent parameter values list(s), the beginning portion of the list will be used.</li>
+</ul></li>
+<li>If None or not specified:
+<ul>
+<li>If the rating set's default data time is not None, that time is used for each value</li>
+<li>If the rating set's default data time is None, the current time is used for each value</li>
+</ul></li>
+</ul></li>
+<li><strong>units (Optional[str]):</strong>  The units of the independent parameter values and the rated values.A comma-delimited string of
+independent value units concatendated with a semicolon and the dependent parameter unit. Defaults to None.
+<ul>
+<li>If not specified, the rating's default data units are used, if specified. If the rating has no default data units,
+the rating units are used.</li>
+</ul></li>
+<li><strong>rating_time (Optional[datetime]):</strong>  The maximum create date for the rating set to use to perform the rating. Defaults to None.
+Causes the rating to be performed as if the current date/time were the specified date (no ratings with create dates
+later than this time will be used).</li>
+<li><strong>round (bool, optional):</strong>  Whether to use the rating set's specification's independent rounding specification . Defaults to False.</li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>list[float]: The rated (independent parameter) values</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div class="inherited">
+                                <h5>Inherited Members</h5>
+                                <dl>
+                                    <div><dt><a href="#AbstractRatingSet">AbstractRatingSet</a></dt>
+                                <dd id="ReferenceRatingSet.default_data_time" class="variable"><a href="#AbstractRatingSet.default_data_time">default_data_time</a></dd>
+                <dd id="ReferenceRatingSet.default_data_units" class="variable"><a href="#AbstractRatingSet.default_data_units">default_data_units</a></dd>
+                <dd id="ReferenceRatingSet.default_vertical_datum" class="variable"><a href="#AbstractRatingSet.default_vertical_datum">default_vertical_datum</a></dd>
+                <dd id="ReferenceRatingSet.rate_time_series" class="function"><a href="#AbstractRatingSet.rate_time_series">rate_time_series</a></dd>
+                <dd id="ReferenceRatingSet.rating_units" class="variable"><a href="#AbstractRatingSet.rating_units">rating_units</a></dd>
+                <dd id="ReferenceRatingSet.reverse_rate_time_series" class="function"><a href="#AbstractRatingSet.reverse_rate_time_series">reverse_rate_time_series</a></dd>
+                <dd id="ReferenceRatingSet.specification" class="variable"><a href="#AbstractRatingSet.specification">specification</a></dd>
+                <dd id="ReferenceRatingSet.template" class="variable"><a href="#AbstractRatingSet.template">template</a></dd>
+
+            </div>
+                                </dl>
+                            </div>
                 </section>
     </main>
 <script>
