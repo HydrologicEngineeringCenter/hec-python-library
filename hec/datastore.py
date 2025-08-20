@@ -24,6 +24,7 @@ from typing_extensions import Literal
 
 import hec
 import hec.shared
+from .rating import AbstractRatingSet
 from hec.const import CWMS, DSS, UNDEFINED
 from hec.duration import Duration
 from hec.hectime import HecTime, get_time_window
@@ -1597,7 +1598,9 @@ class CwmsDataStore(AbstractDataStore):
             loc.vertical_datum_info.ito(vertical_datum)
         return loc
 
-    def _retrieve_rating_set(self, identifier: str, **kwargs: Any) -> AbstractRatingSet:
+    def _retrieve_rating_set(
+        self, identifier: str, **kwargs: Any
+    ) -> AbstractRatingSet:
         reference_rating_set: bool = True
         office: Optional[str] = None
         for kw in kwargs:
