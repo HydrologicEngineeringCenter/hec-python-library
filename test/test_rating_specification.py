@@ -435,7 +435,7 @@ def test_constuct_and_set_all() -> None:
 
 
 def test_xml_operations() -> None:
-    xml_str = """<rating-spec office="SWT">
+    xml_str = """<rating-spec office-id="SWT">
   <rating-spec-id>COUN.Count-Conduit_Gates,Opening-Conduit_Gates,Elev;Flow-Conduit_Gates.Standard.Production</rating-spec-id>
   <template-id>Count-Conduit_Gates,Opening-Conduit_Gates,Elev;Flow-Conduit_Gates.Standard</template-id>
   <location-id>COUN</location-id>

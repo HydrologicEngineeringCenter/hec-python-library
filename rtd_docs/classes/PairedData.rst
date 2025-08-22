@@ -18,7 +18,7 @@ Required Information
 Notes
 -----
 
-PairedData objects may not be store to or retrieved from CWMS databases; they may be stored to and retrieved from HEC-DSS files
+PairedData objects may not be stored to or retrieved from CWMS databases; they may be stored to and retrieved from HEC-DSS files
 
 Unlike ratings objects:
 

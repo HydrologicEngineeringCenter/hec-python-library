@@ -11,6 +11,7 @@ required_dss_version = ">= '0.1.24'"
 
 
 def import_cwms() -> types.ModuleType:
+    global cwms_imported
     try:
         import cwms  # type: ignore
 
@@ -26,6 +27,7 @@ def import_cwms() -> types.ModuleType:
 
 
 def import_hecdss() -> types.ModuleType:
+    global dss_imported
     try:
         import hecdss  # type: ignore
 
