@@ -155,9 +155,12 @@ class RatingSpecification:
                     f"'{kw}' is an invalid keyword argument for RatingSpecification()"
                 )
         if self._location.office != self._template.office:
-            raise RatingSpecificationException(
-                f"Rating specification for office {self._location.office} cannot use template from {self._template.office}"
-            )
+            if self._template.office:
+                raise RatingSpecificationException(
+                    f"Rating specification for office {self._location.office} cannot use template from {self._template.office}"
+                )
+            else:
+                self._template.office = self._location.office
 
         if "rounding" not in kwargs:
             self._ind_rounding = self._template.ind_param_count * [
@@ -648,7 +651,7 @@ class RatingSpecification:
             Read-Only
         """
         spec_elem = etree.Element(
-            "rating-spec", office=self.template.office if self.template.office else ""
+            "rating-spec", attrib={"office-id": self.template.office if self.template.office else ""}
         )
         spec_id_elem = etree.SubElement(spec_elem, "rating-spec-id")
         spec_id_elem.text = self.name

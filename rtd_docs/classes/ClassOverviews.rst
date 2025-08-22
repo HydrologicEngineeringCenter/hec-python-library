@@ -47,6 +47,8 @@ TimeSeries:
 Ratings:
 --------
  
+ - AbstractRatingSet: :doc:`/classes/AbstractRatingSet`
+ - ReferenceRatingSet: :doc:`/classes/ReferenceRatingSet`
  - PairedData: :doc:`/classes/PairedData`
 
 Data Stores:

@@ -1,6 +1,8 @@
 from datetime import datetime
 from typing import Any, Optional, Union, cast
 
+import numpy as np
+
 import hec
 
 from .abstract_rating_set import AbstractRatingSet, AbstractRatingSetException
@@ -61,25 +63,36 @@ class ReferenceRatingSet(AbstractRatingSet):
         assert self._datastore is not None
         if value_times is None and self.default_data_time is not None:
             value_times = len(ind_values[0]) * [cast(datetime, self._default_data_time)]
-        if units is None:
-            unit_list = (
-                self.default_data_units
-                if self.default_data_units is not None
-                else self.rating_units
+        times = [
+            (int(dt.timestamp()) * 1000) for dt in cast(list[datetime], value_times)
+        ]
+        _units = units if units else self._default_data_units
+        if not _units:
+            raise ReferenceRatingSetException(
+                "Cannot perform rating. No data units are specified and rating set has no defaults"
             )
-            _units = f"{','.join(unit_list[:-1])};{unit_list[-1]}"
-        else:
-            _units = units
+        fake_values = [np.nanmean(iv) for iv in ind_values]
+        masks = [[True if np.isnan(v) else False for v in iv] for iv in ind_values]
+        mask = [not any(m) for m in list(zip(*masks))]
         response = self._datastore.native_data_store.ratings.ratings.rate_values(
             rating_id=self._specification.name,
             office_id=self._specification.template.office,
             units=_units,
-            values=ind_values,
-            times=value_times,
-            rating_time=rating_time,
+            values=[
+                [fake_values[i] if np.isnan(v) else v for v in ind_values[i]]
+                for i in range(len(ind_values))
+            ],
+            times=times,
+            rating_time=(
+                int(rating_time.timestamp() * 1000) if rating_time else rating_time
+            ),
             round=round,
         )
-        return cast(list[float], cast(dict[str, Any], response)["values"])
+        response_values = cast(list[float], cast(dict[str, Any], response)["values"])
+        return [
+            response_values[i] if mask[i] else np.nan
+            for i in range(len(response_values))
+        ]
 
     def reverse_rate_values(
         self,
@@ -93,24 +106,31 @@ class ReferenceRatingSet(AbstractRatingSet):
         assert self._datastore is not None
         if value_times is None and self.default_data_time is not None:
             value_times = len(dep_values) * [cast(datetime, self._default_data_time)]
-        if units is None:
-            unit_list = (
-                self.default_data_units
-                if self.default_data_units is not None
-                else self.rating_units
+        times = [
+            (int(dt.timestamp()) * 1000) for dt in cast(list[datetime], value_times)
+        ]
+        _units = units if units else self._default_data_units
+        if not _units:
+            raise ReferenceRatingSetException(
+                "Cannot perform rating. No data units are specified and rating set has no defaults"
             )
-            _units = f"{unit_list[0]};{unit_list[1]}"
-        else:
-            _units = units
+        fake_value = np.nanmean(dep_values)
+        mask = [False if np.isnan(v) else True for v in dep_values]
         response = (
             self._datastore.native_data_store.ratings.ratings.reverse_rate_values(
                 rating_id=self._specification.name,
                 office_id=self._specification.template.office,
                 units=_units,
-                values=dep_values,
-                times=value_times,
-                rating_time=rating_time,
+                values=[v if not np.isnan(v) else fake_value for v in dep_values],
+                times=times,
+                rating_time=(
+                    int(rating_time.timestamp() * 1000) if rating_time else rating_time
+                ),
                 round=round,
             )
         )
-        return cast(list[float], cast(dict[str, Any], response)["values"])
+        response_values = cast(list[float], cast(dict[str, Any], response)["values"])
+        return [
+            response_values[i] if mask[i] else np.nan
+            for i in range(len(response_values))
+        ]
