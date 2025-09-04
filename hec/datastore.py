@@ -2313,7 +2313,9 @@ class CwmsDataStore(AbstractDataStore):
             """
             ht = HecTime(t)
             ht.midnight_as_2400 = False
-            return str(ht.convert_to_time_zone(self.time_zone)).replace("+00:00", "Z")
+            return str(
+                ht.convert_to_time_zone(self.time_zone, on_tz_not_set=0)
+            ).replace("+00:00", "Z")
 
         self._assert_open()
         bounding_office: Optional[str] = None
@@ -2766,7 +2768,7 @@ class CwmsDataStore(AbstractDataStore):
             auto_flags: Optional[list[str]] = None
             rounding_specs: Optional[list[str]] = None
             descriptions: Optional[list[str]] = None
-            effective_dates: Optional[list[list[str]]] = None
+            effective_dates: Optional[list[Union[str, list[str]]]] = None
             data = cwms.ratings.ratings_spec.get_rating_specs(
                 office_id=office if office else self._office,
                 rating_id_mask=_regex,
@@ -2813,11 +2815,22 @@ class CwmsDataStore(AbstractDataStore):
                         for d in data.df["description"].to_list()
                     ]
                 if "effective-date" in fields:
-                    effective_dates = cast(
-                        list[list[str]], data.df["effective-dates"].to_list()
-                    )
+                    try:
+                        effective_dates = [
+                            (
+                                "<None>"
+                                if not item or item == "nan"
+                                else cast(list[str], item)
+                            )
+                            for item in map(str, data.df["effective-dates"].to_list())
+                        ]
+                    except KeyError:
+                        effective_dates = data.df.shape[1] * ["<None>"]
                     for i in range(len(effective_dates)):
-                        effective_dates[i] = list(map(_tz_convert, effective_dates[i]))
+                        if effective_dates[i] != "<None>":
+                            effective_dates[i] = list(
+                                map(_tz_convert, eval(cast(str, effective_dates[i])))
+                            )
                 field_items = {}
                 for field in fields:
                     if field == "lookup-methods":
@@ -2964,9 +2977,10 @@ class CwmsDataStore(AbstractDataStore):
                     if not data.df.empty:
                         field_items = {}
                         for field in fields:
-                            field_items[field] = list(
-                                map(str, data.df[field].to_list())
-                            )
+                            field_items[field] = [
+                                "<None>" if not item or item == "nan" else item
+                                for item in map(str, data.df[field].to_list())
+                            ]
                         catalog_items.extend(
                             list(
                                 map(

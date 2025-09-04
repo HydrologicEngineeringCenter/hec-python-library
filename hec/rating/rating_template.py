@@ -491,7 +491,7 @@ class RatingTemplate:
 
             return re.sub(pattern, repl, s, flags=re.MULTILINE)
 
-        xml = etree.tostring(self.xml_element, pretty_print=True).decode()
+        xml: str = etree.tostring(self.xml_element, pretty_print=True).decode()
         if indent != "  ":
             xml = replace_indent(xml, indent)
         if prepend:

@@ -605,6 +605,12 @@ class ElevParameter(Parameter):
                                         value, self._unit
                                     )
                                     self._navd88_offset_is_estimate = estimate
+                if self._native_datum == _NGVD29:
+                    self._ngvd29_offset = UnitQuantity(0.0, self._unit)
+                    self._ngvd29_offset_is_estimate = False
+                elif self._native_datum == _NAVD88:
+                    self._navd88_offset = UnitQuantity(0.0, self._unit)
+                    self._navd88_offset_is_estimate = False
 
         def __str__(self) -> str:
             if (
@@ -625,14 +631,14 @@ class ElevParameter(Parameter):
                     )
             if self.elevation is not None:
                 buf.write(f"\n  <elevation>{self.elevation.magnitude}</elevation>")
-            if self.ngvd29_offset is not None:
+            if self._native_datum != _NGVD29 and self.ngvd29_offset is not None:
                 buf.write(
                     f'\n  <offset estimate="{"true" if self._ngvd29_offset_is_estimate else "false"}">'
                 )
                 buf.write("\n    <to-datum>NGVD-29</to-datum>")
                 buf.write(f"\n    <value>{self.ngvd29_offset.magnitude}</value>")
                 buf.write("\n  </offset>")
-            if self.navd88_offset is not None:
+            if self._native_datum != _NAVD88 and self.navd88_offset is not None:
                 buf.write(
                     f'\n  <offset estimate="{"true" if self._navd88_offset_is_estimate else "false"}">'
                 )
@@ -644,7 +650,7 @@ class ElevParameter(Parameter):
             buf.close()
             return s
 
-        def clone(self) -> "ElevParameter._VerticalDatumInfo":
+        def copy(self) -> "ElevParameter._VerticalDatumInfo":
             """
             Returns a copy of this opject
 
@@ -669,9 +675,23 @@ class ElevParameter(Parameter):
             The current vertical datum
 
             Operations:
-                Read Only
+                Read/Write
             """
             return self._current_datum
+
+        @current_datum.setter
+        def current_datum(self, value: Optional[str]) -> None:
+            if value:
+                if _ngvd29_pattern.match(value):
+                    self._current_datum = _NGVD29
+                elif _navd88_pattern.match(value):
+                    self._current_datum = _NAVD88
+                elif _other_datum_pattern.match(value):
+                    self._current_datum = _OTHER_DATUM
+                else:
+                    self._current_datum = value
+            else:
+                self._current_datum = None
 
         @property
         def elevation(self) -> Optional[UnitQuantity]:
@@ -700,7 +720,7 @@ class ElevParameter(Parameter):
             """
             target_datum = self.normalize_datum_name(target_datum)
             if target_datum == self._current_datum:
-                return None
+                return UnitQuantity(0, self._unit)
             if target_datum == _NGVD29:
                 if self.current_datum == _NAVD88:
                     if self._ngvd29_offset is None or self._navd88_offset is None:
@@ -772,7 +792,7 @@ class ElevParameter(Parameter):
             Operations:
                 Read Only
             """
-            return self._navd88_offset.round(9) if self._navd88_offset else None
+            return None if self._navd88_offset is None else self._navd88_offset.round(9)
 
         @property
         def navd88_offset_is_estimate(self) -> Optional[bool]:
@@ -795,7 +815,7 @@ class ElevParameter(Parameter):
             Operations:
                 Read Only
             """
-            return self._ngvd29_offset.round(9) if self._ngvd29_offset else None
+            return None if self._ngvd29_offset is None else self._ngvd29_offset.round(9)
 
         @property
         def ngvd29_offset_is_estimate(self) -> Optional[bool]:
@@ -859,7 +879,7 @@ class ElevParameter(Parameter):
             Returns:
                 ElevParameter.VerticalDatumInfo: The converted object - whether this object or a copy of this object
             """
-            converted = self if in_place else self.clone()
+            converted = self if in_place else self.copy()
             try:
                 if isinstance(unit_or_datum, Unit) or not (
                     _all_datums_pattern.match(unit_or_datum)
@@ -941,9 +961,18 @@ class ElevParameter(Parameter):
             The unit assigned to the parameter
 
             Operations:
-                Read Only
+                Read/Write
             """
             return self._unit
+
+        @unit.setter
+        def unit(self, value: Unit) -> None:
+            if not isinstance(value, Unit):
+                raise TypeError(
+                    f"Expected Unit for value, got {value.__class__.__name__}"
+                )
+            self._unit = value
+            self._unit_name = str(value)
 
         @property
         def unit_name(self) -> str:
@@ -951,9 +980,18 @@ class ElevParameter(Parameter):
             The unit name assigned to the parameter
 
             Operations:
-                Read Only
+                Read/Write
             """
             return self._unit_name
+
+        @unit_name.setter
+        def unit_name(self, value: str) -> None:
+            if not isinstance(value, str):
+                raise TypeError(
+                    f"Expected str for value, got {value.__class__.__name__}"
+                )
+            self._unit = UnitQuantity(value).unit
+            self._unit_name = value
 
     def __init__(
         self,
@@ -975,6 +1013,7 @@ class ElevParameter(Parameter):
             _vertical_datum_info = ElevParameter._VerticalDatumInfo(vertical_datum_info)
             unit_name = _vertical_datum_info.unit_name
         else:
+            _vertical_datum_info = None
             unit_name = None
         super().__init__(name, unit_name)
         if self.base_parameter != "Elev":
@@ -1004,9 +1043,19 @@ class ElevParameter(Parameter):
         The current datum of this object
 
         Operations:
-            Read Only
+            Read/Write
         """
-        return self.vertical_datum_info.current_datum
+        return (
+            self.vertical_datum_info.current_datum if self.vertical_datum_info else None
+        )
+
+    @current_datum.setter
+    def current_datum(self, value: Optional[str]) -> None:
+        if self.vertical_datum_info is None:
+            raise ParameterException(
+                "Cannot set current datum: vertical datum info is empty"
+            )
+        self.vertical_datum_info.current_datum = value
 
     @property
     def elevation(self) -> Optional[UnitQuantity]:
@@ -1016,7 +1065,7 @@ class ElevParameter(Parameter):
         Operations:
             Read Only
         """
-        return self.vertical_datum_info.elevation
+        return self.vertical_datum_info.elevation if self.vertical_datum_info else None
 
     def get_offset_to(self, target_datum: str) -> Optional[UnitQuantity]:
         """
@@ -1033,6 +1082,8 @@ class ElevParameter(Parameter):
             Optional[UnitQuantity]: The offset from the current datum to the target datum
                 or `None` if the current and target datums are the same.
         """
+        if self.vertical_datum_info is None:
+            raise ParameterException("Cannot get offset: vertical datum info is empty")
         return self.vertical_datum_info.get_offset_to(target_datum)
 
     def ito(self, unit_or_system_or_datum: Union[str, Unit]) -> "ElevParameter":
@@ -1058,7 +1109,9 @@ class ElevParameter(Parameter):
         Operations:
             Read Only
         """
-        return self.vertical_datum_info.native_datum
+        return (
+            self.vertical_datum_info.native_datum if self.vertical_datum_info else None
+        )
 
     @property
     def navd88_offset(self) -> Optional[UnitQuantity]:
@@ -1070,7 +1123,9 @@ class ElevParameter(Parameter):
         Operations:
             Read Only
         """
-        return self.vertical_datum_info.navd88_offset
+        return (
+            self.vertical_datum_info.navd88_offset if self.vertical_datum_info else None
+        )
 
     @property
     def navd88_offset_is_estimate(self) -> Optional[bool]:
@@ -1081,7 +1136,11 @@ class ElevParameter(Parameter):
         Operations:
             Read Only
         """
-        return self._vertical_datum_info.navd88_offset_is_estimate
+        return (
+            self._vertical_datum_info.navd88_offset_is_estimate
+            if self._vertical_datum_info
+            else None
+        )
 
     @property
     def ngvd29_offset(self) -> Optional[UnitQuantity]:
@@ -1093,7 +1152,9 @@ class ElevParameter(Parameter):
         Operations:
             Read Only
         """
-        return self.vertical_datum_info.ngvd29_offset
+        return (
+            self.vertical_datum_info.ngvd29_offset if self.vertical_datum_info else None
+        )
 
     @property
     def ngvd29_offset_is_estimate(self) -> Optional[bool]:
@@ -1104,7 +1165,11 @@ class ElevParameter(Parameter):
         Operations:
             Read Only
         """
-        return self._vertical_datum_info.ngvd29_offset_is_estimate
+        return (
+            self._vertical_datum_info.ngvd29_offset_is_estimate
+            if self._vertical_datum_info
+            else None
+        )
 
     def to(
         self, unit_or_system_or_datum: Union[str, Unit], in_place: bool = False
@@ -1135,14 +1200,18 @@ class ElevParameter(Parameter):
                         "default_si_unit"
                     ]
                 converted._unit_name = unit.get_unit_name(converted._unit_name)
-                converted._vertical_datum_info.to(converted._unit_name, in_place=True)
-                converted._unit = converted.vertical_datum_info.unit
+                if converted._vertical_datum_info:
+                    converted._vertical_datum_info.to(
+                        converted._unit_name, in_place=True
+                    )
+                    converted._unit = converted._vertical_datum_info.unit
             else:
-                converted._vertical_datum_info.to(
-                    unit_or_system_or_datum, in_place=True
-                )
-                converted._unit_name = converted.vertical_datum_info.unit_name
-                converted._unit = converted.vertical_datum_info.unit
+                if converted._vertical_datum_info is not None:
+                    converted._vertical_datum_info.to(
+                        unit_or_system_or_datum, in_place=True
+                    )
+                    converted._unit_name = converted._vertical_datum_info.unit_name
+                    converted._unit = converted._vertical_datum_info.unit
             return converted
         except:
             raise ParameterException(
@@ -1157,7 +1226,9 @@ class ElevParameter(Parameter):
         Operations:
             Read Only
         """
-        return self._vertical_datum_info.unit
+        return (
+            self._vertical_datum_info.unit if self._vertical_datum_info else self._unit
+        )
 
     @property
     def unit_name(self) -> str:
@@ -1167,10 +1238,14 @@ class ElevParameter(Parameter):
         Operations:
             Read Only
         """
-        return self._vertical_datum_info.unit_name
+        return (
+            self._vertical_datum_info.unit_name
+            if self._vertical_datum_info
+            else self._unit_name
+        )
 
     @property
-    def vertical_datum_info(self) -> _VerticalDatumInfo:
+    def vertical_datum_info(self) -> Optional[_VerticalDatumInfo]:
         """
         The VerticalDatumInfo object of this parameter
 
@@ -1180,24 +1255,24 @@ class ElevParameter(Parameter):
         return self._vertical_datum_info
 
     @property
-    def vertical_datum_info_dict(self) -> dict[str, Any]:
+    def vertical_datum_info_dict(self) -> Optional[dict[str, Any]]:
         """
         The VerticalDatumInfo object of this parameter as a dictionary
 
         Operations:
             Read Only
         """
-        return self.vertical_datum_info.to_dict()
+        return self.vertical_datum_info.to_dict() if self.vertical_datum_info else None
 
     @property
-    def vertical_datum_info_xml(self) -> str:
+    def vertical_datum_info_xml(self) -> Optional[str]:
         """
         The VerticalDatumInfo object of this parameter as an xml string
 
         Operations:
             Read Only
         """
-        return str(self.vertical_datum_info)
+        return str(self.vertical_datum_info) if self.vertical_datum_info else None
 
 
 class ParameterTypeException(Exception):

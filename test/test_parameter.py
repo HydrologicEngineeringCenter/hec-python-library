@@ -2,6 +2,8 @@
 Module for testing hec.parameter module
 """
 
+from typing import cast
+
 import pytest
 
 from hec import (
@@ -119,7 +121,7 @@ def test_elev_parameter_with_xml() -> None:
     assert p2.navd88_offset == UQ(1.457, "ft")
     assert p2.navd88_offset_is_estimate == True
     assert p2.get_offset_to("ngvd-29") == UQ(-0.387, "ft")
-    assert p2.get_offset_to("navd-88") is None
+    assert p2.get_offset_to("navd-88") == UQ(0, "ft")
 
     assert repr(p) == "ElevParameter('Elev', <vertical-datum-info>)"
     assert str(p) == "Elev (<vertical-datum-info>)"
@@ -160,7 +162,7 @@ def test_elev_parameter_with_xml() -> None:
     assert p.navd88_offset == UQ(1.457 * 0.3048, "m").round(9)
     assert p.navd88_offset_is_estimate == True
     assert p.get_offset_to("ngvd-29") == UQ(-0.387 * 0.3048, "m").round(9)
-    assert p.get_offset_to("navd-88") is None
+    assert p.get_offset_to("navd-88") == UQ(0, "ft")
 
     p.to("ft", in_place=True)
     assert p.unit_name == "ft"
@@ -171,7 +173,7 @@ def test_elev_parameter_with_xml() -> None:
     assert p.navd88_offset == UQ(1.457, "ft").round(9)
     assert p.navd88_offset_is_estimate == True
     assert p.get_offset_to("ngvd-29") == UQ(-0.387, "ft").round(9)
-    assert p.get_offset_to("navd-88") is None
+    assert p.get_offset_to("navd-88") == UQ(0, "ft")
 
     p.to("ngvd-29", in_place=True)
     assert p.unit_name == "ft"
@@ -181,7 +183,7 @@ def test_elev_parameter_with_xml() -> None:
     assert p.ngvd29_offset_is_estimate == False
     assert p.navd88_offset == UQ(1.457, "ft").round(9)
     assert p.navd88_offset_is_estimate == True
-    assert p.get_offset_to("ngvd-29") is None
+    assert p.get_offset_to("ngvd-29") == UQ(0, "ft")
     assert p.get_offset_to("navd-88") == UQ(0.387, "ft").round(9)
 
     p.to("local", in_place=True)
@@ -201,7 +203,8 @@ def test_elev_parameter_with_xml() -> None:
         "Invalid unit for base parameter Elev or or invalid vertical datum: Bad-Datum"
     )
 
-    assert "".join(p.vertical_datum_info_xml.split()) == "".join(xml.split())
+    assert p.vertical_datum_info
+    assert "".join(cast(str, p.vertical_datum_info_xml).split()) == "".join(xml.split())
 
 
 def test_elev_parameter_with_dict() -> None:
@@ -251,7 +254,7 @@ def test_elev_parameter_with_dict() -> None:
     assert p2.navd88_offset == UQ(1.457, "ft")
     assert p2.navd88_offset_is_estimate == True
     assert p2.get_offset_to("ngvd-29") == UQ(-0.387, "ft")
-    assert p2.get_offset_to("navd-88") is None
+    assert p2.get_offset_to("navd-88") == UQ(0, "ft")
 
     assert repr(p) == "ElevParameter('Elev', <vertical-datum-info>)"
     assert str(p) == "Elev (<vertical-datum-info>)"
@@ -291,7 +294,7 @@ def test_elev_parameter_with_dict() -> None:
     assert p.ngvd29_offset_is_estimate == False
     assert p.navd88_offset == UQ(1.457 * 0.3048, "m").round(9)
     assert p.get_offset_to("ngvd-29") == UQ(-0.387 * 0.3048, "m").round(9)
-    assert p.get_offset_to("navd-88") is None
+    assert p.get_offset_to("navd-88") == UQ(0, "ft")
 
     p.to("ft", in_place=True)
     assert p.unit_name == "ft"
@@ -302,7 +305,7 @@ def test_elev_parameter_with_dict() -> None:
     assert p.navd88_offset == UQ(1.457, "ft").round(9)
     assert p.navd88_offset_is_estimate == True
     assert p.get_offset_to("ngvd-29") == UQ(-0.387, "ft").round(9)
-    assert p.get_offset_to("navd-88") is None
+    assert p.get_offset_to("navd-88") == UQ(0, "ft")
 
     p.to("ngvd-29", in_place=True)
     assert p.unit_name == "ft"
@@ -313,7 +316,7 @@ def test_elev_parameter_with_dict() -> None:
     assert p.ngvd29_offset_is_estimate == False
     assert p.navd88_offset == UQ(1.457, "ft").round(9)
     assert p.navd88_offset_is_estimate == True
-    assert p.get_offset_to("ngvd-29") is None
+    assert p.get_offset_to("ngvd-29") == UQ(0, "ft")
     assert p.get_offset_to("navd-88") == UQ(0.387, "ft").round(9)
 
     p.to("local", in_place=True)

@@ -617,7 +617,7 @@ class RatingSpecification:
 
             return re.sub(pattern, repl, s, flags=re.MULTILINE)
 
-        xml = etree.tostring(self.xml_element, pretty_print=True).decode()
+        xml: str = etree.tostring(self.xml_element, pretty_print=True).decode()
         if indent != "  ":
             xml = replace_indent(xml, indent)
         if prepend:
@@ -651,7 +651,8 @@ class RatingSpecification:
             Read-Only
         """
         spec_elem = etree.Element(
-            "rating-spec", attrib={"office-id": self.template.office if self.template.office else ""}
+            "rating-spec",
+            attrib={"office-id": self.template.office if self.template.office else ""},
         )
         spec_id_elem = etree.SubElement(spec_elem, "rating-spec-id")
         spec_id_elem.text = self.name
