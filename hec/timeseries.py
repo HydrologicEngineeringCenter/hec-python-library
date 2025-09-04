@@ -765,7 +765,7 @@ class TimeSeries:
                         stop = None
                     else:
                         raise
-            other._data = self._data.loc[start:stop:step]  # type: ignore
+            other._data = self._data.loc[start:stop:step]
         else:
             other._data = cast(pd.DataFrame, self._data.loc[self.index_of(key)])
         return other
@@ -8216,6 +8216,10 @@ class TimeSeries:
             # ----------------- #
             if isinstance(target.parameter, ElevParameter):
                 offset = target.parameter.get_offset_to(unit_parameter_or_datum)
+                if offset is None:
+                    raise TimeSeriesException(
+                        f"Cannot convert datum: Unknown offset to {unit_parameter_or_datum}"
+                    )
                 if offset:
                     offset.ito(self.unit)
                     target.parameter.ito(unit_parameter_or_datum)

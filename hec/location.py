@@ -480,7 +480,7 @@ class Location:
         if value is None:
             self._vertical_datum_info = None
         elif isinstance(value, hec.parameter.ElevParameter._VerticalDatumInfo):
-            self._vertical_datum_info = value.clone()
+            self._vertical_datum_info = value.copy()
         elif isinstance(value, dict):
             s = re.sub(r"\b(True|False)\b", lambda m: m.group(0).lower(), str(value))
             self._vertical_datum_info = hec.parameter.ElevParameter._VerticalDatumInfo(

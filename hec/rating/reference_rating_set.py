@@ -1,3 +1,4 @@
+import re
 from datetime import datetime
 from typing import Any, Optional, Union, cast
 
@@ -50,17 +51,40 @@ class ReferenceRatingSet(AbstractRatingSet):
             raise ReferenceRatingSetException(
                 "Required parameter 'datastore' not specified."
             )
+        if self._has_elev_param():
+            self._vertical_datum_info = cast(
+                hec.location.Location,
+                self._datastore.retrieve(self._specification.location.name),
+            )._vertical_datum_info
+            self._default_data_veritcal_datum = (
+                self._vertical_datum_info.native_datum
+                if self._vertical_datum_info
+                else None
+            )
 
     def rate_values(
         self,
         ind_values: list[list[float]],
         value_times: Optional[list[datetime]] = None,
         units: Optional[str] = None,
+        vertical_datum: Optional[str] = None,
         rating_time: Optional[datetime] = None,
         round: bool = False,
     ) -> list[float]:
         # docstring is in AbstractRatingSet
         assert self._datastore is not None
+        list_count = len(ind_values)
+        if list_count != self.template.ind_param_count:
+            raise ReferenceRatingSetException(
+                f"Expected {self.template.ind_param_count} lists of input values, got {list_count}"
+            )
+        value_count = len(ind_values[0])
+        for i in range(1, list_count):
+            if len(ind_values[i]) != value_count:
+                raise ReferenceRatingSetException(
+                    f"Expected all input value lists to be of lenght {value_count}, "
+                    f"got {len(ind_values[i])} on value list {i+1}."
+                )
         if value_times is None and self.default_data_time is not None:
             value_times = len(ind_values[0]) * [cast(datetime, self._default_data_time)]
         times = [
@@ -71,6 +95,38 @@ class ReferenceRatingSet(AbstractRatingSet):
             raise ReferenceRatingSetException(
                 "Cannot perform rating. No data units are specified and rating set has no defaults"
             )
+        if len(re.split(r"[;,]", cast(str, _units))) != list_count + 1:
+            raise ReferenceRatingSetException(
+                f"Expected {list_count+1} units, got {len(_units)}"
+            )
+        vd: Optional[str] = None
+        if self._has_elev_param() and vertical_datum is not None:
+            if hec.parameter._ngvd29_pattern.match(vertical_datum):
+                vd = hec.parameter._NGVD29
+            elif hec.parameter._navd88_pattern.match(vertical_datum):
+                vd = hec.parameter._NAVD88
+            elif hec.parameter._other_datum_pattern.match(vertical_datum):
+                vd = hec.parameter._OTHER_DATUM
+            else:
+                raise ReferenceRatingSetException(
+                    f"Invalid vertical datum: {vertical_datum}. Must be one of "
+                    f"{hec.parameter._NGVD29}, {hec.parameter._NAVD88}, or {hec.parameter._OTHER_DATUM}"
+                )
+            if (
+                self._vertical_datum_info
+                and self._vertical_datum_info.native_datum
+                and vd != self._vertical_datum_info.native_datum
+            ):
+                offset = self._vertical_datum_info.get_offset_to(vd)
+                if offset is not None:
+                    if bool(offset.magnitude):
+                        for i in range(list_count):
+                            if self.template.ind_params[i].startswith("Elev"):
+                                offset_value = -offset.to(_units[i]).magnitude
+                                ind_values[i] = [
+                                    ind_values[i][j] + offset_value
+                                    for j in range(value_count)
+                                ]
         fake_values = [np.nanmean(iv) for iv in ind_values]
         masks = [[True if np.isnan(v) else False for v in iv] for iv in ind_values]
         mask = [not any(m) for m in list(zip(*masks))]
@@ -89,6 +145,16 @@ class ReferenceRatingSet(AbstractRatingSet):
             round=round,
         )
         response_values = cast(list[float], cast(dict[str, Any], response)["values"])
+        if vd is not None and self.template.dep_param.startswith("Elev"):
+            if (
+                self._vertical_datum_info
+                and self._vertical_datum_info.native_datum
+                and vd != self._vertical_datum_info.native_datum
+            ):
+                offset = self._vertical_datum_info.get_offset_to(vd)
+                if offset is not None and bool(offset.magnitude):
+                    offset_value = offset.to(_units[-1]).magnitude
+                    response_values = [v + offset_value for v in response_values]
         return [
             response_values[i] if mask[i] else np.nan
             for i in range(len(response_values))
@@ -99,6 +165,7 @@ class ReferenceRatingSet(AbstractRatingSet):
         dep_values: list[float],
         value_times: Optional[list[datetime]] = None,
         units: Optional[str] = None,
+        vertical_datum: Optional[str] = None,
         rating_time: Optional[datetime] = None,
         round: bool = False,
     ) -> list[float]:
@@ -114,6 +181,34 @@ class ReferenceRatingSet(AbstractRatingSet):
             raise ReferenceRatingSetException(
                 "Cannot perform rating. No data units are specified and rating set has no defaults"
             )
+        if len(re.split(r"[;,]", cast(str, units))) != 2:
+            raise ReferenceRatingSetException(f"Expected 2 units, got {len(_units)}")
+        vd: Optional[str] = None
+        if self._has_elev_param() and vertical_datum is not None:
+            if hec.parameter._ngvd29_pattern.match(vertical_datum):
+                vd = hec.parameter._NGVD29
+            elif hec.parameter._navd88_pattern.match(vertical_datum):
+                vd = hec.parameter._NAVD88
+            elif hec.parameter._other_datum_pattern.match(vertical_datum):
+                vd = hec.parameter._OTHER_DATUM
+            else:
+                raise ReferenceRatingSetException(
+                    f"Invalid vertical datum: {vertical_datum}. Must be one of "
+                    f"{hec.parameter._NGVD29}, {hec.parameter._NAVD88}, or {hec.parameter._OTHER_DATUM}"
+                )
+            if (
+                self.template.dep_param.startswith("Elev")
+                and self._vertical_datum_info
+                and self._vertical_datum_info.native_datum
+                and vd != self._vertical_datum_info.native_datum
+            ):
+                offset = self._vertical_datum_info.get_offset_to(vd)
+                if offset is not None:
+                    if bool(offset.magnitude):
+                        offset_value = -offset.to(
+                            re.split(r"[;,]", cast(str, _units))[0]
+                        ).magnitude
+                        dep_values = [v + offset_value for v in dep_values]
         fake_value = np.nanmean(dep_values)
         mask = [False if np.isnan(v) else True for v in dep_values]
         response = (
@@ -130,6 +225,18 @@ class ReferenceRatingSet(AbstractRatingSet):
             )
         )
         response_values = cast(list[float], cast(dict[str, Any], response)["values"])
+        if vd is not None and self.template.ind_params[0].startswith("Elev"):
+            if (
+                self._vertical_datum_info
+                and self._vertical_datum_info.native_datum
+                and vd != self._vertical_datum_info.native_datum
+            ):
+                offset = self._vertical_datum_info.get_offset_to(vd)
+                if offset is not None and bool(offset.magnitude):
+                    offset_value = offset.to(
+                        re.split(r"[;,]", cast(str, _units))[0]
+                    ).magnitude
+                    response_values = [v + offset_value for v in response_values]
         return [
             response_values[i] if mask[i] else np.nan
             for i in range(len(response_values))
