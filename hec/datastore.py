@@ -264,6 +264,7 @@ _valid_catalog_fields: dict[str, dict[str, list[str]]] = {
             "dependent-parameter",
             "version",
             "lookup-methods",
+            "rating-ids",
         ],
         _CwmsDataType.TIMESERIES.name: [
             "name",
@@ -2245,6 +2246,8 @@ class CwmsDataStore(AbstractDataStore):
                     * `dependent-parameter`: The dependent parameter name
                     * `version` The template version
                     * `lookup-methods`: A semicolon-delimited string of comma-delimited lookup methods for each independent parameter (order = in-range, below-range, above-range)
+                    * `rating-ids`: A list of rating ids that use the template. The rating ids are specified as the string representation of a list (i.e., an actual list
+                      can be obtained by passing this field to `eval()`)
                 * **`LOCATION`**:
                     * `identifier`: The location identifier
                     * `office`: The CWMS office for the location
@@ -2831,6 +2834,7 @@ class CwmsDataStore(AbstractDataStore):
                             effective_dates[i] = list(
                                 map(_tz_convert, eval(cast(str, effective_dates[i])))
                             )
+                    effective_dates = [sorted(set(dates)) for dates in effective_dates]
                 field_items = {}
                 for field in fields:
                     if field == "lookup-methods":
@@ -2876,6 +2880,7 @@ class CwmsDataStore(AbstractDataStore):
                 "office": "office-id",
                 "dependent-parameter": "dependent-paraneter",
                 "version": "version",
+                "rating-ids": "rating-ids",
             }
             for field_name in ["identifier", "name"]:
                 try:
@@ -2891,6 +2896,8 @@ class CwmsDataStore(AbstractDataStore):
                 template_id_mask=_regex,
             )
             if not data.df.empty:
+                if "rating-ids" in fields:
+                    rating_ids = sorted(set([id for ids in data.df["rating-ids"].to_list() for id in ids]))
                 if "independent-parameters" in fields or "lookup-methods" in fields:
                     ind_param_specs = data.df["independent-parameter-specs"].to_list()
                     if "independent-parameters" in fields:
@@ -3129,7 +3136,7 @@ class CwmsDataStore(AbstractDataStore):
                             try:
                                 items = list(map(str, df[field].to_list()))
                             except KeyError:
-                                item = None
+                                items = [None]
                             field_items[field] = [
                                 (
                                     "<None>"
@@ -3594,15 +3601,3 @@ if __name__ == "__main__":
         "(OUTLET|TURBINE)",
     ]:
         print(f"{pattern} => {_pattern_to_regex(pattern)}")
-
-    import json
-
-    with CwmsDataStore.open(office="SWT", time_zone="US/Pacific") as db:
-        catalog = db.catalog(
-            "RATING",
-            pattern="KEYS*",
-            fields="name,create-date,effective-date, units, lookup-methods, rounding-specs",
-            header=True,
-        )
-        for item in catalog:
-            print(item)

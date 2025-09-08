@@ -85,8 +85,11 @@ class ReferenceRatingSet(AbstractRatingSet):
                     f"Expected all input value lists to be of lenght {value_count}, "
                     f"got {len(ind_values[i])} on value list {i+1}."
                 )
-        if value_times is None and self.default_data_time is not None:
-            value_times = len(ind_values[0]) * [cast(datetime, self._default_data_time)]
+        if value_times is None:
+            if self.default_data_time is not None:
+                value_times = len(ind_values[0]) * [cast(datetime, self._default_data_time)]
+            else:
+                value_times = len(ind_values[0]) * [datetime.now()]
         times = [
             (int(dt.timestamp()) * 1000) for dt in cast(list[datetime], value_times)
         ]
@@ -171,8 +174,11 @@ class ReferenceRatingSet(AbstractRatingSet):
     ) -> list[float]:
         # docstring is in AbstractRatingSet
         assert self._datastore is not None
-        if value_times is None and self.default_data_time is not None:
-            value_times = len(dep_values) * [cast(datetime, self._default_data_time)]
+        if value_times is None:
+            if self.default_data_time is not None:
+                value_times = len(dep_values) * [cast(datetime, self._default_data_time)]
+            else:
+                value_times = len(dep_values) * [datetime.now()]
         times = [
             (int(dt.timestamp()) * 1000) for dt in cast(list[datetime], value_times)
         ]

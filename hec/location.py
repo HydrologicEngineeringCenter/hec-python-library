@@ -506,7 +506,7 @@ class Location:
                     f'"elevation":{vdi.elevation.magnitude},"unit":"{vdi.elevation.specified_unit}",'
                 )
             else:
-                buf.write(f'"elevation":null,"unit":"null",')
+                buf.write(f'"elevation":null,"unit":null,')
             buf.write(f'"native-datum":"{vdi.native_datum}",')
             if vdi.navd88_offset or vdi.ngvd29_offset:
                 buf.write('"offsets":[')
