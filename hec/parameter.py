@@ -32,6 +32,7 @@ The tab separated variable file `resources/base_parameters.tsv` in this module's
 </table>
 """
 
+import json
 import os
 import re
 import xml.etree.ElementTree as ET
@@ -506,7 +507,7 @@ class ElevParameter(Parameter):
                         else:
                             self._native_datum = text
                     self._current_datum = self._native_datum
-                    if "elevation" in vertical_datum_info:
+                    if "elevation" in vertical_datum_info and vertical_datum_info["elevation"] is not None:
                         self._elevation = UnitQuantity(
                             vertical_datum_info["elevation"], self._unit_name
                         )
@@ -532,12 +533,7 @@ class ElevParameter(Parameter):
                         # ----------------------- #
                         # JSON string as from CDA #
                         # ----------------------- #
-                        s = re.sub(
-                            r"\b(true|false)\b",
-                            lambda m: m.group(0).title(),
-                            vertical_datum_info,
-                        )
-                        vdi = ElevParameter._VerticalDatumInfo(eval(s))
+                        vdi = ElevParameter._VerticalDatumInfo(json.loads(vertical_datum_info.replace(",}","}")))
                         self._unit_name = vdi._unit_name
                         self._unit = vdi._unit
                         self._elevation = vdi._elevation
