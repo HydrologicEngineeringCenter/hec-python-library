@@ -1,10 +1,10 @@
 import os
-import pytest
 import warnings
 from datetime import datetime
-from typing import Optional, cast
+from typing import Generator, Optional, cast
 
 import numpy as np
+import pytest
 
 from hec import Combine, CwmsDataStore, HecTime, Parameter, TimeSeries, UnitQuantity
 from hec.rating import AbstractRatingSet, ReferenceRatingSet
@@ -15,8 +15,9 @@ _multi_param_rating_set: Optional[AbstractRatingSet] = None
 
 import pytest
 
+
 @pytest.fixture(scope="session", autouse=True)
-def before_all_after_all():
+def before_all_after_all() -> Generator[None, None, None]:
     global _multi_param_rating_set
     # ---- before all tests ----
     yield
@@ -25,6 +26,7 @@ def before_all_after_all():
         _multi_param_rating_set = None
         if _db is not None:
             _db.close()
+
 
 def can_use_cda() -> bool:
     try:
@@ -148,7 +150,7 @@ def test_elev_stor_reference_rating_set() -> None:
         skip_test_message = "Test test_reference_rating_set() is skipped because CDA is not accessible to test"
         warnings.warn(skip_test_message)
         return
-    if (_db is None):
+    if _db is None:
         _db = CwmsDataStore.open()
         _db.time_window = "t-1d, t"
     # -------------------------------------------- #
@@ -161,37 +163,38 @@ def test_elev_stor_reference_rating_set() -> None:
     # ----------------------------------- #
     # get a time series from the database #
     # ----------------------------------- #
-    elev_ts_29 = cast(
-        TimeSeries, _db.retrieve("ARCA.Elev.Inst.1Hour.0.Ccp-Rev")
-    )
+    elev_ts_29 = cast(TimeSeries, _db.retrieve("ARCA.Elev.Inst.1Hour.0.Ccp-Rev"))
     _test_elev_stor_rating_set(rating_set, elev_ts_29)
 
-def _test_complex_rating_set(rs: AbstractRatingSet, p1_val: float, p2_val: float, expected_val: float, units: str) -> None:
-    dep_vals = rs.rate_values(
-        [[p1_val], [p2_val]],
-        units=units
-    )
+
+def _test_complex_rating_set(
+    rs: AbstractRatingSet, p1_val: float, p2_val: float, expected_val: float, units: str
+) -> None:
+    dep_vals = rs.rate_values([[p1_val], [p2_val]], units=units)
     assert round(dep_vals[0], 5) == expected_val
+
 
 @pytest.mark.parametrize(
     "stage, speed_index, expected_flow",
     [
-        [24, 0.9, 26073.54308],
+        [24, 0.9, 26073.54308],  # values are from database schema test
         [24, 1.0, 29206.94457],
         [24, 1.1, 32340.34606],
         [25, 0.9, 27056.06359],
         [25, 1.0, 30307.53999],
         [25, 1.1, 33559.01639],
-        [26, 0.9, 251578.80378], # speed not used if stage > 25 ft
-        [26, 1.0, 251578.80378], #  
-        [26, 1.1, 251578.80378], #
-    ]
+        [26, 0.9, 251578.80378],  # speed not used if stage > 25 ft
+        [26, 1.0, 251578.80378],  #
+        [26, 1.1, 251578.80378],  #
+    ],
 )
-def test_complex_reference_rating_set(stage: float, speed_index: float, expected_flow: float) -> None:
+def test_complex_reference_rating_set(
+    stage: float, speed_index: float, expected_flow: float
+) -> None:
     """
     This test uses a transitional rating that uses two different virtual ratings (one if the stage
     <= 25 feet and the other stage > 25 feet). Both source ratings to the transitional rating are
-    virtual ratings. One virtual rating uses two table ratings and a rating expression (formula), 
+    virtual ratings. One virtual rating uses two table ratings and a rating expression (formula),
     while the other virtual rating uses a single table rating and a rating expression.
 
     Args:
@@ -205,7 +208,7 @@ def test_complex_reference_rating_set(stage: float, speed_index: float, expected
         warnings.warn(skip_test_message)
         return
     if _multi_param_rating_set is None:
-        if (_db is None):
+        if _db is None:
             _db = CwmsDataStore.open()
         _db.time_window = "t-1d, t"
         # -------------------------------------------- #
@@ -218,7 +221,10 @@ def test_complex_reference_rating_set(stage: float, speed_index: float, expected
     # --------------------------------------------------------- #
     # rate the input values and compare with the expected value #
     # --------------------------------------------------------- #
-    _test_complex_rating_set(_multi_param_rating_set, stage, speed_index, expected_flow, "ft,mph;cfs")
+    _test_complex_rating_set(
+        _multi_param_rating_set, stage, speed_index, expected_flow, "ft,mph;cfs"
+    )
+
 
 def generate_rating_error_info() -> None:
     with open("ratings_test.txt", "w") as f:
@@ -327,8 +333,10 @@ def generate_rating_error_info() -> None:
                                         output(f"\t\t\t===> {e}")
                                     break
 
+
 def generate_rating_error_info2() -> None:
     import re
+
     with open("ratings_test2.txt", "w") as f:
 
         def output(msg: str) -> None:
@@ -339,18 +347,13 @@ def generate_rating_error_info2() -> None:
         recent = HecTime.now() - "P2D"
         with CwmsDataStore.open() as db:
             cwms = db.native_data_store
-            response = cwms.api.get(
-                endpoint="offices",
-                params={"has-data": True}
-            )
+            response = cwms.api.get(endpoint="offices", params={"has-data": True})
             offices = sorted([item["name"] for item in response])
             for office in offices:
                 output(office)
                 db.office = office
                 template_cat = db.catalog(
-                    "RATING_TEMPLATE",
-                    pattern="*,*",
-                    fields="name, rating-ids"
+                    "RATING_TEMPLATE", pattern="*,*", fields="name, rating-ids"
                 )
                 for template_item in template_cat:
                     parts = template_item.split("\t")
@@ -385,7 +388,9 @@ def generate_rating_error_info2() -> None:
                                         tsids.append(tsid)
                                         break
                                 else:
-                                    output(f"\t\tNo time series for parameter {ind_param}")
+                                    output(
+                                        f"\t\tNo time series for parameter {ind_param}"
+                                    )
                                     has_ts = False
                                     break
                             if not has_ts:
@@ -400,18 +405,21 @@ def generate_rating_error_info2() -> None:
                                 input_values = []
                                 ind_units = []
                                 for tsid in tsids:
-                                    ts = cast(TimeSeries, db.retrieve(
-                                        tsid,
-                                        start_time=latest_time,
-                                        end_time=latest_time,
-                                    ))
+                                    ts = cast(
+                                        TimeSeries,
+                                        db.retrieve(
+                                            tsid,
+                                            start_time=latest_time,
+                                            end_time=latest_time,
+                                        ),
+                                    )
                                     output(f"\t\t{ts} = {ts.values[0]}")
                                     input_values.append([ts.values[0]])
                                     ind_units.append(ts.unit)
                                 dep_unit = Parameter(rs.template.dep_param).unit_name
                                 rated = rs.rate_values(
                                     input_values,
-                                    units=f"{','.join(ind_units)};{dep_unit}"
+                                    units=f"{','.join(ind_units)};{dep_unit}",
                                 )
                                 output(f"\t\trated = {rated[0]}")
                             except Exception as e:

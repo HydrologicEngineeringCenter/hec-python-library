@@ -497,6 +497,12 @@ class Location:
 
     @property
     def vertical_datum_json(self) -> Optional[str]:
+        """
+        The vertical datum info of the location, if any, as a JSON object
+
+        Operations:
+            Read-Only
+        """
         vdi = self._vertical_datum_info
         if vdi:
             buf = StringIO()
@@ -530,6 +536,12 @@ class Location:
 
     @property
     def vertical_datum_xml(self) -> Optional[str]:
+        """
+        The vertical datum info of the location, if any, as an XML instance
+
+        Operations:
+            Read-Only
+        """
         vdi = self._vertical_datum_info
         if vdi:
             lines = str(self._vertical_datum_info).split("\n")

@@ -2897,7 +2897,15 @@ class CwmsDataStore(AbstractDataStore):
             )
             if not data.df.empty:
                 if "rating-ids" in fields:
-                    rating_ids = sorted(set([id for ids in data.df["rating-ids"].to_list() for id in ids]))
+                    rating_ids = sorted(
+                        set(
+                            [
+                                id
+                                for ids in data.df["rating-ids"].to_list()
+                                for id in ids
+                            ]
+                        )
+                    )
                 if "independent-parameters" in fields or "lookup-methods" in fields:
                     ind_param_specs = data.df["independent-parameter-specs"].to_list()
                     if "independent-parameters" in fields:
@@ -3136,7 +3144,7 @@ class CwmsDataStore(AbstractDataStore):
                             try:
                                 items = list(map(str, df[field].to_list()))
                             except KeyError:
-                                items = [None]
+                                items = [""]
                             field_items[field] = [
                                 (
                                     "<None>"
