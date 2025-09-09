@@ -2300,6 +2300,8 @@ The catalog will include the fields in the order specified. Defaults to <code>id
 <li><code>dependent-parameter</code>: The dependent parameter name</li>
 <li><code>version</code> The template version</li>
 <li><code>lookup-methods</code>: A semicolon-delimited string of comma-delimited lookup methods for each independent parameter (order = in-range, below-range, above-range)</li>
+<li><code>rating-ids</code>: A list of rating ids that use the template. The rating ids are specified as the string representation of a list (i.e., an actual list
+can be obtained by passing this field to <code>eval()</code>)</li>
 </ul></li>
 <li><strong><code>LOCATION</code></strong>:
 <ul>
@@ -7931,7 +7933,15 @@ or its name or (actual or characteristic) minutes.</li>
     </div>
     <a class="headerlink" href="#Location.vertical_datum_json"></a>
     
-    
+            <div class="docstring"><p>The vertical datum info of the location, if any, as a JSON object</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read-Only</p>
+</blockquote>
+</div>
+
 
                             </div>
                             <div id="Location.vertical_datum_xml" class="classattr">
@@ -7942,7 +7952,15 @@ or its name or (actual or characteristic) minutes.</li>
     </div>
     <a class="headerlink" href="#Location.vertical_datum_xml"></a>
     
-    
+            <div class="docstring"><p>The vertical datum info of the location, if any, as an XML instance</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read-Only</p>
+</blockquote>
+</div>
+
 
                             </div>
                 </section>

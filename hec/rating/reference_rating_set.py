@@ -87,12 +87,12 @@ class ReferenceRatingSet(AbstractRatingSet):
                 )
         if value_times is None:
             if self.default_data_time is not None:
-                value_times = len(ind_values[0]) * [cast(datetime, self._default_data_time)]
+                value_times = len(ind_values[0]) * [
+                    cast(datetime, self._default_data_time)
+                ]
             else:
                 value_times = len(ind_values[0]) * [datetime.now()]
-        times = [
-            (int(dt.timestamp()) * 1000) for dt in cast(list[datetime], value_times)
-        ]
+        times = [(int(dt.timestamp()) * 1000) for dt in value_times]
         _units = units if units else self._default_data_units
         if not _units:
             raise ReferenceRatingSetException(
@@ -176,12 +176,12 @@ class ReferenceRatingSet(AbstractRatingSet):
         assert self._datastore is not None
         if value_times is None:
             if self.default_data_time is not None:
-                value_times = len(dep_values) * [cast(datetime, self._default_data_time)]
+                value_times = len(dep_values) * [
+                    cast(datetime, self._default_data_time)
+                ]
             else:
                 value_times = len(dep_values) * [datetime.now()]
-        times = [
-            (int(dt.timestamp()) * 1000) for dt in cast(list[datetime], value_times)
-        ]
+        times = [(int(dt.timestamp()) * 1000) for dt in value_times]
         _units = units if units else self._default_data_units
         if not _units:
             raise ReferenceRatingSetException(

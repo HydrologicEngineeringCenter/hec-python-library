@@ -604,3 +604,33 @@ class AbstractRatingSet(ABC):
             Read-Only
         """
         return self._specification.template
+
+    @property
+    def vertical_datum_info(self) -> Optional[ElevParameter._VerticalDatumInfo]:
+        """
+        The vertical datum info of the rating set's specification's location, if any
+
+        Operations:
+            Read-Only
+        """
+        return self._specification.location.vertical_datum_info
+
+    @property
+    def vertical_datum_json(self) -> Optional[str]:
+        """
+        The vertical datum info of the rating set's specification's location, if any, as a JSON object
+
+        Operations:
+            Read-Only
+        """
+        return self._specification.location.vertical_datum_json
+
+    @property
+    def vertical_datum_xml(self) -> Optional[str]:
+        """
+        The vertical datum info of the rating set's specification's location, if any, as an XML instance
+
+        Operations:
+            Read-Only
+        """
+        return self._specification.location.vertical_datum_xml

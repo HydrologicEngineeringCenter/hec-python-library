@@ -41,13 +41,16 @@
                     <a class="class" href="#AbstractRating">AbstractRating</a>
                             <ul class="memberlist">
                         <li>
+                                <a class="function" href="#AbstractRating.__init__">AbstractRating</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#AbstractRating.effective_time">effective_time</a>
+                        </li>
+                        <li>
                                 <a class="variable" href="#AbstractRating.active">active</a>
                         </li>
                         <li>
                                 <a class="variable" href="#AbstractRating.create_time">create_time</a>
-                        </li>
-                        <li>
-                                <a class="variable" href="#AbstractRating.default_data_time">default_data_time</a>
                         </li>
                         <li>
                                 <a class="variable" href="#AbstractRating.default_data_units">default_data_units</a>
@@ -59,9 +62,6 @@
                                 <a class="variable" href="#AbstractRating.description">description</a>
                         </li>
                         <li>
-                                <a class="variable" href="#AbstractRating.effective_time">effective_time</a>
-                        </li>
-                        <li>
                                 <a class="function" href="#AbstractRating.from_xml">from_xml</a>
                         </li>
                         <li>
@@ -69,9 +69,6 @@
                         </li>
                         <li>
                                 <a class="function" href="#AbstractRating.rate">rate</a>
-                        </li>
-                        <li>
-                                <a class="variable" href="#AbstractRating.rating_time">rating_time</a>
                         </li>
                         <li>
                                 <a class="variable" href="#AbstractRating.rating_units">rating_units</a>
@@ -147,6 +144,15 @@
                         </li>
                         <li>
                                 <a class="variable" href="#AbstractRatingSet.template">template</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#AbstractRatingSet.vertical_datum_info">vertical_datum_info</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#AbstractRatingSet.vertical_datum_json">vertical_datum_json</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#AbstractRatingSet.vertical_datum_xml">vertical_datum_xml</a>
                         </li>
                 </ul>
 
@@ -443,9 +449,58 @@
     <a class="headerlink" href="#AbstractRating"></a>
     
             <div class="docstring"><p>Abstract class for all rating classes;</p>
+
+<p>Specifies required methods for sub-classes, holds information and implements code common one or more sub-classes.</p>
 </div>
 
 
+                            <div id="AbstractRating.__init__" class="classattr">
+                                <div class="attr function">
+            
+        <span class="name">AbstractRating</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">specification</span><span class="p">:</span> <span class="n"><a href="#RatingSpecification">RatingSpecification</a></span>,</span><span class="param">	<span class="n">effective_time</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">,</span> <span class="n"><a href="../hec.html#HecTime">hec.HecTime</a></span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span></span>)</span>
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractRating.__init__"></a>
+    
+            <div class="docstring"><p>Initializer for AbstractRating objects.</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>specification (Any):</strong>  A <a href="#RatingSpecification">RatingSpecification</a> object to initialize from.
+This is typed as <code>Any</code> to avoid circular import dependencies.</li>
+<li><strong>effective_time (Union[datetime, HecTime, str]):</strong>  The effective date/time of the rating</li>
+</ul>
+
+<h6 id="raises">Raises:</h6>
+
+<ul>
+<li><strong>TypeError:</strong>  if <code><a href="#AbstractRating.specification">specification</a></code> is not a <a href="#RatingSpecification">RatingSpecification</a> object.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="AbstractRating.effective_time" class="classattr">
+                                <div class="attr variable">
+            <span class="name">effective_time</span><span class="annotation">: datetime.datetime</span>
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractRating.effective_time"></a>
+    
+            <div class="docstring"><p>The effective date/time of the rating</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read/Write</p>
+</blockquote>
+</div>
+
+
+                            </div>
                             <div id="AbstractRating.active" class="classattr">
                                 <div class="attr variable">
             <span class="name">active</span><span class="annotation">: bool</span>
@@ -454,7 +509,15 @@
     </div>
     <a class="headerlink" href="#AbstractRating.active"></a>
     
-    
+            <div class="docstring"><p>Whether the rating is marked as active</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read/Write</p>
+</blockquote>
+</div>
+
 
                             </div>
                             <div id="AbstractRating.create_time" class="classattr">
@@ -465,29 +528,37 @@
     </div>
     <a class="headerlink" href="#AbstractRating.create_time"></a>
     
-    
+            <div class="docstring"><p>The creation date/time of the rating, if any</p>
 
-                            </div>
-                            <div id="AbstractRating.default_data_time" class="classattr">
-                                <div class="attr variable">
-            <span class="name">default_data_time</span><span class="annotation">: Optional[datetime.datetime]</span>
+<h6 id="operations">Operations:</h6>
 
-        
-    </div>
-    <a class="headerlink" href="#AbstractRating.default_data_time"></a>
-    
-    
+<blockquote>
+  <p>Read/Write</p>
+</blockquote>
+</div>
+
 
                             </div>
                             <div id="AbstractRating.default_data_units" class="classattr">
                                 <div class="attr variable">
-            <span class="name">default_data_units</span><span class="annotation">: list[str]</span>
+            <span class="name">default_data_units</span><span class="annotation">: Optional[list[str]]</span>
 
         
     </div>
     <a class="headerlink" href="#AbstractRating.default_data_units"></a>
     
-    
+            <div class="docstring"><p>The default data units, if any.</p>
+
+<p>The default data units are used if the <a href="#AbstractRating.rate"><code>rate</code></a> or <a href="#AbstractRating.reverse_rate"><code>reverse_rate</code></a>
+methods are called without any specified units.</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read/Write</p>
+</blockquote>
+</div>
+
 
                             </div>
                             <div id="AbstractRating.default_data_vertical_datum" class="classattr">
@@ -498,7 +569,21 @@
     </div>
     <a class="headerlink" href="#AbstractRating.default_data_vertical_datum"></a>
     
-    
+            <div class="docstring"><p>The default vertical datum for rating Elev parameter values.</p>
+
+<p>If not None, Elev parameter values will be converted to the default vertical datum before (input values) or after (output values) the rating is performed.</p>
+
+<p>If None, the native vertical datum will be used.</p>
+
+<p>When setting, must be None, NGVD-29, NAVD-99, or OTHER.</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read/Write</p>
+</blockquote>
+</div>
+
 
                             </div>
                             <div id="AbstractRating.description" class="classattr">
@@ -509,18 +594,15 @@
     </div>
     <a class="headerlink" href="#AbstractRating.description"></a>
     
-    
+            <div class="docstring"><p>The description of the rating object, if any.</p>
 
-                            </div>
-                            <div id="AbstractRating.effective_time" class="classattr">
-                                <div class="attr variable">
-            <span class="name">effective_time</span><span class="annotation">: Optional[datetime.datetime]</span>
+<h6 id="operations">Operations:</h6>
 
-        
-    </div>
-    <a class="headerlink" href="#AbstractRating.effective_time"></a>
-    
-    
+<blockquote>
+  <p>Read/Write</p>
+</blockquote>
+</div>
+
 
                             </div>
                             <div id="AbstractRating.from_xml" class="classattr">
@@ -535,7 +617,28 @@
     </div>
     <a class="headerlink" href="#AbstractRating.from_xml"></a>
     
-    
+            <div class="docstring"><p>Creates a rating object from an XML instance</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>xml_str (str):</strong>  The XML instance to create the rating from</li>
+</ul>
+
+<h6 id="raises">Raises:</h6>
+
+<ul>
+<li><strong>AbstractRatingException:</strong>  if no subclass of AbstractRating has a registered from_xml()</li>
+<li>method that is compatible with the specified XML instance</li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>AbstractRating: The rating created from the XML instance</p>
+</blockquote>
+</div>
+
 
                             </div>
                             <div id="AbstractRating.office" class="classattr">
@@ -546,7 +649,15 @@
     </div>
     <a class="headerlink" href="#AbstractRating.office"></a>
     
-    
+            <div class="docstring"><p>The rating's specification's office, if any</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read-Only</p>
+</blockquote>
+</div>
+
 
                             </div>
                             <div id="AbstractRating.rate" class="classattr">
@@ -563,17 +674,6 @@
     
 
                             </div>
-                            <div id="AbstractRating.rating_time" class="classattr">
-                                <div class="attr variable">
-            <span class="name">rating_time</span><span class="annotation">: Optional[datetime.datetime]</span>
-
-        
-    </div>
-    <a class="headerlink" href="#AbstractRating.rating_time"></a>
-    
-    
-
-                            </div>
                             <div id="AbstractRating.rating_units" class="classattr">
                                 <div class="attr variable">
             <span class="name">rating_units</span><span class="annotation">: list[str]</span>
@@ -582,7 +682,15 @@
     </div>
     <a class="headerlink" href="#AbstractRating.rating_units"></a>
     
-    
+            <div class="docstring"><p>The native units of the rating, one for each independent parameter, plus the dependent parameter</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read-Only</p>
+</blockquote>
+</div>
+
 
                             </div>
                             <div id="AbstractRating.reverse_rate" class="classattr">
@@ -607,7 +715,15 @@
     </div>
     <a class="headerlink" href="#AbstractRating.specification"></a>
     
-    
+            <div class="docstring"><p>A copy of the rating's specification</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read-Only</p>
+</blockquote>
+</div>
+
 
                             </div>
                             <div id="AbstractRating.specification_id" class="classattr">
@@ -618,7 +734,15 @@
     </div>
     <a class="headerlink" href="#AbstractRating.specification_id"></a>
     
-    
+            <div class="docstring"><p>The rating's specification identifer</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read-Only</p>
+</blockquote>
+</div>
+
 
                             </div>
                             <div id="AbstractRating.template" class="classattr">
@@ -629,7 +753,15 @@
     </div>
     <a class="headerlink" href="#AbstractRating.template"></a>
     
-    
+            <div class="docstring"><p>A copy of the rating's template</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read-Only</p>
+</blockquote>
+</div>
+
 
                             </div>
                             <div id="AbstractRating.template_id" class="classattr">
@@ -640,7 +772,15 @@
     </div>
     <a class="headerlink" href="#AbstractRating.template_id"></a>
     
-    
+            <div class="docstring"><p>The rating's template identifer</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read-Only</p>
+</blockquote>
+</div>
+
 
                             </div>
                             <div id="AbstractRating.transition_start_time" class="classattr">
@@ -651,7 +791,15 @@
     </div>
     <a class="headerlink" href="#AbstractRating.transition_start_time"></a>
     
-    
+            <div class="docstring"><p>The date/time of beginning of transition from the previous rating, if any</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read/Write</p>
+</blockquote>
+</div>
+
 
                             </div>
                             <div id="AbstractRating.to_xml" class="classattr">
@@ -676,7 +824,15 @@
     </div>
     <a class="headerlink" href="#AbstractRating.vertical_datum_info"></a>
     
-    
+            <div class="docstring"><p>The vertical datum info of the rating's specification's location, if any</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read-Only</p>
+</blockquote>
+</div>
+
 
                             </div>
                             <div id="AbstractRating.vertical_datum_json" class="classattr">
@@ -687,7 +843,15 @@
     </div>
     <a class="headerlink" href="#AbstractRating.vertical_datum_json"></a>
     
-    
+            <div class="docstring"><p>The vertical datum info of the rating's specification's location, if any, as a JSON object</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read-Only</p>
+</blockquote>
+</div>
+
 
                             </div>
                             <div id="AbstractRating.vertical_datum_xml" class="classattr">
@@ -698,7 +862,15 @@
     </div>
     <a class="headerlink" href="#AbstractRating.vertical_datum_xml"></a>
     
-    
+            <div class="docstring"><p>The vertical datum info of the rating's specification's location, if any, as an XML instance</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read-Only</p>
+</blockquote>
+</div>
+
 
                             </div>
                 </section>
@@ -1176,6 +1348,63 @@ later than this time will be used).</li>
     <a class="headerlink" href="#AbstractRatingSet.template"></a>
     
             <div class="docstring"><p>The <a href="#RatingTemplate">RatingTemplate</a> of the rating set</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read-Only</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="AbstractRatingSet.vertical_datum_info" class="classattr">
+                                <div class="attr variable">
+            <span class="name">vertical_datum_info</span><span class="annotation">: Optional[hec.parameter.ElevParameter._VerticalDatumInfo]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractRatingSet.vertical_datum_info"></a>
+    
+            <div class="docstring"><p>The vertical datum info of the rating set's specification's location, if any</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read-Only</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="AbstractRatingSet.vertical_datum_json" class="classattr">
+                                <div class="attr variable">
+            <span class="name">vertical_datum_json</span><span class="annotation">: Optional[str]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractRatingSet.vertical_datum_json"></a>
+    
+            <div class="docstring"><p>The vertical datum info of the rating set's specification's location, if any, as a JSON object</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read-Only</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="AbstractRatingSet.vertical_datum_xml" class="classattr">
+                                <div class="attr variable">
+            <span class="name">vertical_datum_xml</span><span class="annotation">: Optional[str]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#AbstractRatingSet.vertical_datum_xml"></a>
+    
+            <div class="docstring"><p>The vertical datum info of the rating set's specification's location, if any, as an XML instance</p>
 
 <h6 id="operations">Operations:</h6>
 
@@ -2868,6 +3097,9 @@ later than this time will be used).</li>
                 <dd id="ReferenceRatingSet.reverse_rate_time_series" class="function"><a href="#AbstractRatingSet.reverse_rate_time_series">reverse_rate_time_series</a></dd>
                 <dd id="ReferenceRatingSet.specification" class="variable"><a href="#AbstractRatingSet.specification">specification</a></dd>
                 <dd id="ReferenceRatingSet.template" class="variable"><a href="#AbstractRatingSet.template">template</a></dd>
+                <dd id="ReferenceRatingSet.vertical_datum_info" class="variable"><a href="#AbstractRatingSet.vertical_datum_info">vertical_datum_info</a></dd>
+                <dd id="ReferenceRatingSet.vertical_datum_json" class="variable"><a href="#AbstractRatingSet.vertical_datum_json">vertical_datum_json</a></dd>
+                <dd id="ReferenceRatingSet.vertical_datum_xml" class="variable"><a href="#AbstractRatingSet.vertical_datum_xml">vertical_datum_xml</a></dd>
 
             </div>
                                 </dl>
