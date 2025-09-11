@@ -5,7 +5,7 @@ from typing import Any, Optional, Sequence, Union
 from lxml import etree
 
 from hec.location import Location, _is_cwms_location
-from hec.rating.rating_shared import LookupMethod
+from hec.rating.rating_shared import LookupMethod, replace_indent
 from hec.rating.rating_template import RatingTemplate
 from hec.shared import RatingException
 
@@ -606,17 +606,6 @@ class RatingSpecification:
         Returns:
             str: The formatted xml
         """
-
-        def replace_indent(s: str, new_indent: str) -> str:
-            old_indent = "  "
-            pattern = f"^(?:{re.escape(old_indent)})+"
-
-            def repl(match: re.Match[str]) -> str:
-                count = len(match.group(0)) // len(old_indent)
-                return new_indent * count
-
-            return re.sub(pattern, repl, s, flags=re.MULTILINE)
-
         xml: str = etree.tostring(self.xml_element, pretty_print=True).decode()
         if indent != "  ":
             xml = replace_indent(xml, indent)

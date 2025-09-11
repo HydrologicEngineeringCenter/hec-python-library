@@ -1,6 +1,7 @@
 # ---------------------------------------------- #
 # DO NOT IMPORT ANY HEC MODULES FROM THIS MODULE #
 # ---------------------------------------------- #
+import re
 import types
 from enum import Enum
 from typing import Union
@@ -60,3 +61,14 @@ class LookupMethod(Enum):
             raise IndexError(key)
         else:
             raise TypeError(f"Expected str or int, got {key.__type__.__name__}")
+
+
+def replace_indent(s: str, new_indent: str) -> str:
+    old_indent = "  "
+    pattern = f"^(?:{re.escape(old_indent)})+"
+
+    def repl(match: re.Match[str]) -> str:
+        count = len(match.group(0)) // len(old_indent)
+        return new_indent * count
+
+    return re.sub(pattern, repl, s, flags=re.MULTILINE)
