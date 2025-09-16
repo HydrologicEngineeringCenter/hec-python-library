@@ -67,4 +67,5 @@ SimpleRating._from_xml_methods[SimpleRating.__name__] = SimpleRating.from_xml
 if __name__ == "__main__":
     with open("t:/rating.xml") as f:
         rating = AbstractRating.from_xml(f.read())
-        print(rating.to_xml())
+        with open("t:/rating2.xml", "w") as f:
+            f.write(rating.to_xml())
