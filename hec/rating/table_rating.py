@@ -7,7 +7,6 @@ from typing import Any, Optional, Union, cast
 import numpy as np
 from lxml import etree
 
-from hec.datastore import AbstractDataStore
 from hec.hectime import HecTime
 from hec.parameter import (
     _NAVD88,
@@ -37,6 +36,7 @@ class TableRating(SimpleRating):
         effective_time: Union[datetime, HecTime, str],
     ):
         super().__init__(specification, effective_time)
+        from hec.datastore import AbstractDataStore
         self._data_store: Optional[AbstractDataStore] = None
         self._rating_points: Optional[
             dict[tuple[float, ...], Union[tuple[float], float]]
@@ -198,75 +198,211 @@ class TableRating(SimpleRating):
         return self._rating_points is not None
 
     @staticmethod
-    def _rate_value(
-            value: float,
-            ind_values: list[float],
-            dep_values: list[float],
-            lookups: list[str]
-    ) -> list[float]: # [rated, lo_ind, hi_ind]
-        in_range, out_range_lo, out_range_hi = lookups
-        hi = bisect.bisect_right(ind_values, value)
-        if hi == len(ind_values):
-            # -------------------------- #
-            # value is out of range high #
-            # -------------------------- #
-            if out_range_hi in (
-                LookupMethod.ERROR.name,
-                LookupMethod.NEXT.name,
-                LookupMethod.HIGHER.name,
+    def intepolate(
+        x: float, x0: float, x1: float, y0: float, y1: float, lookup: str
+    ) -> float:
+        """
+        Performs value dependent interpolation or selection based on specified behavior
+
+        Args:
+            x (float): The independent value
+            x0 (float): The independent value lower bound
+            x1 (float): The independent value upper bound
+            y0 (float): The dependent value lower bound
+            y1 (float): The dependent value upper bound
+            lookup (str): The interpolation or selection behavior to use. See [LookupMethod](rating_shared.html#LookupMethod)
+
+        Returns:
+            float: The interpolated or selected dependent value
+        """
+        if x == x0 == x1:
+            return y0
+        if lookup in (
+            LookupMethod.LINEAR.name,
+            LookupMethod.LOGARITHMIC.name,
+            LookupMethod.LINLOG.name,
+            LookupMethod.LOGLIN.name,
+        ):
+            X, X0, X1 = x, x0, x1  # save for fallback
+            x_log_used = False
+            y_log_used = False
+            if lookup in (
+                LookupMethod.LOGARITHMIC.name,
+                LookupMethod.LOGLIN.name,
             ):
-                raise TableRatingException("Out of range high")
-            elif out_range_hi == LookupMethod.NULL.name:
-                return [np.nan, np.nan, np.nan]
+                try:
+                    # take logarithm if possible
+                    x, x0, x1 = np.log10([x, x0, x1])
+                    x_log_used = True
+                except Exception:
+                    # fall back to linear
+                    pass
+            if (
+                lookup == LookupMethod.LOGARITHMIC.name and x_log_used
+            ) or lookup == LookupMethod.LINLOG.name:
+                try:
+                    # take logarithm if possible
+                    y0, y1 = np.log10([y0, y1])
+                    y_log_used = True
+                except Exception:
+                    # fall back to linear
+                    if x_log_used:
+                        x, x0, x1 = X, X0, X1
+                        x_log_used = False
+            if x0 == x1:
+                y = y0
             else:
-                hi -= 1
-                in_range = out_range_hi
-        if lo == -1:
-            # ------------------------- #
-            # value is out of range low #
-            # ------------------------- #
-            if out_range_lo in (
-                LookupMethod.ERROR.name,
+                fraction = (x - x0) / (x1 - x0)
+                y = y0 + fraction * (y1 - y0)
+            if y_log_used:
+                y = math.pow(10, y)
+            return y
+        else:
+            if lookup in (
                 LookupMethod.PREVIOUS.name,
                 LookupMethod.LOWER.name,
             ):
-                raise TableRatingException("Out of range low")
-            elif out_range_lo == LookupMethod.NULL.name:
-                return [np.nan, np.nan, np.nan]
+                return y0
+            elif lookup in (LookupMethod.NEXT.name, LookupMethod.HIGHER.name):
+                return y1
+            else:  # in_range in (LookupMethod.NEAREST.name, LookupMethod.CLOSEST.name)
+                return y0 if x - x0 <= x1 - x else y1
+
+    def rate_value(
+        self, ind_value: list[float], lo_key: list[float] = [], hi_key: list[float] = []
+    ) -> float:
+        i = self.template.ind_param_count - len(ind_value)
+        in_range, out_range_lo, out_range_hi = self.template.lookup[i]
+        if not lo_key:
+            if hi_key:
+                raise TableRatingException("hi_key specified without lo_key")
+        else:
+            if not hi_key:
+                raise TableRatingException("lo_key specified without hi_key")
+            if i == 0 and len(ind_value) != self.template.ind_param_count:
+                raise TableRatingException(
+                    f"Rating has {self.template.ind_param_count} indpendent "
+                    f"parameters; received value set of length {len(ind_value)}"
+                )
+            if len(lo_key) != len(hi_key):
+                raise TableRatingException("lo_key and hi_key have different lengths")
+        hi_val: float
+        lo_val: float
+        for j, key in enumerate([lo_key, hi_key]):
+            if key:
+                key_vals = [v for v in self._rating_points[tuple(key)]]
             else:
+                key_vals = [v[0] for v in self._rating_points if len(v) == 1]
+            hi = bisect.bisect(key_vals, ind_value[0])
+            if hi > 0 and ind_value[0] == key_vals[hi - 1]:
+                hi -= 1
+            if hi == len(key_vals):
+                # ----------------- #
+                # out of range high #
+                # ----------------- #
+                if out_range_hi in (
+                    LookupMethod.ERROR.name,
+                    LookupMethod.NEXT.name,
+                    LookupMethod.HIGHER.name,
+                ):
+                    raise TableRatingException(
+                        f"Independent value[{i+1}] ({ind_value[0]}) is out of range "
+                        f"high and lookup behavior is {out_range_hi}"
+                    )
+                elif out_range_hi == LookupMethod.NULL.name:
+                    return np.nan
+                else:
+                    hi -= 1
+                    if out_range_hi in (
+                        LookupMethod.LINEAR.name,
+                        LookupMethod.LINLOG.name,
+                        LookupMethod.LOGARITHMIC.name,
+                        LookupMethod.LOGLIN.name,
+                    ):
+                        in_range = out_range_hi
+            lo = hi - 1
+            if lo < len(key_vals) - 1 and ind_value[0] == key_vals[lo + 1]:
                 lo += 1
-                in_range = out_range_lo
-        # ----------------------------------------- #
-        # value is in range or we are extrapolating #
-        # ----------------------------------------- #
-        if in_range == LookupMethod.ERROR.name:
-            if value not in (ind_values[lo], ind_values[hi]):
-                raise TableRatingException(f"Value {value} cannot be between {ind_values[lo]} and {ind_values[hi]}")
-            return [value, ind_values[lo], ind_values[hi]]
-        elif in_range == LookupMethod.NULL:
-            return [np.nan, ind_values[lo], ind_values[hi]]
-        elif in_range in (LookupMethod.NEXT, LookupMethod.HIGHER):
-            return [ind_values[hi], ind_values[lo], ind_values[hi]]
-        elif in_range in (LookupMethod.PREVIOUS, LookupMethod.LOWER):
-            return [ind_values[lo], ind_values[lo], ind_values[hi]]
-        # ------------------- #
-        # compute rated value #
-        # ------------------- #
-        log_used = False
-        v, vlo, vhi = value, ind_values[lo], ind_values[hi]
-        if in_range in (LookupMethod.LOGARITHMIC, LookupMethod.LOGLIN):
-            try:
-                # try logarithmic
-                v, vlo, vhi = np.log10([v, vlo, vhi])
-                log_used = True
-            except Exception:
-                # fall back to linear
-                pass
-        fraction = (v - vlo) / (vhi - vlo)
-        rated = dep_values[lo] + fraction * (dep_values[hi] - dep_values[lo])
-        if in_range == LookupMethod.LINLOG or (LookupMethod.LOGARITHMIC and log_used):
-            rated = math.pow(10, rated)
-        return [rated, ind_values[lo], ind_values[hi]]
+            if lo == -1:
+                # ---------------- #
+                # out of range low #
+                # ---------------- #
+                if out_range_lo in (
+                    LookupMethod.ERROR.name,
+                    LookupMethod.PREVIOUS.name,
+                    LookupMethod.LOWER.name,
+                ):
+                    raise TableRatingException(
+                        f"Independent value[{i+1}] ({ind_value[0]}) is out of range "
+                        f"low and lookup behavior is {out_range_lo}"
+                    )
+                elif out_range_hi == LookupMethod.NULL.name:
+                    return np.nan
+                else:
+                    lo += 1
+                    if out_range_hi in (
+                        LookupMethod.LINEAR.name,
+                        LookupMethod.LINLOG.name,
+                        LookupMethod.LOGARITHMIC.name,
+                        LookupMethod.LOGLIN.name,
+                    ):
+                        in_range = out_range_lo
+            # -------------------------------- #
+            # either in range or extrapolating #
+            # -------------------------------- #
+            if in_range == LookupMethod.ERROR.name:
+                if ind_value[0] not in (key_vals[lo], key_vals[hi]):
+                    raise TableRatingException(
+                        f"Independent value[{i+1}] ({ind_value[0]}) is between "
+                        f"{key_vals[lo]} and {key_vals[hi]} "
+                        f"and lookup behavior is {in_range}"
+                    )
+                return self.rate_value(
+                    ind_value[1:], lo_key + [key_vals[lo]], hi_key + [key_vals[hi]]
+                )
+            elif in_range == LookupMethod.NULL.name:
+                return np.nan
+            elif i == self.template.ind_param_count - 1:
+                # ----------------------------------- #
+                # deepest independent parameter value #
+                # ----------------------------------- #
+                if in_range in (
+                    LookupMethod.LINEAR.name,
+                    LookupMethod.LOGARITHMIC.name,
+                    LookupMethod.LINLOG.name,
+                    LookupMethod.LOGLIN.name,
+                ):
+                    return TableRating.intepolate(
+                        ind_value[0],
+                        key_vals[lo],
+                        key_vals[hi],
+                        self._rating_points[tuple(key + [key_vals[lo]])],
+                        self._rating_points[tuple(key + [key_vals[hi]])],
+                        in_range,
+                    )
+            else:
+                if j == 0:
+                    lo_val = self.rate_value(
+                        ind_value[1:], lo_key + [key_vals[lo]], lo_key + [key_vals[hi]]
+                    )
+                else:
+                    if lo_key == hi_key:
+                        hi_val = self.rate_value(
+                            ind_value[1:], hi_key + [key_vals[hi]], hi_key + [key_vals[hi]]
+                        )
+                    else:
+                        hi_val = self.rate_value(
+                            ind_value[1:], hi_key + [key_vals[lo]], hi_key + [key_vals[hi]]
+                        )
+
+        return TableRating.intepolate(
+            ind_value[0],
+            key_vals[lo],
+            key_vals[hi],
+            lo_val,
+            hi_val,
+            in_range,
+        )
 
     def rate_values(
         self,
@@ -337,7 +473,7 @@ class TableRating(SimpleRating):
                         ind_values[i][j],
                         key_values,
                         key_values,
-                        self.template.lookup[j]
+                        self.template.lookup[j],
                     )
                     lo_key.append(lo_key_val)
                     hi_key.append(hi_key_val)
@@ -345,14 +481,14 @@ class TableRating(SimpleRating):
                     ind_values[i][j],
                     key_values,
                     self._rating_points[tuple(lo_key)],
-                    self.template.lookup[j]
+                    self.template.lookup[j],
                 )
                 lo_key.append(lo_key_val)
                 rated_hi, lo_key_val, hi_key_val = TableRating._rate_value(
                     ind_values[i][j],
                     key_values,
                     self._rating_points[tuple(hi_key)],
-                    self.template.lookup[j]
+                    self.template.lookup[j],
                 )
                 hi_key.append(hi_key_val)
             rated_values.append((rated_lo + rated_hi) / 2)

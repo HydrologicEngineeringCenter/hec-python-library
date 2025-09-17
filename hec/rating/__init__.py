@@ -13,12 +13,15 @@ __all__ = [
     "RatingTemplate",
     "RatingTemplateException",
     "ReferenceRatingSet",
+    "TableRating",
+    "TableRatingException",
     "SimpleRating",
     "abstract_rating",
     "abstract_rating_set",
+    "rating_shared",
     "reference_rating_set",
     "simple_rating",
-    "rating_shared",
+    "table_rating",
 ]
 
 from . import rating_shared, rating_specification
@@ -30,6 +33,7 @@ from .rating_specification import RatingSpecification, RatingSpecificationExcept
 from .rating_template import RatingTemplate, RatingTemplateException
 from .reference_rating_set import ReferenceRatingSet
 from .simple_rating import SimpleRating
+from .table_rating import TableRating, TableRatingException
 
 RatingSpecification.__init__.__doc__ = f"""
     Initializer for RatingSpecification objects

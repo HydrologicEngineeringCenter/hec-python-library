@@ -67,5 +67,10 @@ SimpleRating._from_xml_methods[SimpleRating.__name__] = SimpleRating.from_xml
 if __name__ == "__main__":
     with open("t:/rating.xml") as f:
         rating = AbstractRating.from_xml(f.read())
-        with open("t:/rating2.xml", "w") as f:
-            f.write(rating.to_xml())
+        from hec.rating.table_rating import TableRating
+
+        tr = cast(TableRating, rating)
+        flow = tr.rate_value([2, 0, 1250.5])
+        print(flow)
+        # with open("t:/rating2.xml", "w") as f:
+        #     f.write(rating.to_xml())
