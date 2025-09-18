@@ -419,6 +419,19 @@ class AbstractRating(ABC):
         )
 
     @property
+    def has_elev_param(self) -> bool:
+        """
+        Whether the rating has "Elev" as the base parameter for one of the indpendent parameters or the dependent paramter
+
+        Operations:
+            Read-Only
+        """
+        return (
+            "Elev" in list(map(lambda s: s.split("-")[0], self.template.ind_params))
+            or "Elev" == self.template.dep_param.split("-")[0]
+        )
+
+    @property
     def office(self) -> Optional[str]:
         """
         The rating's specification's office, if any

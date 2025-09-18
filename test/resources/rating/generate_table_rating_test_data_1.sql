@@ -1,3 +1,4 @@
+set serveroutput on
 declare
    l_rating_id  cwms_v_rating.rating_id%type;
    l_counts     cwms_t_double_tab;
@@ -7,8 +8,8 @@ declare
 begin
    l_rating_id := 'COUN.Count-Conduit_Gates,Opening-Conduit_Gates,Elev;Flow-Conduit_Gates.Standard.Production';
    l_counts := cwms_t_double_tab(1, 2);
-   l_openings := cwms_t_double_tab(0, 1.5, 3, 6.5, 12.5);
-   l_elevations := cwms_t_double_tab(1223, 1250.5, 1281.2, 1300);
+   l_openings := cwms_t_double_tab(0, 1.2, 3, 6.7, 12.1);
+   l_elevations := cwms_t_double_tab(1223, 1250.3, 1281.7, 1300);
    
    for i in 1..l_counts.count loop
       for j in 1..l_openings.count loop
