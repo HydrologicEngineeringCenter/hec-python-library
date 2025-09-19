@@ -201,7 +201,7 @@ class TableRating(SimpleRating):
         return self._rating_points is not None
 
     @staticmethod
-    def get_dependent_value(
+    def interpolate_or_select(
         x: float, x0: float, x1: float, y0: float, y1: float, lookup: str
     ) -> float:
         """
@@ -287,9 +287,11 @@ class TableRating(SimpleRating):
         self, ind_value: list[float], lo_key: list[float] = [], hi_key: list[float] = []
     ) -> float:
         """
-        Rates a single input value set
+        Rates a single independent parameter value set
 
-        The value set is expected to be in the native units and vertical datum of the rating
+        The value set is expected to be in the native units and vertical datum of the rating. To specify units, vertical datum
+        or rounding use [`rate_values`](#TableRating.rate_values), nesting `ind_value` in a list and extracting
+        the result from the returned list.
 
         Args:
             ind_value (list[float]): The list of values (one for each independent parameter) that comprises the input value set
@@ -297,7 +299,7 @@ class TableRating(SimpleRating):
             hi_key (list[float], optional): Do not set; only used internally on recursion.  Defaults to [].
 
         Returns:
-            float: The rated value
+            float: The rated (dependent parameter) value
         """
         if not self.has_rating_points:
             raise TableRatingException(
@@ -407,7 +409,7 @@ class TableRating(SimpleRating):
                     LookupMethod.LINLOG.name,
                     LookupMethod.LOGLIN.name,
                 ):
-                    return TableRating.get_dependent_value(
+                    return TableRating.interpolate_or_select(
                         ind_value[0],
                         key_vals[lo],
                         key_vals[hi],
@@ -434,7 +436,7 @@ class TableRating(SimpleRating):
                             hi_key + [key_vals[hi]],
                         )
 
-        return TableRating.get_dependent_value(
+        return TableRating.interpolate_or_select(
             ind_value[0],
             key_vals[lo],
             key_vals[hi],
@@ -476,61 +478,24 @@ class TableRating(SimpleRating):
         # ------------------------ #
         # prepare unit conversions #
         # ------------------------ #
-        unit_conversions: list[Any] = list_count * [None]
-        for i in range(list_count):
-            converted1 = (
-                UnitQuantity(1.0, unit_list[i]).to(self._rating_units[i]).magnitude
-            )
-            if np.isclose(1.0, converted1):
-                # no conversion
-                pass
-            else:
-                converted2 = (
-                    UnitQuantity(10.0, unit_list[i]).to(self._rating_units[i]).magnitude
-                )
-                if np.isclose(10 * converted1, converted2):
-                    # scalar conversion
-                    unit_conversions[i] = lambda x: x * converted1
-                else:
-                    # non-scalar conversion
-                    unit_conversions[i] = (
-                        lambda x: UnitQuantity(x, unit_list[i])
-                        .to(self._rating_units[i])
-                        .magnitude
-                    )
+        unit_conversions = self.make_unit_conversions(unit_list)
         unit_convertion_indices = [
-            i for i in range(len(unit_conversions)) if unit_conversions[i] is not None
+            i
+            for i in range(self.template.ind_param_count)  # ind params only
+            if unit_conversions[i] is not None
         ]
         # ---------------------------------- #
         # prepare vertical datum conversions #
         # ---------------------------------- #
-        datum_conversions: list[Any] = list_count * [None]
-        vd: Optional[str] = None
-        if self.has_elev_param and vertical_datum is not None:
-            if _ngvd29_pattern.match(vertical_datum):
-                vd = _NGVD29
-            elif _navd88_pattern.match(vertical_datum):
-                vd = _NAVD88
-            elif _other_datum_pattern.match(vertical_datum):
-                vd = _OTHER_DATUM
-            else:
-                raise TableRatingException(
-                    f"Invalid vertical datum: {vertical_datum}. Must be one of "
-                    f"{_NGVD29}, {_NAVD88}, or {_OTHER_DATUM}"
-                )
-            if (
-                self.vertical_datum_info
-                and self.vertical_datum_info.native_datum
-                and vd != self.vertical_datum_info.native_datum
-            ):
-                offset = self.vertical_datum_info.get_offset_to(vd)
-                if offset is not None and offset.magnitude:
-                    offset_value = -offset.to(unit_list[i]).magnitude
-                    for i in range(value_count):
-                        if self.template.ind_params[i].startswith("Elev"):
-                            datum_conversions[i] = offset_value
-        datum_convertion_indices = [
-            i for i in range(len(datum_conversions)) if datum_conversions[i] is not None
+        datum_offsets = (
+            self.make_datum_offsets(vertical_datum)
+            if vertical_datum
+            else len(unit_list) * [None]
+        )
+        datum_offset_indices = [
+            i
+            for i in range(self.template.ind_param_count)  # ind params only
+            if datum_offsets[i] is not None
         ]
         # --------------- #
         # rate the values #
@@ -538,50 +503,40 @@ class TableRating(SimpleRating):
         rated_values: list[float] = []
         for i in range(value_count):
             ind_value = [ind_values[j][i] for j in range(list_count)]
+            # ------------- #
+            # convert units #
+            # ------------- #
             for j in unit_convertion_indices:
-                ind_value[j] = unit_conversions[j](ind_value[j])
-            for j in datum_convertion_indices:
-                ind_value[j] += datum_conversions[j]
+                ind_value[j] = cast(Callable[[float], float], unit_conversions[j])(
+                    ind_value[j]
+                )
+            # -------------- #
+            # convert datums #
+            # -------------- #
+            for j in datum_offset_indices:
+                ind_value[j] += cast(float, datum_offsets[j])
+            # ---- #
+            # rate #
+            # ---- #
             rated_values.append(self.rate_value(ind_value))
         # --------------------------------- #
         # convert rated datum, if necessary #
         # --------------------------------- #
-        if vd is not None and self.template.dep_param.startswith("Elev"):
-            if (
-                self.vertical_datum_info
-                and self.vertical_datum_info.native_datum
-                and vd != self.vertical_datum_info.native_datum
-            ):
-                offset = self.vertical_datum_info.get_offset_to(vd)
-                if offset is not None and bool(offset.magnitude):
-                    offset_value = offset.to(self._rating_units[-1]).magnitude
-                    rated_values = [v + offset_value for v in rated_values]
+        if datum_offsets[-1] is not None:
+            if unit_list[-1] != [self._rating_units[-1]]:
+                offset_value = (
+                    UnitQuantity(datum_offsets[-1], unit_list[-1])
+                    .to(self._rating_units[-1])
+                    .magnitude
+                )
+            else:
+                offset_value = datum_offsets[-1]
+            rated_values = [v + offset_value for v in rated_values]
         # -------------------------------- #
         # convert rated unit, if necessary #
         # -------------------------------- #
-        converted1 = (
-            UnitQuantity(1.0, self._rating_units[-1]).to(unit_list[-1]).magnitude
-        )
-        if np.isclose(1.0, converted1):
-            # no conversion
-            pass
-        else:
-            converted2 = (
-                UnitQuantity(10.0, self._rating_units[i]).to(unit_list[i]).magnitude
-            )
-            if np.isclose(10 * converted1, converted2):
-                # scalar conversion
-                rated_values = list(map(lambda x: x * converted1, rated_values))
-            else:
-                # non-scalar conversion
-                rated_values = list(
-                    map(
-                        lambda x: UnitQuantity(x, unit_list[i])
-                        .to(self._rating_units[i])
-                        .magnitude,
-                        rated_values,
-                    )
-                )
+        if unit_conversions[-1]:
+            rated_values = list(map(unit_conversions[-1], rated_values))
         # ------------------------- #
         # round values if specified #
         # ------------------------- #
@@ -590,6 +545,24 @@ class TableRating(SimpleRating):
             rated_values = rounder.round_f(rated_values)
         return rated_values
 
+    def reverse_rate_value(self, dep_value: float) -> float:
+        """
+        Reverse rates a single dependent parameter value
+
+        The dependent parameter value is expected to be in the native unit and vertical datum of the rating. To specify units, vertical datum
+        or rounding use [`reverse_rate_values`](#TableRating.reverse_rate_values), putting `dep_value` in a list and extracting
+        the result from the returned list.
+
+        Args:
+            dep_value (float): The dependent parameter value to reverse rate
+
+        Returns:
+            float: The rated (independent parameter) value
+        """
+        return self.reverse_rate_values(
+            [dep_value], f"{','.join(self._rating_units[:-1])};{self._rating_units[-1]}"
+        )[0]
+
     def reverse_rate_values(
         self,
         dep_values: list[float],
@@ -597,7 +570,156 @@ class TableRating(SimpleRating):
         vertical_datum: Optional[str] = None,
         round: bool = False,
     ) -> list[float]:
-        raise NotImplementedError
+        # docstring is in AbstractRating
+        if self.template.ind_param_count > 1:
+            raise TableRatingException(
+                "Cannot reverse rate using a rating with more than one independent value"
+            )
+        if not self.has_rating_points:
+            raise TableRatingException(
+                "Cannot perform reverse rating: table has no rating points"
+            )
+        ind_vals: list[float] = [k[0] for k in self._rating_points.keys()] # type: ignore
+        dep_vals: list[float] = self._rating_points.values() # type: ignore
+        if sorted(dep_vals) != dep_vals:
+            raise TableRatingException(
+                "Cannot perform reverse rating: dependent values are not monotonically increasing"
+            )
+        _units = units if units else self._default_data_units
+        if not _units:
+            raise TableRatingException(
+                "Cannot perform rating. No data units are specified and rating has no defaults"
+            )
+        unit_list = re.split(r"[;,]", cast(str, _units))
+        if len(unit_list) != 2:
+            raise TableRatingException(f"Expected 2 units, got {len(unit_list)}")
+        lookups = self.template.lookup[0][:]
+        for i in (0, 1, 2):
+            if lookups[i] == LookupMethod.LINLOG.name:
+                lookups[i] = LookupMethod.LOGLIN.name
+            elif lookups[i] == LookupMethod.LOGLIN.name:
+                lookups[i] = LookupMethod.LINLOG.name
+        in_range, out_range_lo, out_range_hi = lookups
+        # ------------------------ #
+        # prepare unit conversions #
+        # ------------------------ #
+        unit_conversions = self.make_reverse_unit_conversions(unit_list)
+        # ---------------------------------- #
+        # prepare vertical datum conversions #
+        # ---------------------------------- #
+        datum_offsets = (
+            self.make_reverse_datum_offsets(vertical_datum)
+            if vertical_datum
+            else 2 * [None]
+        )
+        # --------------- #
+        # rate the values #
+        # --------------- #
+        rated_values: list[float] = []
+        for i in range(len(dep_values)):
+            # ------------------------ #
+            # convert units and datums #
+            # ------------------------ #
+            dep_value = dep_values[i]
+            if unit_conversions[0]:
+                dep_value = unit_conversions[0](dep_value)
+            if datum_offsets[0]:
+                dep_value += datum_offsets[0]
+            # ------------------ #
+            # perform the rating #
+            # ------------------ #
+            hi = bisect.bisect(dep_vals, dep_value)
+            if hi > 0 and dep_value == dep_vals[hi - 1]:
+                hi -= 1
+            if hi == len(dep_vals):
+                # ----------------- #
+                # out of range high #
+                # ----------------- #
+                if out_range_hi in (
+                    LookupMethod.ERROR.name,
+                    LookupMethod.NEXT.name,
+                    LookupMethod.HIGHER.name,
+                ):
+                    raise TableRatingException(
+                        f"Dependent value ({dep_value}) is out of range "
+                        f"high and lookup behavior is {out_range_hi}"
+                    )
+                elif out_range_hi == LookupMethod.NULL.name:
+                    rated_values[i] = np.nan
+                    continue
+                else:
+                    hi -= 1
+                    if out_range_hi in (
+                        LookupMethod.LINEAR.name,
+                        LookupMethod.LINLOG.name,
+                        LookupMethod.LOGARITHMIC.name,
+                        LookupMethod.LOGLIN.name,
+                    ):
+                        in_range = out_range_hi
+            lo = hi - 1
+            if lo < len(dep_vals) - 1 and dep_value == dep_vals[lo + 1]:
+                lo += 1
+            if lo == -1:
+                # ---------------- #
+                # out of range low #
+                # ---------------- #
+                if out_range_lo in (
+                    LookupMethod.ERROR.name,
+                    LookupMethod.PREVIOUS.name,
+                    LookupMethod.LOWER.name,
+                ):
+                    raise TableRatingException(
+                        f"Dependent value[{i+1}] ({dep_value}) is out of range "
+                        f"low and lookup behavior is {out_range_lo}"
+                    )
+                elif out_range_hi == LookupMethod.NULL.name:
+                    rated_values.append(np.nan)
+                    continue
+                else:
+                    lo += 1
+                    if out_range_hi in (
+                        LookupMethod.LINEAR.name,
+                        LookupMethod.LINLOG.name,
+                        LookupMethod.LOGARITHMIC.name,
+                        LookupMethod.LOGLIN.name,
+                    ):
+                        in_range = out_range_lo
+            # -------------------------------- #
+            # either in range or extrapolating #
+            # -------------------------------- #
+            if in_range == LookupMethod.ERROR.name:
+                if dep_value == dep_vals[lo]:
+                    rated_values.append(ind_vals[lo])
+                elif dep_value == dep_vals[hi]:
+                    rated_values.append(ind_vals[hi])
+                else:
+                    raise TableRatingException(
+                        f"Dependent value ({dep_value}) is between "
+                        f"{dep_vals[lo]} and {dep_vals[hi]} "
+                        f"and lookup behavior is {in_range}"
+                    )
+            elif in_range == LookupMethod.NULL.name:
+                rated_values.append(np.nan)
+                continue
+            else:
+                rated_values.append(
+                    TableRating.interpolate_or_select(
+                        dep_value,
+                        dep_vals[lo],
+                        dep_vals[hi],
+                        ind_vals[lo],
+                        ind_vals[hi],
+                        in_range,
+                    )
+                )
+        # ------------------------ #
+        # convert datums and units #
+        # ------------------------ #
+        if datum_offsets[1]:
+            rated_values = list(map(lambda v: v + datum_offsets[1], rated_values)) # type: ignore
+        if unit_conversions[1]:
+            rated_values = list(map(unit_conversions[1], rated_values))
+        return rated_values
 
     @property
     def xml_element(self) -> etree._Element:

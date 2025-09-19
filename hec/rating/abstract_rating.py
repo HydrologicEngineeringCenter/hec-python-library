@@ -10,7 +10,16 @@ import hec.shared
 import hec.unit
 from hec.hectime import HecTime
 from hec.location import LocationException
-from hec.parameter import ElevParameter, Parameter
+from hec.parameter import (
+    _NAVD88,
+    _NGVD29,
+    _OTHER_DATUM,
+    ElevParameter,
+    Parameter,
+    _navd88_pattern,
+    _ngvd29_pattern,
+    _other_datum_pattern,
+)
 from hec.rating.rating_shared import replace_indent
 from hec.rating.rating_specification import RatingSpecification
 from hec.rating.rating_template import RatingTemplate
@@ -241,6 +250,46 @@ class AbstractRating(ABC):
         if not isinstance(value, bool):
             raise TypeError(f"Expected bool, got {value.__class__.__name__}")
 
+    @staticmethod
+    def convert_units(
+        values: Sequence[float], from_unit: str, to_unit: str
+    ) -> Sequence[float]:
+        """
+        Converts a tuple or list of value from/to the specified units
+
+        Args:
+            values (Sequence[float]): The values to convert
+            from_unit (str): The unit to convert from
+            to_unit (str): The unit to convert to
+
+        Returns:
+            Sequence[float]: The converted values
+        """
+        converted1 = hec.unit.UnitQuantity(1.0, from_unit).to(to_unit).magnitude
+        if np.isclose(1.0, converted1):
+            # no conversion
+            return values[:]
+        else:
+            converted2 = hec.unit.UnitQuantity(10.0, from_unit).to(to_unit).magnitude
+            if np.isclose(10 * converted1, converted2):
+                # scalar conversion
+                converted_values = list(map(lambda x: x * converted1, values))
+            else:
+                # non-scalar conversion
+                converted_values = list(
+                    map(
+                        lambda x: hec.unit.UnitQuantity(x, from_unit)
+                        .to(to_unit)
+                        .magnitude,
+                        values,
+                    )
+                )
+            return (
+                tuple(converted_values)
+                if isinstance(values, tuple)
+                else converted_values
+            )
+
     @property
     def create_time(self) -> Optional[datetime]:
         """
@@ -421,7 +470,7 @@ class AbstractRating(ABC):
     @property
     def has_elev_param(self) -> bool:
         """
-        Whether the rating has "Elev" as the base parameter for one of the indpendent parameters or the dependent paramter
+        Whether the rating has "Elev" as the base parameter for one of the indpendent parameters or the dependent parameter
 
         Operations:
             Read-Only
@@ -430,6 +479,208 @@ class AbstractRating(ABC):
             "Elev" in list(map(lambda s: s.split("-")[0], self.template.ind_params))
             or "Elev" == self.template.dep_param.split("-")[0]
         )
+
+    def make_datum_offsets(self, vertical_datum: str) -> list[Optional[float]]:
+        """
+        Creates a list of offsets (in rating units) from the specified vertical datum to the rating native vertical datum plus
+        the offset for from the rating native vertical datum to the specified vertical datum.
+
+        All offsets except the last one are for independent parameter values in the same position. The last offset is for
+        the dependent parameter value (hence the difference in offset direction).
+
+        In any postion, the offset will be None if:
+            * The parameter at that position is not an elevation parameter
+            * The offset is zero
+
+        Args:
+            vertical_datum (str): The specified vertical datum
+
+        Returns:
+            list[Optional[float]]: The list of offsets.
+        """
+        datum_offsets: list[Any] = (self.template.ind_param_count + 1) * [
+            None
+        ]
+        if self.has_elev_param and vertical_datum is not None:
+            datum_offset: Optional[hec.unit.UnitQuantity] = None
+            vd: Optional[str] = None
+            if _ngvd29_pattern.match(vertical_datum):
+                vd = _NGVD29
+            elif _navd88_pattern.match(vertical_datum):
+                vd = _NAVD88
+            elif _other_datum_pattern.match(vertical_datum):
+                vd = _OTHER_DATUM
+            else:
+                raise AbstractRatingException(
+                    f"Invalid vertical datum: {vertical_datum}. Must be one of "
+                    f"{_NGVD29}, {_NAVD88}, or {_OTHER_DATUM}"
+                )
+            if (
+                self.vertical_datum_info
+                and self.vertical_datum_info.native_datum
+                and vd != self.vertical_datum_info.native_datum
+            ):
+                datum_offset = self.vertical_datum_info.get_offset_to(vd)
+                if datum_offset is not None and datum_offset.magnitude:
+                    for i in range(self.template.ind_param_count + 1):
+                        if (
+                            i < self.template.ind_param_count
+                            and self.template.ind_params[i].startswith("Elev")
+                        ) or (
+                            i == self.template.ind_param_count
+                            and self.template.dep_param.startswith("Elev")
+                        ):
+                            if (
+                                self.vertical_datum_info.unit_name
+                                != self._rating_units[i]
+                            ):
+                                datum_offsets[i] = datum_offset.to(
+                                    self._rating_units[i]
+                                ).magnitude * (
+                                    1 if i == self.template.ind_param_count else -1
+                                )
+                            else:
+                                datum_offsets[i] = datum_offset.magnitude * (
+                                    1 if i == self.template.ind_param_count else -1
+                                )
+        return datum_offsets
+
+    def make_reverse_datum_offsets(self, vertical_datum: str) -> list[Optional[float]]:
+        """
+        Creates a list of two vertical datum offsets (in rating units). The first is from the specified vertical datum to the
+        rating native vertical datum; the second from the rating native vertical datum to the specified datum.
+
+        The first offset will be None if the base parameter of the rating dependent parameter is not "Elev" or the offset is zero.
+        The secons offset will be None if the base parameter of the (single) rating independent parameter is not "Elev" or the offset is zero.
+
+        Args:
+            vertical_datum (str): The specified vertical datum
+
+        Returns:
+            list[Optional[float]]: The list of offsets.
+        """
+        if self.template.ind_param_count != 1:
+            raise AbstractRatingException(
+                "Cannot call make_reverse_datum_offsets on a rating with more than one independent parameter"
+            )
+        datum_offsets: list[Any] = 2 * [None]
+        if self.has_elev_param and vertical_datum is not None:
+            datum_offset: Optional[hec.unit.UnitQuantity] = None
+            vd: Optional[str] = None
+            if _ngvd29_pattern.match(vertical_datum):
+                vd = _NGVD29
+            elif _navd88_pattern.match(vertical_datum):
+                vd = _NAVD88
+            elif _other_datum_pattern.match(vertical_datum):
+                vd = _OTHER_DATUM
+            else:
+                raise AbstractRatingException(
+                    f"Invalid vertical datum: {vertical_datum}. Must be one of "
+                    f"{_NGVD29}, {_NAVD88}, or {_OTHER_DATUM}"
+                )
+            if (
+                self.vertical_datum_info
+                and self.vertical_datum_info.native_datum
+                and vd != self.vertical_datum_info.native_datum
+            ):
+                datum_offset = self.vertical_datum_info.get_offset_to(vd)
+                if datum_offset is not None and datum_offset.magnitude:
+                    if self.template.dep_param.startswith("Elev"):
+                        if self.vertical_datum_info.unit_name != self._rating_units[1]:
+                            datum_offsets[0] = datum_offset.to(
+                                self._rating_units[1]
+                            ).magnitude
+                        else:
+                            datum_offsets[0] = datum_offset.magnitude
+                    if self.template.ind_params[0].startswith("Elev"):
+                        if self.vertical_datum_info.unit_name != self._rating_units[1]:
+                            datum_offsets[0] = -datum_offset.to(
+                                self._rating_units[1]
+                            ).magnitude
+                        else:
+                            datum_offsets[0] = -datum_offset.magnitude
+        return datum_offsets
+
+    def make_reverse_unit_conversions(
+        self, unit_list: list[str]
+    ) -> list[Optional[Callable[[float], float]]]:
+        """
+        Creates a list of unit conversion functions (each optionally None for the identity function) for converting
+        the dependent parameter values to rating units and the independent parameter value to specified unit
+
+        Args:
+            unit_list (list[str]): The list of [dependent parameter unit, independent parameter unit].
+
+        Returns:
+            list[Optional[Callable[[float], float]]]: The list of unit conversions. The first is for
+                converting the specified unit to the rating dependent parameter unit. The
+                second one is for converting from the rating independent parameter unit to the specified unit.
+        """
+        if self.template.ind_param_count != 1:
+            raise AbstractRatingException(
+                "Cannot call make_reverse_unit_conversions on a rating with more than one independent parameter"
+            )
+        if len(unit_list) != len(self._rating_units):
+            raise AbstractRatingException(
+                f"Expected {len(self._rating_units)} units for conversion, got {len(unit_list)}"
+            )
+        return [
+            AbstractRating.make_unit_conversion(unit_list[0], self._rating_units[0]),
+            AbstractRating.make_unit_conversion(self._rating_units[1], unit_list[1]),
+        ]
+
+    @staticmethod
+    def make_unit_conversion(
+        from_unit: str, to_unit: str
+    ) -> Optional[Callable[[float], float]]:
+        """
+        Creates a function that converts a value from/to specified units
+
+        Args:
+            from_unit (str): The unit to convert from
+            to_unit (str): The unit to conver to
+
+        Returns:
+            Optional[Callable[[float],float]]: The conversion function or None for the identity conversion
+        """
+        converted1 = hec.unit.UnitQuantity(1.0, from_unit).to(to_unit).magnitude
+        if np.isclose(1.0, converted1):
+            # no conversion
+            return None
+        else:
+            converted2 = hec.unit.UnitQuantity(10.0, from_unit).to(to_unit).magnitude
+            if np.isclose(10 * converted1, converted2):
+                # scalar conversion
+                return lambda x: x * converted1
+            else:
+                # non-scalar conversion
+                return (
+                    lambda x: hec.unit.UnitQuantity(x, from_unit).to(to_unit).magnitude
+                )
+
+    def make_unit_conversions(
+        self, unit_list: list[str]
+    ) -> list[Optional[Callable[[float], float]]]:
+        """
+        Creates a list of unit conversion functions (each optionally None for the identity function) for converting
+        independent parameter values to rating units and the dependent parameter value to specified unit
+
+        Args:
+            unit_list (list[str]): The list of independent parameter units plus the dependent parameter unit.
+
+        Returns:
+            list[Optional[Callable[[float], float]]]: The list of unit conversions. All but the last one are for
+                converting the specified unit to the rating unit for the independent parameter at that position. The
+                last one is for converting from the rating dependent parameter unit to the specified unit.
+        """
+        if len(unit_list) != len(self._rating_units):
+            raise AbstractRatingException(
+                f"Expected {len(self._rating_units)} units for conversion, got {len(unit_list)}"
+            )
+        return [
+            AbstractRating.make_unit_conversion(from_unit, to_unit)
+            for from_unit, to_unit in zip(unit_list[:-1], self._rating_units[:-1])
+        ] + [AbstractRating.make_unit_conversion(self._rating_units[-1], unit_list[-1])]
 
     @property
     def office(self) -> Optional[str]:
@@ -798,7 +1049,6 @@ class AbstractRating(ABC):
             units = f"{ind_unit};{ts.unit}"
             rated_values = self.reverse_rate_values(
                 dep_values=ts.values,
-                value_times=[datetime.fromisoformat(s) for s in ts.times],
                 units=units,
                 vertical_datum=vertical_datum,
                 round=round,
@@ -826,10 +1076,8 @@ class AbstractRating(ABC):
     def reverse_rate_values(
         self,
         dep_values: list[float],
-        value_times: Optional[list[datetime]] = None,
         units: Optional[str] = None,
         vertical_datum: Optional[str] = None,
-        rating_time: Optional[datetime] = None,
         round: bool = False,
     ) -> list[float]:
         """
@@ -839,22 +1087,12 @@ class AbstractRating(ABC):
 
         Args:
             dep_values (list[float]): The dependent parameter values.
-            value_times (Optional[list[datetime]]): The date/times of the independent parameter values. Defaults to None.
-                * If specified and not None:
-                  * If shorter than the independent parameter value list(s), the last time will be used for the remainging values.
-                  * If longer than the independent parameter values list(s), the beginning portion of the list will be used.
-                * If None or not specified:
-                  * If the rating's default data time is not None, that time is used for each value
-                  * If the rating's default data time is None, the current time is used for each value
             units (Optional[str]): The units of the independent parameter values and the rated values.A comma-delimited string of
                 independent value units concatendated with a semicolon and the dependent parameter unit. Defaults to None.
                 * If not specified, the rating's default data units are used, if specified. If the rating has no default data units,
                     the rating units are used.
             vertical_datum (Optional[str]): The vertical datum of any input elevation values and the desired vertical datum of any
                 output elevation values. Defaults to None, in which case the location's native vertical datum will be used.
-            rating_time (Optional[datetime]): The maximum create date for the rating to use to perform the rating. Defaults to None.
-                Causes the rating to be performed as if the current date/time were the specified date (no ratings with create dates
-                later than this time will be used).
             round (bool, optional): Whether to use the rating's specification's independent rounding specification . Defaults to False.
 
         Returns:
