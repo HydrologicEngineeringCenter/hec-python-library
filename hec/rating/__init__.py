@@ -5,6 +5,8 @@ Sub-module to provide rating capabilities to hec module
 __all__ = [
     "AbstractRating",
     "AbstractRatingSet",
+    "LocalRatingSet",
+    "LocalRatingSetException",
     "LookupMethod",
     "PairedData",
     "PairedDataException",
@@ -27,6 +29,7 @@ __all__ = [
 from . import rating_shared, rating_specification
 from .abstract_rating import AbstractRating
 from .abstract_rating_set import AbstractRatingSet
+from .local_rating_set import LocalRatingSet, LocalRatingSetException
 from .paired_data import PairedData, PairedDataException
 from .rating_shared import LookupMethod
 from .rating_specification import RatingSpecification, RatingSpecificationException
