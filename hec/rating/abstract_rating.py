@@ -498,9 +498,7 @@ class AbstractRating(ABC):
         Returns:
             list[Optional[float]]: The list of offsets.
         """
-        datum_offsets: list[Any] = (self.template.ind_param_count + 1) * [
-            None
-        ]
+        datum_offsets: list[Any] = (self.template.ind_param_count + 1) * [None]
         if self.has_elev_param and vertical_datum is not None:
             datum_offset: Optional[hec.unit.UnitQuantity] = None
             vd: Optional[str] = None
@@ -593,7 +591,7 @@ class AbstractRating(ABC):
                         else:
                             datum_offsets[0] = datum_offset.magnitude
                     if self.template.ind_params[0].startswith("Elev"):
-                        if self.vertical_datum_info.unit_name != self._rating_units[1]:
+                        if self.vertical_datum_info.unit_name != self._rating_units[0]:
                             datum_offsets[0] = -datum_offset.to(
                                 self._rating_units[1]
                             ).magnitude
@@ -613,8 +611,8 @@ class AbstractRating(ABC):
 
         Returns:
             list[Optional[Callable[[float], float]]]: The list of unit conversions. The first is for
-                converting the specified unit to the rating dependent parameter unit. The
-                second one is for converting from the rating independent parameter unit to the specified unit.
+                converting from the rating independent parameter unit to the specified unit. The
+                second one is for converting the specified unit to the rating dependent parameter unit.
         """
         if self.template.ind_param_count != 1:
             raise AbstractRatingException(
@@ -625,8 +623,8 @@ class AbstractRating(ABC):
                 f"Expected {len(self._rating_units)} units for conversion, got {len(unit_list)}"
             )
         return [
-            AbstractRating.make_unit_conversion(unit_list[0], self._rating_units[0]),
-            AbstractRating.make_unit_conversion(self._rating_units[1], unit_list[1]),
+            AbstractRating.make_unit_conversion(self._rating_units[0], unit_list[0]),
+            AbstractRating.make_unit_conversion(unit_list[1], self._rating_units[1]),
         ]
 
     @staticmethod
@@ -799,7 +797,7 @@ class AbstractRating(ABC):
         elif (
             isinstance(input, list)
             and isinstance(input[0], list)
-            and isinstance(input[0][0], float)
+            and isinstance(input[0][0], (int, float))
         ):
             return self.rate_values(
                 ind_values=cast(list[list[float]], input),
@@ -1003,7 +1001,7 @@ class AbstractRating(ABC):
                 vertical_datum=vertical_datum,
                 round=round,
             )
-        elif isinstance(input, list) and isinstance(input[0], float):
+        elif isinstance(input, list) and isinstance(input[0], (int, float)):
             return self.reverse_rate_values(
                 dep_values=input,
                 units=units,

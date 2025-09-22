@@ -2,11 +2,13 @@ import bisect
 import math
 import re
 from datetime import datetime
-from typing import Any, Callable, Optional, Union, cast
+from typing import TYPE_CHECKING, Any, Callable, Optional, Union, cast
 
 import numpy as np
 from lxml import etree
 
+if TYPE_CHECKING:
+    from hec.datastore import AbstractDataStore
 from hec.hectime import HecTime
 from hec.parameter import (
     _NAVD88,
@@ -579,8 +581,15 @@ class TableRating(SimpleRating):
             raise TableRatingException(
                 "Cannot perform reverse rating: table has no rating points"
             )
-        ind_vals: list[float] = [k[0] for k in self._rating_points.keys()] # type: ignore
-        dep_vals: list[float] = self._rating_points.values() # type: ignore
+        ind_vals: list[float] = [
+            k[0]
+            for k in list(
+                cast(dict[tuple[float, ...], float], self._rating_points).keys()
+            )
+        ]
+        dep_vals: list[float] = list(
+            cast(dict[tuple[float, ...], float], self._rating_points).values()
+        )
         if sorted(dep_vals) != dep_vals:
             raise TableRatingException(
                 "Cannot perform reverse rating: dependent values are not monotonically increasing"
@@ -621,10 +630,10 @@ class TableRating(SimpleRating):
             # convert units and datums #
             # ------------------------ #
             dep_value = dep_values[i]
-            if unit_conversions[0]:
-                dep_value = unit_conversions[0](dep_value)
-            if datum_offsets[0]:
-                dep_value += datum_offsets[0]
+            if unit_conversions[1]:
+                dep_value = unit_conversions[1](dep_value)
+            if datum_offsets[1]:
+                dep_value += datum_offsets[1]
             # ------------------ #
             # perform the rating #
             # ------------------ #
@@ -715,10 +724,10 @@ class TableRating(SimpleRating):
         # ------------------------ #
         # convert datums and units #
         # ------------------------ #
-        if datum_offsets[1]:
-            rated_values = list(map(lambda v: v + datum_offsets[1], rated_values)) # type: ignore
-        if unit_conversions[1]:
-            rated_values = list(map(unit_conversions[1], rated_values))
+        if datum_offsets[0]:
+            rated_values = list(map(lambda v: v - datum_offsets[0], rated_values))  # type: ignore
+        if unit_conversions[0]:
+            rated_values = list(map(unit_conversions[0], rated_values))
         return rated_values
 
     @property

@@ -49,13 +49,16 @@
                                 <a class="variable" href="#TableRating.has_rating_points">has_rating_points</a>
                         </li>
                         <li>
-                                <a class="function" href="#TableRating.get_dependent_value">get_dependent_value</a>
+                                <a class="function" href="#TableRating.interpolate_or_select">interpolate_or_select</a>
                         </li>
                         <li>
                                 <a class="function" href="#TableRating.rate_value">rate_value</a>
                         </li>
                         <li>
                                 <a class="function" href="#TableRating.rate_values">rate_values</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#TableRating.reverse_rate_value">reverse_rate_value</a>
                         </li>
                         <li>
                                 <a class="function" href="#TableRating.reverse_rate_values">reverse_rate_values</a>
@@ -213,16 +216,16 @@ reverse rating methods.</p>
 
 
                             </div>
-                            <div id="TableRating.get_dependent_value" class="classattr">
+                            <div id="TableRating.interpolate_or_select" class="classattr">
                                 <div class="attr function">
                     <div class="decorator decorator-staticmethod">@staticmethod</div>
 
         <span class="def">def</span>
-        <span class="name">get_dependent_value</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">x</span><span class="p">:</span> <span class="nb">float</span>,</span><span class="param">	<span class="n">x0</span><span class="p">:</span> <span class="nb">float</span>,</span><span class="param">	<span class="n">x1</span><span class="p">:</span> <span class="nb">float</span>,</span><span class="param">	<span class="n">y0</span><span class="p">:</span> <span class="nb">float</span>,</span><span class="param">	<span class="n">y1</span><span class="p">:</span> <span class="nb">float</span>,</span><span class="param">	<span class="n">lookup</span><span class="p">:</span> <span class="nb">str</span></span><span class="return-annotation">) -> <span class="nb">float</span>:</span></span>
+        <span class="name">interpolate_or_select</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">x</span><span class="p">:</span> <span class="nb">float</span>,</span><span class="param">	<span class="n">x0</span><span class="p">:</span> <span class="nb">float</span>,</span><span class="param">	<span class="n">x1</span><span class="p">:</span> <span class="nb">float</span>,</span><span class="param">	<span class="n">y0</span><span class="p">:</span> <span class="nb">float</span>,</span><span class="param">	<span class="n">y1</span><span class="p">:</span> <span class="nb">float</span>,</span><span class="param">	<span class="n">lookup</span><span class="p">:</span> <span class="nb">str</span></span><span class="return-annotation">) -> <span class="nb">float</span>:</span></span>
 
         
     </div>
-    <a class="headerlink" href="#TableRating.get_dependent_value"></a>
+    <a class="headerlink" href="#TableRating.interpolate_or_select"></a>
     
             <div class="docstring"><p>Performs dependent value interpolation, extrapolation, or selection based on specified behavior</p>
 
@@ -256,9 +259,11 @@ reverse rating methods.</p>
     </div>
     <a class="headerlink" href="#TableRating.rate_value"></a>
     
-            <div class="docstring"><p>Rates a single input value set</p>
+            <div class="docstring"><p>Rates a single independent parameter value set</p>
 
-<p>The value set is expected to be in the native units and vertical datum of the rating</p>
+<p>The value set is expected to be in the native units and vertical datum of the rating. To specify units, vertical datum
+or rounding use <a href="#TableRating.rate_values"><code>rate_values</code></a>, nesting <code>ind_value</code> in a list and extracting
+the result from the returned list.</p>
 
 <h6 id="arguments">Arguments:</h6>
 
@@ -271,7 +276,7 @@ reverse rating methods.</p>
 <h6 id="returns">Returns:</h6>
 
 <blockquote>
-  <p>float: The rated value</p>
+  <p>float: The rated (dependent parameter) value</p>
 </blockquote>
 </div>
 
@@ -314,11 +319,42 @@ output elevation values. Defaults to None, in which case the location's native d
 
 
                             </div>
+                            <div id="TableRating.reverse_rate_value" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">reverse_rate_value</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">dep_value</span><span class="p">:</span> <span class="nb">float</span></span><span class="return-annotation">) -> <span class="nb">float</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#TableRating.reverse_rate_value"></a>
+    
+            <div class="docstring"><p>Reverse rates a single dependent parameter value</p>
+
+<p>The dependent parameter value is expected to be in the native unit and vertical datum of the rating. To specify units, vertical datum
+or rounding use <a href="#TableRating.reverse_rate_values"><code>reverse_rate_values</code></a>, putting <code>dep_value</code> in a list and extracting
+the result from the returned list.</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>dep_value (float):</strong>  The dependent parameter value to reverse rate</li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>float: The rated (independent parameter) value</p>
+</blockquote>
+</div>
+
+
+                            </div>
                             <div id="TableRating.reverse_rate_values" class="classattr">
                                 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">reverse_rate_values</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="bp">self</span>,</span><span class="param">	<span class="n">dep_values</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span>,</span><span class="param">	<span class="n">value_times</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">units</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">vertical_datum</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">rating_time</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="nb">round</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></span><span class="return-annotation">) -> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span>:</span></span>
+        <span class="name">reverse_rate_values</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="bp">self</span>,</span><span class="param">	<span class="n">dep_values</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span>,</span><span class="param">	<span class="n">units</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">vertical_datum</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="nb">round</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></span><span class="return-annotation">) -> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span>:</span></span>
 
         
     </div>
@@ -332,19 +368,6 @@ output elevation values. Defaults to None, in which case the location's native d
 
 <ul>
 <li><strong>dep_values (list[float]):</strong>  The dependent parameter values.</li>
-<li><strong>value_times (Optional[list[datetime]]):</strong>  The date/times of the independent parameter values. Defaults to None.
-<ul>
-<li>If specified and not None:
-<ul>
-<li>If shorter than the independent parameter value list(s), the last time will be used for the remainging values.</li>
-<li>If longer than the independent parameter values list(s), the beginning portion of the list will be used.</li>
-</ul></li>
-<li>If None or not specified:
-<ul>
-<li>If the rating's default data time is not None, that time is used for each value</li>
-<li>If the rating's default data time is None, the current time is used for each value</li>
-</ul></li>
-</ul></li>
 <li><strong>units (Optional[str]):</strong>  The units of the independent parameter values and the rated values.A comma-delimited string of
 independent value units concatendated with a semicolon and the dependent parameter unit. Defaults to None.
 <ul>
@@ -353,9 +376,6 @@ the rating units are used.</li>
 </ul></li>
 <li><strong>vertical_datum (Optional[str]):</strong>  The vertical datum of any input elevation values and the desired vertical datum of any
 output elevation values. Defaults to None, in which case the location's native vertical datum will be used.</li>
-<li><strong>rating_time (Optional[datetime]):</strong>  The maximum create date for the rating to use to perform the rating. Defaults to None.
-Causes the rating to be performed as if the current date/time were the specified date (no ratings with create dates
-later than this time will be used).</li>
 <li><strong>round (bool, optional):</strong>  Whether to use the rating's specification's independent rounding specification . Defaults to False.</li>
 </ul>
 
@@ -419,10 +439,17 @@ later than this time will be used).</li>
                                 <dd id="TableRating.valid_rating_tags" class="variable"><a href="abstract_rating.html#AbstractRating.valid_rating_tags">valid_rating_tags</a></dd>
                 <dd id="TableRating.effective_time" class="variable"><a href="abstract_rating.html#AbstractRating.effective_time">effective_time</a></dd>
                 <dd id="TableRating.active" class="variable"><a href="abstract_rating.html#AbstractRating.active">active</a></dd>
+                <dd id="TableRating.convert_units" class="function"><a href="abstract_rating.html#AbstractRating.convert_units">convert_units</a></dd>
                 <dd id="TableRating.create_time" class="variable"><a href="abstract_rating.html#AbstractRating.create_time">create_time</a></dd>
                 <dd id="TableRating.default_data_units" class="variable"><a href="abstract_rating.html#AbstractRating.default_data_units">default_data_units</a></dd>
                 <dd id="TableRating.default_data_vertical_datum" class="variable"><a href="abstract_rating.html#AbstractRating.default_data_vertical_datum">default_data_vertical_datum</a></dd>
                 <dd id="TableRating.description" class="variable"><a href="abstract_rating.html#AbstractRating.description">description</a></dd>
+                <dd id="TableRating.has_elev_param" class="variable"><a href="abstract_rating.html#AbstractRating.has_elev_param">has_elev_param</a></dd>
+                <dd id="TableRating.make_datum_offsets" class="function"><a href="abstract_rating.html#AbstractRating.make_datum_offsets">make_datum_offsets</a></dd>
+                <dd id="TableRating.make_reverse_datum_offsets" class="function"><a href="abstract_rating.html#AbstractRating.make_reverse_datum_offsets">make_reverse_datum_offsets</a></dd>
+                <dd id="TableRating.make_reverse_unit_conversions" class="function"><a href="abstract_rating.html#AbstractRating.make_reverse_unit_conversions">make_reverse_unit_conversions</a></dd>
+                <dd id="TableRating.make_unit_conversion" class="function"><a href="abstract_rating.html#AbstractRating.make_unit_conversion">make_unit_conversion</a></dd>
+                <dd id="TableRating.make_unit_conversions" class="function"><a href="abstract_rating.html#AbstractRating.make_unit_conversions">make_unit_conversions</a></dd>
                 <dd id="TableRating.office" class="variable"><a href="abstract_rating.html#AbstractRating.office">office</a></dd>
                 <dd id="TableRating.populate_xml_element" class="function"><a href="abstract_rating.html#AbstractRating.populate_xml_element">populate_xml_element</a></dd>
                 <dd id="TableRating.rate" class="function"><a href="abstract_rating.html#AbstractRating.rate">rate</a></dd>
