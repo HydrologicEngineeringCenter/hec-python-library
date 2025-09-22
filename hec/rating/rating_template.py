@@ -5,7 +5,7 @@ from typing import Any, Optional
 from lxml import etree
 
 from hec.parameter import Parameter, ParameterException
-from hec.rating.rating_shared import LookupMethod
+from hec.rating.rating_shared import LookupMethod, replace_indent
 from hec.shared import RatingException
 
 
@@ -281,7 +281,7 @@ class RatingTemplate:
             raise RatingTemplateException(
                 f"Expected <rating-template>, got <{template_elem.tag}>"
             )
-        office = template_elem.get("office")
+        office = template_elem.get("office-id")
         if not office:
             raise RatingTemplateException("No office specified in <rating-template>")
         parameters = template_elem.findtext("parameters-id")
@@ -480,17 +480,6 @@ class RatingTemplate:
         Returns:
             str: The formatted xml
         """
-
-        def replace_indent(s: str, new_indent: str) -> str:
-            old_indent = "  "
-            pattern = f"^(?:{re.escape(old_indent)})+"
-
-            def repl(match: re.Match[str]) -> str:
-                count = len(match.group(0)) // len(old_indent)
-                return new_indent * count
-
-            return re.sub(pattern, repl, s, flags=re.MULTILINE)
-
         xml: str = etree.tostring(self.xml_element, pretty_print=True).decode()
         if indent != "  ":
             xml = replace_indent(xml, indent)
