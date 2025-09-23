@@ -148,7 +148,7 @@ class RatingSpecification:
                 assert_type(bool)
                 self.auto_migrate_extension = argval
             elif kw == "description":
-                assert_type(str)
+                assert_type((str, type(None)))
                 self.description = argval
             else:
                 raise TypeError(
@@ -311,16 +311,67 @@ class RatingSpecification:
         Returns:
             RatingSpecification: The copy
         """
+        # if kw == "location":
+        #     assert_type(Location)
+        #     if argval.name != self._location.name:
+        #         raise RatingSpecificationException(
+        #             f"Expected location ID to be {self._location.name}, got {argval.name}"
+        #         )
+        #     self._location = argval.copy()
+        # elif kw == "template":
+        #     assert_type(RatingTemplate)
+        #     if argval.name != self._template.name:
+        #         raise RatingSpecificationException(
+        #             f"Expected template ID to be {self._template.name}, got {argval.name}"
+        #         )
+        #     self._template = argval.copy()
+        # elif kw == "office":
+        #     assert_type(str)
+        #     if self._location.office and self._location.office != argval:
+        #         warnings.warn(
+        #             f"Overriding existing location office of {self._location.office} with specified office of {argval}"
+        #         )
+        #     if self._template.office and self._template.office != argval:
+        #         warnings.warn(
+        #             f"Overriding existing template office of {self._template.office} with specified office of {argval}"
+        #         )
+        #     self._location.office = argval
+        #     self._template.office = argval
+        # elif kw == "agency":
+        #     assert_type((str, type(None)))
+        #     self._agency = argval
+        # elif kw == "lookup":
+        #     self.lookup = argval
+        # elif kw == "rounding":
+        #     self.rounding = argval
+        # elif kw == "active":
+        #     assert_type(bool)
+        #     self.active = argval
+        # elif kw == "auto_update":
+        #     assert_type(bool)
+        #     self.auto_update = argval
+        # elif kw == "auto_activate":
+        #     assert_type(bool)
+        #     self.auto_activate = argval
+        # elif kw == "auto_migrate_extension":
+        #     assert_type(bool)
+        #     self.auto_migrate_extension = argval
+        # elif kw == "description":
+        #     assert_type(str)
+        #     self.description = argval
+
         copy = RatingSpecification(
             self.name,
             location=self.location,
             template=self.template,
-            rounding=self.rounding,
             agency=self._agency,
+            lookup=self.lookup,
+            rounding=self.rounding,
             active=self._active,
             auto_update=self._auto_update,
             auto_activate=self._auto_activate,
             auto_migrate_extension=self._auto_migrate_extension,
+            description=self.description,
         )
         return copy
 

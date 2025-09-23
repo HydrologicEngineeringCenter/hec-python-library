@@ -1,3 +1,4 @@
+import bisect
 import re
 from datetime import datetime
 from typing import Any, Optional, Type, TypeVar, Union, cast
@@ -6,11 +7,12 @@ import numpy as np
 from lxml import etree
 
 import hec
-
-from .abstract_rating import AbstractRating
-from .abstract_rating_set import AbstractRatingSet, AbstractRatingSetException
-from .rating_specification import RatingSpecification
-from .rating_template import RatingTemplate
+from hec.rating.abstract_rating import AbstractRating
+from hec.rating.abstract_rating_set import AbstractRatingSet, AbstractRatingSetException
+from hec.rating.rating_shared import LookupMethod
+from hec.rating.rating_specification import RatingSpecification
+from hec.rating.rating_template import RatingTemplate
+from hec.rating.table_rating import TableRating
 
 T = TypeVar("T", bound="LocalRatingSet")
 
@@ -41,7 +43,9 @@ class LocalRatingSet(AbstractRatingSet):
         for kw in kwargs:
             if kw == "datastore":
                 argval = kwargs[kw]
-                if not isinstance(argval, hec.datastore.AbstractDataStore):
+                if argval is not None and not isinstance(
+                    argval, hec.datastore.AbstractDataStore
+                ):
                     raise TypeError(
                         f"Expected CwmsDataStore for {kw}, got {argval.__class__.__name__}"
                     )
@@ -85,7 +89,7 @@ class LocalRatingSet(AbstractRatingSet):
             if child.tag == "rating-template":
                 template = RatingTemplate.from_xml(etree.tostring(child).decode())
                 templates[template.name] = template
-            elif child.tag == "rating-specification":
+            elif child.tag == "rating-spec":
                 specification = RatingSpecification.from_xml(
                     etree.tostring(child).decode()
                 )
@@ -97,12 +101,21 @@ class LocalRatingSet(AbstractRatingSet):
                 if not rating_set_specification_id:
                     rating_set_specification_id = rating.specification_id
                 if rating.specification_id in specifications:
+                    vdi = (
+                        None
+                        if rating.vertical_datum_info is None
+                        else rating.vertical_datum_info.copy()
+                    )
                     rating._specification = specifications[rating.specification_id]
+                    if not rating.vertical_datum_info:
+                        rating._specification._location.vertical_datum_info = vdi
                 ratings.setdefault(rating.specification_id, {})
                 if rating.effective_time in ratings[rating.specification_id]:
                     raise LocalRatingSetException(
                         f"Cannot have more than one {rating.specification_id} rating with <effective-date> of {rating.effective_time.isoformat()}"
                     )
+                if isinstance(rating, TableRating):
+                    rating._data_store = datastore  # for lazy loading
                 ratings[rating_set_specification_id][rating.effective_time] = rating
         # --------------------------------------------------------------------- #
         # for virtual and transitional ratings, will need to set source ratings #
@@ -119,5 +132,227 @@ class LocalRatingSet(AbstractRatingSet):
             lrs._ratings[effective_time] = rating
             if rating.active:
                 lrs._active_ratings[effective_time] = rating
+        if lrs._vertical_datum_info is None:
+            # ------------------------ #
+            # first try active ratings #
+            # ------------------------ #
+            for effective_time in lrs._active_ratings:
+                vdi = lrs._active_ratings[effective_time].vertical_datum_info
+                if vdi:
+                    lrs._vertical_datum_info = vdi.copy()
+                    lrs._default_data_veritcal_datum = (
+                        lrs._vertical_datum_info.native_datum
+                    )
+                    break
+        if lrs._vertical_datum_info is None:
+            # -------------------------------------------- #
+            # next try source ratings and inactive ratings #
+            # -------------------------------------------- #
+            for spec_id in ratings:
+                if spec_id.split(".")[0] == lrs.specification.location.name:
+                    for effective_time in ratings[spec_id]:
+                        vdi = ratings[spec_id][effective_time].vertical_datum_info
+                        if vdi:
+                            lrs._vertical_datum_info = vdi.copy()
+                            lrs._default_data_veritcal_datum = (
+                                lrs._vertical_datum_info.native_datum
+                            )
+                            break
+                    if lrs._vertical_datum_info:
+                        break
 
         return lrs
+
+    def rate_values(
+        self,
+        ind_values: list[list[float]],
+        value_times: Optional[list[datetime]] = None,
+        units: Optional[str] = None,
+        vertical_datum: Optional[str] = None,
+        rating_time: Optional[datetime] = None,
+        round: bool = False,
+    ) -> list[float]:
+        # docstring in AbstractRating.rate_values
+        ratings: dict[datetime, AbstractRating] = {}
+        if rating_time is None:
+            ratings = self._active_ratings
+        else:
+            for effective_time in self._active_ratings:
+                if effective_time > rating_time:
+                    continue
+                else:
+                    create_time = self._active_ratings[effective_time].create_time
+                    if create_time and create_time > rating_time:
+                        continue
+        if not ratings:
+            if rating_time:
+                raise LocalRatingSetException(
+                    f"Specified rating time ({rating_time.isoformat}) excludes all active ratings"
+                )
+            else:
+                raise LocalRatingSetException("Rating set has no active ratings")
+        ind_param_count = len(ind_values)
+        value_count = len(ind_values[0])
+        if ind_param_count != self.template.ind_param_count:
+            raise LocalRatingSetException(
+                f"Expected {self.template.ind_param_count} lists of input values, got {ind_param_count}"
+            )
+        for i in range(1, ind_param_count):
+            if len(ind_values[i]) != value_count:
+                raise LocalRatingSetException(
+                    f"Expected all input value lists to be of lenght {value_count}, "
+                    f"got {len(ind_values[i])} on value list {i+1}."
+                )
+        if value_times is None:
+            if self.default_data_time is not None:
+                value_times = len(ind_values[0]) * [
+                    cast(datetime, self._default_data_time)
+                ]
+            else:
+                value_times = len(ind_values[0]) * [datetime.now()]
+        _units = units if units else self._default_data_units
+        if not _units:
+            raise LocalRatingSetException(
+                "Cannot perform rating. No data units are specified and rating set has no defaults"
+            )
+        unit_list = re.split(r"[;,]", cast(str, _units))
+        if len(unit_list) != ind_param_count + 1:
+            raise LocalRatingSetException(
+                f"Expected {ind_param_count+1} units, got {len(unit_list)}"
+            )
+        rated_values: list[float] = []
+        effective_times = sorted(et for et in ratings)
+        effective_times_count = len(effective_times)
+        for i in range(value_count):
+            in_range, out_range_lo, out_range_hi = self._specification.lookup
+            ind_value = [[v[i]] for v in ind_values]
+            if (
+                i > 0
+                and value_times[i] == value_times[i - 1]
+                and ind_value == [[v[i - 1]] for v in ind_values]
+            ):
+                rated_values.append(rated_values[-1])
+                continue
+            hi = bisect.bisect(effective_times, value_times[i])
+            if hi > 0 and value_times[i] == effective_times[hi - 1]:
+                hi -= 1
+            if hi == effective_times_count:
+                # ------------------------------- #
+                # value time is out of range high #
+                # ------------------------------- #
+                if out_range_hi in (
+                    LookupMethod.ERROR.name,
+                    LookupMethod.NEXT.name,
+                    LookupMethod.HIGHER.name,
+                ):
+                    raise LocalRatingSetException(
+                        f"Value time of {value_times[i].isoformat()} is out of range high "
+                        f"and lookup method is {out_range_hi}"
+                    )
+                elif out_range_hi == LookupMethod.NULL.name:
+                    rated_values.append(np.nan)
+                    continue
+                else:
+                    hi -= 1
+                    if out_range_lo in (
+                        LookupMethod.PREVIOUS.name,
+                        LookupMethod.LOWER.name,
+                        LookupMethod.NEAREST.name,
+                        LookupMethod.CLOSEST.name,
+                    ):
+                        in_range = LookupMethod.NEXT.name
+                    elif out_range_hi in (
+                        LookupMethod.LINEAR.name,
+                        LookupMethod.LINLOG.name,
+                        LookupMethod.LOGARITHMIC.name,
+                        LookupMethod.LOGLIN.name,
+                    ):
+                        in_range = out_range_hi
+            lo = hi - 1
+            if (
+                lo < effective_times_count - 1
+                and value_times[i] == effective_times[lo + 1]
+            ):
+                lo += 1
+            if lo == -1:
+                # ----------------------------- #
+                # value time is out of range lo #
+                # ----------------------------- #
+                if out_range_lo in (
+                    LookupMethod.ERROR.name,
+                    LookupMethod.PREVIOUS.name,
+                    LookupMethod.LOWER.name,
+                ):
+                    raise LocalRatingSetException(
+                        f"Value time of {value_times[i].isoformat()} is out of range low "
+                        f"and lookup method is {out_range_lo}"
+                    )
+                elif out_range_lo == LookupMethod.NULL.name:
+                    rated_values.append(np.nan)
+                    continue
+                else:
+                    lo += 1
+                    if out_range_lo in (
+                        LookupMethod.NEXT.name,
+                        LookupMethod.HIGHER.name,
+                        LookupMethod.NEAREST.name,
+                        LookupMethod.CLOSEST.name,
+                    ):
+                        in_range = LookupMethod.PREVIOUS.name
+                    elif out_range_lo in (
+                        LookupMethod.LINEAR.name,
+                        LookupMethod.LINLOG.name,
+                        LookupMethod.LOGARITHMIC.name,
+                        LookupMethod.LOGLIN.name,
+                    ):
+                        in_range = out_range_lo
+            # ---------------------------------------------- #
+            # value time is either in range or extrapolating #
+            # ---------------------------------------------- #
+            if in_range == LookupMethod.ERROR.name and value_times[i] not in (
+                effective_times[lo],
+                effective_times[hi],
+            ):
+                raise LocalRatingSetException(
+                    f"Value time is between {effective_times[lo].isoformat()} and "
+                    f"{effective_times[hi].isoformat()}, and lookup method is {in_range}"
+                )
+            elif in_range == LookupMethod.NULL.name:
+                rated_values.append(np.nan)
+                continue
+            lo_val = ratings[effective_times[lo]].rate_values(
+                ind_value, units, vertical_datum, round
+            )[0]
+            hi_val = ratings[effective_times[hi]].rate_values(
+                ind_value, units, vertical_datum, round
+            )[0]
+            rated_values.append(
+                TableRating.interpolate_or_select(
+                    value_times[i].timestamp(),
+                    effective_times[lo].timestamp(),
+                    effective_times[hi].timestamp(),
+                    lo_val,
+                    hi_val,
+                    in_range,
+                )
+            )
+        return rated_values
+
+    def reverse_rate_values(
+        self,
+        dep_values: list[float],
+        value_times: Optional[list[datetime]] = None,
+        units: Optional[str] = None,
+        vertical_datum: Optional[str] = None,
+        rating_time: Optional[datetime] = None,
+        round: bool = False,
+    ) -> list[float]:
+        # docstring in AbstractRating.reverse_rate_values
+        raise NotImplementedError
+
+
+if __name__ == "__main__":
+    with open("test/resources/rating/table_rating_set_1.xml") as f:
+        xml_str = f.read()
+    rs = LocalRatingSet.from_xml(xml_str)
+    print(rs)

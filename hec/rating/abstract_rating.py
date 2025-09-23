@@ -156,7 +156,9 @@ class AbstractRating(ABC):
                 "No <rating-spec-id> element in <simple-rating>"
             )
         if not specification:
-            specification = RatingSpecification(etree.tostring(spec_elem).decode())
+            specification = RatingSpecification(
+                spec_elem.text if spec_elem.text else ""
+            )
         vertical_datum_elem = root.find("./vertical-datum-info")
         if vertical_datum_elem is not None:
             vdi = ElevParameter._VerticalDatumInfo(
@@ -198,11 +200,12 @@ class AbstractRating(ABC):
         transition_start_date_elem = root.find("./transition-start-date")
         if transition_start_date_elem is not None:
             transition_start_time_str = transition_start_date_elem.text
-            transition_start_time = HecTime(transition_start_time_str).datetime()
-            if not transition_start_time:
-                raise AbstractRatingException(
-                    f"Invalid <transition_start-date>: {transition_start_time_str}"
-                )
+            if transition_start_time_str:
+                transition_start_time = HecTime(transition_start_time_str).datetime()
+                if not transition_start_time:
+                    raise AbstractRatingException(
+                        f"Invalid <transition_start-date>: {transition_start_time_str}"
+                    )
         active_elem = root.find("./active")
         if active_elem is not None:
             active = etree.tostring(active_elem).decode() == "true"

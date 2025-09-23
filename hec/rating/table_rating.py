@@ -353,6 +353,13 @@ class TableRating(SimpleRating):
                 else:
                     hi -= 1
                     if out_range_hi in (
+                        LookupMethod.PREVIOUS.name,
+                        LookupMethod.LOWER.name,
+                        LookupMethod.NEAREST.name,
+                        LookupMethod.CLOSEST.name,
+                    ):
+                        in_range = LookupMethod.NEXT.name
+                    elif out_range_hi in (
                         LookupMethod.LINEAR.name,
                         LookupMethod.LINLOG.name,
                         LookupMethod.LOGARITHMIC.name,
@@ -380,6 +387,13 @@ class TableRating(SimpleRating):
                 else:
                     lo += 1
                     if out_range_hi in (
+                        LookupMethod.NEXT.name,
+                        LookupMethod.HIGHER.name,
+                        LookupMethod.NEAREST.name,
+                        LookupMethod.CLOSEST.name,
+                    ):
+                        in_range = LookupMethod.PREVIOUS.name
+                    elif out_range_hi in (
                         LookupMethod.LINEAR.name,
                         LookupMethod.LINLOG.name,
                         LookupMethod.LOGARITHMIC.name,
@@ -455,13 +469,13 @@ class TableRating(SimpleRating):
         round: bool = False,
     ) -> list[float]:
         # docstring is in AbstractRating
-        list_count = len(ind_values)
-        if list_count != self.template.ind_param_count:
+        ind_param_count = len(ind_values)
+        if ind_param_count != self.template.ind_param_count:
             raise TableRatingException(
-                f"Expected {self.template.ind_param_count} lists of input values, got {list_count}"
+                f"Expected {self.template.ind_param_count} lists of input values, got {ind_param_count}"
             )
         value_count = len(ind_values[0])
-        for i in range(1, list_count):
+        for i in range(1, ind_param_count):
             if len(ind_values[i]) != value_count:
                 raise TableRatingException(
                     f"Expected all input value lists to be of lenght {value_count}, "
@@ -473,9 +487,9 @@ class TableRating(SimpleRating):
                 "Cannot perform rating. No data units are specified and rating has no defaults"
             )
         unit_list = re.split(r"[;,]", cast(str, _units))
-        if len(unit_list) != list_count + 1:
+        if len(unit_list) != ind_param_count + 1:
             raise TableRatingException(
-                f"Expected {list_count+1} units, got {len(unit_list)}"
+                f"Expected {ind_param_count+1} units, got {len(unit_list)}"
             )
         # ------------------------ #
         # prepare unit conversions #
@@ -504,7 +518,7 @@ class TableRating(SimpleRating):
         # --------------- #
         rated_values: list[float] = []
         for i in range(value_count):
-            ind_value = [ind_values[j][i] for j in range(list_count)]
+            ind_value = [ind_values[j][i] for j in range(ind_param_count)]
             # ------------- #
             # convert units #
             # ------------- #
@@ -608,7 +622,6 @@ class TableRating(SimpleRating):
                 lookups[i] = LookupMethod.LOGLIN.name
             elif lookups[i] == LookupMethod.LOGLIN.name:
                 lookups[i] = LookupMethod.LINLOG.name
-        in_range, out_range_lo, out_range_hi = lookups
         # ------------------------ #
         # prepare unit conversions #
         # ------------------------ #
@@ -626,6 +639,7 @@ class TableRating(SimpleRating):
         # --------------- #
         rated_values: list[float] = []
         for i in range(len(dep_values)):
+            in_range, out_range_lo, out_range_hi = lookups
             # ------------------------ #
             # convert units and datums #
             # ------------------------ #
