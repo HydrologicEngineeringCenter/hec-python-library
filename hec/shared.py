@@ -3,11 +3,21 @@
 # ---------------------------------------------- #
 import importlib.metadata
 import types
+from enum import Enum
 
 dss_imported = False
 cwms_imported = False
 required_cwms_version = ">= '0.8.2'"
 required_dss_version = ">= '0.1.24'"
+
+
+class RatingSetRetrievalMethod(Enum):
+    EAGER = (1, "Retrieve all TableRating values when rating set is retrieved")
+    LAZY = (2, "Retrieve TableRating values only when first needed")
+    REFERENCE = (
+        3,
+        "Retrieve only information necessary to send data to database to be rated",
+    )
 
 
 def import_cwms() -> types.ModuleType:

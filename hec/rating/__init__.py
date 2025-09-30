@@ -20,23 +20,30 @@ __all__ = [
     "SimpleRating",
     "abstract_rating",
     "abstract_rating_set",
+    "local_rating_set",
+    "paired_data",
     "rating_shared",
+    "rating_template",
+    "rating_specification",
     "reference_rating_set",
     "simple_rating",
     "table_rating",
 ]
 
-from . import rating_shared, rating_specification
-from .abstract_rating import AbstractRating
-from .abstract_rating_set import AbstractRatingSet
-from .local_rating_set import LocalRatingSet, LocalRatingSetException
-from .paired_data import PairedData, PairedDataException
-from .rating_shared import LookupMethod
-from .rating_specification import RatingSpecification, RatingSpecificationException
-from .rating_template import RatingTemplate, RatingTemplateException
-from .reference_rating_set import ReferenceRatingSet
-from .simple_rating import SimpleRating
-from .table_rating import TableRating, TableRatingException
+from hec.rating import rating_shared, rating_specification
+from hec.rating.abstract_rating import AbstractRating
+from hec.rating.abstract_rating_set import AbstractRatingSet
+from hec.rating.local_rating_set import LocalRatingSet, LocalRatingSetException
+from hec.rating.paired_data import PairedData, PairedDataException
+from hec.rating.rating_shared import LookupMethod
+from hec.rating.rating_specification import (
+    RatingSpecification,
+    RatingSpecificationException,
+)
+from hec.rating.rating_template import RatingTemplate, RatingTemplateException
+from hec.rating.reference_rating_set import ReferenceRatingSet
+from hec.rating.simple_rating import SimpleRating
+from hec.rating.table_rating import TableRating, TableRatingException
 
 RatingSpecification.__init__.__doc__ = f"""
     Initializer for RatingSpecification objects

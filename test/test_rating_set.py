@@ -144,7 +144,7 @@ def _test_elev_stor_rating_set(
     assert np.allclose(elev_ts7.values, elev_ts3.values, equal_nan=True)
 
 
-def test_elev_stor_reference_rating_set() -> None:
+def test_elev_stor_rating_set() -> None:
     global _db
     if not can_use_cda():
         skip_test_message = "Test test_reference_rating_set() is skipped because CDA is not accessible to test"
@@ -153,18 +153,19 @@ def test_elev_stor_reference_rating_set() -> None:
     if _db is None:
         _db = CwmsDataStore.open()
         _db.time_window = "t-1d, t"
-    # -------------------------------------------- #
-    # get a reference rating set from the database #
-    # -------------------------------------------- #
-    rating_set = cast(
-        ReferenceRatingSet,
-        _db.retrieve("ARCA.Elev;Stor.Linear.Production"),
-    )
     # ----------------------------------- #
     # get a time series from the database #
     # ----------------------------------- #
     elev_ts_29 = cast(TimeSeries, _db.retrieve("ARCA.Elev.Inst.1Hour.0.Ccp-Rev"))
-    _test_elev_stor_rating_set(rating_set, elev_ts_29)
+    for method in "REFERENCE", "EAGER":
+        # ---------------------------------- #
+        # get a rating set from the database #
+        # ---------------------------------- #
+        rating_set = cast(
+            ReferenceRatingSet,
+            _db.retrieve("ARCA.Elev;Stor.Linear.Production", method=method),
+        )
+        _test_elev_stor_rating_set(rating_set, elev_ts_29)
 
 
 def _test_complex_rating_set(
@@ -216,7 +217,10 @@ def test_complex_reference_rating_set(
         # -------------------------------------------- #
         _multi_param_rating_set = cast(
             ReferenceRatingSet,
-            _db.retrieve("FSMI.Stage,Speed-Water Index;Flow.Transitional.Production"),
+            _db.retrieve(
+                "FSMI.Stage,Speed-Water Index;Flow.Transitional.Production",
+                method="REFERENCE",
+            ),
         )
     # --------------------------------------------------------- #
     # rate the input values and compare with the expected value #
@@ -396,7 +400,10 @@ def generate_rating_error_info2() -> None:
                             if not has_ts:
                                 continue
                             try:
-                                rs = cast(AbstractRatingSet, db.retrieve(rating_id))
+                                rs = cast(
+                                    AbstractRatingSet,
+                                    db.retrieve(rating_id, method="REFERENCE"),
+                                )
                             except Exception as e:
                                 output(f"\t\t===> {e}")
                                 continue

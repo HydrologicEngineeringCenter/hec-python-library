@@ -205,11 +205,9 @@ class LocalRatingSet(AbstractRatingSet):
                 )
         if value_times is None:
             if self.default_data_time is not None:
-                value_times = len(ind_values[0]) * [
-                    cast(datetime, self._default_data_time)
-                ]
+                value_times = value_count * [cast(datetime, self._default_data_time)]
             else:
-                value_times = len(ind_values[0]) * [datetime.now()]
+                value_times = value_count * [datetime.now()]
         _units = units if units else self._default_data_units
         if not _units:
             raise LocalRatingSetException(
@@ -348,7 +346,158 @@ class LocalRatingSet(AbstractRatingSet):
         round: bool = False,
     ) -> list[float]:
         # docstring in AbstractRating.reverse_rate_values
-        raise NotImplementedError
+        if self.template.ind_param_count != 1:
+            raise LocalRatingSetException(
+                "Cannot reverse rate using a rating set with more than one independent value"
+            )
+        ratings: dict[datetime, AbstractRating] = {}
+        if rating_time is None:
+            ratings = self._active_ratings
+        else:
+            for effective_time in self._active_ratings:
+                if effective_time > rating_time:
+                    continue
+                else:
+                    create_time = self._active_ratings[effective_time].create_time
+                    if create_time and create_time > rating_time:
+                        continue
+        if not ratings:
+            if rating_time:
+                raise LocalRatingSetException(
+                    f"Specified rating time ({rating_time.isoformat}) excludes all active ratings"
+                )
+            else:
+                raise LocalRatingSetException("Rating set has no active ratings")
+        value_count = len(dep_values)
+        if value_times is None:
+            if self.default_data_time is not None:
+                value_times = value_count * [cast(datetime, self._default_data_time)]
+            else:
+                value_times = value_count * [datetime.now()]
+        _units = units if units else self._default_data_units
+        if not _units:
+            raise LocalRatingSetException(
+                "Cannot perform rating. No data units are specified and rating set has no defaults"
+            )
+        unit_list = re.split(r"[;,]", cast(str, _units))
+        if len(unit_list) != 2:
+            raise LocalRatingSetException(f"Expected 2 units, got {len(unit_list)}")
+        reverse_rated_values: list[float] = []
+        effective_times = sorted(et for et in ratings)
+        effective_times_count = len(effective_times)
+        for i in range(value_count):
+            in_range, out_range_lo, out_range_hi = self._specification.lookup
+            if (
+                i > 0
+                and value_times[i] == value_times[i - 1]
+                and dep_values[i] == dep_values[i - 1]
+            ):
+                reverse_rated_values.append(reverse_rated_values[-1])
+                continue
+            hi = bisect.bisect(effective_times, value_times[i])
+            if hi > 0 and value_times[i] == effective_times[hi - 1]:
+                hi -= 1
+            if hi == effective_times_count:
+                # ------------------------------- #
+                # value time is out of range high #
+                # ------------------------------- #
+                if out_range_hi in (
+                    LookupMethod.ERROR.name,
+                    LookupMethod.NEXT.name,
+                    LookupMethod.HIGHER.name,
+                ):
+                    raise LocalRatingSetException(
+                        f"Value time of {value_times[i].isoformat()} is out of range high "
+                        f"and lookup method is {out_range_hi}"
+                    )
+                elif out_range_hi == LookupMethod.NULL.name:
+                    reverse_rated_values.append(np.nan)
+                    continue
+                else:
+                    hi -= 1
+                    if out_range_lo in (
+                        LookupMethod.PREVIOUS.name,
+                        LookupMethod.LOWER.name,
+                        LookupMethod.NEAREST.name,
+                        LookupMethod.CLOSEST.name,
+                    ):
+                        in_range = LookupMethod.NEXT.name
+                    elif out_range_hi in (
+                        LookupMethod.LINEAR.name,
+                        LookupMethod.LINLOG.name,
+                        LookupMethod.LOGARITHMIC.name,
+                        LookupMethod.LOGLIN.name,
+                    ):
+                        in_range = out_range_hi
+            lo = hi - 1
+            if (
+                lo < effective_times_count - 1
+                and value_times[i] == effective_times[lo + 1]
+            ):
+                lo += 1
+            if lo == -1:
+                # ----------------------------- #
+                # value time is out of range lo #
+                # ----------------------------- #
+                if out_range_lo in (
+                    LookupMethod.ERROR.name,
+                    LookupMethod.PREVIOUS.name,
+                    LookupMethod.LOWER.name,
+                ):
+                    raise LocalRatingSetException(
+                        f"Value time of {value_times[i].isoformat()} is out of range low "
+                        f"and lookup method is {out_range_lo}"
+                    )
+                elif out_range_lo == LookupMethod.NULL.name:
+                    reverse_rated_values.append(np.nan)
+                    continue
+                else:
+                    lo += 1
+                    if out_range_lo in (
+                        LookupMethod.NEXT.name,
+                        LookupMethod.HIGHER.name,
+                        LookupMethod.NEAREST.name,
+                        LookupMethod.CLOSEST.name,
+                    ):
+                        in_range = LookupMethod.PREVIOUS.name
+                    elif out_range_lo in (
+                        LookupMethod.LINEAR.name,
+                        LookupMethod.LINLOG.name,
+                        LookupMethod.LOGARITHMIC.name,
+                        LookupMethod.LOGLIN.name,
+                    ):
+                        in_range = out_range_lo
+            # ---------------------------------------------- #
+            # value time is either in range or extrapolating #
+            # ---------------------------------------------- #
+            if in_range == LookupMethod.ERROR.name and value_times[i] not in (
+                effective_times[lo],
+                effective_times[hi],
+            ):
+                raise LocalRatingSetException(
+                    f"Value time is between {effective_times[lo].isoformat()} and "
+                    f"{effective_times[hi].isoformat()}, and lookup method is {in_range}"
+                )
+            elif in_range == LookupMethod.NULL.name:
+                reverse_rated_values.append(np.nan)
+                continue
+            lo_val = ratings[effective_times[lo]].reverse_rate_values(
+                [dep_values[i]], units, vertical_datum, round
+            )[0]
+            hi_val = ratings[effective_times[hi]].reverse_rate_values(
+                [dep_values[i]], units, vertical_datum, round
+            )[0]
+            reverse_rated_values.append(
+                TableRating.interpolate_or_select(
+                    value_times[i].timestamp(),
+                    effective_times[lo].timestamp(),
+                    effective_times[hi].timestamp(),
+                    lo_val,
+                    hi_val,
+                    in_range,
+                )
+            )
+        return reverse_rated_values
 
 
 if __name__ == "__main__":

@@ -39,13 +39,17 @@ class SimpleRating(AbstractRating):
         if spec and not specification:
             specification = spec
         if root.find("./formula") is not None:
+            # ---------------- #
+            # ExpressionRating #
+            # ---------------- #
             raise NotImplementedError("ExpressionRating is not yet implemented")
-        elif root.find("./rating-points") is not None:
-            return TableRating.from_element(root, specification)
+            # rating = ExpressionRating.from_element(root, specification)
         else:
-            raise SimpleRatingException(
-                "<simple-rating> element has no <formula> or <rating-points> element"
-            )
+            # ----------- #
+            # TableRating #
+            # ----------- #
+            rating = TableRating.from_element(root, specification)
+        return rating
 
     @property
     @abstractmethod

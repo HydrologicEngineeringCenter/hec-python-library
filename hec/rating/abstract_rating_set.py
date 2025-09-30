@@ -5,6 +5,10 @@ from typing import Any, Optional, Sequence, Union, cast
 import numpy as np
 
 import hec
+from hec.rating.rating_specification import RatingSpecification
+from hec.rating.rating_template import RatingTemplate
+from hec.shared import RatingException
+from hec.timeseries import TimeSeries
 
 from ..parameter import (
     _NAVD88,
@@ -16,10 +20,6 @@ from ..parameter import (
     _ngvd29_pattern,
     _other_datum_pattern,
 )
-from ..shared import RatingException
-from ..timeseries import TimeSeries
-from .rating_specification import RatingSpecification
-from .rating_template import RatingTemplate
 
 
 class AbstractRatingSetException(RatingException):
@@ -422,6 +422,17 @@ class AbstractRatingSet(ABC):
         """
         Rates dependent parameter values and returns independent parameter values.
 
+        May only be used on rating sets with a single independent parameter.
+
+        <table border="1">
+        <tr><th>Important Note</th></tr>
+        <tr><td>
+        Unlike single-independent-parameter ratings, two-dimensional (time and parameter value) rating sets are not
+        generally invertible. That is, if you rate value <code>x</code> at time <code>t</code> using a rating set to generate value <code>y</code>, using
+        the same rating set to reverse rate value <code>y</code> at time <code>t</code> will generally not result in <code>x</code>.
+        </td></tr>
+        </table>
+
         Args:
             input (Union[list[float], TimeSeries]): The input parameter values.
                 * If specified as a lists of floats:
@@ -488,6 +499,17 @@ class AbstractRatingSet(ABC):
     ) -> TimeSeries:
         """
         Reverse rates a dependent parameter time series and returns an independent parameter time series
+
+        May only be used on rating sets with a single independent parameter.
+
+        <table border="1">
+        <tr><th>Important Note</th></tr>
+        <tr><td>
+        Unlike single-independent-parameter ratings, two-dimensional (time and parameter value) rating sets are not
+        generally invertible. That is, if you rate value <code>x</code> at time <code>t</code> using a rating set to generate value <code>y</code>, using
+        the same rating set to reverse rate value <code>y</code> at time <code>t</code> will generally not result in <code>x</code>.
+        </td></tr>
+        </table>
 
         Args:
             ts (TimeSeries): The dependent value time series to reverse-rate
@@ -557,6 +579,15 @@ class AbstractRatingSet(ABC):
         Rates a list of dependent parameter values.
 
         May only be used on rating sets with a single independent parameter.
+
+        <table border="1">
+        <tr><th>Important Note</th></tr>
+        <tr><td>
+        Unlike single-independent-parameter ratings, two-dimensional (time and parameter value) rating sets are not
+        generally invertible. That is, if you rate value <code>x</code> at time <code>t</code> using a rating set to generate value <code>y</code>, using
+        the same rating set to reverse rate value <code>y</code> at time <code>t</code> will generally not result in <code>x</code>.
+        </td></tr>
+        </table>
 
         Args:
             dep_values (list[float]): The dependent parameter values.

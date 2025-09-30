@@ -3,6 +3,7 @@ from datetime import datetime
 from typing import Any, Optional, Union, cast
 
 import numpy as np
+from lxml import etree
 
 import hec
 
@@ -61,6 +62,40 @@ class ReferenceRatingSet(AbstractRatingSet):
                 if self._vertical_datum_info
                 else None
             )
+
+    @staticmethod
+    def from_xml(
+        xml: str, datastore: hec.datastore.AbstractDataStore
+    ) -> "ReferenceRatingSet":
+        """
+        Creates a ReferenceRatingSet object from an XML instance
+
+        Args:
+            xml_str (str): The XML instance
+            datastore (Optional[AbstractDataStore]): The AbstractDataStore object for the database where the ratings are performed.
+
+        Returns:
+            ReferenceRatingSet: The ReferenceRatingSet object
+        """
+        if xml.startswith("<?xml"):
+            xml = xml.split("?>")[1].strip()
+        root = etree.fromstring(xml)
+        rating_spec_elem = root.find("rating-spec")
+        if rating_spec_elem is None:
+            raise ReferenceRatingSetException("No <rating-spec> element in xml")
+        rating_spec = hec.rating.RatingSpecification.from_xml(
+            etree.tostring(rating_spec_elem).decode()
+        )
+        rating_template_elem = root.find("rating-template")
+        if rating_template_elem is None:
+            raise ReferenceRatingSetException("No <rating-template> element in xml")
+        rating_spec.template = hec.rating.RatingTemplate.from_xml(
+            etree.tostring(rating_template_elem).decode()
+        )
+        rating_set = hec.rating.ReferenceRatingSet(
+            specification=rating_spec, datastore=datastore
+        )
+        return rating_set
 
     def rate_values(
         self,

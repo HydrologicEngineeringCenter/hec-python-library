@@ -20,6 +20,7 @@ from zoneinfo import ZoneInfo
 import numpy as np
 import pandas as pd
 import tzlocal
+from lxml import etree
 from typing_extensions import Literal
 
 import hec
@@ -31,10 +32,9 @@ from hec.interval import Interval
 from hec.location import Location
 from hec.parameter import ElevParameter, Parameter, ParameterType
 from hec.rounding import UsgsRounder
+from hec.shared import RatingSetRetrievalMethod
 from hec.timeseries import TimeSeries
 from hec.unit import UnitQuantity
-
-from .rating import AbstractRatingSet
 
 __all__ = [
     "DataStoreException",
@@ -1598,23 +1598,33 @@ class CwmsDataStore(AbstractDataStore):
             loc.vertical_datum_info.ito(vertical_datum)
         return loc
 
-    def _retrieve_rating_set(self, identifier: str, **kwargs: Any) -> AbstractRatingSet:
-        reference_rating_set: bool = True
+    def _retrieve_rating_set(self, identifier: str, **kwargs: Any) -> Any:
+        retrieval_method: RatingSetRetrievalMethod = RatingSetRetrievalMethod.EAGER
         office: Optional[str] = None
+        effective_time: Optional[datetime] = None
         for kw in kwargs:
             argval = kwargs[kw]
-            if kw == "reference":
-                if not isinstance(argval, bool):
+            if kw == "method":
+                if not isinstance(argval, str):
                     raise TypeError(
-                        f"Expected bool for reference, got {argval.__class__.__name__}"
+                        f"Expected str for method, got {argval.__class__.__name__}"
                     )
-                reference_rating_set = argval
+                if not argval in RatingSetRetrievalMethod._member_names_:
+                    raise ValueError(
+                        f"Expected one of {', '.join(RatingSetRetrievalMethod._member_names_)} for method, got {argval}"
+                    )
+                retrieval_method = RatingSetRetrievalMethod[argval]
             elif kw == "office":
                 if not isinstance(argval, str):
                     raise TypeError(
                         f"Expected str for office, got {argval.__class.__name}"
                     )
                 office = argval
+            elif kw == "effective_time":
+                if not isinstance(argval, datetime):
+                    raise TypeError(
+                        f"Expected datetime for effective_time, got {argval.__class.__name}"
+                    )
             else:
                 raise ValueError(f"Unexpected keyword parameter: {kw}")
         if not office:
@@ -1623,38 +1633,41 @@ class CwmsDataStore(AbstractDataStore):
                     f"Office parameter must be specified since data store '{self}' has no default office"
                 )
             office = self.office
-        data = cwms.ratings.ratings_template.get_rating_template(
-            template_id=".".join(identifier.split(".")[1:3]), office_id=office
-        )
-        rating_template = hec.rating.RatingTemplate(
-            name=data.json["id"],
-            office=data.json["office-id"],
-            lookup=[
-                [
-                    spec["in-range-method"],
-                    spec["out-range-low-method"],
-                    spec["out-range-high-method"],
-                ]
-                for spec in data.json["independent-parameter-specs"]
-            ],
-            description=(
-                data.json["description"] if "description" in data.json else ""
-            ),
-        )
-        data = cwms.ratings.ratings_spec.get_rating_spec(
-            rating_id=identifier, office_id=office
-        )
-        xml = cwms.ratings.ratings_spec.rating_spec_df_to_xml(data.df)
-        xml = "\n".join(xml.splitlines(keepends=True)[1:])
-        rating_spec = hec.rating.RatingSpecification.from_xml(xml)
-        rating_spec.template = rating_template
-        rating_set: AbstractRatingSet
-        if reference_rating_set:
-            rating_set = hec.rating.ReferenceRatingSet(
-                specification=rating_spec, datastore=self
-            )
+        rating_set: hec.rating.AbstractRatingSet
+        if effective_time is None:
+            # ----------------------------- #
+            # retrieve an entire rating set #
+            # ----------------------------- #
+            params = {"office": office, "method": retrieval_method.name}
         else:
-            raise DataStoreException("Cannot yet create ConcreteRating objects")
+            # ---------------------------------------------- #
+            # retrieve a rating set with one specific rating #
+            # ---------------------------------------------- #
+            effective_time_str = effective_time.astimezone(ZoneInfo("UTC")).isoformat()[
+                :22
+            ]
+            params = {
+                "office": office,
+                "method": "EAGER",
+                "begin:": effective_time_str,
+                "end": effective_time_str,
+                "timezone": "UTC",
+            }
+        xml = cwms.api.get(
+            endpoint=f"ratings/{identifier}",
+            params=params,
+            api_version=102,
+        )
+        if retrieval_method == RatingSetRetrievalMethod.REFERENCE:
+            # ------------------ #
+            # ReferenceRatingSet #
+            # ------------------ #
+            rating_set = hec.rating.ReferenceRatingSet.from_xml(xml, datastore=self)
+        else:
+            # -------------- #
+            # LocalRatingSet #
+            # -------------- #
+            rating_set = hec.rating.LocalRatingSet.from_xml(xml, datastore=self)
         return rating_set
 
     def _retrieve_time_series(self, identifier: str, **kwargs: Any) -> TimeSeries:
@@ -3492,10 +3505,12 @@ class CwmsDataStore(AbstractDataStore):
                 * <b>units (Optional[str], must be passed by name):</b> "EN" or "SI", specifying to retrieve data in English or metric units. Defaults to None, which uses the default unit system for the data store
                 * <b>vertical_datum (Optional[str], must be passed by name):</b> "NGVD29", "NAVD88", or "NATIVE", specifying the vertical datum to retrieve elevation data for. Defaults to None, which uses the data store's default vertical datum
             Rating Set Arguments:<br>
-                * <b>reference (Optional[bool], must be passed by name):</b> Whether to retrieve a reference or concrete rating set. Defaults to True.
-                    * If `True`,  a [ReferenceRatingSet](rating.html#ReferenceRatingSet) is retrieved, where all values are sent to the database to be rated.
-                    * If `False`, a [ConcreteRatingSet](rating.html#ConcreteRatingSet) is retrieved, where all ratings are performed in python code. Individual ratings in the rating set are retrieved from
-                        the database on first use, preventing the loading of unneeded ratings.
+                * <b>method (Optional[str], must be passed by name):</b> The method used to retrieve the rating set from the database. Restricted to 'EAGER', 'LAZY', and 'REFERENCE'. Defaults to 'EAGER'.
+                    * If 'REFERENCE',  a [ReferenceRatingSet](rating.html#ReferenceRatingSet) is retrieved, where all values are sent to the database to be rated.
+                    * If 'EAGER', a [LocalRatingSet](rating.html#LocalRatingSet) is retrieved, where all ratings are performed in python code. Rating points for all included TableRating objects are retrieved when the
+                        rating set is retrieved.
+                    * If 'LAZY', a [LocalRatingSet](rating.html#LocalRatingSet) is retrieved, where all ratings are performed in python code. Rating points for all included TableRating objects are retrieved only when the
+                        individual TableRating objects are first used.
             Time Series Arguments:<br>
                 * <b>start_time (Optional[Any], must be passed by name):</b> Specifies the start of the time window to retrieve data. Must be an [`HecTime`](hectime.html#HecTime) object or a valid input to the `HecTime` constructor.
                     Defaults to the start of the data store's time window. If None or not specified and the data store's time window doesn't have a start time, the current time minus 24 hours is used

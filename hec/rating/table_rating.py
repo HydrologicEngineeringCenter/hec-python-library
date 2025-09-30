@@ -9,6 +9,8 @@ from lxml import etree
 
 if TYPE_CHECKING:
     from hec.datastore import AbstractDataStore
+
+import hec
 from hec.hectime import HecTime
 from hec.parameter import (
     _NAVD88,
@@ -200,7 +202,7 @@ class TableRating(SimpleRating):
         Operations:
             Read/Write
         """
-        return self._rating_points is not None
+        return self._rating_points is not None and len(self._rating_points) > 0
 
     @staticmethod
     def interpolate_or_select(
@@ -285,6 +287,23 @@ class TableRating(SimpleRating):
             else:  # in_range in (LookupMethod.NEAREST.name, LookupMethod.CLOSEST.name)
                 return y0 if x - x0 <= x1 - x else y1
 
+    def populate_rating_points(self) -> None:
+        if self.has_rating_points:
+            return
+        if not self._data_store:
+            raise TableRatingException(
+                f"Cannot retrieve ratings points for effective time {self._effective_time}: rating has no data store"
+            )
+        if isinstance(self._data_store, hec.datastore.CwmsDataStore):
+            rs = self._data_store._retrieve_rating_set(
+                self.specification_id,
+                effective_time=self._effective_time
+            )
+            rp = cast(
+                hec.rating.TableRating, rs._ratings[self._effective_time]
+            )._rating_points
+            self._rating_points = {**rp}
+
     def rate_value(
         self, ind_value: list[float], lo_key: list[float] = [], hi_key: list[float] = []
     ) -> float:
@@ -304,9 +323,7 @@ class TableRating(SimpleRating):
             float: The rated (dependent parameter) value
         """
         if not self.has_rating_points:
-            raise TableRatingException(
-                "Cannot perform rating: table has no rating points"
-            )
+            self.populate_rating_points()
         rating_points = cast(
             dict[tuple[float, ...], Union[tuple[float], float]], self._rating_points
         )
@@ -333,8 +350,9 @@ class TableRating(SimpleRating):
             else:
                 key_vals = [v[0] for v in rating_points if len(v) == 1]
             hi = bisect.bisect(key_vals, ind_value[0])
-            if hi > 0 and ind_value[0] == key_vals[hi - 1]:
+            if hi > 0 and np.isclose(ind_value[0], key_vals[hi - 1]):
                 hi -= 1
+                ind_value[0] == key_vals[hi]
             if hi == len(key_vals):
                 # ----------------- #
                 # out of range high #
@@ -367,8 +385,9 @@ class TableRating(SimpleRating):
                     ):
                         in_range = out_range_hi
             lo = hi - 1
-            if lo < len(key_vals) - 1 and ind_value[0] == key_vals[lo + 1]:
+            if lo < len(key_vals) - 1 and np.isclose(ind_value[0], key_vals[lo + 1]):
                 lo += 1
+                ind_value[0] = key_vals[lo]
             if lo == -1:
                 # ---------------- #
                 # out of range low #
@@ -386,14 +405,14 @@ class TableRating(SimpleRating):
                     return np.nan
                 else:
                     lo += 1
-                    if out_range_hi in (
+                    if out_range_lo in (
                         LookupMethod.NEXT.name,
                         LookupMethod.HIGHER.name,
                         LookupMethod.NEAREST.name,
                         LookupMethod.CLOSEST.name,
                     ):
                         in_range = LookupMethod.PREVIOUS.name
-                    elif out_range_hi in (
+                    elif out_range_lo in (
                         LookupMethod.LINEAR.name,
                         LookupMethod.LINLOG.name,
                         LookupMethod.LOGARITHMIC.name,
@@ -419,39 +438,30 @@ class TableRating(SimpleRating):
                 # ----------------------------------- #
                 # deepest independent parameter value #
                 # ----------------------------------- #
-                if in_range in (
-                    LookupMethod.LINEAR.name,
-                    LookupMethod.LOGARITHMIC.name,
-                    LookupMethod.LINLOG.name,
-                    LookupMethod.LOGLIN.name,
-                ):
-                    return TableRating.interpolate_or_select(
-                        ind_value[0],
-                        key_vals[lo],
-                        key_vals[hi],
-                        cast(float, rating_points[tuple(key + [key_vals[lo]])]),
-                        cast(float, rating_points[tuple(key + [key_vals[hi]])]),
-                        in_range,
-                    )
+                return TableRating.interpolate_or_select(
+                    ind_value[0],
+                    key_vals[lo],
+                    key_vals[hi],
+                    cast(float, rating_points[tuple(key + [key_vals[lo]])]),
+                    cast(float, rating_points[tuple(key + [key_vals[hi]])]),
+                    in_range,
+                )
             else:
-                if j == 0:
-                    lo_val = self.rate_value(
-                        ind_value[1:], lo_key + [key_vals[lo]], lo_key + [key_vals[hi]]
+                lo_val = self.rate_value(
+                    ind_value[1:], lo_key + [key_vals[lo]], lo_key + [key_vals[hi]]
+                )
+                if lo_key == hi_key:
+                    hi_val = self.rate_value(
+                        ind_value[1:],
+                        hi_key + [key_vals[hi]],
+                        hi_key + [key_vals[hi]],
                     )
                 else:
-                    if lo_key == hi_key:
-                        hi_val = self.rate_value(
-                            ind_value[1:],
-                            hi_key + [key_vals[hi]],
-                            hi_key + [key_vals[hi]],
-                        )
-                    else:
-                        hi_val = self.rate_value(
-                            ind_value[1:],
-                            hi_key + [key_vals[lo]],
-                            hi_key + [key_vals[hi]],
-                        )
-
+                    hi_val = self.rate_value(
+                        ind_value[1:],
+                        hi_key + [key_vals[lo]],
+                        hi_key + [key_vals[hi]],
+                    )
         return TableRating.interpolate_or_select(
             ind_value[0],
             key_vals[lo],
@@ -592,9 +602,7 @@ class TableRating(SimpleRating):
                 "Cannot reverse rate using a rating with more than one independent value"
             )
         if not self.has_rating_points:
-            raise TableRatingException(
-                "Cannot perform reverse rating: table has no rating points"
-            )
+            self.populate_rating_points()
         ind_vals: list[float] = [
             k[0]
             for k in list(
