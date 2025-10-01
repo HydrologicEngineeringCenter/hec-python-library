@@ -296,12 +296,14 @@ class TableRating(SimpleRating):
             )
         if isinstance(self._data_store, hec.datastore.CwmsDataStore):
             rs = self._data_store._retrieve_rating_set(
-                self.specification_id,
-                effective_time=self._effective_time
+                self.specification_id, effective_time=self._effective_time
             )
-            rp = cast(
-                hec.rating.TableRating, rs._ratings[self._effective_time]
-            )._rating_points
+            rp: dict[tuple[float, ...], Union[tuple[float], float]] = cast(
+                dict[tuple[float, ...], Union[tuple[float], float]],
+                cast(
+                    hec.rating.TableRating, rs._ratings[self._effective_time]
+                )._rating_points,
+            )
             self._rating_points = {**rp}
 
     def rate_value(
@@ -793,6 +795,7 @@ class TableRating(SimpleRating):
                         dep_elem = etree.SubElement(point_elem, "dep")
                         dep_elem.text = str(dep_val)
             else:
+                points_elem = etree.SubElement(rating_elem, "rating-points")
                 for key in sorted([key for key in self._rating_points]):
                     ind_val = key[0]
                     dep_val = self._rating_points[key]

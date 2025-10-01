@@ -725,17 +725,25 @@ class AbstractRating(ABC):
             f"{','.join(self.rating_units[:-1])};{self.rating_units[-1]}"
         )
         effective_time_elem = etree.SubElement(rating_elem, "effective-date")
-        effective_time_elem.text = self.effective_time.replace(
-            microsecond=0
-        ).isoformat()
-        create_time_elem = etree.SubElement(rating_elem, "create-date")
-        if self.create_time:
-            create_time_elem.text = self.create_time.replace(microsecond=0).isoformat()
+        effective_time_elem.text = (
+            self.effective_time.replace(microsecond=0)
+            .isoformat()
+            .replace("+00:00", "Z")
+        )
         transition_time_elem = etree.SubElement(rating_elem, "transition-start-date")
         if self.transition_start_time:
-            transition_time_elem.text = self.transition_start_time.replace(
-                microsecond=0
-            ).isoformat()
+            transition_time_elem.text = (
+                self.transition_start_time.replace(microsecond=0)
+                .isoformat()
+                .replace("+00:00", "Z")
+            )
+        create_time_elem = etree.SubElement(rating_elem, "create-date")
+        if self.create_time:
+            create_time_elem.text = (
+                self.create_time.replace(microsecond=0)
+                .isoformat()
+                .replace("+00:00", "Z")
+            )
         active_elem = etree.SubElement(rating_elem, "active")
         active_elem.text = "true" if self.active else "false"
         desciption_elem = etree.SubElement(rating_elem, "description")
@@ -1143,7 +1151,7 @@ class AbstractRating(ABC):
         """
         return self._specification.template.name
 
-    def to_xml(self, indent: str = "  ", prepend: Optional[str] = None) -> str:
+    def to_xml(self, indent: str = "  ", prepend: str = "") -> str:
         """
         Returns a formatted xml representation of the rating.
 
@@ -1156,7 +1164,13 @@ class AbstractRating(ABC):
         Returns:
             str: The formatted xml
         """
-        xml: str = etree.tostring(self.xml_element, pretty_print=True).decode()
+        elem = self.xml_element
+        for e in elem.iter():
+            if e.text and e.text.strip() == "":
+                e.text = None
+            if e.tail and e.tail.strip() == "":
+                e.tail = None
+        xml: str = etree.tostring(elem, pretty_print=True).decode()
         if indent != "  ":
             xml = replace_indent(xml, indent)
         if prepend:

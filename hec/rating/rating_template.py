@@ -514,7 +514,7 @@ class RatingTemplate:
             Read-Only
         """
         template_elem = etree.Element(
-            "rating-template", office=self.office if self.office else ""
+            "rating-template", attrib={"office-id": self.office if self.office else ""}
         )
         parameters_id_elem = etree.SubElement(template_elem, "parameters-id")
         parameters_id_elem.text = f"{','.join(self.ind_params)};{self._dep_param}"

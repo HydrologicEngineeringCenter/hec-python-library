@@ -1,6 +1,7 @@
 import bisect
 import re
 from datetime import datetime
+from io import StringIO
 from typing import Any, Optional, Type, TypeVar, Union, cast
 
 import numpy as np
@@ -9,7 +10,7 @@ from lxml import etree
 import hec
 from hec.rating.abstract_rating import AbstractRating
 from hec.rating.abstract_rating_set import AbstractRatingSet, AbstractRatingSetException
-from hec.rating.rating_shared import LookupMethod
+from hec.rating.rating_shared import LookupMethod, replace_indent
 from hec.rating.rating_specification import RatingSpecification
 from hec.rating.rating_template import RatingTemplate
 from hec.rating.table_rating import TableRating
@@ -498,6 +499,72 @@ class LocalRatingSet(AbstractRatingSet):
                 )
             )
         return reverse_rated_values
+
+    def to_xml(self, indent: str = "  ", prepend: str = "") -> str:
+        """
+        Returns a formatted xml representation of the rating set.
+
+        Args:
+            indent (str, optional): The string to use for each level of indentation. Defaults to "  ".
+            prepend (Optional[str], optional): A string to prepend to each line. Defaults to None.
+
+        Returns:
+            str: The formatted xml
+        """
+        # ---------------------------- #
+        # first pass of xml generation #
+        # ---------------------------- #
+        buf = StringIO()
+        buf.write(
+            f"{prepend}<ratings>\n"
+            f"{self.template.to_xml(indent=indent, prepend=prepend+'  ')}"
+            f"{self.specification.to_xml(indent=indent, prepend=prepend+'  ')}"
+        )
+        for effective_time in sorted(self._ratings):
+            rating = self._ratings[effective_time]
+            if (
+                isinstance(rating, hec.rating.TableRating)
+                and not rating.has_rating_points
+            ):
+                rating.populate_rating_points()
+            buf.write(f"{rating.to_xml(indent=indent, prepend=prepend+'  ')}")
+        buf.write(f"{prepend if prepend else ''}</ratings>\n")
+        xml: str = buf.getvalue()
+        buf.close()
+        # --------------------------------------------------------------------------------- #
+        # reorganize for source ratings (templates, followed by specs, followed by ratings) #
+        # --------------------------------------------------------------------------------- #
+        root = etree.fromstring(xml)
+        assert root.tag == "ratings"
+        new_root = etree.fromstring(
+            '<ratings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.hec.usace.army.mil/xmlSchema/cwms/Ratings.xsd">\n</ratings>'
+        )
+        for elem in root.findall("./rating-template"):
+            new_root.append(elem)
+        for elem in root.findall("./rating-spec"):
+            new_root.append(elem)
+        for elem in [e for e in root if e.tag.endswith("-rating")]:
+            new_root.append(elem)
+        for e in new_root.iter():
+            if e.text and e.text.strip() == "":
+                e.text = None
+            if e.tail and e.tail.strip() == "":
+                e.tail = None
+        xml = etree.tostring(new_root, pretty_print=True).decode()
+        # ---------------------------------- #
+        # handle weirdness with pretty-print #
+        # ---------------------------------- #
+        pos = xml.find(">")
+        if xml[pos : pos + 3] == ">\n<":
+            xml = xml[: pos + 2] + prepend + indent + xml[pos + 2 :]
+        # ---------------------------- #
+        # handle specified indentation #
+        # ---------------------------- #
+        if indent != "  ":
+            xml = replace_indent(xml, indent)
+        if prepend:
+            xml = "".join([prepend + line for line in xml.splitlines(keepends=True)])
+        return xml
 
 
 if __name__ == "__main__":

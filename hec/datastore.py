@@ -6,10 +6,12 @@ Comprises the classes:
 * [DssDataStore](#DssDataStore): Accesses HEC-DSS files
 """
 
+import base64
 import math
 import os
 import re
 import warnings
+import zlib
 from abc import ABC, abstractmethod
 from datetime import datetime, timezone
 from enum import Enum
@@ -789,6 +791,81 @@ class DssDataStore(AbstractDataStore):
             raise
         self._is_open = True
 
+    def _retrieve_rating_set(
+        self, identifier: str, **kwargs: Any
+    ) -> Any:
+        effective_time_str: Optional[str] = None
+        office = self.office
+        for kw in kwargs:
+            argval = kwargs[kw]
+            if kw == "effective_time":
+                if not isinstance(argval, (str, datetime)):
+                    raise TypeError(
+                        f"Expected str or datetime for effective_time, got {argval.__class__.__name__}"
+                    )
+                if isinstance(argval, datetime):
+                    effective_time = argval
+                else:
+                    effective_time = datetime.fromisoformat(
+                        argval.replace("Z", "+00:00")
+                    )
+                effective_time = effective_time.replace(microsecond=0).astimezone(
+                    ZoneInfo("UTC")
+                )
+                effective_time_str = effective_time.isoformat().replace("+00:00", "Z")
+            elif kw == "office":
+                if not isinstance(argval, str):
+                    raise TypeError(
+                        f"Expected str for office, got {argval.__class__.__name__}"
+                    )
+                office = argval
+            else:
+                raise TypeError(
+                    f"_retrieve_rating_set() got an unexpected keyword argument '{kw}'"
+                )
+        location_id, parameters_id, template_version, spec_version = identifier.split(
+            "."
+        )
+        template_pathname = f"/{office}//{parameters_id}/Rating-Template/{template_version}//"
+        spec_pathname = f"/{office}/{location_id}/{parameters_id}/Rating-Specification/{template_version}/{spec_version}/"
+        record = self._hecdss.get(template_pathname)
+        if not isinstance(record, hecdss.ArrayContainer):
+            raise TypeError(
+                f"Expected ArrayContainer for {template_pathname}, got {record.__class__.__name__}"
+            )
+        xml = '<ratings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.hec.usace.army.mil/xmlSchema/cwms/Ratings.xsd">\n</ratings>\n'
+        xml += DssDataStore.decode_ints(record.int_values) + "\n"
+        record = self._hecdss.get(spec_pathname)
+        if not isinstance(record, hecdss.ArrayContainer):
+            raise TypeError(
+                f"Expected ArrayContainer for {spec_pathname}, got {record.__class__.__name__}"
+            )
+        xml += DssDataStore.decode_ints(record.int_values) + "\n"
+        if effective_time_str:
+            rating_pathname = spec_pathname.replace("Specification", effective_time_str)
+            record = self._hecdss.get(rating_pathname)
+            if not isinstance(record, hecdss.ArrayContainer):
+                raise TypeError(
+                    f"Expected ArrayContainer for {rating_pathname}, got {record.__class__.__name__}"
+                )
+            xml += DssDataStore.decode_ints(record.int_values) + "\n"
+        else:
+            pathnames = self.catalog(
+                "ARRAY", pattern=spec_pathname.replace("Specification", "*")
+            )
+            rating_pathnames = sorted(
+                [p for p in pathnames if p.split("/")[4] != "Specification"]
+            )
+            for rating_pathname in rating_pathnames:
+                record = self._hecdss.get(rating_pathname)
+                if not isinstance(record, hecdss.ArrayContainer):
+                    raise TypeError(
+                        f"Expected ArrayContainer for {rating_pathname}, got {record.__class__.__name__}"
+                    )
+                xml += DssDataStore.decode_ints(record.int_values) + "\n"
+        xml += "</ratings>"
+        return hec.rating.LocalRatingSet.from_xml(xml)
+
     def catalog(
         self,
         data_type: Optional[str] = None,
@@ -1030,6 +1107,14 @@ class DssDataStore(AbstractDataStore):
         else:
             raise ValueError(f"Don't know record type of '{identifier}'")
 
+    @staticmethod
+    def decode_ints(ints: list[int]) -> str:
+        return zlib.decompress(base64.b64decode(bytes(ints))).decode("utf-8")
+
+    @staticmethod
+    def encode_str(s: str) -> list[int]:
+        return list(base64.b64encode(zlib.compress(s.encode("utf-8"))))
+
     def get_extents(self, identifier: str, **kwargs: Any) -> List[HecTime]:
         """
         Retrieves the data extents for the specified identifier
@@ -1107,12 +1192,15 @@ class DssDataStore(AbstractDataStore):
                 Defaults to the data store's trim setting.
         """
         self._assert_open()
+        if hec.rating.rating_specification._is_rating_specification(identifier):
+            return self._retrieve_rating_set(identifier, **kwargs)
         trim = self._trim
         time_window = self._time_window
         ind_rounder: Optional[UsgsRounder] = None
         dep_rounder: Optional[UsgsRounder] = None
         valid_argnames = [
             "start_time",
+            "effective_time",
             "end_time",
             "trim",
             "rounding",
@@ -1260,7 +1348,7 @@ class DssDataStore(AbstractDataStore):
         """
         Stores a data set to the data store.
 
-        Currently only time series data may be stored.
+        Currently only time series and rating sets may be stored.
 
         Args:
             obj (object): The data set to store
@@ -1296,6 +1384,41 @@ class DssDataStore(AbstractDataStore):
             ts.start_date = obj.times[0]
             ts.julian_base_date = HecTime(obj.times[0]).julian()
             self._hecdss.put(ts)
+        elif isinstance(obj, hec.rating.LocalRatingSet):
+            office = obj.template.office
+            location_id, parameters_id, template_version, specification_version = (
+                obj.specification.name.split(".")
+            )
+            root = etree.fromstring(obj.to_xml())
+            for child in root:
+                xml_data = DssDataStore.encode_str(
+                    etree.tostring(child, pretty_print=True).decode()
+                )
+                if child.tag == "rating-template":
+                    pathname = f"/{office}//{parameters_id}/Rating-Template/{template_version}//"
+                elif child.tag == "rating-spec":
+                    pathname = f"/{office}/{location_id}/{parameters_id}/Rating-Specification/{template_version}/{specification_version}/"
+                elif child.tag.endswith("-rating"):
+                    effective_time_elem = child.find("effective-date")
+                    if effective_time_elem is None or not effective_time_elem.text:
+                        raise DataStoreException(f"No effective time for {child.tag}")
+                    effecitve_time_str = effective_time_elem.text
+                    if not (effecitve_time_str.endswith("Z")):
+                        effecitve_time_str = (
+                            datetime.fromisoformat(effective_time_elem.text)
+                            .astimezone(ZoneInfo("UTC"))
+                            .isoformat()[:22]
+                            .replace("+00:00", "Z")
+                        )
+                    pathname = f"/{office}/{location_id}/{parameters_id}/{effecitve_time_str}/{template_version}/{specification_version}/"
+                else:
+                    raise DataStoreException(
+                        f"Unexpected tag in rating set xml: {child.tag}"
+                    )
+                ac = hecdss.ArrayContainer.create_array_container(
+                    int_values=xml_data, path=pathname
+                )
+                self._hecdss.put(ac)
         else:
             raise TypeError(f"Storing {type(obj).__name__} objects is not supported")
 

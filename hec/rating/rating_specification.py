@@ -644,7 +644,7 @@ class RatingSpecification:
         else:
             self.location.office = self.template.office
 
-    def to_xml(self, indent: str = "  ", prepend: Optional[str] = None) -> str:
+    def to_xml(self, indent: str = "  ", prepend: str = "") -> str:
         """
         Returns a formatted xml representation of the rating specification.
 
@@ -657,7 +657,13 @@ class RatingSpecification:
         Returns:
             str: The formatted xml
         """
-        xml: str = etree.tostring(self.xml_element, pretty_print=True).decode()
+        elem = self.xml_element
+        for e in elem.iter():
+            if e.text and e.text.strip() == "":
+                e.text = None
+            if e.tail and e.tail.strip() == "":
+                e.tail = None
+        xml: str = etree.tostring(elem, pretty_print=True).decode()
         if indent != "  ":
             xml = replace_indent(xml, indent)
         if prepend:

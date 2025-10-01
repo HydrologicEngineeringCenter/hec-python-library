@@ -1,20 +1,37 @@
 import os
-import sys
+import re
 import warnings
 from datetime import datetime
 from typing import Any, Optional, cast
 
 import numpy as np
 import pytest
+from lxml import etree
 
-from hec import CwmsDataStore, TimeSeries, UnitQuantity
+from hec import CwmsDataStore, DssDataStore, TimeSeries, UnitQuantity
 from hec.rating import AbstractRatingSet, LocalRatingSet
-from hec.shared import import_cwms
+from hec.shared import import_cwms, import_hecdss
 
 _db: Optional[CwmsDataStore] = None
+_dss: Optional[DssDataStore] = None
 _rs_reference: Optional[AbstractRatingSet] = None
 _rs_eager: Optional[AbstractRatingSet] = None
 _rs_lazy: Optional[AbstractRatingSet] = None
+
+rating_set_1_file_name = "test/resources/rating/local_rating_set_1.xml"
+rating_set_2_file_name = "test/resources/rating/local_rating_set_2.xml"
+
+dss_file_name = "test/resources/rating/local_rating_set.dss"
+
+
+def replace_indent(s: str, old_indent: str, new_indent: str) -> str:
+    pattern = f"^(?:{re.escape(old_indent)})+"
+
+    def repl(match: re.Match[str]) -> str:
+        count = len(match.group(0)) // len(old_indent)
+        return new_indent * count
+
+    return re.sub(pattern, repl, s, flags=re.MULTILINE)
 
 
 def can_use_cda() -> bool:
@@ -31,13 +48,13 @@ def can_use_cda() -> bool:
 
 @pytest.fixture
 def rating_set_1() -> LocalRatingSet:
-    with open("test/resources/rating/local_rating_set_1.xml") as f:
+    with open(rating_set_1_file_name) as f:
         return LocalRatingSet.from_xml(f.read())
 
 
 @pytest.fixture
 def rating_set_2() -> LocalRatingSet:
-    with open("test/resources/rating/local_rating_set_2.xml") as f:
+    with open(rating_set_2_file_name) as f:
         return LocalRatingSet.from_xml(f.read())
 
 
@@ -263,7 +280,7 @@ def generate_local_rating_set_1_list_data() -> list[list[Any]]:
 
 
 def generate_local_rating_set_1_ts_data() -> list[list[Any]]:
-    with open("test/resources/rating/local_rating_set_1.xml") as f:
+    with open(rating_set_1_file_name) as f:
         rating_set_1 = LocalRatingSet.from_xml(f.read())
     test_data = []
     timestrs, counts, openings, elevations, expected_flows = list(
@@ -545,3 +562,77 @@ def test_load_from_cwms(
     assert np.allclose(
         rated_flows_reference.values, rated_flows_lazy.values, equal_nan=True
     )
+
+
+def test_to_xml() -> None:
+    for rating_set_file_name in (
+        rating_set_1_file_name,
+        rating_set_2_file_name,
+    ):
+        with open(rating_set_file_name) as f:
+            xml1 = f.read()
+        rs = LocalRatingSet.from_xml(xml1)
+        xml2 = rs.to_xml()
+        # -------------------------- #
+        # format xml1 for comparison #
+        # -------------------------- #
+        # remove opening <?xml version="1.0" encoding="utf-8"?> line
+        if xml1.startswith("<?xml"):
+            xml1 = xml1.split("?>")[1].strip()
+        # remove null vertical datum offsets
+        xml1 = re.sub(
+            r"<offset .+?>\s*<to-datum>.+?</to-datum>\s*<value>0.0</value>\s*</offset>\s*",
+            "",
+            xml1,
+        )
+        # parse and re-generate
+        xml1 = etree.tostring(etree.fromstring(xml1), pretty_print=True).decode()
+        # change indentations for comparison
+        xml1 = replace_indent(xml1, " ", "  ")
+        # ------------------------- #
+        # finally do the comparison #
+        # ------------------------- #
+        assert xml2 == xml1
+
+
+@pytest.mark.parametrize(
+    "rating_set_file_name",
+    [
+        rating_set_1_file_name,
+        rating_set_2_file_name,
+    ],
+)
+def test_dss_store_retrieve(rating_set_file_name: str) -> None:
+    global _dss
+    DssDataStore.set_message_level(1)
+    if _dss is None:
+        _dss = DssDataStore.open(dss_file_name, read_only=False)
+    with open(rating_set_file_name) as f:
+        xml1 = f.read()
+    rs1 = LocalRatingSet.from_xml(xml1)
+    _dss.store(rs1)
+    rs2 = _dss.retrieve(rs1.specification.name, office=rs1.template.office)
+    xml2 = rs2.to_xml()
+    # -------------------------- #
+    # format xml1 for comparison #
+    # -------------------------- #
+    # remove opening <?xml version="1.0" encoding="utf-8"?> line
+    if xml1.startswith("<?xml"):
+        xml1 = xml1.split("?>")[1].strip()
+    # remove null vertical datum offsets
+    xml1 = re.sub(
+        r"<offset .+?>\s*<to-datum>.+?</to-datum>\s*<value>0.0</value>\s*</offset>\s*",
+        "",
+        xml1,
+    )
+    # parse and re-generate
+    xml1 = etree.tostring(etree.fromstring(xml1), pretty_print=True).decode()
+    # change indentations for comparison
+    xml1 = replace_indent(xml1, " ", "  ")
+    # ------------------------- #
+    # finally do the comparison #
+    # ------------------------- #
+    assert xml2 == xml1
+
+if __name__ == "__main__":
+    test_dss_store_retrieve(rating_set_2_file_name)
