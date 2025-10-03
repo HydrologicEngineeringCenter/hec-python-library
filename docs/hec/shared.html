@@ -43,6 +43,21 @@
                     <a class="variable" href="#required_dss_version">required_dss_version</a>
             </li>
             <li>
+                    <a class="class" href="#RatingSetRetrievalMethod">RatingSetRetrievalMethod</a>
+                            <ul class="memberlist">
+                        <li>
+                                <a class="variable" href="#RatingSetRetrievalMethod.EAGER">EAGER</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#RatingSetRetrievalMethod.LAZY">LAZY</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#RatingSetRetrievalMethod.REFERENCE">REFERENCE</a>
+                        </li>
+                </ul>
+
+            </li>
+            <li>
                     <a class="function" href="#import_cwms">import_cwms</a>
             </li>
             <li>
@@ -131,6 +146,59 @@
     
     
 
+                </section>
+                <section id="RatingSetRetrievalMethod">
+                    <div class="attr class">
+            
+    <span class="def">class</span>
+    <span class="name">RatingSetRetrievalMethod</span><wbr>(<span class="base">enum.Enum</span>):
+
+        
+    </div>
+    <a class="headerlink" href="#RatingSetRetrievalMethod"></a>
+    
+            <div class="docstring"><p>An enumeration.</p>
+</div>
+
+
+                            <div id="RatingSetRetrievalMethod.EAGER" class="classattr">
+                                <div class="attr variable">
+            <span class="name">EAGER</span>        =
+<input id="RatingSetRetrievalMethod.EAGER-view-value" class="view-value-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+            <label class="view-value-button pdoc-button" for="RatingSetRetrievalMethod.EAGER-view-value"></label><span class="default_value">&lt;<a href="#RatingSetRetrievalMethod.EAGER">RatingSetRetrievalMethod.EAGER</a>: (1, &#39;Retrieve all TableRating values when rating set is retrieved&#39;)&gt;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#RatingSetRetrievalMethod.EAGER"></a>
+    
+    
+
+                            </div>
+                            <div id="RatingSetRetrievalMethod.LAZY" class="classattr">
+                                <div class="attr variable">
+            <span class="name">LAZY</span>        =
+<span class="default_value">&lt;<a href="#RatingSetRetrievalMethod.LAZY">RatingSetRetrievalMethod.LAZY</a>: (2, &#39;Retrieve TableRating values only when first needed&#39;)&gt;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#RatingSetRetrievalMethod.LAZY"></a>
+    
+    
+
+                            </div>
+                            <div id="RatingSetRetrievalMethod.REFERENCE" class="classattr">
+                                <div class="attr variable">
+            <span class="name">REFERENCE</span>        =
+<input id="RatingSetRetrievalMethod.REFERENCE-view-value" class="view-value-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+            <label class="view-value-button pdoc-button" for="RatingSetRetrievalMethod.REFERENCE-view-value"></label><span class="default_value">&lt;<a href="#RatingSetRetrievalMethod.REFERENCE">RatingSetRetrievalMethod.REFERENCE</a>: (3, &#39;Retrieve only information necessary to send data to database to be rated&#39;)&gt;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#RatingSetRetrievalMethod.REFERENCE"></a>
+    
+    
+
+                            </div>
                 </section>
                 <section id="import_cwms">
                     <div class="attr function">

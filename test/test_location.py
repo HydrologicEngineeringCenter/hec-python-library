@@ -257,18 +257,3 @@ def test_vertical_datum_info() -> None:
     assert loc2.vertical_datum == "Pensacola"
     assert loc2.vertical_datum_xml == xml
     assert loc2.vertical_datum_json == json
-
-
-if __name__ == "__main__":
-    # test_vertical_datum_info()
-    loc = Location(
-        name="A_Base_Name-A_Sub_Name-With-Hyphens",
-        office="SWT",
-        latitude=35.4844444,
-        longitude=-94.3927778,
-        horizontal_datum="NAD83",
-        time_zone="Etc/GMT+7",
-        kind="OUTLET",
-        vertical_datum_info='{"office":"SWT","location":"A_Base_Name-A_Sub_Name-With-Hyphens","elevation":615.23,"unit":"ft","native-datum":"Pensacola","offsets":[{"to-datum":"NAVD-88","value":1.3625,"estimate":"true"},{"to-datum":"NGVD-29","value":1.07,"estimate":false}]}',
-    )
-    print(loc)

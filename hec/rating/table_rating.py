@@ -31,10 +31,17 @@ from hec.unit import UnitQuantity
 
 
 class TableRatingException(SimpleRatingException):
+    """
+    Exception class for TableRating objects
+    """
+
     pass
 
 
 class TableRating(SimpleRating):
+    """
+    Implements lookup-based ratings
+    """
 
     def __init__(
         self,
@@ -44,7 +51,7 @@ class TableRating(SimpleRating):
         super().__init__(specification, effective_time)
         from hec.datastore import AbstractDataStore
 
-        self._data_store: Optional[AbstractDataStore] = None
+        self._datastore: Optional[AbstractDataStore] = None
         self._rating_points: Optional[
             dict[tuple[float, ...], Union[tuple[float], float]]
         ] = None
@@ -194,10 +201,11 @@ class TableRating(SimpleRating):
         """
         Whether the table rating has rating points
 
-        Concrete (non-reference) rating sets may be initailized with or without data points from a data store by
-        specifying EAGER or LAZY loading, respectively. A TableRating in a concrete rating set loaded with LAZY loading
-        keeps a reference to the datastore in order to retrieve rating points on the first call to a rating or
-        reverse rating methods.
+        Concrete (non-reference) rating sets (see [`LocalRatingSet`](local_rating_set.html#LocalRatingSet)) may be initailized
+        in a manner in which the included `TableRating` objects are initialized with or without data points.
+
+        This is controlled by specifying 'EAGER' or 'LAZY' as the loading method. A `TableRating` object in `LocalRatingSet` loaded with LAZY loading
+        keeps a reference to the datastore from which it was loaded in order to retrieve rating points on the first use of the rating.
 
         Operations:
             Read/Write
@@ -290,13 +298,13 @@ class TableRating(SimpleRating):
     def populate_rating_points(self) -> None:
         if self.has_rating_points:
             return
-        if not self._data_store:
+        if not self._datastore:
             raise TableRatingException(
                 f"Cannot retrieve ratings points for effective time {self._effective_time}: rating has no data store"
             )
-        if isinstance(self._data_store, hec.datastore.CwmsDataStore):
-            rs = self._data_store._retrieve_rating_set(
-                self.specification_id, effective_time=self._effective_time
+        if isinstance(self._datastore, hec.datastore.AbstractDataStore):
+            rs = self._datastore._retrieve_rating_set(
+                self.specification_id, office=self.template.office, effective_time=self._effective_time
             )
             rp: dict[tuple[float, ...], Union[tuple[float], float]] = cast(
                 dict[tuple[float, ...], Union[tuple[float], float]],
@@ -313,7 +321,7 @@ class TableRating(SimpleRating):
         Rates a single independent parameter value set
 
         The value set is expected to be in the native units and vertical datum of the rating. To specify units, vertical datum
-        or rounding use [`rate_values`](#TableRating.rate_values), nesting `ind_value` in a list and extracting
+        or rounding use [`rate_values`](#TableRating._rate_values), nesting `ind_value` in a list and extracting
         the result from the returned list.
 
         Args:
@@ -473,7 +481,7 @@ class TableRating(SimpleRating):
             in_range,
         )
 
-    def rate_values(
+    def _rate_values(
         self,
         ind_values: list[list[float]],
         units: Optional[str] = None,
@@ -578,7 +586,7 @@ class TableRating(SimpleRating):
         Reverse rates a single dependent parameter value
 
         The dependent parameter value is expected to be in the native unit and vertical datum of the rating. To specify units, vertical datum
-        or rounding use [`reverse_rate_values`](#TableRating.reverse_rate_values), putting `dep_value` in a list and extracting
+        or rounding use [`reverse_rate_values`](#TableRating._reverse_rate_values), putting `dep_value` in a list and extracting
         the result from the returned list.
 
         Args:
@@ -587,11 +595,11 @@ class TableRating(SimpleRating):
         Returns:
             float: The rated (independent parameter) value
         """
-        return self.reverse_rate_values(
+        return self._reverse_rate_values(
             [dep_value], f"{','.join(self._rating_units[:-1])};{self._rating_units[-1]}"
         )[0]
 
-    def reverse_rate_values(
+    def _reverse_rate_values(
         self,
         dep_values: list[float],
         units: Optional[str] = None,

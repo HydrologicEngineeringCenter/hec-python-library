@@ -12,7 +12,7 @@ from hec import CwmsDataStore, DssDataStore, TimeSeries, UnitQuantity
 from hec.rating import AbstractRatingSet, LocalRatingSet
 from hec.shared import import_cwms, import_hecdss
 
-_db: Optional[CwmsDataStore] = None
+_dss: Optional[CwmsDataStore] = None
 _dss: Optional[DssDataStore] = None
 _rs_reference: Optional[AbstractRatingSet] = None
 _rs_eager: Optional[AbstractRatingSet] = None
@@ -392,11 +392,11 @@ def test_local_rating_set_1_individual(
     elevation: float,
     expected_flow: float,
 ) -> None:
-    rated_flow = rating_set_1.rate_values(
-        [[count], [opening], [elevation]],
-        [datetime.fromisoformat(timestr)],
-        "unit,ft,ft;cfs",
-    )[0]
+    rated_flow = rating_set_1.rate(
+        [count, opening, elevation],
+        times=datetime.fromisoformat(timestr),
+        units="unit,ft,ft;cfs",
+    )
     assert np.isclose(expected_flow, rated_flow)
 
 
@@ -412,10 +412,10 @@ def test_local_rating_set_1_list(
     elevations: list[float],
     expected_flows: list[float],
 ) -> None:
-    rated_flows = rating_set_1.rate_values(
+    rated_flows = rating_set_1.rate(
         [counts, openings, elevations],
-        list(map(datetime.fromisoformat, timestrs)),
-        "unit,ft,ft;cfs",
+        times=list(map(datetime.fromisoformat, timestrs)),
+        units="unit,ft,ft;cfs",
     )
     assert np.allclose(expected_flows, rated_flows)
 
@@ -434,16 +434,16 @@ def test_local_rating_set_1_ts(
     # ------------------------------------------------ #
     # test with rating units and native vertical datum #
     # ------------------------------------------------ #
-    rated_flows = rating_set_1.rate_time_series(
-        [counts_ts, openings_ts, elevations_ts], unit="cfs"
+    rated_flows = rating_set_1.rate(
+        [counts_ts, openings_ts, elevations_ts], units="cfs"
     )
     assert np.allclose(expected_flows, rated_flows.values)
     # --------------------------------------------------- #
     # test with different units and native vertical datum #
     # --------------------------------------------------- #
-    rated_flows = rating_set_1.rate_time_series(
+    rated_flows = rating_set_1.rate(
         [counts_ts, openings_ts.to("m"), elevations_ts.to("m").to("NAVD-88")],
-        unit="cfs",
+        units="cfs",
         vertical_datum="NAVD-88",
     )
     assert np.allclose(expected_flows, rated_flows.values)
@@ -459,11 +459,11 @@ def test_local_rating_set_2_individual(
     elevation: float,
     expected_stor: float,
 ) -> None:
-    rated_stor = rating_set_2.rate_values(
-        [[elevation]],
-        [datetime.fromisoformat(timestr)],
-        "ft;ac-ft",
-    )[0]
+    rated_stor = rating_set_2.rate(
+        [elevation],
+        times=datetime.fromisoformat(timestr),
+        units="ft;ac-ft",
+    )
     assert np.isclose(expected_stor, rated_stor)
 
 
@@ -476,10 +476,10 @@ def test_local_rating_set_2_list(
     elevations: list[float],
     expected_stors: list[float],
 ) -> None:
-    rated_stors = rating_set_2.rate_values(
+    rated_stors = rating_set_2.rate(
         [elevations],
-        list(map(datetime.fromisoformat, timestrs)),
-        "ft;ac-ft",
+        times=list(map(datetime.fromisoformat, timestrs)),
+        units="ft;ac-ft",
     )
     assert np.allclose(expected_stors, rated_stors)
 
@@ -495,19 +495,17 @@ def test_local_rating_set_2_ts(
     # ------------------------------------------------ #
     # test with rating units and native vertical datum #
     # ------------------------------------------------ #
-    rated_stors = rating_set_2.rate_time_series([elevations_ts], unit="ac-ft")
+    rated_stors = rating_set_2.rate([elevations_ts], units="ac-ft")
     assert np.allclose(expected_stors, rated_stors.values)
     # --------------------------------------------------------------------------------- #
     # perform the reverse rating to make sure it doesn't blow up, but 2-D interpolation #
     # (time and elevation being the dimensions) is not generally inversible             #
     # --------------------------------------------------------------------------------- #
-    reverse_rated_elevs = rating_set_2.reverse_rate_time_series(rated_stors, unit="ft")
+    reverse_rated_elevs = rating_set_2.reverse_rate(rated_stors, units="ft")
     # --------------------------------------------------- #
     # test with different units and native vertical datum #
     # --------------------------------------------------- #
-    rated_stors = rating_set_2.rate_time_series(
-        elevations_ts.to("m").to("NAVD-88"), unit="mcm"
-    )
+    rated_stors = rating_set_2.rate(elevations_ts.to("m").to("NAVD-88"), units="mcm")
     acft_to_mcm = UnitQuantity("ac-ft").to("mcm").magnitude
     assert np.allclose(
         list(map(lambda v: v * acft_to_mcm, expected_stors)), rated_stors.values
@@ -516,8 +514,8 @@ def test_local_rating_set_2_ts(
     # perform the reverse rating to make sure it doesn't blow up, but 2-D interpolation #
     # (time and elevation being the dimensions) is not generally inversible             #
     # --------------------------------------------------------------------------------- #
-    reverse_rated_elevs = rating_set_2.reverse_rate_time_series(
-        rated_stors, unit="m", vertical_datum="NAVD-88"
+    reverse_rated_elevs = rating_set_2.reverse_rate(
+        rated_stors, units="m", vertical_datum="NAVD-88"
     )
 
 
@@ -525,43 +523,77 @@ def test_local_rating_set_2_ts(
     "counts_ts, openings_ts, elevations_ts, expected_flows",
     generate_local_rating_set_1_ts_data(),
 )
-def test_load_from_cwms(
+def test_load_methods_with_cwms(
     counts_ts: TimeSeries,
     openings_ts: TimeSeries,
     elevations_ts: TimeSeries,
     expected_flows: list[float],
 ) -> None:
-    global _db, _rs_reference, _rs_eager, _rs_lazy
+    global _dss, _rs_reference, _rs_eager, _rs_lazy
     if not can_use_cda():
         skip_test_message = "Test test_reference_rating_set() is skipped because CDA is not accessible to test"
         warnings.warn(skip_test_message)
         return
-    if _db is None:
-        _db = CwmsDataStore.open()
+    if _dss is None:
+        _dss = CwmsDataStore.open()
     rating_id = "COUN.Count-Conduit_Gates,Opening-Conduit_Gates,Elev;Flow-Conduit_Gates.Standard.Production"
     if _rs_reference is None:
         _rs_reference = cast(
-            AbstractRatingSet, _db.retrieve(rating_id, method="REFERENCE")
+            AbstractRatingSet, _dss.retrieve(rating_id, method="REFERENCE")
         )
     if _rs_eager is None:
-        _rs_eager = cast(AbstractRatingSet, _db.retrieve(rating_id, method="EAGER"))
+        _rs_eager = cast(AbstractRatingSet, _dss.retrieve(rating_id, method="EAGER"))
     if _rs_lazy is None:
-        _rs_lazy = cast(AbstractRatingSet, _db.retrieve(rating_id, method="LAZY"))
-    rated_flows_reference = _rs_reference.rate_time_series(
-        [counts_ts, openings_ts, elevations_ts], unit="cfs"
+        _rs_lazy = cast(AbstractRatingSet, _dss.retrieve(rating_id, method="LAZY"))
+    rated_flows_reference = _rs_reference.rate(
+        [counts_ts, openings_ts, elevations_ts], units="cfs"
     )
-    rated_flows_eager = _rs_eager.rate_time_series(
-        [counts_ts, openings_ts, elevations_ts], unit="cfs"
+    rated_flows_eager = _rs_eager.rate(
+        [counts_ts, openings_ts, elevations_ts], units="cfs"
     )
     assert np.allclose(
         rated_flows_reference.values, rated_flows_eager.values, equal_nan=True
     )
-    rated_flows_lazy = _rs_lazy.rate_time_series(
-        [counts_ts, openings_ts, elevations_ts], unit="cfs"
+    rated_flows_lazy = _rs_lazy.rate(
+        [counts_ts, openings_ts, elevations_ts], units="cfs"
     )
     assert np.allclose(
         rated_flows_reference.values, rated_flows_lazy.values, equal_nan=True
     )
+
+
+@pytest.mark.parametrize(
+    "counts_ts, openings_ts, elevations_ts, expected_flows",
+    generate_local_rating_set_1_ts_data(),
+)
+def test_load_methods_with_dss(
+    counts_ts: TimeSeries,
+    openings_ts: TimeSeries,
+    elevations_ts: TimeSeries,
+    expected_flows: list[float],
+) -> None:
+    global _dss
+    DssDataStore.set_message_level(0)
+    if _dss is None:
+        _dss = DssDataStore.open(dss_file_name, read_only=False)
+    for rating_set_file_name in (rating_set_1_file_name, rating_set_2_file_name):
+        with open(rating_set_file_name) as f:
+            _dss.store(LocalRatingSet.from_xml(f.read()))
+        rating_id = "COUN.Count-Conduit_Gates,Opening-Conduit_Gates,Elev;Flow-Conduit_Gates.Standard.Production"
+        rs_eager = cast(AbstractRatingSet, _dss.retrieve(rating_id, office="SWT", method="EAGER"))
+        rs_lazy = cast(AbstractRatingSet, _dss.retrieve(rating_id, office="SWT", method="LAZY"))
+        rated_flows_eager = rs_eager.rate(
+            [counts_ts, openings_ts, elevations_ts], units="cfs"
+        )
+        assert np.allclose(
+            expected_flows, rated_flows_eager.values, equal_nan=True
+        )
+        rated_flows_lazy = rs_lazy.rate(
+            [counts_ts, openings_ts, elevations_ts], units="cfs"
+        )
+        assert np.allclose(
+            expected_flows, rated_flows_lazy.values, equal_nan=True
+        )
 
 
 def test_to_xml() -> None:
@@ -611,7 +643,7 @@ def test_dss_store_retrieve(rating_set_file_name: str) -> None:
         xml1 = f.read()
     rs1 = LocalRatingSet.from_xml(xml1)
     _dss.store(rs1)
-    rs2 = _dss.retrieve(rs1.specification.name, office=rs1.template.office)
+    rs2 = _dss.retrieve(rs1.specification.name, office=rs1.template.office, method="EAGER")
     xml2 = rs2.to_xml()
     # -------------------------- #
     # format xml1 for comparison #
@@ -633,6 +665,3 @@ def test_dss_store_retrieve(rating_set_file_name: str) -> None:
     # finally do the comparison #
     # ------------------------- #
     assert xml2 == xml1
-
-if __name__ == "__main__":
-    test_dss_store_retrieve(rating_set_2_file_name)

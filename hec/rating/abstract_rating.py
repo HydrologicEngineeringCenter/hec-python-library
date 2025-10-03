@@ -27,6 +27,10 @@ from hec.timeseries import TimeSeries
 
 
 class AbstractRatingException(hec.shared.RatingException):
+    """
+    Exception class for AbstractRating objects
+    """
+
     pass
 
 
@@ -797,9 +801,9 @@ class AbstractRating(ABC):
             Union[list[float], TimeSeries]: The dependent parameter values as described in `input` above
         """
         if isinstance(input, TimeSeries):
-            return self.rate_time_series(ts=input, unit=units, round=round)
+            return self._rate_time_series(ts=input, unit=units, round=round)
         elif isinstance(input, list) and isinstance(input[0], TimeSeries):
-            return self.rate_time_series(
+            return self._rate_time_series(
                 ts=cast(list[TimeSeries], input),
                 unit=units,
                 vertical_datum=vertical_datum,
@@ -810,7 +814,7 @@ class AbstractRating(ABC):
             and isinstance(input[0], list)
             and isinstance(input[0][0], (int, float))
         ):
-            return self.rate_values(
+            return self._rate_values(
                 ind_values=cast(list[list[float]], input),
                 units=units,
                 vertical_datum=vertical_datum,
@@ -819,7 +823,7 @@ class AbstractRating(ABC):
         else:
             raise TypeError(f"Unexpected type for input: {input.__class__.__name__}")
 
-    def rate_time_series(
+    def _rate_time_series(
         self,
         ts: Union[TimeSeries, Sequence[TimeSeries]],
         unit: Optional[str] = None,
@@ -871,7 +875,7 @@ class AbstractRating(ABC):
                 ):
                     raise AbstractRatingException(
                         f"Time series {ts_list[i].name} must have native vertical datum info since vertical "
-                        f"datum of {vertical_datum} is specified to rate_time_series() method"
+                        f"datum of {vertical_datum} is specified to rate() method"
                     )
                 ts_list[i] = ts_list[i].to(
                     cast(
@@ -908,7 +912,7 @@ class AbstractRating(ABC):
         )
         if len(ts_list[0]) > 0:
             units = f"{','.join([t.unit for t in ts_list])};{dep_unit}"
-            rated_values = self.rate_values(
+            rated_values = self._rate_values(
                 ind_values=values,
                 units=units,
                 vertical_datum=vertical_datum,
@@ -934,7 +938,7 @@ class AbstractRating(ABC):
         return rated_ts
 
     @abstractmethod
-    def rate_values(
+    def _rate_values(
         self,
         ind_values: list[list[float]],
         units: Optional[str] = None,
@@ -1006,14 +1010,14 @@ class AbstractRating(ABC):
             Union[list[float], TimeSeries]: The dependent parameter values as described in `input` above
         """
         if isinstance(input, TimeSeries):
-            return self.reverse_rate_time_series(
+            return self._reverse_rate_time_series(
                 ts=input,
                 unit=units,
                 vertical_datum=vertical_datum,
                 round=round,
             )
         elif isinstance(input, list) and isinstance(input[0], (int, float)):
-            return self.reverse_rate_values(
+            return self._reverse_rate_values(
                 dep_values=input,
                 units=units,
                 vertical_datum=vertical_datum,
@@ -1022,7 +1026,7 @@ class AbstractRating(ABC):
         else:
             raise TypeError(f"Unexpected type for input: {input.__class__.__name__}")
 
-    def reverse_rate_time_series(
+    def _reverse_rate_time_series(
         self,
         ts: TimeSeries,
         unit: Optional[str] = None,
@@ -1056,7 +1060,7 @@ class AbstractRating(ABC):
         )
         if len(ts) > 0:
             units = f"{ind_unit};{ts.unit}"
-            rated_values = self.reverse_rate_values(
+            rated_values = self._reverse_rate_values(
                 dep_values=ts.values,
                 units=units,
                 vertical_datum=vertical_datum,
@@ -1082,7 +1086,7 @@ class AbstractRating(ABC):
         return rated_ts
 
     @abstractmethod
-    def reverse_rate_values(
+    def _reverse_rate_values(
         self,
         dep_values: list[float],
         units: Optional[str] = None,

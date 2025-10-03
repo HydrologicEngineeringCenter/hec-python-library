@@ -19,6 +19,10 @@ T = TypeVar("T", bound="LocalRatingSet")
 
 
 class LocalRatingSetException(AbstractRatingSetException):
+    """
+    Exception class for `LocalRatingSet` objects
+    """
+
     pass
 
 
@@ -33,7 +37,6 @@ class LocalRatingSet(AbstractRatingSet):
         )
 
     def _intialize_(self, specification: Any, **kwargs: Any) -> None:
-        from hec.datastore import AbstractDataStore
 
         super().__init__(specification, **kwargs)
         self._datastore: Optional[hec.datastore.AbstractDataStore] = None
@@ -116,7 +119,7 @@ class LocalRatingSet(AbstractRatingSet):
                         f"Cannot have more than one {rating.specification_id} rating with <effective-date> of {rating.effective_time.isoformat()}"
                     )
                 if isinstance(rating, TableRating):
-                    rating._data_store = datastore  # for lazy loading
+                    rating._datastore = datastore  # for lazy loading
                 ratings[rating_set_specification_id][rating.effective_time] = rating
         # --------------------------------------------------------------------- #
         # for virtual and transitional ratings, will need to set source ratings #
@@ -164,7 +167,7 @@ class LocalRatingSet(AbstractRatingSet):
 
         return lrs
 
-    def rate_values(
+    def _rate_values(
         self,
         ind_values: list[list[float]],
         value_times: Optional[list[datetime]] = None,
@@ -173,7 +176,6 @@ class LocalRatingSet(AbstractRatingSet):
         rating_time: Optional[datetime] = None,
         round: bool = False,
     ) -> list[float]:
-        # docstring in AbstractRating.rate_values
         ratings: dict[datetime, AbstractRating] = {}
         if rating_time is None:
             ratings = self._active_ratings
@@ -225,6 +227,9 @@ class LocalRatingSet(AbstractRatingSet):
         for i in range(value_count):
             in_range, out_range_lo, out_range_hi = self._specification.lookup
             ind_value = [[v[i]] for v in ind_values]
+            if any(map(np.isnan, ind_value)):
+                rated_values.append(np.nan)
+                continue
             if (
                 i > 0
                 and value_times[i] == value_times[i - 1]
@@ -319,10 +324,10 @@ class LocalRatingSet(AbstractRatingSet):
             elif in_range == LookupMethod.NULL.name:
                 rated_values.append(np.nan)
                 continue
-            lo_val = ratings[effective_times[lo]].rate_values(
+            lo_val = ratings[effective_times[lo]]._rate_values(
                 ind_value, units, vertical_datum, round
             )[0]
-            hi_val = ratings[effective_times[hi]].rate_values(
+            hi_val = ratings[effective_times[hi]]._rate_values(
                 ind_value, units, vertical_datum, round
             )[0]
             rated_values.append(
@@ -337,7 +342,7 @@ class LocalRatingSet(AbstractRatingSet):
             )
         return rated_values
 
-    def reverse_rate_values(
+    def _reverse_rate_values(
         self,
         dep_values: list[float],
         value_times: Optional[list[datetime]] = None,
@@ -346,7 +351,6 @@ class LocalRatingSet(AbstractRatingSet):
         rating_time: Optional[datetime] = None,
         round: bool = False,
     ) -> list[float]:
-        # docstring in AbstractRating.reverse_rate_values
         if self.template.ind_param_count != 1:
             raise LocalRatingSetException(
                 "Cannot reverse rate using a rating set with more than one independent value"
@@ -388,6 +392,9 @@ class LocalRatingSet(AbstractRatingSet):
         effective_times_count = len(effective_times)
         for i in range(value_count):
             in_range, out_range_lo, out_range_hi = self._specification.lookup
+            if np.isnan(dep_values[i]):
+                reverse_rated_values.append(np.nan)
+                continue
             if (
                 i > 0
                 and value_times[i] == value_times[i - 1]
@@ -482,10 +489,10 @@ class LocalRatingSet(AbstractRatingSet):
             elif in_range == LookupMethod.NULL.name:
                 reverse_rated_values.append(np.nan)
                 continue
-            lo_val = ratings[effective_times[lo]].reverse_rate_values(
+            lo_val = ratings[effective_times[lo]]._reverse_rate_values(
                 [dep_values[i]], units, vertical_datum, round
             )[0]
-            hi_val = ratings[effective_times[hi]].reverse_rate_values(
+            hi_val = ratings[effective_times[hi]]._reverse_rate_values(
                 [dep_values[i]], units, vertical_datum, round
             )[0]
             reverse_rated_values.append(
@@ -537,7 +544,7 @@ class LocalRatingSet(AbstractRatingSet):
         root = etree.fromstring(xml)
         assert root.tag == "ratings"
         new_root = etree.fromstring(
-            '<ratings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.hec.usace.army.mil/xmlSchema/cwms/Ratings.xsd">\n</ratings>'
+            '<ratings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.hec.usace.army.mil/xmlSchema/cwms/Ratings.xsd"/>'
         )
         for elem in root.findall("./rating-template"):
             new_root.append(elem)

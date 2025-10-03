@@ -11,6 +11,10 @@ from .abstract_rating_set import AbstractRatingSet, AbstractRatingSetException
 
 
 class ReferenceRatingSetException(AbstractRatingSetException):
+    """
+    Exception class for `ReferenceRatingSet` objects
+    """
+
     pass
 
 
@@ -97,7 +101,7 @@ class ReferenceRatingSet(AbstractRatingSet):
         )
         return rating_set
 
-    def rate_values(
+    def _rate_values(
         self,
         ind_values: list[list[float]],
         value_times: Optional[list[datetime]] = None,
@@ -198,7 +202,7 @@ class ReferenceRatingSet(AbstractRatingSet):
             for i in range(len(response_values))
         ]
 
-    def reverse_rate_values(
+    def _reverse_rate_values(
         self,
         dep_values: list[float],
         value_times: Optional[list[datetime]] = None,

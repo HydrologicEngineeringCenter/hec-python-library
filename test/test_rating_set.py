@@ -171,8 +171,8 @@ def test_elev_stor_rating_set() -> None:
 def _test_complex_rating_set(
     rs: AbstractRatingSet, p1_val: float, p2_val: float, expected_val: float, units: str
 ) -> None:
-    dep_vals = rs.rate_values([[p1_val], [p2_val]], units=units)
-    assert round(dep_vals[0], 5) == expected_val
+    dep_val = rs.rate([p1_val, p2_val], units=units)
+    assert round(dep_val, 5) == expected_val
 
 
 @pytest.mark.parametrize(
@@ -424,14 +424,10 @@ def generate_rating_error_info2() -> None:
                                     input_values.append([ts.values[0]])
                                     ind_units.append(ts.unit)
                                 dep_unit = Parameter(rs.template.dep_param).unit_name
-                                rated = rs.rate_values(
+                                rated = rs.rate(
                                     input_values,
                                     units=f"{','.join(ind_units)};{dep_unit}",
                                 )
                                 output(f"\t\trated = {rated[0]}")
                             except Exception as e:
                                 output(f"\t\t===> {e}")
-
-
-if __name__ == "__main__":
-    pass

@@ -91,6 +91,12 @@
                                 <a class="function" href="#DssDataStore.delete">delete</a>
                         </li>
                         <li>
+                                <a class="function" href="#DssDataStore.decode_ints">decode_ints</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#DssDataStore.encode_str">encode_str</a>
+                        </li>
+                        <li>
                                 <a class="function" href="#DssDataStore.get_extents">get_extents</a>
                         </li>
                         <li>
@@ -691,11 +697,13 @@ Defaults to True.</li>
 </ul></li>
 <li><strong>Rating Set Arguments:</strong> <br>
 <ul>
-<li><b>reference (Optional[bool], must be passed by name):</b> Whether to retrieve a reference or concrete rating set. Defaults to True.
+<li><b>method (Optional[str], must be passed by name):</b> The method used to retrieve the rating set from the database. Restricted to 'EAGER', 'LAZY', and 'REFERENCE'. Defaults to 'EAGER'.
 <ul>
-<li>If <code>True</code>,  a <a href="rating.html#ReferenceRatingSet">ReferenceRatingSet</a> is retrieved, where all values are sent to the database to be rated.</li>
-<li>If <code>False</code>, a <a href="rating.html#ConcreteRatingSet">ConcreteRatingSet</a> is retrieved, where all ratings are performed in python code. Individual ratings in the rating set are retrieved from
-the database on first use, preventing the loading of unneeded ratings.</li>
+<li>If 'REFERENCE',  a <a href="rating.html#ReferenceRatingSet">ReferenceRatingSet</a> is retrieved, where all values are sent to the database to be rated.</li>
+<li>If 'EAGER', a <a href="rating.html#LocalRatingSet">LocalRatingSet</a> is retrieved, where all ratings are performed in python code. Rating points for all included TableRating objects are retrieved when the
+rating set is retrieved.</li>
+<li>If 'LAZY', a <a href="rating.html#LocalRatingSet">LocalRatingSet</a> is retrieved, where all ratings are performed in python code. Rating points for all included TableRating objects are retrieved only when the
+individual TableRating objects are first used.</li>
 </ul></li>
 </ul></li>
 <li><strong>Time Series Arguments:</strong> <br>
@@ -982,6 +990,34 @@ Defaults to the start of the data store's time window. If None or not specified 
 
 
                             </div>
+                            <div id="DssDataStore.decode_ints" class="classattr">
+                                <div class="attr function">
+                    <div class="decorator decorator-staticmethod">@staticmethod</div>
+
+        <span class="def">def</span>
+        <span class="name">decode_ints</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">ints</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="nb">str</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#DssDataStore.decode_ints"></a>
+    
+    
+
+                            </div>
+                            <div id="DssDataStore.encode_str" class="classattr">
+                                <div class="attr function">
+                    <div class="decorator decorator-staticmethod">@staticmethod</div>
+
+        <span class="def">def</span>
+        <span class="name">encode_str</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">s</span><span class="p">:</span> <span class="nb">str</span></span><span class="return-annotation">) -> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#DssDataStore.encode_str"></a>
+    
+    
+
+                            </div>
                             <div id="DssDataStore.get_extents" class="classattr">
                                 <div class="attr function">
             
@@ -1162,7 +1198,7 @@ Defaults to the data store's trim setting.</li>
     
             <div class="docstring"><p>Stores a data set to the data store.</p>
 
-<p>Currently only time series data may be stored.</p>
+<p>Currently only time series and rating sets may be stored.</p>
 
 <h6 id="arguments">Arguments:</h6>
 

@@ -7,6 +7,7 @@ Comprises the classes:
 """
 
 import base64
+import copy
 import math
 import os
 import re
@@ -791,28 +792,35 @@ class DssDataStore(AbstractDataStore):
             raise
         self._is_open = True
 
-    def _retrieve_rating_set(
-        self, identifier: str, **kwargs: Any
-    ) -> Any:
-        effective_time_str: Optional[str] = None
+    def _retrieve_rating_set(self, identifier: str, **kwargs: Any) -> Any:
+        # -------------- #
+        # default values #
+        # -------------- #
         office = self.office
+        effective_time: Optional[datetime] = None
+        eager_loading = False
+        need_data_store = False
+        # ---------------------- #
+        # set values from kwargs #
+        # ---------------------- #
         for kw in kwargs:
             argval = kwargs[kw]
             if kw == "effective_time":
-                if not isinstance(argval, (str, datetime)):
+                if not isinstance(argval, datetime):
                     raise TypeError(
-                        f"Expected str or datetime for effective_time, got {argval.__class__.__name__}"
+                        f"Expected datetime for effective_time, got {argval.__class__.__name__}"
                     )
-                if isinstance(argval, datetime):
-                    effective_time = argval
-                else:
-                    effective_time = datetime.fromisoformat(
-                        argval.replace("Z", "+00:00")
+                effective_time = argval
+            elif kw == "method":
+                if not isinstance(argval, str):
+                    raise TypeError(
+                        f"Expected str for method, got {argval.__class__.__name__}"
                     )
-                effective_time = effective_time.replace(microsecond=0).astimezone(
-                    ZoneInfo("UTC")
-                )
-                effective_time_str = effective_time.isoformat().replace("+00:00", "Z")
+                if argval not in (RatingSetRetrievalMethod.EAGER.name, RatingSetRetrievalMethod.LAZY.name):
+                    raise ValueError(
+                        f"Value for method must be one of ({RatingSetRetrievalMethod.EAGER.name}, {RatingSetRetrievalMethod.LAZY.name}, got {argval})"
+                    )
+                eager_loading = argval == RatingSetRetrievalMethod.EAGER.name
             elif kw == "office":
                 if not isinstance(argval, str):
                     raise TypeError(
@@ -823,48 +831,58 @@ class DssDataStore(AbstractDataStore):
                 raise TypeError(
                     f"_retrieve_rating_set() got an unexpected keyword argument '{kw}'"
                 )
+        # ------------------------------ #
+        # generate the pathnames to read #
+        # ------------------------------ #
         location_id, parameters_id, template_version, spec_version = identifier.split(
             "."
         )
-        template_pathname = f"/{office}//{parameters_id}/Rating-Template/{template_version}//"
+        template_pathname = (
+            f"/{office}//{parameters_id}/Rating-Template/{template_version}//"
+        )
         spec_pathname = f"/{office}/{location_id}/{parameters_id}/Rating-Specification/{template_version}/{spec_version}/"
-        record = self._hecdss.get(template_pathname)
-        if not isinstance(record, hecdss.ArrayContainer):
-            raise TypeError(
-                f"Expected ArrayContainer for {template_pathname}, got {record.__class__.__name__}"
+        if effective_time is not None:
+            # --------------------------------------------- #
+            # we are lazy loading a specific effective time #
+            # --------------------------------------------- #
+            effective_time_str = effective_time.astimezone(ZoneInfo("UTC")).isoformat()[:19] + "Z"
+            rating_pathnames = [spec_pathname.replace("Specification", f"Points-{effective_time_str}")]
+        else:
+            # -------------------------------------------------------------- #
+            # we are loading all effective times using EAGER or LAZY loading #
+            # -------------------------------------------------------------- #
+            pathnames = self.catalog(
+                "ARRAY",
+                pattern=spec_pathname.replace("Specification", "(Body|Points)-*"),
             )
-        xml = '<ratings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.hec.usace.army.mil/xmlSchema/cwms/Ratings.xsd">\n</ratings>\n'
-        xml += DssDataStore.decode_ints(record.int_values) + "\n"
-        record = self._hecdss.get(spec_pathname)
-        if not isinstance(record, hecdss.ArrayContainer):
-            raise TypeError(
-                f"Expected ArrayContainer for {spec_pathname}, got {record.__class__.__name__}"
-            )
-        xml += DssDataStore.decode_ints(record.int_values) + "\n"
-        if effective_time_str:
-            rating_pathname = spec_pathname.replace("Specification", effective_time_str)
-            record = self._hecdss.get(rating_pathname)
+            pathnames_by_time = {}
+            for p in sorted(pathnames):
+                time = p.split("/")[4].split("-", 2)[2]
+                pathnames_by_time.setdefault(time, []).append(p)
+            # Rating-Body-xxx will be at index 0 and Rating-Points-xxx (if it exists) will be at index 1
+            # for eager loading use index -1
+            # for lazy loading use index 0
+            if eager_loading:
+                rating_pathnames = [pathnames_by_time[t][-1] for t in sorted(pathnames_by_time)]
+            else:
+                need_data_store = True
+                rating_pathnames = [pathnames_by_time[t][0] for t in sorted(pathnames_by_time)]
+        # ------------------------------------------ #
+        # build an xml instance from the record data #
+        # ------------------------------------------ #
+        xml = '<ratings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.hec.usace.army.mil/xmlSchema/cwms/Ratings.xsd">\n'
+        for pathname in [template_pathname, spec_pathname] + rating_pathnames:
+            record = self._hecdss.get(pathname)
             if not isinstance(record, hecdss.ArrayContainer):
                 raise TypeError(
-                    f"Expected ArrayContainer for {rating_pathname}, got {record.__class__.__name__}"
+                    f"Expected ArrayContainer for {pathname}, got {record.__class__.__name__}"
                 )
             xml += DssDataStore.decode_ints(record.int_values) + "\n"
-        else:
-            pathnames = self.catalog(
-                "ARRAY", pattern=spec_pathname.replace("Specification", "*")
-            )
-            rating_pathnames = sorted(
-                [p for p in pathnames if p.split("/")[4] != "Specification"]
-            )
-            for rating_pathname in rating_pathnames:
-                record = self._hecdss.get(rating_pathname)
-                if not isinstance(record, hecdss.ArrayContainer):
-                    raise TypeError(
-                        f"Expected ArrayContainer for {rating_pathname}, got {record.__class__.__name__}"
-                    )
-                xml += DssDataStore.decode_ints(record.int_values) + "\n"
         xml += "</ratings>"
-        return hec.rating.LocalRatingSet.from_xml(xml)
+        # ------------------------------------ #
+        # generate the rating set from the xml #
+        # ------------------------------------ #
+        return hec.rating.LocalRatingSet.from_xml(xml, datastore=self if need_data_store else None)
 
     def catalog(
         self,
@@ -1359,6 +1377,9 @@ class DssDataStore(AbstractDataStore):
                 f"Cannot store to {self._name}, data store is set to read-only"
             )
         elif isinstance(obj, TimeSeries):
+            # ----------------- #
+            # store time series #
+            # ----------------- #
             if obj.data is None or obj.data.empty:
                 raise DataStoreException(f"Cannot store empty time series {obj.name}")
             if obj.parameter_type is None:
@@ -1385,15 +1406,18 @@ class DssDataStore(AbstractDataStore):
             ts.julian_base_date = HecTime(obj.times[0]).julian()
             self._hecdss.put(ts)
         elif isinstance(obj, hec.rating.LocalRatingSet):
+            # ---------------- #
+            # store rating set #
+            # ---------------- #
             office = obj.template.office
             location_id, parameters_id, template_version, specification_version = (
                 obj.specification.name.split(".")
             )
             root = etree.fromstring(obj.to_xml())
             for child in root:
-                xml_data = DssDataStore.encode_str(
-                    etree.tostring(child, pretty_print=True).decode()
-                )
+                # ---------------------------------------- #
+                # determine pathname of record for element #
+                # ---------------------------------------- #
                 if child.tag == "rating-template":
                     pathname = f"/{office}//{parameters_id}/Rating-Template/{template_version}//"
                 elif child.tag == "rating-spec":
@@ -1402,19 +1426,39 @@ class DssDataStore(AbstractDataStore):
                     effective_time_elem = child.find("effective-date")
                     if effective_time_elem is None or not effective_time_elem.text:
                         raise DataStoreException(f"No effective time for {child.tag}")
-                    effecitve_time_str = effective_time_elem.text
-                    if not (effecitve_time_str.endswith("Z")):
-                        effecitve_time_str = (
+                    effective_time_str = effective_time_elem.text
+                    if not (effective_time_str.endswith("Z")):
+                        effective_time_str = (
                             datetime.fromisoformat(effective_time_elem.text)
                             .astimezone(ZoneInfo("UTC"))
                             .isoformat()[:22]
                             .replace("+00:00", "Z")
                         )
-                    pathname = f"/{office}/{location_id}/{parameters_id}/{effecitve_time_str}/{template_version}/{specification_version}/"
+                    pathname = f"/{office}/{location_id}/{parameters_id}/Rating-Body-{effective_time_str}/{template_version}/{specification_version}/"
                 else:
                     raise DataStoreException(
                         f"Unexpected tag in rating set xml: {child.tag}"
                     )
+                # ---------------------------------------- #
+                # convert element to record data and store #
+                # ---------------------------------------- #
+                points_elem = child.find("rating-points")
+                if points_elem is not None:
+                    # ---------------------------------------------------------------------- #
+                    # save with point pathname and delete points for saving as body pathname #
+                    # ---------------------------------------------------------------------- #
+                    pathname_with_points = f"/{office}/{location_id}/{parameters_id}/Rating-Points-{effective_time_str}/{template_version}/{specification_version}/"
+                    xml_data = DssDataStore.encode_str(
+                        etree.tostring(child, pretty_print=True).decode()
+                    )
+                    ac = hecdss.ArrayContainer.create_array_container(
+                        int_values=xml_data, path=pathname_with_points
+                    )
+                    self._hecdss.put(ac)
+                    child[:] = [elem for elem in child if elem.tag not in ("rating-points", "extension-points")]
+                xml_data = DssDataStore.encode_str(
+                    etree.tostring(child, pretty_print=True).decode()
+                )
                 ac = hecdss.ArrayContainer.create_array_container(
                     int_values=xml_data, path=pathname
                 )

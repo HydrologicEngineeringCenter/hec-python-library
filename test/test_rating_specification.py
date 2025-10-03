@@ -501,7 +501,3 @@ def test_xml_operations() -> None:
     assert spec.to_xml() == xml_str
     spec2 = RatingSpecification.from_xml(xml_str)
     assert spec2.to_xml() == xml_str
-
-
-if __name__ == "__main__":
-    test_xml_operations()

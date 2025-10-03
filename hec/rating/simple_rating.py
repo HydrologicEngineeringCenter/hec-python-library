@@ -14,10 +14,18 @@ from hec.rating.rating_template import RatingTemplate
 
 
 class SimpleRatingException(AbstractRatingException):
+    """
+    Exception class for SimpleRating objects
+    """
+
     pass
 
 
 class SimpleRating(AbstractRating):
+    """
+    Provides common for definitions and code for TableRating and ExpressionRating classes,
+    both of which are represented in XML using the <simple-rating> tag.
+    """
 
     def __init__(
         self,
@@ -67,14 +75,3 @@ class SimpleRating(AbstractRating):
 
 
 SimpleRating._from_xml_methods[SimpleRating.__name__] = SimpleRating.from_xml
-
-if __name__ == "__main__":
-    with open("t:/rating.xml") as f:
-        rating = AbstractRating.from_xml(f.read())
-        from hec.rating.table_rating import TableRating
-
-        tr = cast(TableRating, rating)
-        flow = tr.rate_value([2, 0, 1250.5])
-        print(flow)
-        # with open("t:/rating2.xml", "w") as f:
-        #     f.write(rating.to_xml())

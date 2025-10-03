@@ -374,16 +374,3 @@ def test_get_datetime_index(key: str, times_str: str) -> None:
         for v1, v2 in list(zip(l_expected, l_actual)):
             print(f"{v1}{chr(9)}{v2}{chr(9)}{v2 == v1}")
     assert l_okay
-
-
-if __name__ == "__main__":
-    pass
-    # t = HecTime("2025-01-31T00:00:00").label_as_time_zone("UTC")
-    # i = Interval.get_any_cwms(lambda i: i.name == "~1Month" and i.is_local_regular)
-    # t.increment(1, i)
-    # l_datetimes = generate_one_expected_data(Interval.get_any_cwms(lambda i: i.name == "~1Month" and i.is_local_regular),HecTime("2025-01-31T00:00:00"),None,20,None,"UTC")
-    # for dt in l_datetimes: print(dt)
-    # generate_datetime_index_expected_data()
-    data = "~1Year/2025-01-01T01:01:00/None/20/datetime.timedelta(days=182, seconds=43200)/US/Pacific-datetime.datetime(2025, 7, 2, 13, 0, tzinfo=zoneinfo.ZoneInfo(key='US/Pacific'))|datetime.datetime(2026, 7, 2, 13, 0, tzinfo=zoneinfo.ZoneInfo(key='US/Pacific'))|datetime.datetime(2027, 7, 2, 13, 0, tzinfo=zoneinfo.ZoneInfo(key='US/Pacific'))|datetime.datetime(2028, 7, 2, 13, 0, tzinfo=zoneinfo.ZoneInfo(key='US/Pacific'))|datetime.datetime(2029, 7, 2, 13, 0, tzinfo=zoneinfo.ZoneInfo(key='US/Pacific'))|datetime.datetime(2030, 7, 2, 13, 0, tzinfo=zoneinfo.ZoneInfo(key='US/Pacific'))|datetime.datetime(2031, 7, 2, 13, 0, tzinfo=zoneinfo.ZoneInfo(key='US/Pacific'))|datetime.datetime(2032, 7, 2, 13, 0, tzinfo=zoneinfo.ZoneInfo(key='US/Pacific'))|datetime.datetime(2033, 7, 2, 13, 0, tzinfo=zoneinfo.ZoneInfo(key='US/Pacific'))|datetime.datetime(2034, 7, 2, 13, 0, tzinfo=zoneinfo.ZoneInfo(key='US/Pacific'))|datetime.datetime(2035, 7, 2, 13, 0, tzinfo=zoneinfo.ZoneInfo(key='US/Pacific'))|datetime.datetime(2036, 7, 2, 13, 0, tzinfo=zoneinfo.ZoneInfo(key='US/Pacific'))|datetime.datetime(2037, 7, 2, 13, 0, tzinfo=zoneinfo.ZoneInfo(key='US/Pacific'))|datetime.datetime(2038, 7, 2, 13, 0, tzinfo=zoneinfo.ZoneInfo(key='US/Pacific'))|datetime.datetime(2039, 7, 2, 13, 0, tzinfo=zoneinfo.ZoneInfo(key='US/Pacific'))|datetime.datetime(2040, 7, 2, 13, 0, tzinfo=zoneinfo.ZoneInfo(key='US/Pacific'))|datetime.datetime(2041, 7, 2, 13, 0, tzinfo=zoneinfo.ZoneInfo(key='US/Pacific'))|datetime.datetime(2042, 7, 2, 13, 0, tzinfo=zoneinfo.ZoneInfo(key='US/Pacific'))|datetime.datetime(2043, 7, 2, 13, 0, tzinfo=zoneinfo.ZoneInfo(key='US/Pacific'))|datetime.datetime(2044, 7, 2, 13, 0, tzinfo=zoneinfo.ZoneInfo(key='US/Pacific'))"
-    key, times_str = data.replace("-datetime", "\tdatetime").split("\t")
-    test_get_datetime_index(key, times_str)

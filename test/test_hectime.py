@@ -895,7 +895,3 @@ def test_string_representation() -> None:
     assert str(ht) == "2024-08-15T00:00:00"
     ht.set("15Aug2024", "24:00:00")
     assert str(ht) == "2024-08-16T00:00:00"
-
-
-if __name__ == "__main__":
-    test_to_from_datetime()
