@@ -1197,17 +1197,39 @@ class DssDataStore(AbstractDataStore):
         """
         Retrieves a data set from the data store.
 
-        Currently only time series data may be retrieved. To retrieve all data for a time series, specifiy `start_time=None` and `end_time=None`
+        Currently only [LocalRatingSet](rating/local_rating_set.html#LocalRatingSet), [PairedData](rating/paired_data.html#PairedData) and [TimeSeires](timeseries.html#TimeSeries) objects cant be retrieved
+        
+        To retrieve all data for a [TimeSeires](timeseries.html#TimeSeries), specifiy `start_time=None` and `end_time=None`
 
         Args:
-            identifier (str): The name of the data set to retrieve:
-                * **TIMESERIES**: A pathname in the dataset. The D part (block start date) is ignored.
-            end_time (Optional[Any], must be passed by name): Specifies the end of the time window to retrieve data. Must be an [`HecTime`](hectime.html#HecTime) object or a valid input to the `HecTime` constructor.
-                Defaults to the end of the data store's time window. If None or not specified and the data store's time window doesn't have an end time, all data on or after the start time will be retrieved.
-            start_time (Optional[Any], must be passed by name): Specifies the start of the time window to retrieve data. Must be an [`HecTime`](hectime.html#HecTime) object or a valid input to the `HecTime` constructor.
-                Defaults to the start of the data store's time window. If None or not specified and the data store's time window doesn't have a start time, all data up to and on the end time will be retrieved.
-            trim (Optional[bool], must be passed by name): Specifies whether to trim missing values from the beginning and end of any regular time series data set retrieved.
-                Defaults to the data store's trim setting.
+            Positional Arguments:<br>
+                * **identifier (str)**: The name of the data set to retrieve:<br>
+                    * **LocalRatingSet:** A valid rating specification identifier. *NOTE: LocalRatingSet objects cannot be retrieved by pathname.*
+                    * **PairedData:** A valid paired-data pathname
+                    * **TimeSeries**: A valid time series pathname. *NOTE: Unlike the Java HEC-DSS library, the D part (block start date) is always ignored.*
+            Keyword Arguments (Optional, must be passed by name):<br>
+                * **LocalRatingSet Identifiers:**<br>
+                    * **effective_time (datetime):** Retrieves a [LocalRatingSet](rating/local_rating_set.html#LocalRatingSet) object with only one rating (at the specified effective_time).
+                        Causes the `method` argument to be ignored, with `"EAGER"` retrieval implied. Used by the library to populate the rating points of individual
+                        [TableRatingSet](rating/table_rating_set.html#TableRatingSet) objects that were previously retrieved with the `"LAZY"` method.
+                    * **method (str):** The method used to retrieve the rating set from the HEC-DSS file. Restricted to `"EAGER"` and `"LAZY"`.
+                        * If `"EAGER"`, a [LocalRatingSet](rating/local_rating_set.html#LocalRatingSet) is retrieved with rating points for all included
+                            [TableRating](rating/table_rating.html#TableRating) objects are retrieved fully populated.
+                        * If `"LAZY"`, a [LocalRatingSet](rating/local_rating_set.html#LocalRatingSet) is retrieved omitting the rating points for all included
+                            [TableRating](rating/table_rating.html#TableRating) objects until they are first needed.
+                * **PairedData Identifiers:**<br>
+                    * **dep_rounding ([UsgsRounder](rounding.html#UsgsRounder)|str):** Rounds all of the dependent parameter values using the specified rounder or rounding spec after retrieval from the HEC-DSS file. 
+                    * **ind_rounding ([UsgsRounder](rounding.html#UsgsRounder)|str):** Rounds all of the independent parameter values using the specified rounder or rounding spec after retrieval from the HEC-DSS file.
+                    * **rounding ([UsgsRounder](rounding.html#UsgsRounder)|str):** Rounds all of the independent and dependent parameter values using the specified rounder or rounding spec after retrieval from the HEC-DSS file.
+                * **TimeSeires Identifiers:**<br>
+                    * **end_time (Any)**: Specifies the end of the time window to retrieve data. Must be an [`HecTime`](hectime.html#HecTime) object or a valid input to the `HecTime` constructor.
+                        Defaults to the end of the data store's time window. If None or not specified and the data store's time window doesn't have an end time, all data on or after the start time will be retrieved.
+                    * **start_time (Any):** Specifies the start of the time window to retrieve data. Must be an [`HecTime`](hectime.html#HecTime) object or a valid input to the `HecTime` constructor.
+                        Defaults to the start of the data store's time window. If None or not specified and the data store's time window doesn't have a start time, all data up to and on the end time will be retrieved.
+                    * **trim (bool):** Specifies whether to trim missing values from the beginning and end of any regular time series data set retrieved.
+                        Defaults to the data store's trim setting.
+
+        Returns (Any): The retrieved [LocalRatingSet](rating/local_rating_set.html#LocalRatingSet), [PairedData](rating/paired_data.html#PairedData) or [TimeSeires](timeseries.html#TimeSeries) object.
         """
         self._assert_open()
         if hec.rating.rating_specification._is_rating_specification(identifier):
@@ -1766,7 +1788,7 @@ class CwmsDataStore(AbstractDataStore):
         return loc
 
     def _retrieve_rating_set(self, identifier: str, **kwargs: Any) -> Any:
-        retrieval_method: RatingSetRetrievalMethod = RatingSetRetrievalMethod.EAGER
+        retrieval_method: RatingSetRetrievalMethod = RatingSetRetrievalMethod.LAZY
         office: Optional[str] = None
         effective_time: Optional[datetime] = None
         for kw in kwargs:
@@ -2345,7 +2367,7 @@ class CwmsDataStore(AbstractDataStore):
         **kwargs: Any,
     ) -> List[str]:
         """
-        Retrieves CWMS identifiers for the specified data type, optionally with extents for specific data types.
+        Retrieves CWMS Identifiers for the specified data type, optionally with extents for specific data types.
 
         Args:
             data_type (str): Must be one of the following (case insensitive):
@@ -2354,7 +2376,7 @@ class CwmsDataStore(AbstractDataStore):
                 * **'RATING_SPECIFICATION'**: specifies cataloging CWMS rating specifications in the database
                 * **'RATING_TEMPLATE'**: specifies cataloging CWMS rating templates in the database
                 * **'TIMESERIES'**: specifies cataloging CWMS time series in the data store
-            pattern (Optional[str], must be passed by name): An extended wildcard pattern to use for matching identifiers. `regex` takes precedence if both are specified. Defaults to None.
+            pattern (Optional[str], must be passed by name): An extended wildcard pattern to use for matching Identifiers. `regex` takes precedence if both are specified. Defaults to None.
                 <table>
                 <pre>
                 <tr><th colspan="2">Pattern Examples</th></tr>
@@ -2370,8 +2392,8 @@ class CwmsDataStore(AbstractDataStore):
                 <tr><td><code>(abc|def)</code></td><td>either "abc" or "def"</td></tr>
                 </pre>
                 </table>
-            regex (Optional[str], must be passed by name): Regular expression to use for matching identifiers. Takes precedence over `pattern` if both are specified. Defaults to None.
-            bounding_office (Optional[str]), must be passed by name, LOCATION and TIMESERIES only): Specifies cataloging only identifiers that are physically located within the boundaries of the specified office.
+            regex (Optional[str], must be passed by name): Regular expression to use for matching Identifiers. Takes precedence over `pattern` if both are specified. Defaults to None.
+            bounding_office (Optional[str]), must be passed by name, LOCATION and TIMESERIES only): Specifies cataloging only Identifiers that are physically located within the boundaries of the specified office.
                 Can be a wildcard pattern. Matching is affected by `case_sensitive`.
             case_sensitive (Optional[bool], must be passed by name): Specifies whether and pattern or regular expression matching is case-sensitive.
             category (Optional[str], must be passed by name, LOCATION only): Specifies cataloging only locations in a location group belonging to the specified catgory(ies). Can be a wildcard pattern.
@@ -2472,7 +2494,7 @@ class CwmsDataStore(AbstractDataStore):
             header (Optional[bool], must be passed by name): Specifies whether to include a header line in the catalog that identifies the fields
             kind (Optional[str], must be passed by name, LOCATION only): Specifies cataloging only locations of the specified location kind. Can be a wildcard pattern.
                 Matching is affected by `case_sensitive`.
-            limit (Optional[int], must be passed by name, LOCATION and TIMESERIES only): The maximum number of identifiers to return. If None, no limit is imposed. Defaults to None.
+            limit (Optional[int], must be passed by name, LOCATION and TIMESERIES only): The maximum number of Identifiers to return. If None, no limit is imposed. Defaults to None.
             office (Optional[str], must be passed by name): The CWMS office to generate the catalog for. Defaults to None, which uses the data store's default office.
             units (Optional[str], must be passed by name, LOCATION and TIMESERIES only): The unit system ("EN" or "SI") to return the elevation values in. Defaults to None.
             vertical_datum (Optional[str], must be passed by name, LOCATION and TIMESERIES only): The vertical datum ("NGVD29", "NAVD88", or "LOCAL") to return the elevation values in. Defaults to None (Native datum).
@@ -2481,7 +2503,7 @@ class CwmsDataStore(AbstractDataStore):
             DataStoreException: if the data store is not open or an invalid `data_type` is specified
 
         Returns:
-            List[str]: The CWMS identifiers that match the specified parameters, up to the specified limit, if any
+            List[str]: The CWMS Identifiers that match the specified parameters, up to the specified limit, if any
         """
 
         def _tz_convert(t: str) -> str:
@@ -3463,11 +3485,11 @@ class CwmsDataStore(AbstractDataStore):
             )
             if len(item_list) == 0:
                 raise DataStoreException(
-                    f"Identifier '{identifier}' did not match any time series identifiers"
+                    f"Identifier '{identifier}' did not match any time series Identifiers"
                 )
             if len(item_list) > 1:
                 raise DataStoreException(
-                    f"Identifier '{identifier}' matched {len(item_list)} time series identifiers"
+                    f"Identifier '{identifier}' matched {len(item_list)} time series Identifiers"
                 )
             return list(map(HecTime, item_list[0].split("\t")[1:]))
         else:
@@ -3661,37 +3683,45 @@ class CwmsDataStore(AbstractDataStore):
 
     def retrieve(self, identifier: str, **kwargs: Any) -> Any:
         """
-        Retrieves a data set from the data store.
+        Retrieves a data set from the CWMS database.
 
-        Currently only locations, rating sets and time series may be retrieved. To retrieve all data for a time series, specifiy `start_time=None` and `end_time=None`
+        Currently only [`Location`](location.html#Location), [`AbstractRatingSet`](rating/abstract_rating_set.html#AbstractRatingSet) [`TimeSeries`](timeseries.html#TimeSeries) objects may be retrieved.
+        
+        To retrieve all data for a [`TimeSeries`](timeseries.html#TimeSeries), specifiy `start_time=None` and `end_time=None`
 
         Args:
-            office (Optional[str], must be passed by name): The CWMS office to retrieve data for. Defaults to None, which uses the data store's default office.
-            identifier (str): The name of the data set to retrieve:
-            Location Arguments:<br>
-                * <b>units (Optional[str], must be passed by name):</b> "EN" or "SI", specifying to retrieve data in English or metric units. Defaults to None, which uses the default unit system for the data store
-                * <b>vertical_datum (Optional[str], must be passed by name):</b> "NGVD29", "NAVD88", or "NATIVE", specifying the vertical datum to retrieve elevation data for. Defaults to None, which uses the data store's default vertical datum
-            Rating Set Arguments:<br>
-                * <b>method (Optional[str], must be passed by name):</b> The method used to retrieve the rating set from the database. Restricted to 'EAGER', 'LAZY', and 'REFERENCE'. Defaults to 'EAGER'.
-                    * If 'REFERENCE',  a [ReferenceRatingSet](rating.html#ReferenceRatingSet) is retrieved, where all values are sent to the database to be rated.
-                    * If 'EAGER', a [LocalRatingSet](rating.html#LocalRatingSet) is retrieved, where all ratings are performed in python code. Rating points for all included TableRating objects are retrieved when the
-                        rating set is retrieved.
-                    * If 'LAZY', a [LocalRatingSet](rating.html#LocalRatingSet) is retrieved, where all ratings are performed in python code. Rating points for all included TableRating objects are retrieved only when the
-                        individual TableRating objects are first used.
-            Time Series Arguments:<br>
-                * <b>start_time (Optional[Any], must be passed by name):</b> Specifies the start of the time window to retrieve data. Must be an [`HecTime`](hectime.html#HecTime) object or a valid input to the `HecTime` constructor.
-                    Defaults to the start of the data store's time window. If None or not specified and the data store's time window doesn't have a start time, the current time minus 24 hours is used
-                * <b>end_time (Optional[Any], must be passed by name):</b> Specifies the end of the time window to retrieve data. Must be an [`HecTime`](hectime.html#HecTime) object or a valid input to the `HecTime` constructor.
-                    Defaults to the end of the data store's time window. If None or not specified and the data store's time window doesn't have an end time, the current time is used
-                * <b>trim (Optional[bool], must be passed by name):</b> Specifies whether to trim missing values from the beginning and end of any regular time series data set retrieved.
-                    Defaults to the data store's trim setting.
-                * <b>units (Optional[str], must be passed by name):</b> "EN" or "SI", specifying to retrieve data in English or metric units. Defaults to None, which uses the default unit system for the data store
-                * <b>version_time (Optional[Any], must be passed by name):</b> Specifies the version date/time of the data to retrieve (time series types only). Must be an [`HecTime`](hectime.html#HecTime) object or a valid input to the `HecTime` constructor.
-                    Defaults to the None, which uses the data store's default vertical datum.
-                * <b>vertical_datum (Optional[str], must be passed by name):</b> "NGVD29", "NAVD88", or "NATIVE", specifying the vertical datum to retrieve elevation data for. Defaults to None, which uses the data store's default vertical datum
+            Positional Arguments:<br>
+                * **identifier (str)**: The name of the data set to retrieve. Must be a valid identifier for one of the retrievable data set types.
+            Keyword Arguments (Optional, must be passed by name):<br>
+                * **All Identifiers:**<br>
+                    * **office (str):** The CWMS office to retrieve data for. Defaults to None, which uses the data store's default office.
+                * **Location Identifiers:**<br>
+                    * **units (str):** `"EN"` or `"SI"`, specifying to retrieve data in English or metric units. Defaults to None, which uses the default unit system for the data store
+                    * **vertical_datum (str):** `"NGVD29"`, `"NAVD88"`, or `"NATIVE"`, specifying the vertical datum to retrieve elevation data for. Defaults to None, which uses the data store's default vertical datum
+                * **Rating Set Identifiers:**<br>
+                    * **effective_time (datetime):** Retrieves a [LocalRatingSet](rating/local_rating_set.html#LocalRatingSet) object with only one rating (at the specified effective_time). Causes the `method` argument
+                        to be ignored, with `"EAGER"` retrieval implied. Used by the library to populate the rating points of individual [TableRating](rating/table_rating.html#TableRating) objects that were previously
+                        retrieved with the `"LAZY"` method.
+                    * **method (str):** The method used to retrieve the rating set from the database. Restricted to `"EAGER"`, `"LAZY"`, and `"REFERENCE"`. Defaults to `"LAZY"`.
+                        * If `"REFERENCE"`,  a [ReferenceRatingSet](rating/reference_rating_set.html#ReferenceRatingSet) is retrieved, where all values are sent to the database to be rated.
+                        * If `"EAGER"`, a [LocalRatingSet](rating/local_rating_set.html#LocalRatingSet) is retrieved, where all ratings are performed in python code. Rating points for all included
+                            [TableRating](rating/table_rating.html#TableRating) objects are retrieved when the rating set is retrieved.
+                        * If `"LAZY"`, a [LocalRatingSet](rating/local_rating_set.html#LocalRatingSet) is retrieved, where all ratings are performed in python code. Rating points for all included
+                            [TableRating](rating/table_rating.html#TableRating) objects are not retrieved until when the individual [TableRating](rating/table_rating.html#TableRating) objects are first used.
+                * **Time Series Identifiers:**<br>
+                    * **start_time (Any):** Specifies the start of the time window to retrieve data. Must be an [`HecTime`](hectime.html#HecTime) object or a valid input to the `HecTime` constructor.
+                        Defaults to the start of the data store's time window. If None or not specified and the data store's time window doesn't have a start time, the current time minus 24 hours is used
+                    * **end_time (Any):** Specifies the end of the time window to retrieve data. Must be an [`HecTime`](hectime.html#HecTime) object or a valid input to the `HecTime` constructor.
+                        Defaults to the end of the data store's time window. If None or not specified and the data store's time window doesn't have an end time, the current time is used
+                    * **trim (bool):** Specifies whether to trim missing values from the beginning and end of any regular time series data set retrieved.
+                        Defaults to the data store's trim setting.
+                    * **units (str):** `"EN"` or `"SI"`, specifying to retrieve data in English or metric units. Defaults to None, which uses the default unit system for the data store
+                    * **version_time (Any)):** Specifies the version date/time of the data to retrieve (time series types only). Must be an [`HecTime`](hectime.html#HecTime) object or a valid input to the `HecTime` constructor.
+                        Defaults to the None, which uses the data store's default vertical datum.
+                    * **vertical_datum (str):** `"NGVD29"`, `"NAVD88"`, or `"NATIVE"`, specifying the vertical datum to retrieve elevation data for. Defaults to None, which uses the data store's default vertical datum
 
         Returns:
-            Any: The [`Location`](location.html#Location) or [`TimeSeries`](timeseries.html#TimeSeries) object
+            Any: The [`Location`](location.html#Location), [`AbstractRatingSet`](rating/abstract_rating_set.html#AbstractRatingSet) [`TimeSeries`](timeseries.html#TimeSeries) object
         """
         self._assert_open()
         if hec.timeseries._is_cwms_tsid(identifier):

@@ -33,6 +33,7 @@
                     <li><a href="hec/parameter.html">parameter</a></li>
                     <li><a href="hec/quality.html">quality</a></li>
                     <li><a href="hec/rating.html">rating</a></li>
+                    <li><a href="hec/rounding.html">rounding</a></li>
                     <li><a href="hec/shared.html">shared</a></li>
                     <li><a href="hec/timeseries.html">timeseries</a></li>
                     <li><a href="hec/timespan.html">timespan</a></li>
@@ -1658,50 +1659,96 @@ hec    </h1>
 
                         <div class="docstring"><p>Module to provide native Python equivalent to HEC Java classes.</p>
 
-<p>Quick links to Constants:</p>
+<p><strong>Quick links to Constants:</strong></p>
 
 <ul>
-<li><a href="#Combine">Combine</a></li>
-<li><a href="#Safety">Safety</a></li>
-<li><a href="#Select">Select</a></li>
-<li><a href="#SelectionState">SelectionState</a></li>
+<li><a href="hec/const.html#Combine">Combine</a></li>
+<li><a href="hec/const.html#Safety">Safety</a></li>
+<li><a href="hec/const.html#Select">Select</a></li>
+<li><a href="hec/const.html#SelectionState">SelectionState</a></li>
 </ul>
 
-<p>Quick links to Classes:</p>
+<p><strong>Quick links to Classes:</strong></p>
 
-<ul>
-<li><a href="#AbstractDataStore">AbstractDataStore</a></li>
-<li><a href="#CwmsDataStore">CwmsDataStore</a></li>
-<li><a href="#DssDataStore">DssDataStore</a></li>
-<li><a href="#Duration">Duration</a></li>
-<li><a href="#ElevParameter">ElevParameter</a></li>
-<li><a href="#HecTime">HecTime</a></li>
-<li><a href="#Interval">Interval</a></li>
-<li><a href="#Location">Location</a></li>
-<li><a href="#Parameter">Parameter</a></li>
-<li><a href="#ParameterType">ParameterType</a></li>
-<li><a href="#Quality">Quality</a></li>
-<li><a href="#TimeSeries">TimeSeries</a></li>
-<li><a href="#TimeSeriesValue">TimeSeriesValue</a></li>
-<li><a href="#TimeSpan">TimeSpan</a></li>
-<li><a href="#UnitQuantity">UnitQuantity</a></li>
-<li><a href="#UsgsRounder">UsgsRounder</a></li>
-</ul>
-
-<p>Quick links to Exceptions:</p>
-
-<ul>
-<li><a href="#DataStoreException">DataStoreException</a></li>
-<li><a href="#DurationException">DurationException</a></li>
-<li><a href="#HecTimeException">HecTimeException</a></li>
-<li><a href="#IntervalException">IntervalException</a></li>
-<li><a href="#LocationException">LocationException</a></li>
-<li><a href="#ParameterException">ParameterException</a></li>
-<li><a href="#ParameterTypeException">ParameterTypeException</a></li>
-<li><a href="#TimeSeriesException">TimeSeriesException</a></li>
-<li><a href="#TimeSpanException">TimeSpanException</a></li>
-<li><a href="#UnitException">UnitException</a></li>
-</ul>
+<table/>
+    <table>
+    <tr style="background-color: #f0f0f0;"><th colspan="3">Time Instances and Periods</th></tr>
+    <tr style="background-color: #f0f0f0;"><th>Class</th><th>Exception</th><th>Description</th></tr>
+    <tr><td><a href="hec/hectime.html#HecTime">HecTime</a></td>
+        <td><a href="hec/hectime.html#HecTimeException">HecTimeException</a></td>
+        <td>Provides time instance-related calculations and manipulations. Mimics <a href="#HecTime">hec.helib.util.HecTime</a> Java class</td>
+    </tr>
+    <tr><td><a href="hec/timespan.html#TimeSpan">TimeSpan</a></td>
+        <td><a href="hec/timespan.html#TimeSpanException">TimeSpanException</a></td>
+        <td>Provides generic time- and calendar-based time span (period) information/operations</td>
+    </tr>
+    <tr><td><a href="hec/interval.html#Interval">Interval</a></td>
+        <td><a href="hec/interval.html#IntervalException">IntervalException</a></td>
+        <td>Provides time series recurrence interval information/operations</td>
+    </tr>
+    <tr><td><a href="hec/duration.html#Duration">Duration</a></td>
+        <td><a href="hec/duration.html#DurationException">DurationException</a></td>
+        <td>Provides time series value duration information/operations</td>
+    </tr>
+    <tr style="background-color: #f0f0f0;"><th colspan="3">Numerical Quantities</th></tr>
+    <tr style="background-color: #f0f0f0;"><th>Class</th><th>Exception</th><th>Description</th></tr>
+    <tr><td><a href="hec/unit.html#UnitQuantity">UnitQuantity</a></td>
+        <td><a href="hec/unit.html#UnitException">UnitException</a></td>
+        <td>Provides value (magnitude+unit) information/operations including unit conversions</td>
+    </tr>
+    <tr><td><a href="hec/quality.html#Quality">Quality</a></td>
+        <td></td>
+        <td>Holds quality assessments for numerical values</td>
+    <tr><td><a href="hec/rounding.html#UsgsRounder">UsgsRounder</a></td>
+        <td></td>
+        <td>Provides rounding operations for numerical values</td>
+    </tr>
+    <tr style="background-color: #f0f0f0;"><th colspan="3">Locations</th></tr>
+    <tr style="background-color: #f0f0f0;"><th>Class</th><th>Exception</th><th>Description</th></tr>
+    <tr><td><a href="hec/location.html#Location">Location</a></td>
+        <td><a href="hec/location.html#LocationException">LocationException</a></td>
+        <td>Holds information about locations</td>
+    </tr>
+    <tr style="background-color: #f0f0f0;"><th colspan="3">Parameters</th></tr>
+    <tr style="background-color: #f0f0f0;"><th>Class</th><th>Exception</th><th>Description</th></tr>
+    <tr><td><a href="hec/parameter.html#Parameter">Parameter</a></td>
+        <td><a href="hec/parameter.html#ParameterException">ParameterException</a></td>
+        <td>Holds information about parameters for time series, ratings, etc...</td>
+    </tr>
+    <tr><td><a href="hec/parameter.html#ElevParameter">ElevParameter</a></td>
+        <td><a href="hec/parameter.html#ParameterException">ParameterException</a></td>
+        <td>Holds information about elevation parameters (including vertical datum information)</td>
+    </tr>
+    <tr><td><a href="hec/parameter.html#ParameterType">ParameterType</a></td>
+        <td><a href="hec/parameter.html#ParameterException">ParameterTypeException</a></td>
+        <td>Holds information about the relation of parameters to durations</td>
+    </tr>
+    <tr style="background-color: #f0f0f0;"><th colspan="3">Time Series</th></tr>
+    <tr style="background-color: #f0f0f0;"><th>Class</th><th>Exception</th><th>Description</th></tr>
+    <tr><td><a href="hec/timeseries.html#TimeSeries">TimeSeries</a></td>
+        <td><a href="hec/timeseries.html#TimeSeriesException">TimeSeriesException</a></td>
+        <td>Holds time series information and provides operations for time series</td>
+    </tr>
+    <tr><td><a href="hec/timeseries.html#TimeSeriesValue">TimeSeriesValue</a></td>
+        <td><a href="hec/timeseries.html#TimeSeriesException">TimeSeriesException</a></td>
+        <td>Holds information and provides operations for single time series values</td>
+    </tr>
+    <tr style="background-color: #f0f0f0;"><th colspan="3">Data Stores</th></tr>
+    <tr style="background-color: #f0f0f0;"><th>Class</th><th>Exception</th><th>Description</th></tr>
+    <tr><td><a href="hec/datastore.html#AbstractDataStore">AbstractDataStore</a></td>
+        <td><a href="hec/datastore.html#DataStoreException">DataStoreException</a></td>
+        <td>Abstract base class for all data store classes</td>
+    </tr>
+    <tr><td><a href="hec/datastore.html#CwmsDataStore">CwmsDataStore</a></td>
+        <td><a href="hec/datastore.html#DataStoreException">DataStoreException</a></td>
+        <td>Provides operations using CWMS databases for cataloging, retrieving, and storing data</td>
+    </tr>
+    <tr><td><a href="hec/datastore.html#DssDataStore">DssDataStore</a></td>
+        <td><a href="hec/datastore.html#DataStoreException">DataStoreException</a></td>
+        <td>Provides operations using HEC-DSS files for cataloging, retrieving, and storing data</td>
+    </tr>
+    <tr style="background-color: #f0f0f0;"><th colspan="3"><a href="hec/rating.html">Rating-related Classes</a></th></tr>
+    </table>
 </div>
 
                 
@@ -2212,7 +2259,7 @@ Defaults to True.</li>
     </div>
     <a class="headerlink" href="#CwmsDataStore.catalog"></a>
     
-            <div class="docstring"><p>Retrieves CWMS identifiers for the specified data type, optionally with extents for specific data types.</p>
+            <div class="docstring"><p>Retrieves CWMS Identifiers for the specified data type, optionally with extents for specific data types.</p>
 
 <h6 id="arguments">Arguments:</h6>
 
@@ -2225,7 +2272,7 @@ Defaults to True.</li>
 <li><strong>'RATING_TEMPLATE'</strong>: specifies cataloging CWMS rating templates in the database</li>
 <li><strong>'TIMESERIES'</strong>: specifies cataloging CWMS time series in the data store</li>
 </ul></li>
-<li><p><strong>pattern (Optional[str], must be passed by name):</strong>  An extended wildcard pattern to use for matching identifiers. <code>regex</code> takes precedence if both are specified. Defaults to None.</p>
+<li><p><strong>pattern (Optional[str], must be passed by name):</strong>  An extended wildcard pattern to use for matching Identifiers. <code>regex</code> takes precedence if both are specified. Defaults to None.</p>
 
 <table>
 <pre>
@@ -2242,8 +2289,8 @@ Defaults to True.</li>
 <tr><td><code>(abc|def)</code></td><td>either "abc" or "def"</td></tr>
 </pre>
 </table></li>
-<li><p><strong>regex (Optional[str], must be passed by name):</strong>  Regular expression to use for matching identifiers. Takes precedence over <code>pattern</code> if both are specified. Defaults to None.</p></li>
-<li><strong>bounding_office (Optional[str]), must be passed by name, LOCATION and TIMESERIES only):</strong>  Specifies cataloging only identifiers that are physically located within the boundaries of the specified office.
+<li><p><strong>regex (Optional[str], must be passed by name):</strong>  Regular expression to use for matching Identifiers. Takes precedence over <code>pattern</code> if both are specified. Defaults to None.</p></li>
+<li><strong>bounding_office (Optional[str]), must be passed by name, LOCATION and TIMESERIES only):</strong>  Specifies cataloging only Identifiers that are physically located within the boundaries of the specified office.
 Can be a wildcard pattern. Matching is affected by <code>case_sensitive</code>.</li>
 <li><strong>case_sensitive (Optional[bool], must be passed by name):</strong>  Specifies whether and pattern or regular expression matching is case-sensitive.</li>
 <li><strong>category (Optional[str], must be passed by name, LOCATION only):</strong>  Specifies cataloging only locations in a location group belonging to the specified catgory(ies). Can be a wildcard pattern.
@@ -2358,7 +2405,7 @@ Matching is affected by <code>case_sensitive</code>. Note that specifying <code>
 <li><strong>header (Optional[bool], must be passed by name):</strong>  Specifies whether to include a header line in the catalog that identifies the fields</li>
 <li><strong>kind (Optional[str], must be passed by name, LOCATION only):</strong>  Specifies cataloging only locations of the specified location kind. Can be a wildcard pattern.
 Matching is affected by <code>case_sensitive</code>.</li>
-<li><strong>limit (Optional[int], must be passed by name, LOCATION and TIMESERIES only):</strong>  The maximum number of identifiers to return. If None, no limit is imposed. Defaults to None.</li>
+<li><strong>limit (Optional[int], must be passed by name, LOCATION and TIMESERIES only):</strong>  The maximum number of Identifiers to return. If None, no limit is imposed. Defaults to None.</li>
 <li><strong>office (Optional[str], must be passed by name):</strong>  The CWMS office to generate the catalog for. Defaults to None, which uses the data store's default office.</li>
 <li><strong>units (Optional[str], must be passed by name, LOCATION and TIMESERIES only):</strong>  The unit system ("EN" or "SI") to return the elevation values in. Defaults to None.</li>
 <li><strong>vertical_datum (Optional[str], must be passed by name, LOCATION and TIMESERIES only):</strong>  The vertical datum ("NGVD29", "NAVD88", or "LOCAL") to return the elevation values in. Defaults to None (Native datum).</li>
@@ -2373,7 +2420,7 @@ Matching is affected by <code>case_sensitive</code>.</li>
 <h6 id="returns">Returns:</h6>
 
 <blockquote>
-  <p>List[str]: The CWMS identifiers that match the specified parameters, up to the specified limit, if any</p>
+  <p>List[str]: The CWMS Identifiers that match the specified parameters, up to the specified limit, if any</p>
 </blockquote>
 </div>
 
@@ -2591,50 +2638,64 @@ Defaults to True.</li>
     </div>
     <a class="headerlink" href="#CwmsDataStore.retrieve"></a>
     
-            <div class="docstring"><p>Retrieves a data set from the data store.</p>
+            <div class="docstring"><p>Retrieves a data set from the CWMS database.</p>
 
-<p>Currently only locations, rating sets and time series may be retrieved. To retrieve all data for a time series, specifiy <code>start_time=None</code> and <code>end_time=None</code></p>
+<p>Currently only <a href="hec/location.html#Location"><code>Location</code></a>, <a href="rating/abstract_rating_set.html#AbstractRatingSet"><code>AbstractRatingSet</code></a> <a href="hec/timeseries.html#TimeSeries"><code>TimeSeries</code></a> objects may be retrieved.</p>
+
+<p>To retrieve all data for a <a href="hec/timeseries.html#TimeSeries"><code>TimeSeries</code></a>, specifiy <code>start_time=None</code> and <code>end_time=None</code></p>
 
 <h6 id="arguments">Arguments:</h6>
 
 <ul>
-<li><strong>office (Optional[str], must be passed by name):</strong>  The CWMS office to retrieve data for. Defaults to None, which uses the data store's default office.</li>
-<li><strong>identifier (str):</strong>  The name of the data set to retrieve:</li>
-<li><strong>Location Arguments:</strong> <br>
+<li><strong>Positional Arguments:</strong> <br>
 <ul>
-<li><b>units (Optional[str], must be passed by name):</b> "EN" or "SI", specifying to retrieve data in English or metric units. Defaults to None, which uses the default unit system for the data store</li>
-<li><b>vertical_datum (Optional[str], must be passed by name):</b> "NGVD29", "NAVD88", or "NATIVE", specifying the vertical datum to retrieve elevation data for. Defaults to None, which uses the data store's default vertical datum</li>
+<li><strong>identifier (str)</strong>: The name of the data set to retrieve. Must be a valid identifier for one of the retrievable data set types.</li>
 </ul></li>
-<li><strong>Rating Set Arguments:</strong> <br>
+<li><strong>Keyword Arguments (Optional, must be passed by name):</strong> <br>
 <ul>
-<li><b>method (Optional[str], must be passed by name):</b> The method used to retrieve the rating set from the database. Restricted to 'EAGER', 'LAZY', and 'REFERENCE'. Defaults to 'EAGER'.
+<li><strong>All Identifiers:</strong><br>
 <ul>
-<li>If 'REFERENCE',  a <a href="rating.html#ReferenceRatingSet">ReferenceRatingSet</a> is retrieved, where all values are sent to the database to be rated.</li>
-<li>If 'EAGER', a <a href="rating.html#LocalRatingSet">LocalRatingSet</a> is retrieved, where all ratings are performed in python code. Rating points for all included TableRating objects are retrieved when the
-rating set is retrieved.</li>
-<li>If 'LAZY', a <a href="rating.html#LocalRatingSet">LocalRatingSet</a> is retrieved, where all ratings are performed in python code. Rating points for all included TableRating objects are retrieved only when the
-individual TableRating objects are first used.</li>
+<li><strong>office (str):</strong> The CWMS office to retrieve data for. Defaults to None, which uses the data store's default office.</li>
+</ul></li>
+<li><strong>Location Identifiers:</strong><br>
+<ul>
+<li><strong>units (str):</strong> <code>"EN"</code> or <code>"SI"</code>, specifying to retrieve data in English or metric units. Defaults to None, which uses the default unit system for the data store</li>
+<li><strong>vertical_datum (str):</strong> <code>"NGVD29"</code>, <code>"NAVD88"</code>, or <code>"NATIVE"</code>, specifying the vertical datum to retrieve elevation data for. Defaults to None, which uses the data store's default vertical datum</li>
+</ul></li>
+<li><strong>Rating Set Identifiers:</strong><br>
+<ul>
+<li><strong>effective_time (datetime):</strong> Retrieves a <a href="rating/local_rating_set.html#LocalRatingSet">LocalRatingSet</a> object with only one rating (at the specified effective_time). Causes the <code>method</code> argument
+to be ignored, with <code>"EAGER"</code> retrieval implied. Used by the library to populate the rating points of individual <a href="rating/table_rating.html#TableRating">TableRating</a> objects that were previously
+retrieved with the <code>"LAZY"</code> method.</li>
+<li><strong>method (str):</strong> The method used to retrieve the rating set from the database. Restricted to <code>"EAGER"</code>, <code>"LAZY"</code>, and <code>"REFERENCE"</code>. Defaults to <code>"LAZY"</code>.
+<ul>
+<li>If <code>"REFERENCE"</code>,  a <a href="rating/reference_rating_set.html#ReferenceRatingSet">ReferenceRatingSet</a> is retrieved, where all values are sent to the database to be rated.</li>
+<li>If <code>"EAGER"</code>, a <a href="rating/local_rating_set.html#LocalRatingSet">LocalRatingSet</a> is retrieved, where all ratings are performed in python code. Rating points for all included
+<a href="rating/table_rating.html#TableRating">TableRating</a> objects are retrieved when the rating set is retrieved.</li>
+<li>If <code>"LAZY"</code>, a <a href="rating/local_rating_set.html#LocalRatingSet">LocalRatingSet</a> is retrieved, where all ratings are performed in python code. Rating points for all included
+<a href="rating/table_rating.html#TableRating">TableRating</a> objects are not retrieved until when the individual <a href="rating/table_rating.html#TableRating">TableRating</a> objects are first used.</li>
 </ul></li>
 </ul></li>
-<li><strong>Time Series Arguments:</strong> <br>
+<li><strong>Time Series Identifiers:</strong><br>
 <ul>
-<li><b>start_time (Optional[Any], must be passed by name):</b> Specifies the start of the time window to retrieve data. Must be an <a href="hec/hectime.html#HecTime"><code>HecTime</code></a> object or a valid input to the <code><a href="#HecTime">HecTime</a></code> constructor.
+<li><strong>start_time (Any):</strong> Specifies the start of the time window to retrieve data. Must be an <a href="hec/hectime.html#HecTime"><code>HecTime</code></a> object or a valid input to the <code><a href="#HecTime">HecTime</a></code> constructor.
 Defaults to the start of the data store's time window. If None or not specified and the data store's time window doesn't have a start time, the current time minus 24 hours is used</li>
-<li><b>end_time (Optional[Any], must be passed by name):</b> Specifies the end of the time window to retrieve data. Must be an <a href="hec/hectime.html#HecTime"><code>HecTime</code></a> object or a valid input to the <code><a href="#HecTime">HecTime</a></code> constructor.
+<li><strong>end_time (Any):</strong> Specifies the end of the time window to retrieve data. Must be an <a href="hec/hectime.html#HecTime"><code>HecTime</code></a> object or a valid input to the <code><a href="#HecTime">HecTime</a></code> constructor.
 Defaults to the end of the data store's time window. If None or not specified and the data store's time window doesn't have an end time, the current time is used</li>
-<li><b>trim (Optional[bool], must be passed by name):</b> Specifies whether to trim missing values from the beginning and end of any regular time series data set retrieved.
+<li><strong>trim (bool):</strong> Specifies whether to trim missing values from the beginning and end of any regular time series data set retrieved.
 Defaults to the data store's trim setting.</li>
-<li><b>units (Optional[str], must be passed by name):</b> "EN" or "SI", specifying to retrieve data in English or metric units. Defaults to None, which uses the default unit system for the data store</li>
-<li><b>version_time (Optional[Any], must be passed by name):</b> Specifies the version date/time of the data to retrieve (time series types only). Must be an <a href="hec/hectime.html#HecTime"><code>HecTime</code></a> object or a valid input to the <code><a href="#HecTime">HecTime</a></code> constructor.
+<li><strong>units (str):</strong> <code>"EN"</code> or <code>"SI"</code>, specifying to retrieve data in English or metric units. Defaults to None, which uses the default unit system for the data store</li>
+<li><strong>version_time (Any)):</strong> Specifies the version date/time of the data to retrieve (time series types only). Must be an <a href="hec/hectime.html#HecTime"><code>HecTime</code></a> object or a valid input to the <code><a href="#HecTime">HecTime</a></code> constructor.
 Defaults to the None, which uses the data store's default vertical datum.</li>
-<li><b>vertical_datum (Optional[str], must be passed by name):</b> "NGVD29", "NAVD88", or "NATIVE", specifying the vertical datum to retrieve elevation data for. Defaults to None, which uses the data store's default vertical datum</li>
+<li><strong>vertical_datum (str):</strong> <code>"NGVD29"</code>, <code>"NAVD88"</code>, or <code>"NATIVE"</code>, specifying the vertical datum to retrieve elevation data for. Defaults to None, which uses the data store's default vertical datum</li>
+</ul></li>
 </ul></li>
 </ul>
 
 <h6 id="returns">Returns:</h6>
 
 <blockquote>
-  <p>Any: The <a href="hec/location.html#Location"><code>Location</code></a> or <a href="hec/timeseries.html#TimeSeries"><code>TimeSeries</code></a> object</p>
+  <p>Any: The <a href="hec/location.html#Location"><code>Location</code></a>, <a href="rating/abstract_rating_set.html#AbstractRatingSet"><code>AbstractRatingSet</code></a> <a href="hec/timeseries.html#TimeSeries"><code>TimeSeries</code></a> object</p>
 </blockquote>
 </div>
 
@@ -2831,7 +2892,7 @@ Defaults to the None, which uses the data store's default vertical datum.</li>
     
             <div class="docstring"><p>Class to facilitate cataloging, storing, retrieving, and deleting data in HEC-DSS files.</p>
 
-<p>Requires installation of the 'hecdss' package &gt;= '0.1.24'.</p>
+<p>Requires installation of the 'hecdss' package &gt;= '0.1.26'.</p>
 </div>
 
 
@@ -3111,22 +3172,56 @@ Defaults to True.</li>
     
             <div class="docstring"><p>Retrieves a data set from the data store.</p>
 
-<p>Currently only time series data may be retrieved. To retrieve all data for a time series, specifiy <code>start_time=None</code> and <code>end_time=None</code></p>
+<p>Currently only <a href="rating/local_rating_set.html#LocalRatingSet">LocalRatingSet</a>, <a href="rating/paired_data.html#PairedData">PairedData</a> and <a href="hec/timeseries.html#TimeSeries">TimeSeires</a> objects cant be retrieved</p>
+
+<p>To retrieve all data for a <a href="hec/timeseries.html#TimeSeries">TimeSeires</a>, specifiy <code>start_time=None</code> and <code>end_time=None</code></p>
 
 <h6 id="arguments">Arguments:</h6>
 
 <ul>
-<li><strong>identifier (str):</strong>  The name of the data set to retrieve:
+<li><strong>Positional Arguments:</strong> <br>
 <ul>
-<li><strong>TIMESERIES</strong>: A pathname in the dataset. The D part (block start date) is ignored.</li>
+<li><strong>identifier (str)</strong>: The name of the data set to retrieve:<br>
+<ul>
+<li><strong>LocalRatingSet:</strong> A valid rating specification identifier. <em>NOTE: LocalRatingSet objects cannot be retrieved by pathname.</em></li>
+<li><strong>PairedData:</strong> A valid paired-data pathname</li>
+<li><strong>TimeSeries</strong>: A valid time series pathname. <em>NOTE: Unlike the Java HEC-DSS library, the D part (block start date) is always ignored.</em></li>
 </ul></li>
-<li><strong>end_time (Optional[Any], must be passed by name):</strong>  Specifies the end of the time window to retrieve data. Must be an <a href="hec/hectime.html#HecTime"><code>HecTime</code></a> object or a valid input to the <code><a href="#HecTime">HecTime</a></code> constructor.
+</ul></li>
+<li><strong>Keyword Arguments (Optional, must be passed by name):</strong> <br>
+<ul>
+<li><strong>LocalRatingSet Identifiers:</strong><br>
+<ul>
+<li><strong>effective_time (datetime):</strong> Retrieves a <a href="rating/local_rating_set.html#LocalRatingSet">LocalRatingSet</a> object with only one rating (at the specified effective_time).
+Causes the <code>method</code> argument to be ignored, with <code>"EAGER"</code> retrieval implied. Used by the library to populate the rating points of individual
+<a href="rating/table_rating_set.html#TableRatingSet">TableRatingSet</a> objects that were previously retrieved with the <code>"LAZY"</code> method.</li>
+<li><strong>method (str):</strong> The method used to retrieve the rating set from the HEC-DSS file. Restricted to <code>"EAGER"</code> and <code>"LAZY"</code>.
+<ul>
+<li>If <code>"EAGER"</code>, a <a href="rating/local_rating_set.html#LocalRatingSet">LocalRatingSet</a> is retrieved with rating points for all included
+<a href="rating/table_rating.html#TableRating">TableRating</a> objects are retrieved fully populated.</li>
+<li>If <code>"LAZY"</code>, a <a href="rating/local_rating_set.html#LocalRatingSet">LocalRatingSet</a> is retrieved omitting the rating points for all included
+<a href="rating/table_rating.html#TableRating">TableRating</a> objects until they are first needed.</li>
+</ul></li>
+</ul></li>
+<li><strong>PairedData Identifiers:</strong><br>
+<ul>
+<li><strong>dep_rounding (<a href="rounding.html#UsgsRounder">UsgsRounder</a>|str):</strong> Rounds all of the dependent parameter values using the specified rounder or rounding spec after retrieval from the HEC-DSS file. </li>
+<li><strong>ind_rounding (<a href="rounding.html#UsgsRounder">UsgsRounder</a>|str):</strong> Rounds all of the independent parameter values using the specified rounder or rounding spec after retrieval from the HEC-DSS file.</li>
+<li><strong>rounding (<a href="rounding.html#UsgsRounder">UsgsRounder</a>|str):</strong> Rounds all of the independent and dependent parameter values using the specified rounder or rounding spec after retrieval from the HEC-DSS file.</li>
+</ul></li>
+<li><strong>TimeSeires Identifiers:</strong><br>
+<ul>
+<li><strong>end_time (Any)</strong>: Specifies the end of the time window to retrieve data. Must be an <a href="hec/hectime.html#HecTime"><code>HecTime</code></a> object or a valid input to the <code><a href="#HecTime">HecTime</a></code> constructor.
 Defaults to the end of the data store's time window. If None or not specified and the data store's time window doesn't have an end time, all data on or after the start time will be retrieved.</li>
-<li><strong>start_time (Optional[Any], must be passed by name):</strong>  Specifies the start of the time window to retrieve data. Must be an <a href="hec/hectime.html#HecTime"><code>HecTime</code></a> object or a valid input to the <code><a href="#HecTime">HecTime</a></code> constructor.
+<li><strong>start_time (Any):</strong> Specifies the start of the time window to retrieve data. Must be an <a href="hec/hectime.html#HecTime"><code>HecTime</code></a> object or a valid input to the <code><a href="#HecTime">HecTime</a></code> constructor.
 Defaults to the start of the data store's time window. If None or not specified and the data store's time window doesn't have a start time, all data up to and on the end time will be retrieved.</li>
-<li><strong>trim (Optional[bool], must be passed by name):</strong>  Specifies whether to trim missing values from the beginning and end of any regular time series data set retrieved.
+<li><strong>trim (bool):</strong> Specifies whether to trim missing values from the beginning and end of any regular time series data set retrieved.
 Defaults to the data store's trim setting.</li>
+</ul></li>
+</ul></li>
 </ul>
+
+<p>Returns (Any): The retrieved <a href="rating/local_rating_set.html#LocalRatingSet">LocalRatingSet</a>, <a href="rating/paired_data.html#PairedData">PairedData</a> or <a href="hec/timeseries.html#TimeSeries">TimeSeires</a> object.</p>
 </div>
 
 

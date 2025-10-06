@@ -8,10 +8,13 @@ from enum import Enum
 dss_imported = False
 cwms_imported = False
 required_cwms_version = ">= '0.8.2'"
-required_dss_version = ">= '0.1.24'"
+required_dss_version = ">= '0.1.26'"
 
 
 class RatingSetRetrievalMethod(Enum):
+    """
+    Specifies method of retrieval of [AbstractRatingSet](rating/abstract_rating_set.html#AbstractRatingSet) from data stores.
+    """
     EAGER = (1, "Retrieve all TableRating values when rating set is retrieved")
     LAZY = (2, "Retrieve TableRating values only when first needed")
     REFERENCE = (
