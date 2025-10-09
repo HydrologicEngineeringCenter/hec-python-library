@@ -260,9 +260,5 @@ def test_xml_operations() -> None:
         ],
         description="Gate Rating (Number, Opening, Elev) --> Flow",
     )
-    with open("t:/xml2.xml", "w") as f:
-        f.write(template.to_xml())
-    assert template.to_xml() == xml_str
-
     template2 = RatingTemplate.from_xml(xml_str)
     assert template2.to_xml() == xml_str

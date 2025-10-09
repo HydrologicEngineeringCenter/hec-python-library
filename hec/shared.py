@@ -15,6 +15,7 @@ class RatingSetRetrievalMethod(Enum):
     """
     Specifies method of retrieval of [AbstractRatingSet](rating/abstract_rating_set.html#AbstractRatingSet) from data stores.
     """
+
     EAGER = (1, "Retrieve all TableRating values when rating set is retrieved")
     LAZY = (2, "Retrieve TableRating values only when first needed")
     REFERENCE = (

@@ -47,7 +47,7 @@ __all__ = [
 ]
 
 
-A, B, D, D, E, F = 1, 2, 3, 4, 5, 6
+A, B, C, D, E, F = 1, 2, 3, 4, 5, 6
 
 hecdss: ModuleType
 cwms: ModuleType
@@ -113,10 +113,13 @@ class _DssDataType(Enum):
     GRID = 2
     LOCATION = 3
     PAIRED_DATA = 4
-    TEXT = 5
-    TIMESERIES = 6
-    TIMESERIES_PROFILE = 7
-    TIN = 8
+    RATING = 5
+    RATING_SPECIFICATION = 6
+    RATING_TEMPLATE = 7
+    TEXT = 8
+    TIMESERIES = 9
+    TIMESERIES_PROFILE = 10
+    TIN = 11
 
 
 class StoreRule(Enum):
@@ -188,6 +191,24 @@ _valid_catalog_kwargs: dict[str, dict[str, list[str]]] = {
         ],
     },
     DSS: {
+        _DssDataType.RATING.name: [
+            "case_sensitive",
+            "office",
+            "pattern",
+            "regex",
+        ],
+        _DssDataType.RATING_SPECIFICATION.name: [
+            "case_sensitive",
+            "office",
+            "pattern",
+            "regex",
+        ],
+        _DssDataType.RATING_TEMPLATE.name: [
+            "case_sensitive",
+            "office",
+            "pattern",
+            "regex",
+        ],
         _DssDataType.TIMESERIES.name: [
             "case_sensitive",
             "condensed",
@@ -283,6 +304,28 @@ _valid_catalog_fields: dict[str, dict[str, list[str]]] = {
         ],
     },
     DSS: {
+        _DssDataType.RATING.name: [
+            "name",
+            "identifier",
+            "office",
+            "location",
+            "effective-date",
+            "specification-ersion",
+            "template-version",
+        ],
+        _DssDataType.RATING_SPECIFICATION.name: [
+            "name",
+            "identifier",
+            "office",
+            "location",
+            "version",
+        ],
+        _DssDataType.RATING_TEMPLATE.name: [
+            "name",
+            "identifier",
+            "office",
+            "version",
+        ],
         _DssDataType.TIMESERIES.name: [],
     },
 }
@@ -816,7 +859,10 @@ class DssDataStore(AbstractDataStore):
                     raise TypeError(
                         f"Expected str for method, got {argval.__class__.__name__}"
                     )
-                if argval not in (RatingSetRetrievalMethod.EAGER.name, RatingSetRetrievalMethod.LAZY.name):
+                if argval not in (
+                    RatingSetRetrievalMethod.EAGER.name,
+                    RatingSetRetrievalMethod.LAZY.name,
+                ):
                     raise ValueError(
                         f"Value for method must be one of ({RatingSetRetrievalMethod.EAGER.name}, {RatingSetRetrievalMethod.LAZY.name}, got {argval})"
                     )
@@ -845,8 +891,12 @@ class DssDataStore(AbstractDataStore):
             # --------------------------------------------- #
             # we are lazy loading a specific effective time #
             # --------------------------------------------- #
-            effective_time_str = effective_time.astimezone(ZoneInfo("UTC")).isoformat()[:19] + "Z"
-            rating_pathnames = [spec_pathname.replace("Specification", f"Points-{effective_time_str}")]
+            effective_time_str = (
+                effective_time.astimezone(ZoneInfo("UTC")).isoformat()[:19] + "Z"
+            )
+            rating_pathnames = [
+                spec_pathname.replace("Specification", f"Points-{effective_time_str}")
+            ]
         else:
             # -------------------------------------------------------------- #
             # we are loading all effective times using EAGER or LAZY loading #
@@ -855,7 +905,7 @@ class DssDataStore(AbstractDataStore):
                 "ARRAY",
                 pattern=spec_pathname.replace("Specification", "(Body|Points)-*"),
             )
-            pathnames_by_time = {}
+            pathnames_by_time: dict[str, list[str]] = {}
             for p in sorted(pathnames):
                 time = p.split("/")[4].split("-", 2)[2]
                 pathnames_by_time.setdefault(time, []).append(p)
@@ -863,10 +913,14 @@ class DssDataStore(AbstractDataStore):
             # for eager loading use index -1
             # for lazy loading use index 0
             if eager_loading:
-                rating_pathnames = [pathnames_by_time[t][-1] for t in sorted(pathnames_by_time)]
+                rating_pathnames = [
+                    pathnames_by_time[t][-1] for t in sorted(pathnames_by_time)
+                ]
             else:
                 need_data_store = True
-                rating_pathnames = [pathnames_by_time[t][0] for t in sorted(pathnames_by_time)]
+                rating_pathnames = [
+                    pathnames_by_time[t][0] for t in sorted(pathnames_by_time)
+                ]
         # ------------------------------------------ #
         # build an xml instance from the record data #
         # ------------------------------------------ #
@@ -882,7 +936,9 @@ class DssDataStore(AbstractDataStore):
         # ------------------------------------ #
         # generate the rating set from the xml #
         # ------------------------------------ #
-        return hec.rating.LocalRatingSet.from_xml(xml, datastore=self if need_data_store else None)
+        return hec.rating.LocalRatingSet.from_xml(
+            xml, datastore=self if need_data_store else None
+        )
 
     def catalog(
         self,
@@ -890,23 +946,49 @@ class DssDataStore(AbstractDataStore):
         **kwargs: Any,
     ) -> List[str]:
         """
-        Retrieves pathnames that match specified conditions
+        Retrieves pathnames that match specified conditions.
+
+        If data_type is `"RATING"`, `"RATING-SPECIFICATION"`, or `"RATING-TEMPLATE"`, CWMS-style identifiers are returned instead of pathnames
+        unless the `pathnames` parameter is specifed as `True`. (See <a href="#rating_note">Note on use with rating objects</a>)
 
         Args:
             data_type (Optional[str]): The type of data to retrieve pathnames for. Defaults to None, which specifies all data types.
                 If specified, must be one of (case insensitive):
-                * 'ARRAY'
-                * 'GRID'
-                * 'LOCATION'
-                * 'PAIRED_DATA'
-                * 'TEXT'
-                * 'TIMESERIES'
-                * 'TIMESERIES_PROFILE'
-                * 'TIN'
-            pattern (Optional[str], must be passed by name): Wildcard pattern (using `*` and `?`) to use for matching pathnames. `regex` takes precedence if both are specified. Defaults to None.
-            regex (Optional[str], must be passed by name): Regular expression to use for matching pathnames. Takes precedence over `pattern` if both are specified. Defaults to None.
-            case_sensitive (Optional[bool], must be passed by name): Specifies whether `pattern` or `regex` matching is case-sensitive.
+                * **'ARRAY'**
+                * **'GRID'**
+                * **'LOCATION'**
+                * **'PAIRED_DATA'**
+                * **'RATING'**
+                * **'RATING_SPECIFICATION'**
+                * **'RATING_TEMPLATE'**
+                * **'TEXT'**
+                * **'TIMESERIES'**
+                * **'TIMESERIES_PROFILE'**
+                * **'TIN'**
+            pattern (Optional[str], must be passed by name): Wildcard pattern (using `*` and `?`) to use for matching pathnames. `regex` takes precedence if both are specified. Defaults to None (all pathnames are returned).
+
+                If data_type is `"RATING"`, `"RATING-SPECIFICATION"`, or `"RATING-TEMPLATE"`, the pattern matches the CWMS-style identifiers instead of pathnames.
+                <table>
+                <pre>
+                <tr><th colspan="2">Pattern Examples</th></tr>
+                <tr><th>pattern</th><th>matches</th></tr>
+                <tr><td><code>abc</code></td><td>the literal string "abc"</td></tr>
+                <tr><td><code>ab{2,3}c{2}</code></td><td>1 "a" followed by 2 or 3 "b" followed by 2 "c"</td></tr>
+                <tr><td><code>a*b?c</code></td><td>1 "a" followed by zero or more characters followed by "b" followed by 1 character followed by 1 "c"</td></tr>
+                <tr><td><code>[abc]</code></td><td>1 "a" or "b" or "c"</td></tr>
+                <tr><td><code>^[abc]$</code></td><td>beginning of string followed by 1 "a" or "b" or "c" followed by end of string</td></tr>
+                <tr><td><code>[!abc]</code></td><td>1 character other than "a" or "b" or "c"</td></tr>
+                <tr><td><code>[_a-z0-9]*</code></td><td>zero or more of characters "_" or "a" through "z" or "0" through "9"</td></tr>
+                <tr><td><code style="white-space: nowrap;">[!a-z0-9]{1,5}</code></td><td>1..5 characters other than "a" through "z" or "0" through "9"</td></tr>
+                <tr><td><code>(abc|def)</code></td><td>either "abc" or "def"</td></tr>
+                </pre>
+                </table>
+            regex (Optional[str], must be passed by name): Regular expression to use for matching pathnames. Takes precedence over `pattern` if both are specified. Defaults to None (all pathnames are retuned).
+                If data_type is `"RATING"`, `"RATING-SPECIFICATION"`, or `"RATING-TEMPLATE"`, the regex matches the CWMS-style identifiers instead of pathnames.
+            case_sensitive (Optional[bool], must be passed by name): Specifies whether `pattern` or `regex` matching is case-sensitive. Defaults to False.
             condensed (Optional[bool], must be passed by name): Specifies whether to return a condensed catalog (D-part = time range for time series). Defaults to True
+            office (Optional[str], must be passed by name): Specifies the office if `data_type` is `"RATING"`, `"RATING-SPECIFICATION"`, or `"RATING-TEMPLATE"`. Defaults to None (all offices are matched).
+            pathnames (Optional[bool]), must be passed by name: Specifies whether to return pathnames instead of identifiers if `data_type` is `"RATING"`, `"RATING-SPECIFICATION"`, or `"RATING-TEMPLATE"`. Defaults to False.
 
         Raises:
             DataStoreException: if the data store is not open or an invalid `data_type` is specified
@@ -917,7 +999,16 @@ class DssDataStore(AbstractDataStore):
         self._assert_open()
         case_sensitive: Optional[bool] = False
         condensed: Optional[bool] = True
+        office: Optional[str] = None
+        return_pathnames: Optional[bool] = False
         _regex: Optional[str] = None
+        _data_type: Optional[_DssDataType] = None
+        if data_type:
+            if data_type.upper() not in _DssDataType.__members__:
+                raise DataStoreException(
+                    f"Invalid data type: '{data_type}', must be one of {list(_DssDataType.__members__)}"
+                )
+            _data_type = _DssDataType[data_type.upper()]
         if kwargs:
             # ------- #
             # pattern #
@@ -963,13 +1054,78 @@ class DssDataStore(AbstractDataStore):
                     raise TypeError(
                         f"Expected str or bool for 'condensed', got {argval.__class__.__name__}"
                     )
-        _data_type: Optional[_DssDataType] = None
-        if data_type:
-            if data_type.upper() not in _DssDataType.__members__:
-                raise DataStoreException(
-                    f"Invalid data type: '{data_type}', must be one of {list(_DssDataType.__members__)}"
-                )
-            _data_type = _DssDataType[data_type.upper()]
+            # ------ #
+            # office #
+            # ------ #
+            if "office" in kwargs:
+                argval = kwargs["office"]
+                if isinstance(argval, str):
+                    office = argval.upper()
+                elif argval is None:
+                    pass
+                else:
+                    raise TypeError(
+                        f"Expected str for 'office', got {argval.__class__.__name__}"
+                    )
+            # --------- #
+            # pathnames #
+            # --------- #
+            if "pathnames" in kwargs:
+                argval = kwargs["pathnames"]
+                if isinstance(argval, bool):
+                    return_pathnames = argval
+                else:
+                    raise TypeError(
+                        f"Expected str or bool for 'pathnames', got {argval.__class__.__name__}"
+                    )
+        if _data_type in (
+            _DssDataType.RATING,
+            _DssDataType.RATING_SPECIFICATION,
+            _DssDataType.RATING_TEMPLATE,
+        ):
+            # --------------------------------------------------- #
+            # regex matches CWMS-style identifiers, not pathnames #
+            # --------------------------------------------------- #
+            pat = re.compile(_regex, 0 if case_sensitive else re.I) if _regex else None
+            pathnames = cast(list[str], self._hecdss._native.hec_dss_catalog()[0])
+            catalog = []
+            ratings_catalog_set = set()
+            for p in pathnames:
+                parts = p.split("/")
+                if not parts[D].startswith("Rating-"):
+                    continue
+                if office and parts[A].upper() != office:
+                    continue
+                if (
+                    _data_type == _DssDataType.RATING_TEMPLATE
+                    and parts[D] == "Rating-Template"
+                ):
+                    identifier = f"{parts[C]}.{parts[E]}"
+                    if pat and not pat.match(identifier):
+                        continue
+                    catalog.append(p if return_pathnames else identifier)
+                elif (
+                    _data_type == _DssDataType.RATING_SPECIFICATION
+                    and parts[D] == "Rating-Specification"
+                ):
+                    identifier = f"{parts[B]}.{parts[C]}.{parts[E]}.{parts[F]}"
+                    if pat and not pat.match(identifier):
+                        continue
+                    catalog.append(p if return_pathnames else identifier)
+                elif _data_type == _DssDataType.RATING and parts[D].startswith(
+                    "Rating-Body-"
+                ):
+                    identifier = f"{parts[B]}.{parts[C]}.{parts[E]}.{parts[F]}"
+                    if pat and not pat.match(identifier):
+                        continue
+                    if return_pathnames:
+                        catalog.append(p)
+                    else:
+                        if identifier in ratings_catalog_set:
+                            continue
+                        catalog.append(identifier)
+                        ratings_catalog_set.add(identifier)
+            return catalog
         if condensed:
             pathnames = list(map(str, self._hecdss.get_catalog()))
         else:
@@ -1031,9 +1187,9 @@ class DssDataStore(AbstractDataStore):
             identifier (str): The name of the data set to delete:
                 * **TIMESERIES**: A pathname in the dataset. The D part (block start date) is ignored.
             end_time (Optional[Any], must be passed by name): Specifies the end of the time window to delete data. Must be an [`HecTime`](hectime.html#HecTime) object or a valid input to the `HecTime` constructor.
-                Defaults to the end of the data store's time window. If None or not specified and the data store's time window doesn't have an end time, all data on or after the start time will be deleted.
+                Defaults to the end of the data store's time window. If `None` or not specified and the data store's time window doesn't have an end time, all data on or after the start time will be deleted.
             start_time (Optional[Any], must be passed by name): Specifies the start of the time window to delete data. Must be an [`HecTime`](hectime.html#HecTime) object or a valid input to the `HecTime` constructor.
-                Defaults to the start of the data store's time window. If None or not specified and the data store's time window doesn't have a start time, all data up to and on the end time will be deleted.
+                Defaults to the start of the data store's time window. If `None` or not specified and the data store's time window doesn't have a start time, all data up to and on the end time will be deleted.
         """
         self._assert_open()
         if TimeSeries.is_dss_ts_pathname(identifier):
@@ -1197,16 +1353,18 @@ class DssDataStore(AbstractDataStore):
         """
         Retrieves a data set from the data store.
 
-        Currently only [LocalRatingSet](rating/local_rating_set.html#LocalRatingSet), [PairedData](rating/paired_data.html#PairedData) and [TimeSeires](timeseries.html#TimeSeries) objects cant be retrieved
-        
+        Currently only [LocalRatingSet](rating/local_rating_set.html#LocalRatingSet), [PairedData](rating/paired_data.html#PairedData) and [TimeSeires](timeseries.html#TimeSeries) objects can be retrieved.
+        (See <a href="#rating_note">Note on use with rating objects</a>)
+
         To retrieve all data for a [TimeSeires](timeseries.html#TimeSeries), specifiy `start_time=None` and `end_time=None`
 
         Args:
             Positional Arguments:<br>
                 * **identifier (str)**: The name of the data set to retrieve:<br>
-                    * **LocalRatingSet:** A valid rating specification identifier. *NOTE: LocalRatingSet objects cannot be retrieved by pathname.*
+                    * **LocalRatingSet:** A valid rating specification identifier. ***NOTE:** LocalRatingSet objects cannot be retrieved by pathname.*
                     * **PairedData:** A valid paired-data pathname
-                    * **TimeSeries**: A valid time series pathname. *NOTE: Unlike the Java HEC-DSS library, the D part (block start date) is always ignored.*
+                    * **TimeSeries**: A valid time series pathname. ***NOTE:** Unlike the Java HEC-DSS library, the D part (block start date) is always ignored.
+                        Set the datastore time window or use `start_time` and `end_time` keyword arguments to retrieve data for a time window.*
             Keyword Arguments (Optional, must be passed by name):<br>
                 * **LocalRatingSet Identifiers:**<br>
                     * **effective_time (datetime):** Retrieves a [LocalRatingSet](rating/local_rating_set.html#LocalRatingSet) object with only one rating (at the specified effective_time).
@@ -1218,14 +1376,14 @@ class DssDataStore(AbstractDataStore):
                         * If `"LAZY"`, a [LocalRatingSet](rating/local_rating_set.html#LocalRatingSet) is retrieved omitting the rating points for all included
                             [TableRating](rating/table_rating.html#TableRating) objects until they are first needed.
                 * **PairedData Identifiers:**<br>
-                    * **dep_rounding ([UsgsRounder](rounding.html#UsgsRounder)|str):** Rounds all of the dependent parameter values using the specified rounder or rounding spec after retrieval from the HEC-DSS file. 
+                    * **dep_rounding ([UsgsRounder](rounding.html#UsgsRounder)|str):** Rounds all of the dependent parameter values using the specified rounder or rounding spec after retrieval from the HEC-DSS file.
                     * **ind_rounding ([UsgsRounder](rounding.html#UsgsRounder)|str):** Rounds all of the independent parameter values using the specified rounder or rounding spec after retrieval from the HEC-DSS file.
                     * **rounding ([UsgsRounder](rounding.html#UsgsRounder)|str):** Rounds all of the independent and dependent parameter values using the specified rounder or rounding spec after retrieval from the HEC-DSS file.
                 * **TimeSeires Identifiers:**<br>
                     * **end_time (Any)**: Specifies the end of the time window to retrieve data. Must be an [`HecTime`](hectime.html#HecTime) object or a valid input to the `HecTime` constructor.
-                        Defaults to the end of the data store's time window. If None or not specified and the data store's time window doesn't have an end time, all data on or after the start time will be retrieved.
+                        Defaults to the end of the data store's time window. If `None` or not specified and the data store's time window doesn't have an end time, all data on or after the start time will be retrieved.
                     * **start_time (Any):** Specifies the start of the time window to retrieve data. Must be an [`HecTime`](hectime.html#HecTime) object or a valid input to the `HecTime` constructor.
-                        Defaults to the start of the data store's time window. If None or not specified and the data store's time window doesn't have a start time, all data up to and on the end time will be retrieved.
+                        Defaults to the start of the data store's time window. If `None` or not specified and the data store's time window doesn't have a start time, all data up to and on the end time will be retrieved.
                     * **trim (bool):** Specifies whether to trim missing values from the beginning and end of any regular time series data set retrieved.
                         Defaults to the data store's trim setting.
 
@@ -1477,7 +1635,11 @@ class DssDataStore(AbstractDataStore):
                         int_values=xml_data, path=pathname_with_points
                     )
                     self._hecdss.put(ac)
-                    child[:] = [elem for elem in child if elem.tag not in ("rating-points", "extension-points")]
+                    child[:] = [
+                        elem
+                        for elem in child
+                        if elem.tag not in ("rating-points", "extension-points")
+                    ]
                 xml_data = DssDataStore.encode_str(
                     etree.tostring(child, pretty_print=True).decode()
                 )
@@ -1509,7 +1671,7 @@ class CwmsDataStore(AbstractDataStore):
             name (Optional[str], must be passed by name): The API root (base URL). Defaults to None. If None:
                 * The value of environment variable "cda_api_root" is used, if it exists.
                 * If the environment variable "cda_api_root" is not set, the default, the default value used in `cwms.api.init_session(api_root=None)` is used.
-            office (Optional[str], must be passed by name): The default CWMS office for the data store. If None or not specified, each access method will have to have an office specified.
+            office (Optional[str], must be passed by name): The default CWMS office for the data store. If `None` or not specified, each access method will have to have an office specified.
             read_only (Optional[bool], must be passed by name): Specifies whether to open the data store in read-only mode. Defaults to True
             start_time (Optional[Any], must be passed by name): Specifies the start time of the data store's time window. Must be an [`HecTime`](hectime.html#HecTime) object or a valid input to the `HecTime` constructor. Defaults to None
             store_rule (Optional[str], must be passed by name): Specifies the default behavior to use when storing data. If specified, it must be one of the following (case insensitive). Defaults to 'REPLACE_ALL'.
@@ -1814,6 +1976,7 @@ class CwmsDataStore(AbstractDataStore):
                     raise TypeError(
                         f"Expected datetime for effective_time, got {argval.__class.__name}"
                     )
+                effective_time = argval
             else:
                 raise ValueError(f"Unexpected keyword parameter: {kw}")
         if not office:
@@ -2371,11 +2534,11 @@ class CwmsDataStore(AbstractDataStore):
 
         Args:
             data_type (str): Must be one of the following (case insensitive):
-                * **'LOCATION'**: specfies catalog CWMS locations in the data store
-                * **'RATING'**: specifies cataloging CWMSs in the database
-                * **'RATING_SPECIFICATION'**: specifies cataloging CWMS rating specifications in the database
-                * **'RATING_TEMPLATE'**: specifies cataloging CWMS rating templates in the database
-                * **'TIMESERIES'**: specifies cataloging CWMS time series in the data store
+                * **'LOCATION'**
+                * **'RATING'**
+                * **'RATING_SPECIFICATION'**
+                * **'RATING_TEMPLATE'**
+                * **'TIMESERIES'**
             pattern (Optional[str], must be passed by name): An extended wildcard pattern to use for matching Identifiers. `regex` takes precedence if both are specified. Defaults to None.
                 <table>
                 <pre>
@@ -3661,7 +3824,7 @@ class CwmsDataStore(AbstractDataStore):
                 * The value of environment variable "cda_api_key" is used, if it exists.
             description (Optional[str], must be passed by name): The description assocaited with the data store. Defaults to None
             end_time (Optional[Any], must be passed by name): Specifies the end time of the data store's time window. Must be an [`HecTime`](hectime.html#HecTime) object or a valid input to the `HecTime` constructor. Defaults to None
-            office (Optional[str], must be passed by name): The default CWMS office for the data store. If None or not specified, each access method will have to have an office specified.
+            office (Optional[str], must be passed by name): The default CWMS office for the data store. If `None` or not specified, each access method will have to have an office specified.
             read_only (Optional[bool], must be passed by name): Specifies whether to open the data store in read-only mode. Defaults to True
             start_time (Optional[Any], must be passed by name): Specifies the start time of the data store's time window. Must be an [`HecTime`](hectime.html#HecTime) object or a valid input to the `HecTime` constructor. Defaults to None
             store_rule (Optional[str], must be passed by name): Specifies the default behavior to use when storing data. If specified, it must be one of the following (case insensitive). Defaults to 'REPLACE_ALL'.
@@ -3686,7 +3849,7 @@ class CwmsDataStore(AbstractDataStore):
         Retrieves a data set from the CWMS database.
 
         Currently only [`Location`](location.html#Location), [`AbstractRatingSet`](rating/abstract_rating_set.html#AbstractRatingSet) [`TimeSeries`](timeseries.html#TimeSeries) objects may be retrieved.
-        
+
         To retrieve all data for a [`TimeSeries`](timeseries.html#TimeSeries), specifiy `start_time=None` and `end_time=None`
 
         Args:
@@ -3710,9 +3873,9 @@ class CwmsDataStore(AbstractDataStore):
                             [TableRating](rating/table_rating.html#TableRating) objects are not retrieved until when the individual [TableRating](rating/table_rating.html#TableRating) objects are first used.
                 * **Time Series Identifiers:**<br>
                     * **start_time (Any):** Specifies the start of the time window to retrieve data. Must be an [`HecTime`](hectime.html#HecTime) object or a valid input to the `HecTime` constructor.
-                        Defaults to the start of the data store's time window. If None or not specified and the data store's time window doesn't have a start time, the current time minus 24 hours is used
+                        Defaults to the start of the data store's time window. If `None` or not specified and the data store's time window doesn't have a start time, the current time minus 24 hours is used
                     * **end_time (Any):** Specifies the end of the time window to retrieve data. Must be an [`HecTime`](hectime.html#HecTime) object or a valid input to the `HecTime` constructor.
-                        Defaults to the end of the data store's time window. If None or not specified and the data store's time window doesn't have an end time, the current time is used
+                        Defaults to the end of the data store's time window. If `None` or not specified and the data store's time window doesn't have an end time, the current time is used
                     * **trim (bool):** Specifies whether to trim missing values from the beginning and end of any regular time series data set retrieved.
                         Defaults to the data store's trim setting.
                     * **units (str):** `"EN"` or `"SI"`, specifying to retrieve data in English or metric units. Defaults to None, which uses the default unit system for the data store

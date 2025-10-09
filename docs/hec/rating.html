@@ -191,6 +191,9 @@
                                 <a class="function" href="#LocalRatingSet.from_xml">from_xml</a>
                         </li>
                         <li>
+                                <a class="variable" href="#LocalRatingSet.ratings">ratings</a>
+                        </li>
+                        <li>
                                 <a class="function" href="#LocalRatingSet.to_xml">to_xml</a>
                         </li>
                 </ul>
@@ -561,7 +564,7 @@
         <td>Abstract base class for all rating set types</td>
     </tr>
     <tr><td><a href="rating/local_rating_set.html#LocalRatingSet">LocalRatingSet</a></td>
-        <td><a href="rating/local_rating_set.html#LocaltRatingSetException">LocalRatingSet</a></td>
+        <td><a href="rating/local_rating_set.html#LocaltRatingSetException">LocalRatingSetException</a></td>
         <td>Rating sets that perform all operations in local code</td>
     </tr>
     <tr><td><a href="rating/reference_rating_set.html#ReferenceRatingSet">ReferenceRatingSet</a></td>
@@ -1486,7 +1489,7 @@ This is typed as <code>Any</code> to avoid circular import dependencies.</li>
             <div class="docstring"><p>The units to use for independent and dependent parameter values when no units are specified for
 <a href="#AbstractRatingSet.rate">rate</a>.</p>
 
-<p>If None and no data units are specified, the rating methods will raise an exception.</p>
+<p>If <code>None</code> and no data units are specified, the rating methods will raise an exception.</p>
 
 <h6 id="operations">Operations:</h6>
 
@@ -1580,7 +1583,7 @@ to determine which ratings in the rating set are used - and the manner in which 
 <li>If shorter than the independent parameter value list(s), the last time will be used for the remainging values.</li>
 <li>If longer than the independent parameter values list(s), the beginning portion of the list will be used.</li>
 </ul></li>
-<li>If None or not specified:
+<li>If <code>None</code> or not specified:
 <ul>
 <li>If the rating set's default data time is not None, that time is used for each value</li>
 <li>If the rating set's default data time is None, the current time is used for each value</li>
@@ -1696,7 +1699,7 @@ the same rating set to reverse rate value <code>y</code> at time <code>t</code> 
 <li>If shorter than the independent parameter value list(s), the last time will be used for the remainging values.</li>
 <li>If longer than the independent parameter values list(s), the beginning portion of the list will be used.</li>
 </ul></li>
-<li>If None or not specified:
+<li>If <code>None</code> or not specified:
 <ul>
 <li>If the rating set's default data time is not None, that time is used for each value</li>
 <li>If the rating set's default data time is None, the current time is used for each value</li>
@@ -1895,6 +1898,25 @@ XML has no table ratings or all table ratings have rating points specified for a
 
 <blockquote>
   <p>LocalRatingSet: The constructed LocalRatingSet object</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="LocalRatingSet.ratings" class="classattr">
+                                <div class="attr variable">
+            <span class="name">ratings</span><span class="annotation">: dict[datetime.datetime, <a href="#AbstractRating">AbstractRating</a>]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#LocalRatingSet.ratings"></a>
+    
+            <div class="docstring"><p>The set of ratings in this rating set</p>
+
+<h6 id="operations">Operations:</h6>
+
+<blockquote>
+  <p>Read-Only</p>
 </blockquote>
 </div>
 

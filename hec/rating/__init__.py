@@ -31,7 +31,7 @@ Sub-module to provide rating capabilities to hec module
         <td>Abstract base class for all rating set types</td>
     </tr>
     <tr><td><a href="rating/local_rating_set.html#LocalRatingSet">LocalRatingSet</a></td>
-        <td><a href="rating/local_rating_set.html#LocaltRatingSetException">LocalRatingSet</a></td>
+        <td><a href="rating/local_rating_set.html#LocaltRatingSetException">LocalRatingSetException</a></td>
         <td>Rating sets that perform all operations in local code</td>
     </tr>
     <tr><td><a href="rating/reference_rating_set.html#ReferenceRatingSet">ReferenceRatingSet</a></td>

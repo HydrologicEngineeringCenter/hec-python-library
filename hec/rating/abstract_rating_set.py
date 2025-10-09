@@ -271,7 +271,7 @@ class AbstractRatingSet(ABC):
         The units to use for independent and dependent parameter values when no units are specified for
         [rate](#AbstractRatingSet.rate).
 
-        If None and no data units are specified, the rating methods will raise an exception.
+        If `None` and no data units are specified, the rating methods will raise an exception.
 
         Operations:
             Read/Write
@@ -376,7 +376,7 @@ class AbstractRatingSet(ABC):
                   * Specifying a datetime object is the same as specifying that datetime object in a list of length 1.
                   * If shorter than the independent parameter value list(s), the last time will be used for the remainging values.
                   * If longer than the independent parameter values list(s), the beginning portion of the list will be used.
-                * If None or not specified:
+                * If `None` or not specified:
                   * If the rating set's default data time is not None, that time is used for each value
                   * If the rating set's default data time is None, the current time is used for each value
             units (Optional[str], must be passed by name): Defaults to None.
@@ -509,7 +509,7 @@ class AbstractRatingSet(ABC):
                   * Specifying a datetime object is the same as specifying that datetime object in a list of length 1.
                   * If shorter than the independent parameter value list(s), the last time will be used for the remainging values.
                   * If longer than the independent parameter values list(s), the beginning portion of the list will be used.
-                * If None or not specified:
+                * If `None` or not specified:
                   * If the rating set's default data time is not None, that time is used for each value
                   * If the rating set's default data time is None, the current time is used for each value
             units (Optional[str], must be passed by name): Defaults to None.

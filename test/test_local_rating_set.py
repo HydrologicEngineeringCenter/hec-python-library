@@ -12,11 +12,13 @@ from hec import CwmsDataStore, DssDataStore, TimeSeries, UnitQuantity
 from hec.rating import AbstractRatingSet, LocalRatingSet
 from hec.shared import import_cwms, import_hecdss
 
-_dss: Optional[CwmsDataStore] = None
+_db: Optional[CwmsDataStore] = None
 _dss: Optional[DssDataStore] = None
-_rs_reference: Optional[AbstractRatingSet] = None
-_rs_eager: Optional[AbstractRatingSet] = None
-_rs_lazy: Optional[AbstractRatingSet] = None
+_rs_reference_cwms: Optional[AbstractRatingSet] = None
+_rs_eager_cwms: Optional[AbstractRatingSet] = None
+_rs_lazy_cwms: Optional[AbstractRatingSet] = None
+_rs_eager_dss: Optional[AbstractRatingSet] = None
+_rs_lazy_dss: Optional[AbstractRatingSet] = None
 
 rating_set_1_file_name = "test/resources/rating/local_rating_set_1.xml"
 rating_set_2_file_name = "test/resources/rating/local_rating_set_2.xml"
@@ -251,133 +253,146 @@ rating_set_2_data = [  # values are from test/resources/rating/generate_local_ra
 ]
 
 
+rating_set_1_list_data: Optional[list[list[Any]]] = None
+rating_set_1_ts_data: Optional[list[list[Any]]] = None
+rating_set_2_list_data: Optional[list[list[Any]]] = None
+rating_set_2_ts_data: Optional[list[list[Any]]] = None
+
 def generate_local_rating_set_1_list_data() -> list[list[Any]]:
-    test_data = []
-    timestrs, counts, openings, elevations, expected_flows = list(
-        map(list, zip(*rating_set_1_data))
-    )
-    timestrs, counts, openings, elevations, expected_flows = list(
-        map(list, zip(*rating_set_1_data))
-    )
-    num_unique_times = len(set(timestrs))
-    num_each_time = int(len(rating_set_1_data) / num_unique_times)
-    data = sorted(rating_set_1_data)
-    for i in range(num_each_time):
-        timestrs = []
-        counts = []
-        openings = []
-        elevations = []
-        expected_flows = []
-        for j in range(num_unique_times):
-            offset = j * num_each_time + i
-            timestrs.append(data[offset][0])
-            counts.append(data[offset][1])
-            openings.append(data[offset][2])
-            elevations.append(data[offset][3])
-            expected_flows.append(data[offset][4])
-        test_data.append([timestrs, counts, openings, elevations, expected_flows])
-    return test_data
+    global rating_set_1_list_data
+    if rating_set_1_list_data is None:
+        rating_set_1_list_data = []
+        timestrs, counts, openings, elevations, expected_flows = list(
+            map(list, zip(*rating_set_1_data))
+        )
+        timestrs, counts, openings, elevations, expected_flows = list(
+            map(list, zip(*rating_set_1_data))
+        )
+        num_unique_times = len(set(timestrs))
+        num_each_time = int(len(rating_set_1_data) / num_unique_times)
+        data = sorted(rating_set_1_data)
+        for i in range(num_each_time):
+            timestrs = []
+            counts = []
+            openings = []
+            elevations = []
+            expected_flows = []
+            for j in range(num_unique_times):
+                offset = j * num_each_time + i
+                timestrs.append(data[offset][0])
+                counts.append(data[offset][1])
+                openings.append(data[offset][2])
+                elevations.append(data[offset][3])
+                expected_flows.append(data[offset][4])
+            rating_set_1_list_data.append([timestrs, counts, openings, elevations, expected_flows])
+    return rating_set_1_list_data
 
 
 def generate_local_rating_set_1_ts_data() -> list[list[Any]]:
-    with open(rating_set_1_file_name) as f:
-        rating_set_1 = LocalRatingSet.from_xml(f.read())
-    test_data = []
-    timestrs, counts, openings, elevations, expected_flows = list(
-        map(list, zip(*rating_set_1_data))
-    )
-    location_name = rating_set_1.specification.location.name
-    num_unique_times = len(set(timestrs))
-    num_each_time = int(len(rating_set_1_data) / num_unique_times)
-    data = sorted(rating_set_1_data)
-    for i in range(num_each_time):
-        timestrs = []
-        counts = []
-        openings = []
-        elevations = []
-        expected_flows = []
-        for j in range(num_unique_times):
-            offset = j * num_each_time + i
-            timestrs.append(data[offset][0])
-            counts.append(data[offset][1])
-            openings.append(data[offset][2])
-            elevations.append(data[offset][3])
-            expected_flows.append(data[offset][4])
+    global rating_set_1_ts_data
+    if rating_set_1_ts_data is None:
+        with open(rating_set_1_file_name) as f:
+            rating_set_1 = LocalRatingSet.from_xml(f.read())
+        rating_set_1_ts_data = []
+        timestrs, counts, openings, elevations, expected_flows = list(
+            map(list, zip(*rating_set_1_data))
+        )
+        location_name = rating_set_1.specification.location.name
+        num_unique_times = len(set(timestrs))
+        num_each_time = int(len(rating_set_1_data) / num_unique_times)
+        data = sorted(rating_set_1_data)
+        for i in range(num_each_time):
+            timestrs = []
+            counts = []
+            openings = []
+            elevations = []
+            expected_flows = []
+            for j in range(num_unique_times):
+                offset = j * num_each_time + i
+                timestrs.append(data[offset][0])
+                counts.append(data[offset][1])
+                openings.append(data[offset][2])
+                elevations.append(data[offset][3])
+                expected_flows.append(data[offset][4])
 
-        counts_ts = TimeSeries(
-            name=f"{location_name}.Count-Sluice_Gates.Inst.1Day.0.Test",
-            times=timestrs,
-            values=counts,
-            qualities=0,
-        )
-        openings_ts = TimeSeries(
-            name=f"{location_name}.Opening-Sluice_Gates.Inst.1Day.0.Test",
-            times=timestrs,
-            values=openings,
-            qualities=0,
-        )
-        elevations_ts = TimeSeries(
-            name=f"{location_name}.Elev-Pool.Inst.1Day.0.Test",
-            times=timestrs,
-            values=elevations,
-            qualities=0,
-        )
-        vdi = rating_set_1.vertical_datum_info
-        if vdi:
-            elevations_ts.iset_vertical_datum_info(str(vdi))
-        test_data.append([counts_ts, openings_ts, elevations_ts, expected_flows])
-    return test_data
+            counts_ts = TimeSeries(
+                name=f"{location_name}.Count-Sluice_Gates.Inst.1Day.0.Test",
+                times=timestrs,
+                values=counts,
+                qualities=0,
+            )
+            openings_ts = TimeSeries(
+                name=f"{location_name}.Opening-Sluice_Gates.Inst.1Day.0.Test",
+                times=timestrs,
+                values=openings,
+                qualities=0,
+            )
+            elevations_ts = TimeSeries(
+                name=f"{location_name}.Elev-Pool.Inst.1Day.0.Test",
+                times=timestrs,
+                values=elevations,
+                qualities=0,
+            )
+            vdi = rating_set_1.vertical_datum_info
+            if vdi:
+                elevations_ts.iset_vertical_datum_info(str(vdi))
+            rating_set_1_ts_data.append([counts_ts, openings_ts, elevations_ts, expected_flows])
+    return rating_set_1_ts_data
 
 
 def generate_local_rating_set_2_list_data() -> list[list[Any]]:
-    test_data = []
-    timestrs, elevations, expected_stors = list(map(list, zip(*rating_set_2_data)))
-    num_unique_times = len(set(timestrs))
-    num_each_time = int(len(rating_set_2_data) / num_unique_times)
-    data = sorted(rating_set_2_data)
-    for i in range(num_each_time):
-        timestrs = []
-        elevations = []
-        expected_stors = []
-        for j in range(num_unique_times):
-            offset = j * num_each_time + i
-            timestrs.append(data[offset][0])
-            elevations.append(data[offset][1])
-            expected_stors.append(data[offset][2])
-        test_data.append([timestrs, elevations, expected_stors])
-    return test_data
+    global rating_set_2_list_data
+    if rating_set_2_list_data is None:
+        rating_set_2_list_data = []
+        timestrs, elevations, expected_stors = list(map(list, zip(*rating_set_2_data)))
+        num_unique_times = len(set(timestrs))
+        num_each_time = int(len(rating_set_2_data) / num_unique_times)
+        data = sorted(rating_set_2_data)
+        for i in range(num_each_time):
+            timestrs = []
+            elevations = []
+            expected_stors = []
+            for j in range(num_unique_times):
+                offset = j * num_each_time + i
+                timestrs.append(data[offset][0])
+                elevations.append(data[offset][1])
+                expected_stors.append(data[offset][2])
+            rating_set_2_list_data.append([timestrs, elevations, expected_stors])
+    return rating_set_2_list_data
 
 
 def generate_local_rating_set_2_ts_data() -> list[list[Any]]:
-    with open("test/resources/rating/local_rating_set_2.xml") as f:
-        rating_set_2 = LocalRatingSet.from_xml(f.read())
-    test_data = []
-    timestrs, elevations, expected_stors = list(map(list, zip(*rating_set_2_data)))
-    location_name = rating_set_2.specification.location.name
-    num_unique_times = len(set(timestrs))
-    num_each_time = int(len(rating_set_2_data) / num_unique_times)
-    data = sorted(rating_set_2_data)
-    for i in range(num_each_time):
-        timestrs = []
-        elevations = []
-        expected_stors = []
-        for j in range(num_unique_times):
-            offset = j * num_each_time + i
-            timestrs.append(data[offset][0])
-            elevations.append(data[offset][1])
-            expected_stors.append(data[offset][2])
+    global rating_set_2_ts_data
+    if rating_set_2_ts_data is None:
+        with open("test/resources/rating/local_rating_set_2.xml") as f:
+            rating_set_2 = LocalRatingSet.from_xml(f.read())
+        rating_set_2_ts_data = []
+        timestrs, elevations, expected_stors = list(map(list, zip(*rating_set_2_data)))
+        location_name = rating_set_2.specification.location.name
+        num_unique_times = len(set(timestrs))
+        num_each_time = int(len(rating_set_2_data) / num_unique_times)
+        data = sorted(rating_set_2_data)
+        for i in range(num_each_time):
+            timestrs = []
+            elevations = []
+            expected_stors = []
+            for j in range(num_unique_times):
+                offset = j * num_each_time + i
+                timestrs.append(data[offset][0])
+                elevations.append(data[offset][1])
+                expected_stors.append(data[offset][2])
 
-        elevations_ts = TimeSeries(
-            name=f"{location_name}.Elev-Pool.Inst.1Day.0.Test",
-            times=timestrs,
-            values=elevations,
-            qualities=0,
-        )
-        vdi = rating_set_2.vertical_datum_info
-        if vdi:
-            elevations_ts.iset_vertical_datum_info(str(vdi))
-        test_data.append([elevations_ts, expected_stors])
-    return test_data
+            elevations_ts = TimeSeries(
+                name=f"{location_name}.Elev-Pool.Inst.1Day.0.Test",
+                times=timestrs,
+                values=elevations,
+                qualities=0,
+            )
+            vdi = rating_set_2.vertical_datum_info
+            if vdi:
+                elevations_ts.iset_vertical_datum_info(str(vdi))
+            rating_set_2_ts_data.append([elevations_ts, expected_stors])
+    return rating_set_2_ts_data
 
 
 @pytest.mark.parametrize(
@@ -529,32 +544,32 @@ def test_load_methods_with_cwms(
     elevations_ts: TimeSeries,
     expected_flows: list[float],
 ) -> None:
-    global _dss, _rs_reference, _rs_eager, _rs_lazy
+    global _db, _rs_reference_cwms, _rs_eager_cwms, _rs_lazy_cwms
     if not can_use_cda():
         skip_test_message = "Test test_reference_rating_set() is skipped because CDA is not accessible to test"
         warnings.warn(skip_test_message)
         return
-    if _dss is None:
-        _dss = CwmsDataStore.open()
+    if _db is None:
+        _db = CwmsDataStore.open()
     rating_id = "COUN.Count-Conduit_Gates,Opening-Conduit_Gates,Elev;Flow-Conduit_Gates.Standard.Production"
-    if _rs_reference is None:
-        _rs_reference = cast(
-            AbstractRatingSet, _dss.retrieve(rating_id, method="REFERENCE")
+    if _rs_reference_cwms is None:
+        _rs_reference_cwms = cast(
+            AbstractRatingSet, _db.retrieve(rating_id, method="REFERENCE")
         )
-    if _rs_eager is None:
-        _rs_eager = cast(AbstractRatingSet, _dss.retrieve(rating_id, method="EAGER"))
-    if _rs_lazy is None:
-        _rs_lazy = cast(AbstractRatingSet, _dss.retrieve(rating_id, method="LAZY"))
-    rated_flows_reference = _rs_reference.rate(
+    if _rs_eager_cwms is None:
+        _rs_eager_cwms = cast(AbstractRatingSet, _db.retrieve(rating_id, method="EAGER"))
+    if _rs_lazy_cwms is None:
+        _rs_lazy_cwms = cast(AbstractRatingSet, _db.retrieve(rating_id, method="LAZY"))
+    rated_flows_reference = _rs_reference_cwms.rate(
         [counts_ts, openings_ts, elevations_ts], units="cfs"
     )
-    rated_flows_eager = _rs_eager.rate(
+    rated_flows_eager = _rs_eager_cwms.rate(
         [counts_ts, openings_ts, elevations_ts], units="cfs"
     )
     assert np.allclose(
         rated_flows_reference.values, rated_flows_eager.values, equal_nan=True
     )
-    rated_flows_lazy = _rs_lazy.rate(
+    rated_flows_lazy = _rs_lazy_cwms.rate(
         [counts_ts, openings_ts, elevations_ts], units="cfs"
     )
     assert np.allclose(
@@ -572,28 +587,30 @@ def test_load_methods_with_dss(
     elevations_ts: TimeSeries,
     expected_flows: list[float],
 ) -> None:
-    global _dss
+    global _dss, _rs_eager_dss, _rs_lazy_dss
     DssDataStore.set_message_level(0)
     if _dss is None:
         _dss = DssDataStore.open(dss_file_name, read_only=False)
-    for rating_set_file_name in (rating_set_1_file_name, rating_set_2_file_name):
-        with open(rating_set_file_name) as f:
-            _dss.store(LocalRatingSet.from_xml(f.read()))
-        rating_id = "COUN.Count-Conduit_Gates,Opening-Conduit_Gates,Elev;Flow-Conduit_Gates.Standard.Production"
-        rs_eager = cast(AbstractRatingSet, _dss.retrieve(rating_id, office="SWT", method="EAGER"))
-        rs_lazy = cast(AbstractRatingSet, _dss.retrieve(rating_id, office="SWT", method="LAZY"))
-        rated_flows_eager = rs_eager.rate(
-            [counts_ts, openings_ts, elevations_ts], units="cfs"
+        for rating_set_file_name in (rating_set_1_file_name, rating_set_2_file_name):
+            with open(rating_set_file_name) as f:
+                _dss.store(LocalRatingSet.from_xml(f.read()))
+    rating_id = "COUN.Count-Conduit_Gates,Opening-Conduit_Gates,Elev;Flow-Conduit_Gates.Standard.Production"
+    if _rs_eager_dss is None:
+        _rs_eager_dss = cast(
+            AbstractRatingSet, _dss.retrieve(rating_id, office="SWT", method="EAGER")
         )
-        assert np.allclose(
-            expected_flows, rated_flows_eager.values, equal_nan=True
+    if _rs_lazy_dss is None:
+        _rs_lazy_dss = cast(
+            AbstractRatingSet, _dss.retrieve(rating_id, office="SWT", method="LAZY")
         )
-        rated_flows_lazy = rs_lazy.rate(
-            [counts_ts, openings_ts, elevations_ts], units="cfs"
-        )
-        assert np.allclose(
-            expected_flows, rated_flows_lazy.values, equal_nan=True
-        )
+    rated_flows_eager = _rs_eager_dss.rate(
+        [counts_ts, openings_ts, elevations_ts], units="cfs"
+    )
+    assert np.allclose(expected_flows, rated_flows_eager.values, equal_nan=True)
+    rated_flows_lazy = _rs_lazy_dss.rate(
+        [counts_ts, openings_ts, elevations_ts], units="cfs"
+    )
+    assert np.allclose(expected_flows, rated_flows_lazy.values, equal_nan=True)
 
 
 def test_to_xml() -> None:
@@ -643,7 +660,9 @@ def test_dss_store_retrieve(rating_set_file_name: str) -> None:
         xml1 = f.read()
     rs1 = LocalRatingSet.from_xml(xml1)
     _dss.store(rs1)
-    rs2 = _dss.retrieve(rs1.specification.name, office=rs1.template.office, method="EAGER")
+    rs2 = _dss.retrieve(
+        rs1.specification.name, office=rs1.template.office, method="EAGER"
+    )
     xml2 = rs2.to_xml()
     # -------------------------- #
     # format xml1 for comparison #
@@ -665,3 +684,65 @@ def test_dss_store_retrieve(rating_set_file_name: str) -> None:
     # finally do the comparison #
     # ------------------------- #
     assert xml2 == xml1
+
+def test_dss_catalog() -> None:
+    global _dss
+    rating_sets: list[LocalRatingSet] = []
+    DssDataStore.set_message_level(1)
+    if _dss is None:
+        _dss = DssDataStore.open(dss_file_name, read_only=False)
+    for rating_set_file_name in rating_set_1_file_name, rating_set_2_file_name:
+        with open(rating_set_file_name) as f:
+            rs = LocalRatingSet.from_xml(f.read())
+            rating_sets.append(rs)
+            _dss.store(rs)
+    # --------------------------------------- #
+    # catalog rating templates as identifiers #
+    # --------------------------------------- #
+    catalog = _dss.catalog("RATING_TEMPLATE", office="SWT")
+    assert len(catalog) == 2
+    assert("Count-Conduit_Gates,Opening-Conduit_Gates,Elev;Flow-Conduit_Gates.Standard") in catalog
+    assert("Elev;Stor.Linear" in catalog)
+    # -------------------------------------------- #
+    # catalog rating specifications as identifiers #
+    # -------------------------------------------- #
+    catalog = _dss.catalog("RATING_SPECIFICATION", office="SWT")
+    assert len(catalog) == 2
+    assert("COUN.Count-Conduit_Gates,Opening-Conduit_Gates,Elev;Flow-Conduit_Gates.Standard.Production") in catalog
+    assert("KEYS.Elev;Stor.Linear.Production" in catalog)
+    catalog = _dss.catalog("RATING", office="SWT")
+    # ------------------------------ #
+    # catalog ratings as identifiers #
+    # ------------------------------ #
+    assert len(catalog) == 2
+    assert("COUN.Count-Conduit_Gates,Opening-Conduit_Gates,Elev;Flow-Conduit_Gates.Standard.Production") in catalog
+    assert("KEYS.Elev;Stor.Linear.Production" in catalog)
+    # ------------------------------------- #
+    # catalog rating templates as pathnames #
+    # ------------------------------------- #
+    catalog = _dss.catalog("RATING_TEMPLATE", office="SWT", pathnames=True)
+    assert len(catalog) == 2
+    assert("/SWT//Count-Conduit_Gates,Opening-Conduit_Gates,Elev;Flow-Conduit_Gates/Rating-Template/Standard//") in catalog
+    assert("/SWT//Elev;Stor/Rating-Template/Linear//" in catalog)
+    # ------------------------------------------ #
+    # catalog rating specifications as pathnames #
+    # ------------------------------------------ #
+    catalog = _dss.catalog("RATING_SPECIFICATION", office="SWT", pathnames=True)
+    assert len(catalog) == 2
+    assert("/SWT/COUN/Count-Conduit_Gates,Opening-Conduit_Gates,Elev;Flow-Conduit_Gates/Rating-Specification/Standard/Production/") in catalog
+    assert("/SWT/KEYS/Elev;Stor/Rating-Specification/Linear/Production/" in catalog)
+    # ---------------------------- #
+    # catalog ratings as pathnames #
+    # ---------------------------- #
+    catalog = _dss.catalog("RATING", office="SWT", pathnames=True)
+    assert len(catalog) == 5
+    assert("/SWT/COUN/Count-Conduit_Gates,Opening-Conduit_Gates,Elev;Flow-Conduit_Gates/Rating-Body-2012-04-26T05:00:00Z/Standard/Production/") in catalog
+    assert("/SWT/COUN/Count-Conduit_Gates,Opening-Conduit_Gates,Elev;Flow-Conduit_Gates/Rating-Body-2012-04-27T05:00:00Z/Standard/Production/" in catalog)
+    assert("/SWT/KEYS/Elev;Stor/Rating-Body-2009-01-14T06:00:00Z/Linear/Production/" in catalog)
+    assert("/SWT/KEYS/Elev;Stor/Rating-Body-2011-10-19T05:00:00Z/Linear/Production/" in catalog)
+    assert("/SWT/KEYS/Elev;Stor/Rating-Body-2020-08-01T05:00:00Z/Linear/Production/" in catalog)
+
+
+if __name__ == "__main__":
+    counts_ts, openings_ts, elevations_ts, expected_flows =  generate_local_rating_set_1_ts_data()[0]
+    test_load_methods_with_cwms(counts_ts, openings_ts, elevations_ts, expected_flows)

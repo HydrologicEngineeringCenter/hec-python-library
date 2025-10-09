@@ -1259,7 +1259,7 @@ class Interval(TimeSpan):
 
         Returns:
             bool: True if the default behavior is to raise an exception when no Interval is found or False
-                if None is returned when no Interval is found
+                if `None` is returned when no Interval is found
         """
         return Interval._default_exception_on_not_found
 

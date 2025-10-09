@@ -302,17 +302,24 @@ class TableRating(SimpleRating):
             raise TableRatingException(
                 f"Cannot retrieve ratings points for effective time {self._effective_time}: rating has no data store"
             )
-        if isinstance(self._datastore, hec.datastore.AbstractDataStore):
-            rs = self._datastore._retrieve_rating_set(
-                self.specification_id, office=self.template.office, effective_time=self._effective_time
+        if not isinstance(
+            self._datastore, (hec.datastore.CwmsDataStore, hec.datastore.DssDataStore)
+        ):
+            raise TableRatingException(
+                f"Cannot retrieve ratings points from {self._datastore.__class__.__name__}"
             )
-            rp: dict[tuple[float, ...], Union[tuple[float], float]] = cast(
-                dict[tuple[float, ...], Union[tuple[float], float]],
-                cast(
-                    hec.rating.TableRating, rs._ratings[self._effective_time]
-                )._rating_points,
-            )
-            self._rating_points = {**rp}
+        rs = self._datastore._retrieve_rating_set(
+            self.specification_id,
+            office=self.template.office,
+            effective_time=self._effective_time,
+        )
+        rp: dict[tuple[float, ...], Union[tuple[float], float]] = cast(
+            dict[tuple[float, ...], Union[tuple[float], float]],
+            cast(
+                hec.rating.TableRating, rs._ratings[self._effective_time]
+            )._rating_points,
+        )
+        self._rating_points = {**rp}
 
     def rate_value(
         self, ind_value: list[float], lo_key: list[float] = [], hi_key: list[float] = []

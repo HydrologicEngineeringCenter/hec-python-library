@@ -188,7 +188,7 @@ This is typed as <code>Any</code> to avoid circular import dependencies.</li>
             <div class="docstring"><p>The units to use for independent and dependent parameter values when no units are specified for
 <a href="#AbstractRatingSet.rate">rate</a>.</p>
 
-<p>If None and no data units are specified, the rating methods will raise an exception.</p>
+<p>If <code>None</code> and no data units are specified, the rating methods will raise an exception.</p>
 
 <h6 id="operations">Operations:</h6>
 
@@ -282,7 +282,7 @@ to determine which ratings in the rating set are used - and the manner in which 
 <li>If shorter than the independent parameter value list(s), the last time will be used for the remainging values.</li>
 <li>If longer than the independent parameter values list(s), the beginning portion of the list will be used.</li>
 </ul></li>
-<li>If None or not specified:
+<li>If <code>None</code> or not specified:
 <ul>
 <li>If the rating set's default data time is not None, that time is used for each value</li>
 <li>If the rating set's default data time is None, the current time is used for each value</li>
@@ -398,7 +398,7 @@ the same rating set to reverse rate value <code>y</code> at time <code>t</code> 
 <li>If shorter than the independent parameter value list(s), the last time will be used for the remainging values.</li>
 <li>If longer than the independent parameter values list(s), the beginning portion of the list will be used.</li>
 </ul></li>
-<li>If None or not specified:
+<li>If <code>None</code> or not specified:
 <ul>
 <li>If the rating set's default data time is not None, that time is used for each value</li>
 <li>If the rating set's default data time is None, the current time is used for each value</li>
