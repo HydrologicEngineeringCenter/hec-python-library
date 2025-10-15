@@ -258,6 +258,7 @@ rating_set_1_ts_data: Optional[list[list[Any]]] = None
 rating_set_2_list_data: Optional[list[list[Any]]] = None
 rating_set_2_ts_data: Optional[list[list[Any]]] = None
 
+
 def generate_local_rating_set_1_list_data() -> list[list[Any]]:
     global rating_set_1_list_data
     if rating_set_1_list_data is None:
@@ -284,7 +285,9 @@ def generate_local_rating_set_1_list_data() -> list[list[Any]]:
                 openings.append(data[offset][2])
                 elevations.append(data[offset][3])
                 expected_flows.append(data[offset][4])
-            rating_set_1_list_data.append([timestrs, counts, openings, elevations, expected_flows])
+            rating_set_1_list_data.append(
+                [timestrs, counts, openings, elevations, expected_flows]
+            )
     return rating_set_1_list_data
 
 
@@ -336,7 +339,9 @@ def generate_local_rating_set_1_ts_data() -> list[list[Any]]:
             vdi = rating_set_1.vertical_datum_info
             if vdi:
                 elevations_ts.iset_vertical_datum_info(str(vdi))
-            rating_set_1_ts_data.append([counts_ts, openings_ts, elevations_ts, expected_flows])
+            rating_set_1_ts_data.append(
+                [counts_ts, openings_ts, elevations_ts, expected_flows]
+            )
     return rating_set_1_ts_data
 
 
@@ -557,7 +562,9 @@ def test_load_methods_with_cwms(
             AbstractRatingSet, _db.retrieve(rating_id, method="REFERENCE")
         )
     if _rs_eager_cwms is None:
-        _rs_eager_cwms = cast(AbstractRatingSet, _db.retrieve(rating_id, method="EAGER"))
+        _rs_eager_cwms = cast(
+            AbstractRatingSet, _db.retrieve(rating_id, method="EAGER")
+        )
     if _rs_lazy_cwms is None:
         _rs_lazy_cwms = cast(AbstractRatingSet, _db.retrieve(rating_id, method="LAZY"))
     rated_flows_reference = _rs_reference_cwms.rate(
@@ -685,6 +692,7 @@ def test_dss_store_retrieve(rating_set_file_name: str) -> None:
     # ------------------------- #
     assert xml2 == xml1
 
+
 def test_dss_catalog() -> None:
     global _dss
     rating_sets: list[LocalRatingSet] = []
@@ -701,48 +709,72 @@ def test_dss_catalog() -> None:
     # --------------------------------------- #
     catalog = _dss.catalog("RATING_TEMPLATE", office="SWT")
     assert len(catalog) == 2
-    assert("Count-Conduit_Gates,Opening-Conduit_Gates,Elev;Flow-Conduit_Gates.Standard") in catalog
-    assert("Elev;Stor.Linear" in catalog)
+    assert (
+        "Count-Conduit_Gates,Opening-Conduit_Gates,Elev;Flow-Conduit_Gates.Standard"
+    ) in catalog
+    assert "Elev;Stor.Linear" in catalog
     # -------------------------------------------- #
     # catalog rating specifications as identifiers #
     # -------------------------------------------- #
     catalog = _dss.catalog("RATING_SPECIFICATION", office="SWT")
     assert len(catalog) == 2
-    assert("COUN.Count-Conduit_Gates,Opening-Conduit_Gates,Elev;Flow-Conduit_Gates.Standard.Production") in catalog
-    assert("KEYS.Elev;Stor.Linear.Production" in catalog)
+    assert (
+        "COUN.Count-Conduit_Gates,Opening-Conduit_Gates,Elev;Flow-Conduit_Gates.Standard.Production"
+    ) in catalog
+    assert "KEYS.Elev;Stor.Linear.Production" in catalog
     catalog = _dss.catalog("RATING", office="SWT")
     # ------------------------------ #
     # catalog ratings as identifiers #
     # ------------------------------ #
     assert len(catalog) == 2
-    assert("COUN.Count-Conduit_Gates,Opening-Conduit_Gates,Elev;Flow-Conduit_Gates.Standard.Production") in catalog
-    assert("KEYS.Elev;Stor.Linear.Production" in catalog)
+    assert (
+        "COUN.Count-Conduit_Gates,Opening-Conduit_Gates,Elev;Flow-Conduit_Gates.Standard.Production"
+    ) in catalog
+    assert "KEYS.Elev;Stor.Linear.Production" in catalog
     # ------------------------------------- #
     # catalog rating templates as pathnames #
     # ------------------------------------- #
     catalog = _dss.catalog("RATING_TEMPLATE", office="SWT", pathnames=True)
     assert len(catalog) == 2
-    assert("/SWT//Count-Conduit_Gates,Opening-Conduit_Gates,Elev;Flow-Conduit_Gates/Rating-Template/Standard//") in catalog
-    assert("/SWT//Elev;Stor/Rating-Template/Linear//" in catalog)
+    assert (
+        "/SWT//Count-Conduit_Gates,Opening-Conduit_Gates,Elev;Flow-Conduit_Gates/Rating-Template/Standard//"
+    ) in catalog
+    assert "/SWT//Elev;Stor/Rating-Template/Linear//" in catalog
     # ------------------------------------------ #
     # catalog rating specifications as pathnames #
     # ------------------------------------------ #
     catalog = _dss.catalog("RATING_SPECIFICATION", office="SWT", pathnames=True)
     assert len(catalog) == 2
-    assert("/SWT/COUN/Count-Conduit_Gates,Opening-Conduit_Gates,Elev;Flow-Conduit_Gates/Rating-Specification/Standard/Production/") in catalog
-    assert("/SWT/KEYS/Elev;Stor/Rating-Specification/Linear/Production/" in catalog)
+    assert (
+        "/SWT/COUN/Count-Conduit_Gates,Opening-Conduit_Gates,Elev;Flow-Conduit_Gates/Rating-Specification/Standard/Production/"
+    ) in catalog
+    assert "/SWT/KEYS/Elev;Stor/Rating-Specification/Linear/Production/" in catalog
     # ---------------------------- #
     # catalog ratings as pathnames #
     # ---------------------------- #
     catalog = _dss.catalog("RATING", office="SWT", pathnames=True)
     assert len(catalog) == 5
-    assert("/SWT/COUN/Count-Conduit_Gates,Opening-Conduit_Gates,Elev;Flow-Conduit_Gates/Rating-Body-2012-04-26T05:00:00Z/Standard/Production/") in catalog
-    assert("/SWT/COUN/Count-Conduit_Gates,Opening-Conduit_Gates,Elev;Flow-Conduit_Gates/Rating-Body-2012-04-27T05:00:00Z/Standard/Production/" in catalog)
-    assert("/SWT/KEYS/Elev;Stor/Rating-Body-2009-01-14T06:00:00Z/Linear/Production/" in catalog)
-    assert("/SWT/KEYS/Elev;Stor/Rating-Body-2011-10-19T05:00:00Z/Linear/Production/" in catalog)
-    assert("/SWT/KEYS/Elev;Stor/Rating-Body-2020-08-01T05:00:00Z/Linear/Production/" in catalog)
+    assert (
+        "/SWT/COUN/Count-Conduit_Gates,Opening-Conduit_Gates,Elev;Flow-Conduit_Gates/Rating-Body-2012-04-26T05:00:00Z/Standard/Production/"
+    ) in catalog
+    assert (
+        "/SWT/COUN/Count-Conduit_Gates,Opening-Conduit_Gates,Elev;Flow-Conduit_Gates/Rating-Body-2012-04-27T05:00:00Z/Standard/Production/"
+        in catalog
+    )
+    assert (
+        "/SWT/KEYS/Elev;Stor/Rating-Body-2009-01-14T06:00:00Z/Linear/Production/"
+        in catalog
+    )
+    assert (
+        "/SWT/KEYS/Elev;Stor/Rating-Body-2011-10-19T05:00:00Z/Linear/Production/"
+        in catalog
+    )
+    assert (
+        "/SWT/KEYS/Elev;Stor/Rating-Body-2020-08-01T05:00:00Z/Linear/Production/"
+        in catalog
+    )
 
 
 if __name__ == "__main__":
-    counts_ts, openings_ts, elevations_ts, expected_flows =  generate_local_rating_set_1_ts_data()[0]
-    test_load_methods_with_cwms(counts_ts, openings_ts, elevations_ts, expected_flows)
+    for rating_set_file_name in [rating_set_1_file_name, rating_set_2_file_name]:
+        test_dss_store_retrieve(rating_set_file_name)

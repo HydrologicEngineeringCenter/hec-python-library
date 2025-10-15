@@ -6,6 +6,7 @@ import sys
 import traceback
 import warnings
 from datetime import datetime, timedelta
+from test.shared import dataset_from_file, random_subset, scriptdir, slow_test_coverage
 from typing import Any, List, Optional, Union, cast
 
 import numpy as np
@@ -31,7 +32,6 @@ from hec import (
     TimeSpan,
 )
 from hec import UnitQuantity as UQ
-from test.shared import dataset_from_file, random_subset, scriptdir, slow_test_coverage
 
 
 def equal_values(v1: list[float], v2: list[float]) -> bool:
@@ -2098,6 +2098,7 @@ def test_screen_with_value_range_or_change_rate() -> None:
                     else:
                         assert tsv.quality == okay_code
 
+
 def make_screen_with_duration_magnitude_data() -> list[list[Any]]:
     min_missing_limit = 0.051
     min_reject_limit = 0.101
@@ -2114,14 +2115,31 @@ def make_screen_with_duration_magnitude_data() -> list[list[Any]]:
                         for maxq in (max_question_limit * hours / 6.0, math.nan):
                             for maxr in (max_reject_limit * hours / 6.0, math.nan):
                                 for maxm in (max_missing_limit * hours / 6.0, math.nan):
-                                    data.append([hours] + list(map(lambda x: round(x, 9), [pct,minm,minr,minq,maxq,maxr,maxm])))
+                                    data.append(
+                                        [hours]
+                                        + list(
+                                            map(
+                                                lambda x: round(x, 9),
+                                                [
+                                                    pct,
+                                                    minm,
+                                                    minr,
+                                                    minq,
+                                                    maxq,
+                                                    maxr,
+                                                    maxm,
+                                                ],
+                                            )
+                                        )
+                                    )
     if slow_test_coverage < 100:
         data = random_subset(data)
     return data
 
+
 @pytest.mark.parametrize(
     "hours, pct, minm, minr, minq, maxq, maxr, maxm",
-    make_screen_with_duration_magnitude_data()
+    make_screen_with_duration_magnitude_data(),
 )
 def test_screen_with_duration_magnitude(
     hours: int,
@@ -2218,10 +2236,7 @@ def test_screen_with_duration_magnitude(
             or (
                 hours > 6
                 and pct > 50
-                and (
-                    math.isnan(values[i - 1])
-                    or math.isinf(values[i - 1])
-                )
+                and (math.isnan(values[i - 1]) or math.isinf(values[i - 1]))
             )
         )
         if not invalid:
@@ -2234,9 +2249,7 @@ def test_screen_with_duration_magnitude(
                 accum = values[i]
             else:
                 if hours == 8:
-                    accum = (
-                        values[i] + values[i - 1] / 3.0
-                    )
+                    accum = values[i] + values[i - 1] / 3.0
                 else:
                     accum = values[i] + values[i - 1]
         if math.isnan(values[i]):
@@ -2277,10 +2290,7 @@ def test_screen_with_duration_magnitude(
     # screen_with_duration_magnitude: work with protected values #
     # ---------------------------------------------------------- #
     ts2 = (
-        ts.select(
-            lambda tsv: cast(int, tsv.time.hour) % 24
-            == 1
-        )
+        ts.select(lambda tsv: cast(int, tsv.time.hour) % 24 == 1)
         .iset_protected()
         .iscreen_with_duration_magnitude(
             f"{hours}Hours",
@@ -2301,10 +2311,7 @@ def test_screen_with_duration_magnitude(
             or (
                 hours > 6
                 and pct > 50
-                and (
-                    math.isnan(values[i - 1])
-                    or math.isinf(values[i - 1])
-                )
+                and (math.isnan(values[i - 1]) or math.isinf(values[i - 1]))
             )
         )
         if not invalid:
@@ -2317,16 +2324,13 @@ def test_screen_with_duration_magnitude(
                 accum = values[i]
             else:
                 if hours == 8:
-                    accum = (
-                        values[i] + values[i - 1] / 3.0
-                    )
+                    accum = values[i] + values[i - 1] / 3.0
                 else:
                     accum = values[i] + values[i - 1]
         if tsv.quality.protection:
             assert tsv.quality == protected_code
             assert tsv.value.magnitude == values[i] or (
-                math.isnan(tsv.value.magnitude)
-                and math.isnan(values[i])
+                math.isnan(tsv.value.magnitude) and math.isnan(values[i])
             )
         elif math.isnan(values[i]):
             assert tsv.quality == unscreened_code
@@ -2367,9 +2371,7 @@ def test_screen_with_duration_magnitude(
     # screen_with_duration_magnitude: work with selection #
     # --------------------------------------------------- #
     time = HecTime("2024-10-11 07:00")
-    ts2 = ts.select(
-        lambda tsv: tsv.time > time
-    ).iscreen_with_duration_magnitude(
+    ts2 = ts.select(lambda tsv: tsv.time > time).iscreen_with_duration_magnitude(
         f"{hours}Hours",
         minm,
         minr,
@@ -2387,10 +2389,7 @@ def test_screen_with_duration_magnitude(
             or (
                 hours > 6
                 and pct > 50
-                and (
-                    math.isnan(values[i - 1])
-                    or math.isinf(values[i - 1])
-                )
+                and (math.isnan(values[i - 1]) or math.isinf(values[i - 1]))
             )
         )
         if not invalid:
@@ -2403,9 +2402,7 @@ def test_screen_with_duration_magnitude(
                 accum = values[i]
             else:
                 if hours == 8:
-                    accum = (
-                        values[i] + values[i - 1] / 3.0
-                    )
+                    accum = values[i] + values[i - 1] / 3.0
                 else:
                     accum = values[i] + values[i - 1]
         if tsv.time <= time:
@@ -2414,9 +2411,7 @@ def test_screen_with_duration_magnitude(
             assert tsv.quality == unscreened_code
         elif invalid:
             assert tsv.quality == unscreened_code
-        elif (
-            hours > 6 and i == 6
-        ):  # first selected index
+        elif hours > 6 and i == 6:  # first selected index
             assert tsv.quality == unscreened_code
         elif accum < minm or accum > maxm:
             assert tsv.quality == missing_code_screened
@@ -2447,6 +2442,7 @@ def test_screen_with_duration_magnitude(
         else:
             assert tsv.quality == okay_code
 
+
 def make_test_screen_with_constant_value_data() -> list[list[Any]]:
     data = []
     missing_limit = {2: 0.001, 4: 0.003, 6: 0.0035}
@@ -2458,14 +2454,19 @@ def make_test_screen_with_constant_value_data() -> list[list[Any]]:
                 for q in question_limit[hours], math.nan:
                     for above in 613.5, 613.51:
                         for pct in 50, 90:
-                            data.append([hours] + list(map(lambda x: round(x, 9), [m, r, q, above, pct])))
+                            data.append(
+                                [hours]
+                                + list(
+                                    map(lambda x: round(x, 9), [m, r, q, above, pct])
+                                )
+                            )
     if slow_test_coverage < 100:
         data = random_subset(data)
     return data
 
+
 @pytest.mark.parametrize(
-    "hours, m, r, q, above, pct",
-    make_test_screen_with_constant_value_data()
+    "hours, m, r, q, above, pct", make_test_screen_with_constant_value_data()
 )
 def test_screen_with_constant_value(
     hours: int,
@@ -2542,17 +2543,11 @@ def test_screen_with_constant_value(
     # -------------------------- #
     # screen_with_constant_value #
     # -------------------------- #
-    ts2 = ts.screen_with_constant_value(
-        f"{hours}Hours", m, r, q, above, pct
-    )
+    ts2 = ts.screen_with_constant_value(f"{hours}Hours", m, r, q, above, pct)
     tsvs = ts2.tsv
     for i, tsv in enumerate(tsvs):
         vals = values[max(i - hours, 0) : i + 1]
-        valid_vals = [
-            v
-            for v in vals
-            if not math.isnan(v) and not math.isinf(v)
-        ]
+        valid_vals = [v for v in vals if not math.isnan(v) and not math.isinf(v)]
         pct_valid = 100 * len(valid_vals) / len(vals)
         max_change = max(valid_vals) - min(valid_vals)
         if i < hours:
@@ -2578,29 +2573,20 @@ def test_screen_with_constant_value(
     # screen_with_constant_value: work with protected values #
     # ------------------------------------------------------ #
     ts2 = (
-        ts.select(
-            lambda tsv: cast(int, tsv.time.hour) % 24 == 1
-        )
+        ts.select(lambda tsv: cast(int, tsv.time.hour) % 24 == 1)
         .iset_protected()
-        .screen_with_constant_value(
-            f"{hours}Hours", m, r, q, above, pct
-        )
+        .screen_with_constant_value(f"{hours}Hours", m, r, q, above, pct)
     )
     tsvs = ts2.tsv
     for i, tsv in enumerate(tsvs):
         vals = values[max(i - hours, 0) : i + 1]
-        valid_vals = [
-            v
-            for v in vals
-            if not math.isnan(v) and not math.isinf(v)
-        ]
+        valid_vals = [v for v in vals if not math.isnan(v) and not math.isinf(v)]
         pct_valid = 100 * len(valid_vals) / len(vals)
         max_change = max(valid_vals) - min(valid_vals)
         if tsv.quality.protection:
             assert tsv.quality == protected_code
             assert tsv.value.magnitude == values[i] or (
-                math.isnan(tsv.value.magnitude)
-                and math.isnan(values[i])
+                math.isnan(tsv.value.magnitude) and math.isnan(values[i])
             )
         elif i < hours:
             assert tsv.quality == unscreened_code
@@ -2625,19 +2611,13 @@ def test_screen_with_constant_value(
     # screen_with_constant_value: work with selection #
     # ----------------------------------------------- #
     time = HecTime("2024-10-10T06:00:00")
-    ts2 = ts.select(
-        lambda tsv: tsv.time > time
-    ).screen_with_constant_value(
+    ts2 = ts.select(lambda tsv: tsv.time > time).screen_with_constant_value(
         f"{hours}Hours", m, r, q, above, pct
     )
     tsvs = ts2.tsv
     for i, tsv in enumerate(tsvs):
         vals = values[max(i - hours, 0) : i + 1]
-        valid_vals = [
-            v
-            for v in vals
-            if not math.isnan(v) and not math.isinf(v)
-        ]
+        valid_vals = [v for v in vals if not math.isnan(v) and not math.isinf(v)]
         pct_valid = 100 * len(valid_vals) / len(vals)
         max_change = max(valid_vals) - min(valid_vals)
         if i < hours + 6:  # time is at hour 5
@@ -2660,6 +2640,7 @@ def test_screen_with_constant_value(
         else:
             assert tsv.quality == okay_code
 
+
 def make_test_screen_with_forward_moving_average_data() -> list[list[Any]]:
     data = []
     for window in 3, 5:
@@ -2667,12 +2648,21 @@ def make_test_screen_with_forward_moving_average_data() -> list[list[Any]]:
             for use_reduced in False, True:
                 for diff_limit in 10, 15:
                     for failed_validity in "QRM":
-                        data.append([window, only_valid, use_reduced, diff_limit, failed_validity])
+                        data.append(
+                            [
+                                window,
+                                only_valid,
+                                use_reduced,
+                                diff_limit,
+                                failed_validity,
+                            ]
+                        )
     return data
 
+
 @pytest.mark.parametrize(
-        "window, only_valid, use_reduced, diff_limit, failed_validity",
-        make_test_screen_with_forward_moving_average_data()
+    "window, only_valid, use_reduced, diff_limit, failed_validity",
+    make_test_screen_with_forward_moving_average_data(),
 )
 def test_screen_with_forward_moving_average(
     window: int,
@@ -2790,8 +2780,7 @@ def test_screen_with_forward_moving_average(
         if tsv.quality.protection:
             assert tsv.quality == protected_code
             assert tsv.value.magnitude == values[i] or (
-                math.isnan(tsv.value.magnitude)
-                and math.isnan(values[i])
+                math.isnan(tsv.value.magnitude) and math.isnan(values[i])
             )
         elif math.isnan(values[i]) or math.isinf(values[i]):
             assert tsv.quality == missing_code_unscreened
@@ -2813,9 +2802,7 @@ def test_screen_with_forward_moving_average(
     time = HecTime("2024-10-10T06:00:00")
     ts2 = ts.forward_moving_average(window, only_valid, use_reduced)
     averaged = ts2.values
-    ts3 = ts.select(
-        lambda tsv: tsv.time > time
-    ).screen_with_forward_moving_average(
+    ts3 = ts.select(lambda tsv: tsv.time > time).screen_with_forward_moving_average(
         window, only_valid, use_reduced, diff_limit, failed_validity
     )
     tsvs = ts3.tsv
@@ -2837,6 +2824,7 @@ def test_screen_with_forward_moving_average(
         else:
             assert tsv.quality == okay_code
 
+
 def make_test_estimate_missing_values_data() -> list[list[Any]]:
     data = []
     for accumulation in (False, True):
@@ -2845,14 +2833,13 @@ def make_test_estimate_missing_values_data() -> list[list[Any]]:
                 data.append([accumulation, estimate_rejected, set_questionable])
     return data
 
+
 @pytest.mark.parametrize(
     "accumulation, estimate_rejected, set_questionable",
     make_test_estimate_missing_values_data(),
 )
 def test_estimate_missing_values(
-    accumulation: bool,
-    estimate_rejected: bool,
-    set_questionable: bool
+    accumulation: bool, estimate_rejected: bool, set_questionable: bool
 ) -> None:
     #                  [-] Accumulation      [-] Accumulation      [-] Accumulation      [-] Accumulation      [+] Accumulation      [+] Accumulation      [+] Accumulation      [+] Accumulation
     #                  [-] Estimate Rejected [-] Estimate Rejected [+] Estimate Rejected [+] Estimate Rejected [-] Estimate Rejected [-] Estimate Rejected [+] Estimate Rejected [+] Estimate Rejected
@@ -2952,9 +2939,7 @@ def test_estimate_missing_values(
     dv1 = data_vals[1][:]
     for i in range(0, len(dv0), 2):
         expected_values[i] = dv0[i]
-        expected_qualities[i] = (
-            Qual(int(dv1[i])).set_protection("Protected").unsigned
-        )
+        expected_qualities[i] = Qual(int(dv1[i])).set_protection("Protected").unsigned
     assert np.allclose(ts2.values, expected_values, equal_nan=True)
     assert all(
         [
@@ -2978,14 +2963,10 @@ def test_estimate_missing_values(
     expected_qualities = []
     for i in range(len(ts)):
         expected_values.append(
-            data_vals[0][i]
-            if i <= time_offset
-            else data_vals[columns[key]][i]
+            data_vals[0][i] if i <= time_offset else data_vals[columns[key]][i]
         )
         expected_qualities.append(
-            int(data_vals[1][i])
-            if i <= time_offset
-            else data_vals[columns[key] + 1][i]
+            int(data_vals[1][i]) if i <= time_offset else data_vals[columns[key] + 1][i]
         )
     assert np.allclose(ts2.values, expected_values, equal_nan=True)
     assert all(
@@ -3547,6 +3528,7 @@ def test_snap_to_regular() -> None:
     expected_values = [1000.0, 1045.0, math.nan, 1165.0, 1225.0, 1300.0]
     expected_qualities = [0, 0, 5, 0, 0, 0]
 
+
 def make_test_new_regluar_time_series_data() -> list[list[Any]]:
     data = []
     time_zone = "US/Pacific"
@@ -3585,10 +3567,13 @@ def make_test_new_regluar_time_series_data() -> list[list[Any]]:
                 for offset in offsets:
                     for value in values:
                         for quality in qualities:
-                            data.append([start_time, end, intvl, offset, value, quality])
+                            data.append(
+                                [start_time, end, intvl, offset, value, quality]
+                            )
     if slow_test_coverage < 100:
         data = random_subset(data)
     return data
+
 
 @pytest.mark.parametrize(
     "start_time, end, intvl, offset, value, quality",
@@ -3725,13 +3710,10 @@ def test_new_regular_time_series(
         value,
         quality,
     )
-    assert ts.name == name.replace(
-        "Inst.0", f"Inst.{intvl.name}"
-    )
+    assert ts.name == name.replace("Inst.0", f"Inst.{intvl.name}")
     assert len(ts) == expected_length
     same = [
-        ts.times[i]
-        == expected_times[str(start_time)][intvl.name][i]
+        ts.times[i] == expected_times[str(start_time)][intvl.name][i]
         for i in range(expected_length)
     ]
     if not all(same):
@@ -3750,11 +3732,10 @@ def test_new_regular_time_series(
             "[1.,2.,3.,4.,5.,1.,2.,3.,4.,5.,1.,2.,3.,4.,5.,1.,2.,3.,4.,5.,1.,2.,3.,4.]"
         )
     if isinstance(quality, list):
-        assert ts.qualities == eval(
-            "[0,3,0,3,0,3,0,3,0,3,0,3,0,3,0,3,0,3,0,3,0,3,0,3]"
-        )
+        assert ts.qualities == eval("[0,3,0,3,0,3,0,3,0,3,0,3,0,3,0,3,0,3,0,3,0,3,0,3]")
     else:
         assert ts.qualities == expected_length * [3]
+
 
 def make_test_resample_data() -> list[list[Any]]:
     data = []
@@ -3787,15 +3768,12 @@ def make_test_resample_data() -> list[list[Any]]:
         data = random_subset(data)
     return data
 
+
 @pytest.mark.parametrize(
-        "param_type, param, op, require_entire_interval",
-        make_test_resample_data()
+    "param_type, param, op, require_entire_interval", make_test_resample_data()
 )
 def test_resample_same_aligned(
-    param_type: str,
-    param: str,
-    op: str,
-    require_entire_interval: Optional[bool]
+    param_type: str, param: str, op: str, require_entire_interval: Optional[bool]
 ) -> None:
     intvl_1_hour = Interval.get_cwms("1Hour")
     call_count = 0
@@ -4003,15 +3981,12 @@ def test_resample_same_aligned(
                 equal_nan=True,
             )
 
+
 @pytest.mark.parametrize(
-    "param_type, param, op, require_entire_interval",
-    make_test_resample_data()
+    "param_type, param, op, require_entire_interval", make_test_resample_data()
 )
 def test_resample_same_non_aligned(
-    param_type: str,
-    param: str,
-    op: str,
-    require_entire_interval: Optional[bool]
+    param_type: str, param: str, op: str, require_entire_interval: Optional[bool]
 ) -> None:
     intvl_1_hour = Interval.get_cwms("1Hour")
     call_count = 0
@@ -4183,9 +4158,7 @@ def test_resample_same_non_aligned(
     }
     expected_name = f"Loc.{expected_param_name[op]}.{expected_param_type_name[op]}.{intvl_1_hour.name}.0.Test"
     if op in ("count", "max", "min"):
-        ts2 = ts.resample(
-            op, intvl_1_hour, entire_interval=require_entire_interval
-        )
+        ts2 = ts.resample(op, intvl_1_hour, entire_interval=require_entire_interval)
         call_count += 1
         assert ts2.name == expected_name
         assert ts2.unit == expected_unit[op]
@@ -4221,15 +4194,13 @@ def test_resample_same_non_aligned(
                 eval(expected_values[op][param_type]),  # type: ignore
                 equal_nan=True,
             )
+
+
 @pytest.mark.parametrize(
-    "param_type, param, op, require_entire_interval",
-    make_test_resample_data()
+    "param_type, param, op, require_entire_interval", make_test_resample_data()
 )
 def test_resample_small_to_large_aligned(
-    param_type: str,
-    param: str,
-    op: str,
-    require_entire_interval: Optional[bool]
+    param_type: str, param: str, op: str, require_entire_interval: Optional[bool]
 ) -> None:
     intvl_1_hour = Interval.get_cwms("1Hour")
     intvl_6_hours = Interval.get_cwms("6Hours")
@@ -4402,21 +4373,19 @@ def test_resample_small_to_large_aligned(
     }
     expected_name = f"Loc.{expected_param_name[op]}.{expected_param_type_name[op]}.{intvl_6_hours.name}.0.Test"
     if op in ("count", "max", "min"):
-            ts2 = ts.resample(
-                op, intvl_6_hours, entire_interval=require_entire_interval
-            )
-            call_count += 1
-            assert ts2.name == expected_name
-            assert ts2.unit == expected_unit[op]
-            assert np.allclose(
-                ts2.values,
-                eval(
-                    expected_values[op][str(require_entire_interval)][  # type: ignore
-                        param_type
-                    ]
-                ),
-                equal_nan=True,
-            )
+        ts2 = ts.resample(op, intvl_6_hours, entire_interval=require_entire_interval)
+        call_count += 1
+        assert ts2.name == expected_name
+        assert ts2.unit == expected_unit[op]
+        assert np.allclose(
+            ts2.values,
+            eval(
+                expected_values[op][str(require_entire_interval)][  # type: ignore
+                    param_type
+                ]
+            ),
+            equal_nan=True,
+        )
     else:
         try:
             ts2 = ts.resample(op, intvl_6_hours)
@@ -4442,15 +4411,12 @@ def test_resample_small_to_large_aligned(
                 equal_nan=True,
             )
 
+
 @pytest.mark.parametrize(
-    "param_type, param, op, require_entire_interval",
-    make_test_resample_data()
+    "param_type, param, op, require_entire_interval", make_test_resample_data()
 )
 def test_resample_large_to_small_aligned(
-    param_type: str,
-    param: str,
-    op: str,
-    require_entire_interval: Optional[bool]
+    param_type: str, param: str, op: str, require_entire_interval: Optional[bool]
 ) -> None:
     intvl_1_hour = Interval.get_cwms("1Hour")
     intvl_6_hours = Interval.get_cwms("6Hours")
@@ -4622,9 +4588,7 @@ def test_resample_large_to_small_aligned(
     }
     expected_name = f"Loc.{expected_param_name[op]}.{expected_param_type_name[op]}.{intvl_1_hour.name}.0.Test"
     if op in ("count", "max", "min"):
-        ts2 = ts.resample(
-            op, intvl_1_hour, entire_interval=require_entire_interval
-        )
+        ts2 = ts.resample(op, intvl_1_hour, entire_interval=require_entire_interval)
         call_count += 1
         assert ts2.name == expected_name
         assert ts2.unit == expected_unit[op]
@@ -4662,15 +4626,12 @@ def test_resample_large_to_small_aligned(
                 equal_nan=True,
             )
 
+
 @pytest.mark.parametrize(
-    "param_type, param, op, require_entire_interval",
-    make_test_resample_data()
+    "param_type, param, op, require_entire_interval", make_test_resample_data()
 )
 def test_resample_small_to_large_non_aligned(
-    param_type: str,
-    param: str,
-    op: str,
-    require_entire_interval: Optional[bool]
+    param_type: str, param: str, op: str, require_entire_interval: Optional[bool]
 ) -> None:
     intvl_1_hour = Interval.get_cwms("1Hour")
     intvl_6_hours = Interval.get_cwms("6Hours")
@@ -4842,9 +4803,7 @@ def test_resample_small_to_large_non_aligned(
     }
     expected_name = f"Loc.{expected_param_name[op]}.{expected_param_type_name[op]}.{intvl_6_hours.name}.0.Test"
     if op in ("count", "max", "min"):
-        ts2 = ts.resample(
-            op, intvl_6_hours, entire_interval=require_entire_interval
-        )
+        ts2 = ts.resample(op, intvl_6_hours, entire_interval=require_entire_interval)
         call_count += 1
         assert ts2.name == expected_name
         assert ts2.unit == expected_unit[op]
@@ -4882,15 +4841,12 @@ def test_resample_small_to_large_non_aligned(
                 equal_nan=True,
             )
 
+
 @pytest.mark.parametrize(
-    "param_type, param, op, require_entire_interval",
-    make_test_resample_data()
+    "param_type, param, op, require_entire_interval", make_test_resample_data()
 )
 def test_resample_large_to_small_non_aligned(
-    param_type: str,
-    param: str,
-    op: str,
-    require_entire_interval: Optional[bool]
+    param_type: str, param: str, op: str, require_entire_interval: Optional[bool]
 ) -> None:
     intvl_1_hour = Interval.get_cwms("1Hour")
     intvl_6_hours = Interval.get_cwms("6Hours")
@@ -5063,9 +5019,7 @@ def test_resample_large_to_small_non_aligned(
     }
     expected_name = f"Loc.{expected_param_name[op]}.{expected_param_type_name[op]}.{intvl_1_hour.name}.0.Test"
     if op in ("count", "max", "min"):
-        ts2 = ts.resample(
-            op, intvl_1_hour, entire_interval=require_entire_interval
-        )
+        ts2 = ts.resample(op, intvl_1_hour, entire_interval=require_entire_interval)
         call_count += 1
         assert ts2.name == expected_name
         assert ts2.unit == expected_unit[op]
@@ -5208,6 +5162,7 @@ def run_test_timed(test_name: str) -> None:
         traceback.print_exc()
     ts2 = datetime.now()
     print(f"...completed in {ts2 - ts1}")
+
 
 if __name__ == "__main__":
     run_test_timed("test_time_series_value")

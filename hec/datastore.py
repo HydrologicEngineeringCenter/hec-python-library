@@ -902,7 +902,7 @@ class DssDataStore(AbstractDataStore):
             # we are loading all effective times using EAGER or LAZY loading #
             # -------------------------------------------------------------- #
             pathnames = self.catalog(
-                "ARRAY",
+                "TEXT",
                 pattern=spec_pathname.replace("Specification", "(Body|Points)-*"),
             )
             pathnames_by_time: dict[str, list[str]] = {}
@@ -927,11 +927,11 @@ class DssDataStore(AbstractDataStore):
         xml = '<ratings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.hec.usace.army.mil/xmlSchema/cwms/Ratings.xsd">\n'
         for pathname in [template_pathname, spec_pathname] + rating_pathnames:
             record = self._hecdss.get(pathname)
-            if not isinstance(record, hecdss.ArrayContainer):
+            if not isinstance(record, hecdss.Text):
                 raise TypeError(
-                    f"Expected ArrayContainer for {pathname}, got {record.__class__.__name__}"
+                    f"Expected Text for {pathname}, got {record.__class__.__name__}"
                 )
-            xml += DssDataStore.decode_ints(record.int_values) + "\n"
+            xml += record.text + "\n"
         xml += "</ratings>"
         # ------------------------------------ #
         # generate the rating set from the xml #
@@ -1628,25 +1628,23 @@ class DssDataStore(AbstractDataStore):
                     # save with point pathname and delete points for saving as body pathname #
                     # ---------------------------------------------------------------------- #
                     pathname_with_points = f"/{office}/{location_id}/{parameters_id}/Rating-Points-{effective_time_str}/{template_version}/{specification_version}/"
-                    xml_data = DssDataStore.encode_str(
-                        etree.tostring(child, pretty_print=True).decode()
+                    xml = (
+                        "  "
+                        + etree.tostring(child, pretty_print=True).decode()[:-1].strip()
                     )
-                    ac = hecdss.ArrayContainer.create_array_container(
-                        int_values=xml_data, path=pathname_with_points
+                    self._hecdss.put(
+                        hecdss.Text.create(id=pathname_with_points, text=xml)
                     )
-                    self._hecdss.put(ac)
                     child[:] = [
                         elem
                         for elem in child
                         if elem.tag not in ("rating-points", "extension-points")
                     ]
-                xml_data = DssDataStore.encode_str(
-                    etree.tostring(child, pretty_print=True).decode()
+                xml = (
+                    "  "
+                    + etree.tostring(child, pretty_print=True).decode()[:-1].strip()
                 )
-                ac = hecdss.ArrayContainer.create_array_container(
-                    int_values=xml_data, path=pathname
-                )
-                self._hecdss.put(ac)
+                self._hecdss.put(hecdss.Text.create(id=pathname, text=xml))
         else:
             raise TypeError(f"Storing {type(obj).__name__} objects is not supported")
 

@@ -516,7 +516,7 @@ class LocalRatingSet(AbstractRatingSet):
             Read-Only
         """
         return self._ratings
-    
+
     def to_xml(self, indent: str = "  ", prepend: str = "") -> str:
         """
         Returns a formatted xml representation of the rating set.
