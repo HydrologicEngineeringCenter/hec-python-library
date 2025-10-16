@@ -892,7 +892,7 @@ class DssDataStore(AbstractDataStore):
             # we are lazy loading a specific effective time #
             # --------------------------------------------- #
             effective_time_str = (
-                effective_time.astimezone(ZoneInfo("UTC")).isoformat()[:19] + "Z"
+                effective_time.replace(microsecond=0).astimezone(ZoneInfo("UTC")).isoformat() + "Z"
             )
             rating_pathnames = [
                 spec_pathname.replace("Specification", f"Points-{effective_time_str}")
@@ -1608,10 +1608,12 @@ class DssDataStore(AbstractDataStore):
                         raise DataStoreException(f"No effective time for {child.tag}")
                     effective_time_str = effective_time_elem.text
                     if not (effective_time_str.endswith("Z")):
+                        old_str = effective_time_str
                         effective_time_str = (
                             datetime.fromisoformat(effective_time_elem.text)
+                            .replace(microsecond=0)
                             .astimezone(ZoneInfo("UTC"))
-                            .isoformat()[:22]
+                            .isoformat()
                             .replace("+00:00", "Z")
                         )
                     pathname = f"/{office}/{location_id}/{parameters_id}/Rating-Body-{effective_time_str}/{template_version}/{specification_version}/"

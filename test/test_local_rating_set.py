@@ -20,8 +20,13 @@ _rs_lazy_cwms: Optional[AbstractRatingSet] = None
 _rs_eager_dss: Optional[AbstractRatingSet] = None
 _rs_lazy_dss: Optional[AbstractRatingSet] = None
 
-rating_set_1_file_name = "test/resources/rating/local_rating_set_1.xml"
-rating_set_2_file_name = "test/resources/rating/local_rating_set_2.xml"
+rating_set_3_ind_params_file_name = (
+    "test/resources/rating/local_rating_set_3_ind_params.xml"
+)
+rating_set_1_ind_param_file_name = (
+    "test/resources/rating/local_rating_set_1_ind_param.xml"
+)
+rating_set_large_file_name = "test/resources/rating/local_rating_set_large.xml"
 
 dss_file_name = "test/resources/rating/local_rating_set.dss"
 
@@ -49,14 +54,20 @@ def can_use_cda() -> bool:
 
 
 @pytest.fixture
-def rating_set_1() -> LocalRatingSet:
-    with open(rating_set_1_file_name) as f:
+def rating_set_3_ind_params() -> LocalRatingSet:
+    with open(rating_set_3_ind_params_file_name) as f:
         return LocalRatingSet.from_xml(f.read())
 
 
 @pytest.fixture
-def rating_set_2() -> LocalRatingSet:
-    with open(rating_set_2_file_name) as f:
+def rating_set_1_ind_param() -> LocalRatingSet:
+    with open(rating_set_1_ind_param_file_name) as f:
+        return LocalRatingSet.from_xml(f.read())
+
+
+@pytest.fixture
+def rating_set_large() -> LocalRatingSet:
+    with open(rating_set_large_file_name) as f:
         return LocalRatingSet.from_xml(f.read())
 
 
@@ -259,7 +270,7 @@ rating_set_2_list_data: Optional[list[list[Any]]] = None
 rating_set_2_ts_data: Optional[list[list[Any]]] = None
 
 
-def generate_local_rating_set_1_list_data() -> list[list[Any]]:
+def generate_local_rating_set_3_ind_params_list_data() -> list[list[Any]]:
     global rating_set_1_list_data
     if rating_set_1_list_data is None:
         rating_set_1_list_data = []
@@ -291,10 +302,10 @@ def generate_local_rating_set_1_list_data() -> list[list[Any]]:
     return rating_set_1_list_data
 
 
-def generate_local_rating_set_1_ts_data() -> list[list[Any]]:
+def generate_local_rating_set_3_ind_params_ts_data() -> list[list[Any]]:
     global rating_set_1_ts_data
     if rating_set_1_ts_data is None:
-        with open(rating_set_1_file_name) as f:
+        with open(rating_set_3_ind_params_file_name) as f:
             rating_set_1 = LocalRatingSet.from_xml(f.read())
         rating_set_1_ts_data = []
         timestrs, counts, openings, elevations, expected_flows = list(
@@ -345,7 +356,7 @@ def generate_local_rating_set_1_ts_data() -> list[list[Any]]:
     return rating_set_1_ts_data
 
 
-def generate_local_rating_set_2_list_data() -> list[list[Any]]:
+def generate_local_rating_set_1_ind_param_list_data() -> list[list[Any]]:
     global rating_set_2_list_data
     if rating_set_2_list_data is None:
         rating_set_2_list_data = []
@@ -366,10 +377,10 @@ def generate_local_rating_set_2_list_data() -> list[list[Any]]:
     return rating_set_2_list_data
 
 
-def generate_local_rating_set_2_ts_data() -> list[list[Any]]:
+def generate_local_rating_set_1_ind_param_ts_data() -> list[list[Any]]:
     global rating_set_2_ts_data
     if rating_set_2_ts_data is None:
-        with open("test/resources/rating/local_rating_set_2.xml") as f:
+        with open("test/resources/rating/local_rating_set_1_ind_param.xml") as f:
             rating_set_2 = LocalRatingSet.from_xml(f.read())
         rating_set_2_ts_data = []
         timestrs, elevations, expected_stors = list(map(list, zip(*rating_set_2_data)))
@@ -404,15 +415,15 @@ def generate_local_rating_set_2_ts_data() -> list[list[Any]]:
     "timestr, count, opening, elevation, expected_flow",
     rating_set_1_data,
 )
-def test_local_rating_set_1_individual(
-    rating_set_1: LocalRatingSet,
+def test_local_rating_set_3_ind_params_individual(
+    rating_set_3_ind_params: LocalRatingSet,
     timestr: str,
     count: float,
     opening: float,
     elevation: float,
     expected_flow: float,
 ) -> None:
-    rated_flow = rating_set_1.rate(
+    rated_flow = rating_set_3_ind_params.rate(
         [count, opening, elevation],
         times=datetime.fromisoformat(timestr),
         units="unit,ft,ft;cfs",
@@ -422,17 +433,17 @@ def test_local_rating_set_1_individual(
 
 @pytest.mark.parametrize(
     "timestrs, counts, openings, elevations, expected_flows",
-    generate_local_rating_set_1_list_data(),
+    generate_local_rating_set_3_ind_params_list_data(),
 )
-def test_local_rating_set_1_list(
-    rating_set_1: LocalRatingSet,
+def test_local_rating_set_3_ind_params_list(
+    rating_set_3_ind_params: LocalRatingSet,
     timestrs: list[str],
     counts: list[float],
     openings: list[float],
     elevations: list[float],
     expected_flows: list[float],
 ) -> None:
-    rated_flows = rating_set_1.rate(
+    rated_flows = rating_set_3_ind_params.rate(
         [counts, openings, elevations],
         times=list(map(datetime.fromisoformat, timestrs)),
         units="unit,ft,ft;cfs",
@@ -442,10 +453,10 @@ def test_local_rating_set_1_list(
 
 @pytest.mark.parametrize(
     "counts_ts, openings_ts, elevations_ts, expected_flows",
-    generate_local_rating_set_1_ts_data(),
+    generate_local_rating_set_3_ind_params_ts_data(),
 )
-def test_local_rating_set_1_ts(
-    rating_set_1: LocalRatingSet,
+def test_local_rating_set_3_ind_params_ts(
+    rating_set_3_ind_params: LocalRatingSet,
     counts_ts: TimeSeries,
     openings_ts: TimeSeries,
     elevations_ts: TimeSeries,
@@ -454,14 +465,14 @@ def test_local_rating_set_1_ts(
     # ------------------------------------------------ #
     # test with rating units and native vertical datum #
     # ------------------------------------------------ #
-    rated_flows = rating_set_1.rate(
+    rated_flows = rating_set_3_ind_params.rate(
         [counts_ts, openings_ts, elevations_ts], units="cfs"
     )
     assert np.allclose(expected_flows, rated_flows.values)
     # --------------------------------------------------- #
     # test with different units and native vertical datum #
     # --------------------------------------------------- #
-    rated_flows = rating_set_1.rate(
+    rated_flows = rating_set_3_ind_params.rate(
         [counts_ts, openings_ts.to("m"), elevations_ts.to("m").to("NAVD-88")],
         units="cfs",
         vertical_datum="NAVD-88",
@@ -473,13 +484,13 @@ def test_local_rating_set_1_ts(
     "timestr, elevation, expected_stor",
     rating_set_2_data,
 )
-def test_local_rating_set_2_individual(
-    rating_set_2: LocalRatingSet,
+def test_local_rating_set_1_ind_param_individual(
+    rating_set_1_ind_param: LocalRatingSet,
     timestr: str,
     elevation: float,
     expected_stor: float,
 ) -> None:
-    rated_stor = rating_set_2.rate(
+    rated_stor = rating_set_1_ind_param.rate(
         [elevation],
         times=datetime.fromisoformat(timestr),
         units="ft;ac-ft",
@@ -488,15 +499,16 @@ def test_local_rating_set_2_individual(
 
 
 @pytest.mark.parametrize(
-    "timestrs, elevations, expected_stors", generate_local_rating_set_2_list_data()
+    "timestrs, elevations, expected_stors",
+    generate_local_rating_set_1_ind_param_list_data(),
 )
-def test_local_rating_set_2_list(
-    rating_set_2: LocalRatingSet,
+def test_local_rating_set_1_ind_param_list(
+    rating_set_1_ind_param: LocalRatingSet,
     timestrs: list[str],
     elevations: list[float],
     expected_stors: list[float],
 ) -> None:
-    rated_stors = rating_set_2.rate(
+    rated_stors = rating_set_1_ind_param.rate(
         [elevations],
         times=list(map(datetime.fromisoformat, timestrs)),
         units="ft;ac-ft",
@@ -505,27 +517,29 @@ def test_local_rating_set_2_list(
 
 
 @pytest.mark.parametrize(
-    "elevations_ts, expected_stors", generate_local_rating_set_2_ts_data()
+    "elevations_ts, expected_stors", generate_local_rating_set_1_ind_param_ts_data()
 )
-def test_local_rating_set_2_ts(
-    rating_set_2: LocalRatingSet,
+def test_local_rating_set_1_ind_param_ts(
+    rating_set_1_ind_param: LocalRatingSet,
     elevations_ts: TimeSeries,
     expected_stors: list[float],
 ) -> None:
     # ------------------------------------------------ #
     # test with rating units and native vertical datum #
     # ------------------------------------------------ #
-    rated_stors = rating_set_2.rate([elevations_ts], units="ac-ft")
+    rated_stors = rating_set_1_ind_param.rate([elevations_ts], units="ac-ft")
     assert np.allclose(expected_stors, rated_stors.values)
     # --------------------------------------------------------------------------------- #
     # perform the reverse rating to make sure it doesn't blow up, but 2-D interpolation #
     # (time and elevation being the dimensions) is not generally inversible             #
     # --------------------------------------------------------------------------------- #
-    reverse_rated_elevs = rating_set_2.reverse_rate(rated_stors, units="ft")
+    reverse_rated_elevs = rating_set_1_ind_param.reverse_rate(rated_stors, units="ft")
     # --------------------------------------------------- #
     # test with different units and native vertical datum #
     # --------------------------------------------------- #
-    rated_stors = rating_set_2.rate(elevations_ts.to("m").to("NAVD-88"), units="mcm")
+    rated_stors = rating_set_1_ind_param.rate(
+        elevations_ts.to("m").to("NAVD-88"), units="mcm"
+    )
     acft_to_mcm = UnitQuantity("ac-ft").to("mcm").magnitude
     assert np.allclose(
         list(map(lambda v: v * acft_to_mcm, expected_stors)), rated_stors.values
@@ -534,14 +548,14 @@ def test_local_rating_set_2_ts(
     # perform the reverse rating to make sure it doesn't blow up, but 2-D interpolation #
     # (time and elevation being the dimensions) is not generally inversible             #
     # --------------------------------------------------------------------------------- #
-    reverse_rated_elevs = rating_set_2.reverse_rate(
+    reverse_rated_elevs = rating_set_1_ind_param.reverse_rate(
         rated_stors, units="m", vertical_datum="NAVD-88"
     )
 
 
 @pytest.mark.parametrize(
     "counts_ts, openings_ts, elevations_ts, expected_flows",
-    generate_local_rating_set_1_ts_data(),
+    generate_local_rating_set_3_ind_params_ts_data(),
 )
 def test_load_methods_with_cwms(
     counts_ts: TimeSeries,
@@ -586,7 +600,7 @@ def test_load_methods_with_cwms(
 
 @pytest.mark.parametrize(
     "counts_ts, openings_ts, elevations_ts, expected_flows",
-    generate_local_rating_set_1_ts_data(),
+    generate_local_rating_set_3_ind_params_ts_data(),
 )
 def test_load_methods_with_dss(
     counts_ts: TimeSeries,
@@ -598,7 +612,11 @@ def test_load_methods_with_dss(
     DssDataStore.set_message_level(0)
     if _dss is None:
         _dss = DssDataStore.open(dss_file_name, read_only=False)
-        for rating_set_file_name in (rating_set_1_file_name, rating_set_2_file_name):
+        for rating_set_file_name in (
+            rating_set_3_ind_params_file_name,
+            rating_set_1_ind_param_file_name,
+            rating_set_large_file_name,
+        ):
             with open(rating_set_file_name) as f:
                 _dss.store(LocalRatingSet.from_xml(f.read()))
     rating_id = "COUN.Count-Conduit_Gates,Opening-Conduit_Gates,Elev;Flow-Conduit_Gates.Standard.Production"
@@ -620,42 +638,13 @@ def test_load_methods_with_dss(
     assert np.allclose(expected_flows, rated_flows_lazy.values, equal_nan=True)
 
 
-def test_to_xml() -> None:
-    for rating_set_file_name in (
-        rating_set_1_file_name,
-        rating_set_2_file_name,
-    ):
-        with open(rating_set_file_name) as f:
-            xml1 = f.read()
-        rs = LocalRatingSet.from_xml(xml1)
-        xml2 = rs.to_xml()
-        # -------------------------- #
-        # format xml1 for comparison #
-        # -------------------------- #
-        # remove opening <?xml version="1.0" encoding="utf-8"?> line
-        if xml1.startswith("<?xml"):
-            xml1 = xml1.split("?>")[1].strip()
-        # remove null vertical datum offsets
-        xml1 = re.sub(
-            r"<offset .+?>\s*<to-datum>.+?</to-datum>\s*<value>0.0</value>\s*</offset>\s*",
-            "",
-            xml1,
-        )
-        # parse and re-generate
-        xml1 = etree.tostring(etree.fromstring(xml1), pretty_print=True).decode()
-        # change indentations for comparison
-        xml1 = replace_indent(xml1, " ", "  ")
-        # ------------------------- #
-        # finally do the comparison #
-        # ------------------------- #
-        assert xml2 == xml1
-
 
 @pytest.mark.parametrize(
     "rating_set_file_name",
     [
-        rating_set_1_file_name,
-        rating_set_2_file_name,
+        rating_set_3_ind_params_file_name,
+        rating_set_1_ind_param_file_name,
+        rating_set_large_file_name,
     ],
 )
 def test_dss_store_retrieve(rating_set_file_name: str) -> None:
@@ -686,11 +675,13 @@ def test_dss_store_retrieve(rating_set_file_name: str) -> None:
     # parse and re-generate
     xml1 = etree.tostring(etree.fromstring(xml1), pretty_print=True).decode()
     # change indentations for comparison
-    xml1 = replace_indent(xml1, " ", "  ")
+    lines = xml1[:1000].split("\n")
+    indention = lines[1][:lines[1].find("<")]
+    xml1 = replace_indent(xml1, indention, "  ")
     # ------------------------- #
     # finally do the comparison #
     # ------------------------- #
-    assert xml2 == xml1
+    assert xml2 == xml1, rating_set_file_name
 
 
 def test_dss_catalog() -> None:
@@ -699,7 +690,11 @@ def test_dss_catalog() -> None:
     DssDataStore.set_message_level(1)
     if _dss is None:
         _dss = DssDataStore.open(dss_file_name, read_only=False)
-    for rating_set_file_name in rating_set_1_file_name, rating_set_2_file_name:
+    for rating_set_file_name in (
+        rating_set_3_ind_params_file_name,
+        rating_set_1_ind_param_file_name,
+        rating_set_large_file_name,
+    ):
         with open(rating_set_file_name) as f:
             rs = LocalRatingSet.from_xml(f.read())
             rating_sets.append(rs)
@@ -708,73 +703,146 @@ def test_dss_catalog() -> None:
     # catalog rating templates as identifiers #
     # --------------------------------------- #
     catalog = _dss.catalog("RATING_TEMPLATE", office="SWT")
-    assert len(catalog) == 2
+    assert len(catalog) == 3
     assert (
         "Count-Conduit_Gates,Opening-Conduit_Gates,Elev;Flow-Conduit_Gates.Standard"
     ) in catalog
     assert "Elev;Stor.Linear" in catalog
+    assert "Stage;Flow.Linear" in catalog
     # -------------------------------------------- #
     # catalog rating specifications as identifiers #
     # -------------------------------------------- #
     catalog = _dss.catalog("RATING_SPECIFICATION", office="SWT")
-    assert len(catalog) == 2
+    assert len(catalog) == 3
     assert (
         "COUN.Count-Conduit_Gates,Opening-Conduit_Gates,Elev;Flow-Conduit_Gates.Standard.Production"
     ) in catalog
     assert "KEYS.Elev;Stor.Linear.Production" in catalog
-    catalog = _dss.catalog("RATING", office="SWT")
+    assert "BARN.Stage;Flow.Linear.Step" in catalog
     # ------------------------------ #
     # catalog ratings as identifiers #
     # ------------------------------ #
-    assert len(catalog) == 2
+    catalog = _dss.catalog("RATING", office="SWT")
+    assert len(catalog) == 3
     assert (
         "COUN.Count-Conduit_Gates,Opening-Conduit_Gates,Elev;Flow-Conduit_Gates.Standard.Production"
     ) in catalog
     assert "KEYS.Elev;Stor.Linear.Production" in catalog
+    assert "BARN.Stage;Flow.Linear.Step" in catalog
+    
     # ------------------------------------- #
     # catalog rating templates as pathnames #
     # ------------------------------------- #
     catalog = _dss.catalog("RATING_TEMPLATE", office="SWT", pathnames=True)
-    assert len(catalog) == 2
+    assert len(catalog) == 3
     assert (
         "/SWT//Count-Conduit_Gates,Opening-Conduit_Gates,Elev;Flow-Conduit_Gates/Rating-Template/Standard//"
     ) in catalog
     assert "/SWT//Elev;Stor/Rating-Template/Linear//" in catalog
+    assert "/SWT//Stage;Flow/Rating-Template/Linear//" in catalog
     # ------------------------------------------ #
     # catalog rating specifications as pathnames #
     # ------------------------------------------ #
     catalog = _dss.catalog("RATING_SPECIFICATION", office="SWT", pathnames=True)
-    assert len(catalog) == 2
+    assert len(catalog) == 3
     assert (
         "/SWT/COUN/Count-Conduit_Gates,Opening-Conduit_Gates,Elev;Flow-Conduit_Gates/Rating-Specification/Standard/Production/"
     ) in catalog
     assert "/SWT/KEYS/Elev;Stor/Rating-Specification/Linear/Production/" in catalog
+    assert "/SWT/BARN/Stage;Flow/Rating-Specification/Linear/Step/" in catalog
     # ---------------------------- #
     # catalog ratings as pathnames #
     # ---------------------------- #
     catalog = _dss.catalog("RATING", office="SWT", pathnames=True)
-    assert len(catalog) == 5
-    assert (
-        "/SWT/COUN/Count-Conduit_Gates,Opening-Conduit_Gates,Elev;Flow-Conduit_Gates/Rating-Body-2012-04-26T05:00:00Z/Standard/Production/"
-    ) in catalog
-    assert (
-        "/SWT/COUN/Count-Conduit_Gates,Opening-Conduit_Gates,Elev;Flow-Conduit_Gates/Rating-Body-2012-04-27T05:00:00Z/Standard/Production/"
-        in catalog
-    )
-    assert (
-        "/SWT/KEYS/Elev;Stor/Rating-Body-2009-01-14T06:00:00Z/Linear/Production/"
-        in catalog
-    )
-    assert (
-        "/SWT/KEYS/Elev;Stor/Rating-Body-2011-10-19T05:00:00Z/Linear/Production/"
-        in catalog
-    )
-    assert (
-        "/SWT/KEYS/Elev;Stor/Rating-Body-2020-08-01T05:00:00Z/Linear/Production/"
-        in catalog
-    )
+    assert len(catalog) == 73
+    for effective_time in ["2012-04-26T05:00:00Z", "2012-04-27T05:00:00Z"] :
+        assert (
+            f"/SWT/COUN/Count-Conduit_Gates,Opening-Conduit_Gates,Elev;Flow-Conduit_Gates/Rating-Body-{effective_time}/Standard/Production/"
+        ) in catalog
+    for effective_time in [
+        "2009-01-14T06:00:00Z",
+        "2011-10-19T05:00:00Z",
+        "2020-08-01T05:00:00Z",
+    ]:
+        assert (
+            f"/SWT/KEYS/Elev;Stor/Rating-Body-{effective_time}/Linear/Production/"
+            in catalog
+        )
+    for effective_time in [
+        "2023-10-27T18:25:00Z",
+        "2018-10-22T15:30:00Z",
+        "2019-03-12T17:45:00Z",
+        "2019-03-14T18:45:00Z",
+        "2019-04-22T17:35:00Z",
+        "2019-06-06T16:00:00Z",
+        "2019-09-04T18:40:00Z",
+        "2019-09-05T18:40:00Z",
+        "2019-10-02T17:05:00Z",
+        "2019-10-03T03:00:00Z",
+        "2020-03-04T05:59:00Z",
+        "2020-03-04T12:00:00Z",
+        "2020-06-19T16:10:00Z",
+        "2020-07-27T15:10:00Z",
+        "2020-07-27T22:00:00Z",
+        "2020-07-29T05:59:00Z",
+        "2020-08-31T13:51:00Z",
+        "2020-10-16T05:59:00Z",
+        "2020-11-19T19:10:00Z",
+        "2021-01-07T19:34:00Z",
+        "2021-02-27T15:00:00Z",
+        "2021-03-12T05:59:00Z",
+        "2021-03-17T19:00:00Z",
+        "2021-06-30T18:00:00Z",
+        "2021-07-27T05:59:00Z",
+        "2021-08-03T22:55:00Z",
+        "2021-10-26T17:30:00Z",
+        "2021-10-28T19:55:00Z",
+        "2021-11-01T23:40:00Z",
+        "2021-11-22T23:30:00Z",
+        "2022-02-17T20:40:00Z",
+        "2022-03-03T00:25:00Z",
+        "2022-03-31T01:25:00Z",
+        "2022-04-25T20:30:00Z",
+        "2022-07-18T19:35:00Z",
+        "2022-07-27T18:55:00Z",
+        "2022-08-09T00:40:00Z",
+        "2022-08-27T00:05:00Z",
+        "2022-09-28T01:50:00Z",
+        "2022-10-24T19:30:00Z",
+        "2022-10-26T23:35:00Z",
+        "2022-12-06T23:30:00Z",
+        "2023-02-15T02:35:00Z",
+        "2023-03-16T00:05:00Z",
+        "2023-05-23T17:40:00Z",
+        "2023-06-13T22:30:00Z",
+        "2023-08-18T20:20:00Z",
+        "2023-06-16T21:30:00Z",
+        "2023-06-20T23:25:00Z",
+        "2023-06-22T22:45:00Z",
+        "2023-07-28T19:25:00Z",
+        "2023-10-17T00:00:00Z",
+        "2023-10-20T20:15:00Z",
+        "2023-12-02T00:40:00Z",
+        "2024-03-04T23:15:00Z",
+        "2024-03-19T01:25:00Z",
+        "2024-04-19T17:50:00Z",
+        "2024-07-31T00:15:00Z",
+        "2024-08-02T16:40:00Z",
+        "2024-08-16T00:32:00Z",
+        "2024-08-19T21:15:00Z",
+        "2024-11-05T21:50:00Z",
+        "2025-02-13T20:00:00Z",
+        "2025-03-04T21:55:00Z",
+        "2025-03-05T20:00:00Z",
+        "2025-04-25T21:30:00Z",
+        "2025-06-19T01:05:00Z",
+        "2025-07-25T21:20:00Z",
+    ]:
+        assert (
+            f"/SWT/BARN/Stage;Flow/Rating-Body-{effective_time}/Linear/Step/"
+            in catalog
+        )
 
 
 if __name__ == "__main__":
-    for rating_set_file_name in [rating_set_1_file_name, rating_set_2_file_name]:
-        test_dss_store_retrieve(rating_set_file_name)
+    test_dss_catalog()
