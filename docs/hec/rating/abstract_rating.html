@@ -97,22 +97,10 @@
                                 <a class="function" href="#AbstractRating.rate">rate</a>
                         </li>
                         <li>
-                                <a class="function" href="#AbstractRating.rate_time_series">rate_time_series</a>
-                        </li>
-                        <li>
-                                <a class="function" href="#AbstractRating.rate_values">rate_values</a>
-                        </li>
-                        <li>
                                 <a class="variable" href="#AbstractRating.rating_units">rating_units</a>
                         </li>
                         <li>
                                 <a class="function" href="#AbstractRating.reverse_rate">reverse_rate</a>
-                        </li>
-                        <li>
-                                <a class="function" href="#AbstractRating.reverse_rate_time_series">reverse_rate_time_series</a>
-                        </li>
-                        <li>
-                                <a class="function" href="#AbstractRating.reverse_rate_values">reverse_rate_values</a>
                         </li>
                         <li>
                                 <a class="variable" href="#AbstractRating.specification">specification</a>
@@ -181,7 +169,7 @@
     </div>
     <a class="headerlink" href="#AbstractRatingException"></a>
     
-            <div class="docstring"><p>Base exception for all rating exceptions</p>
+            <div class="docstring"><p>Exception class for AbstractRating objects</p>
 </div>
 
 
@@ -712,80 +700,6 @@ values will be in the vertical datum of the input time series.</li>
 
 
                             </div>
-                            <div id="AbstractRating.rate_time_series" class="classattr">
-                                <div class="attr function">
-            
-        <span class="def">def</span>
-        <span class="name">rate_time_series</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="bp">self</span>,</span><span class="param">	<span class="n">ts</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n"><a href="../../hec.html#TimeSeries">hec.TimeSeries</a></span><span class="p">,</span> <span class="n">Sequence</span><span class="p">[</span><span class="n"><a href="../../hec.html#TimeSeries">hec.TimeSeries</a></span><span class="p">]]</span>,</span><span class="param">	<span class="n">unit</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">vertical_datum</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="nb">round</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></span><span class="return-annotation">) -> <span class="n"><a href="../../hec.html#TimeSeries">hec.TimeSeries</a></span>:</span></span>
-
-        
-    </div>
-    <a class="headerlink" href="#AbstractRating.rate_time_series"></a>
-    
-            <div class="docstring"><p>Rates an independent parameter time series (or list of such) and returns a dependent parameter time series</p>
-
-<h6 id="arguments">Arguments:</h6>
-
-<ul>
-<li><strong>ts (Union[TimeSeries, Sequence[TimeSeries]]):</strong>  If a list/tuple of TimeSeries:
-<ul>
-<li>Must be the same number as the number of independent parameters of the rating.</li>
-<li>Each time series must have the same times.</li>
-</ul></li>
-<li><strong>unit (Optional[str]):</strong>  The unit of the rated time series. If not specified or None, rating's default data unit for the dependent
-parameter, if any, is used. Otherwise, the dependent parameter's default unit will be used.</li>
-<li><strong>vertical_datum (Optional[str]):</strong>  The desired vertical datum for any output elevation time series. Any input elevation time series are expected
-to specify their own vertical datums. Defaults to None, in which case the location's native vertical datum is used.</li>
-<li><strong>round (bool, optional):</strong>  Whether to use the rating's specification's dependent rounding specification . Defaults to False.</li>
-</ul>
-
-<h6 id="returns">Returns:</h6>
-
-<blockquote>
-  <p>TimeSeries: The rated (dependent value) time series</p>
-</blockquote>
-</div>
-
-
-                            </div>
-                            <div id="AbstractRating.rate_values" class="classattr">
-                                <div class="attr function">
-                    <div class="decorator decorator-abstractmethod">@abstractmethod</div>
-
-        <span class="def">def</span>
-        <span class="name">rate_values</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="bp">self</span>,</span><span class="param">	<span class="n">ind_values</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span>,</span><span class="param">	<span class="n">units</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">vertical_datum</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="nb">round</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></span><span class="return-annotation">) -> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span>:</span></span>
-
-        
-    </div>
-    <a class="headerlink" href="#AbstractRating.rate_values"></a>
-    
-            <div class="docstring"><p>Rates list(s) of independent parameter values</p>
-
-<h6 id="arguments">Arguments:</h6>
-
-<ul>
-<li><strong>ind_values (list[list[float]]):</strong>  The independent parameter values. Values for each parameter are in its own list
-in the same order as the rating independent parameters. All parameter lists must be of the same length.</li>
-<li><strong>units (Optional[str]):</strong>  The units of the independent parameter values and the rated values. A comma-delimited string of
-independent value units concatendated with a semicolon and the dependent parameter unit. Defaults to None.
-<ul>
-<li>If not specified, the rating's default data units are used, if specified. If the rating has no default data units,
-the rating units are used.</li>
-</ul></li>
-<li><strong>vertical_datum (Optional[str]):</strong>  The vertical datum of any input elevation values and the desired vertical datum of any
-output elevation values. Defaults to None, in which case the location's native datum is assumed.</li>
-<li><strong>round (bool, optional):</strong>  Whether to use the rating's specification's dependent rounding specification . Defaults to False.</li>
-</ul>
-
-<h6 id="returns">Returns:</h6>
-
-<blockquote>
-  <p>list[float]: The rated (dependent parameter) values</p>
-</blockquote>
-</div>
-
-
-                            </div>
                             <div id="AbstractRating.rating_units" class="classattr">
                                 <div class="attr variable">
             <span class="name">rating_units</span><span class="annotation">: list[str]</span>
@@ -851,77 +765,6 @@ data unit for the dependent parameter, if any, is used. Otherwise, the dependent
 
 <blockquote>
   <p>Union[list[float], TimeSeries]: The dependent parameter values as described in <code>input</code> above</p>
-</blockquote>
-</div>
-
-
-                            </div>
-                            <div id="AbstractRating.reverse_rate_time_series" class="classattr">
-                                <div class="attr function">
-            
-        <span class="def">def</span>
-        <span class="name">reverse_rate_time_series</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="bp">self</span>,</span><span class="param">	<span class="n">ts</span><span class="p">:</span> <span class="n"><a href="../../hec.html#TimeSeries">hec.TimeSeries</a></span>,</span><span class="param">	<span class="n">unit</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">vertical_datum</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="nb">round</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></span><span class="return-annotation">) -> <span class="n"><a href="../../hec.html#TimeSeries">hec.TimeSeries</a></span>:</span></span>
-
-        
-    </div>
-    <a class="headerlink" href="#AbstractRating.reverse_rate_time_series"></a>
-    
-            <div class="docstring"><p>Reverse rates a dependent parameter time series and returns an independent parameter time series</p>
-
-<h6 id="arguments">Arguments:</h6>
-
-<ul>
-<li><strong>ts (TimeSeries):</strong>  The dependent value time series to reverse-rate</li>
-<li><strong>unit (Optional[str]):</strong>  The unit of the rated time series. If not specified or None, rating's default data unit for the independent
-parameter, if any, is used. Otherwise, the independent parameter's default unit will be used.</li>
-<li><strong>vertical_datum (Optional[str]):</strong>  The desired vertical datum of any output elevation time series. Any input elevation time series is
-expected to specify its own vertical datum. Defaults to None, in which case the location's native vertical datum will be used.</li>
-<li><strong>round (bool, optional):</strong>  Whether to use the rating's specification's independent rounding specification . Defaults to False.</li>
-</ul>
-
-<h6 id="returns">Returns:</h6>
-
-<blockquote>
-  <p>TimeSeries: The rated (independent value) time series</p>
-</blockquote>
-</div>
-
-
-                            </div>
-                            <div id="AbstractRating.reverse_rate_values" class="classattr">
-                                <div class="attr function">
-                    <div class="decorator decorator-abstractmethod">@abstractmethod</div>
-
-        <span class="def">def</span>
-        <span class="name">reverse_rate_values</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="bp">self</span>,</span><span class="param">	<span class="n">dep_values</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span>,</span><span class="param">	<span class="n">units</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">vertical_datum</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="nb">round</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span></span><span class="return-annotation">) -> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span>:</span></span>
-
-        
-    </div>
-    <a class="headerlink" href="#AbstractRating.reverse_rate_values"></a>
-    
-            <div class="docstring"><p>Rates a list of dependent parameter values.</p>
-
-<p>May only be used on ratings with a single independent parameter.</p>
-
-<h6 id="arguments">Arguments:</h6>
-
-<ul>
-<li><strong>dep_values (list[float]):</strong>  The dependent parameter values.</li>
-<li><strong>units (Optional[str]):</strong>  The units of the independent parameter values and the rated values.A comma-delimited string of
-independent value units concatendated with a semicolon and the dependent parameter unit. Defaults to None.
-<ul>
-<li>If not specified, the rating's default data units are used, if specified. If the rating has no default data units,
-the rating units are used.</li>
-</ul></li>
-<li><strong>vertical_datum (Optional[str]):</strong>  The vertical datum of any input elevation values and the desired vertical datum of any
-output elevation values. Defaults to None, in which case the location's native vertical datum will be used.</li>
-<li><strong>round (bool, optional):</strong>  Whether to use the rating's specification's independent rounding specification . Defaults to False.</li>
-</ul>
-
-<h6 id="returns">Returns:</h6>
-
-<blockquote>
-  <p>list[float]: The rated (independent parameter) values</p>
 </blockquote>
 </div>
 
@@ -1007,7 +850,7 @@ output elevation values. Defaults to None, in which case the location's native v
                                 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">to_xml</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">indent</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;  &#39;</span>, </span><span class="param"><span class="n">prepend</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span></span><span class="return-annotation">) -> <span class="nb">str</span>:</span></span>
+        <span class="name">to_xml</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">indent</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;  &#39;</span>, </span><span class="param"><span class="n">prepend</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span></span><span class="return-annotation">) -> <span class="nb">str</span>:</span></span>
 
         
     </div>

@@ -8227,7 +8227,7 @@ class TimeSeries:
                         target._data["value"] += offset.magnitude
             elif target.parameter.base_parameter == "Elev":
                 raise TimeSeriesException(
-                    f"Cannot set vertical datum on {self.parameter.name} time series that has no vetical datum information"
+                    f"Cannot set vertical datum on {self.parameter.name} time series that has no vertical datum information"
                 )
             else:
                 raise TimeSeriesException(

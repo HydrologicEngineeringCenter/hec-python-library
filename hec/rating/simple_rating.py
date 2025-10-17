@@ -14,10 +14,18 @@ from hec.rating.rating_template import RatingTemplate
 
 
 class SimpleRatingException(AbstractRatingException):
+    """
+    Exception class for SimpleRating objects
+    """
+
     pass
 
 
 class SimpleRating(AbstractRating):
+    """
+    Provides common for definitions and code for TableRating and ExpressionRating classes,
+    both of which are represented in XML using the <simple-rating> tag.
+    """
 
     def __init__(
         self,
@@ -39,13 +47,17 @@ class SimpleRating(AbstractRating):
         if spec and not specification:
             specification = spec
         if root.find("./formula") is not None:
+            # ---------------- #
+            # ExpressionRating #
+            # ---------------- #
             raise NotImplementedError("ExpressionRating is not yet implemented")
-        elif root.find("./rating-points") is not None:
-            return TableRating.from_element(root, specification)
+            # rating = ExpressionRating.from_element(root, specification)
         else:
-            raise SimpleRatingException(
-                "<simple-rating> element has no <formula> or <rating-points> element"
-            )
+            # ----------- #
+            # TableRating #
+            # ----------- #
+            rating = TableRating.from_element(root, specification)
+        return rating
 
     @property
     @abstractmethod
@@ -63,14 +75,3 @@ class SimpleRating(AbstractRating):
 
 
 SimpleRating._from_xml_methods[SimpleRating.__name__] = SimpleRating.from_xml
-
-if __name__ == "__main__":
-    with open("t:/rating.xml") as f:
-        rating = AbstractRating.from_xml(f.read())
-        from hec.rating.table_rating import TableRating
-
-        tr = cast(TableRating, rating)
-        flow = tr.rate_value([2, 0, 1250.5])
-        print(flow)
-        # with open("t:/rating2.xml", "w") as f:
-        #     f.write(rating.to_xml())

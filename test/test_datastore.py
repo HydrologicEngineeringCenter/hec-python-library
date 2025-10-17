@@ -370,8 +370,3 @@ def test_dss_datastore() -> None:
     assert False == dss.is_open  # context manager should close it
 
     os.remove(dss_file_name)
-
-
-if __name__ == "__main__":
-    # test_cwms_datastore()
-    test_dss_datastore()

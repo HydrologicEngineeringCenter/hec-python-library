@@ -27,6 +27,10 @@ from hec.timeseries import TimeSeries
 
 
 class AbstractRatingException(hec.shared.RatingException):
+    """
+    Exception class for AbstractRating objects
+    """
+
     pass
 
 
@@ -156,7 +160,9 @@ class AbstractRating(ABC):
                 "No <rating-spec-id> element in <simple-rating>"
             )
         if not specification:
-            specification = RatingSpecification(etree.tostring(spec_elem).decode())
+            specification = RatingSpecification(
+                spec_elem.text if spec_elem.text else ""
+            )
         vertical_datum_elem = root.find("./vertical-datum-info")
         if vertical_datum_elem is not None:
             vdi = ElevParameter._VerticalDatumInfo(
@@ -198,11 +204,12 @@ class AbstractRating(ABC):
         transition_start_date_elem = root.find("./transition-start-date")
         if transition_start_date_elem is not None:
             transition_start_time_str = transition_start_date_elem.text
-            transition_start_time = HecTime(transition_start_time_str).datetime()
-            if not transition_start_time:
-                raise AbstractRatingException(
-                    f"Invalid <transition_start-date>: {transition_start_time_str}"
-                )
+            if transition_start_time_str:
+                transition_start_time = HecTime(transition_start_time_str).datetime()
+                if not transition_start_time:
+                    raise AbstractRatingException(
+                        f"Invalid <transition_start-date>: {transition_start_time_str}"
+                    )
         active_elem = root.find("./active")
         if active_elem is not None:
             active = etree.tostring(active_elem).decode() == "true"
@@ -722,17 +729,25 @@ class AbstractRating(ABC):
             f"{','.join(self.rating_units[:-1])};{self.rating_units[-1]}"
         )
         effective_time_elem = etree.SubElement(rating_elem, "effective-date")
-        effective_time_elem.text = self.effective_time.replace(
-            microsecond=0
-        ).isoformat()
-        create_time_elem = etree.SubElement(rating_elem, "create-date")
-        if self.create_time:
-            create_time_elem.text = self.create_time.replace(microsecond=0).isoformat()
+        effective_time_elem.text = (
+            self.effective_time.replace(microsecond=0)
+            .isoformat()
+            .replace("+00:00", "Z")
+        )
         transition_time_elem = etree.SubElement(rating_elem, "transition-start-date")
         if self.transition_start_time:
-            transition_time_elem.text = self.transition_start_time.replace(
-                microsecond=0
-            ).isoformat()
+            transition_time_elem.text = (
+                self.transition_start_time.replace(microsecond=0)
+                .isoformat()
+                .replace("+00:00", "Z")
+            )
+        create_time_elem = etree.SubElement(rating_elem, "create-date")
+        if self.create_time:
+            create_time_elem.text = (
+                self.create_time.replace(microsecond=0)
+                .isoformat()
+                .replace("+00:00", "Z")
+            )
         active_elem = etree.SubElement(rating_elem, "active")
         active_elem.text = "true" if self.active else "false"
         desciption_elem = etree.SubElement(rating_elem, "description")
@@ -786,9 +801,9 @@ class AbstractRating(ABC):
             Union[list[float], TimeSeries]: The dependent parameter values as described in `input` above
         """
         if isinstance(input, TimeSeries):
-            return self.rate_time_series(ts=input, unit=units, round=round)
+            return self._rate_time_series(ts=input, unit=units, round=round)
         elif isinstance(input, list) and isinstance(input[0], TimeSeries):
-            return self.rate_time_series(
+            return self._rate_time_series(
                 ts=cast(list[TimeSeries], input),
                 unit=units,
                 vertical_datum=vertical_datum,
@@ -799,7 +814,7 @@ class AbstractRating(ABC):
             and isinstance(input[0], list)
             and isinstance(input[0][0], (int, float))
         ):
-            return self.rate_values(
+            return self._rate_values(
                 ind_values=cast(list[list[float]], input),
                 units=units,
                 vertical_datum=vertical_datum,
@@ -808,7 +823,7 @@ class AbstractRating(ABC):
         else:
             raise TypeError(f"Unexpected type for input: {input.__class__.__name__}")
 
-    def rate_time_series(
+    def _rate_time_series(
         self,
         ts: Union[TimeSeries, Sequence[TimeSeries]],
         unit: Optional[str] = None,
@@ -860,7 +875,7 @@ class AbstractRating(ABC):
                 ):
                     raise AbstractRatingException(
                         f"Time series {ts_list[i].name} must have native vertical datum info since vertical "
-                        f"datum of {vertical_datum} is specified to rate_time_series() method"
+                        f"datum of {vertical_datum} is specified to rate() method"
                     )
                 ts_list[i] = ts_list[i].to(
                     cast(
@@ -897,7 +912,7 @@ class AbstractRating(ABC):
         )
         if len(ts_list[0]) > 0:
             units = f"{','.join([t.unit for t in ts_list])};{dep_unit}"
-            rated_values = self.rate_values(
+            rated_values = self._rate_values(
                 ind_values=values,
                 units=units,
                 vertical_datum=vertical_datum,
@@ -923,7 +938,7 @@ class AbstractRating(ABC):
         return rated_ts
 
     @abstractmethod
-    def rate_values(
+    def _rate_values(
         self,
         ind_values: list[list[float]],
         units: Optional[str] = None,
@@ -995,14 +1010,14 @@ class AbstractRating(ABC):
             Union[list[float], TimeSeries]: The dependent parameter values as described in `input` above
         """
         if isinstance(input, TimeSeries):
-            return self.reverse_rate_time_series(
+            return self._reverse_rate_time_series(
                 ts=input,
                 unit=units,
                 vertical_datum=vertical_datum,
                 round=round,
             )
         elif isinstance(input, list) and isinstance(input[0], (int, float)):
-            return self.reverse_rate_values(
+            return self._reverse_rate_values(
                 dep_values=input,
                 units=units,
                 vertical_datum=vertical_datum,
@@ -1011,7 +1026,7 @@ class AbstractRating(ABC):
         else:
             raise TypeError(f"Unexpected type for input: {input.__class__.__name__}")
 
-    def reverse_rate_time_series(
+    def _reverse_rate_time_series(
         self,
         ts: TimeSeries,
         unit: Optional[str] = None,
@@ -1045,7 +1060,7 @@ class AbstractRating(ABC):
         )
         if len(ts) > 0:
             units = f"{ind_unit};{ts.unit}"
-            rated_values = self.reverse_rate_values(
+            rated_values = self._reverse_rate_values(
                 dep_values=ts.values,
                 units=units,
                 vertical_datum=vertical_datum,
@@ -1071,7 +1086,7 @@ class AbstractRating(ABC):
         return rated_ts
 
     @abstractmethod
-    def reverse_rate_values(
+    def _reverse_rate_values(
         self,
         dep_values: list[float],
         units: Optional[str] = None,
@@ -1140,7 +1155,7 @@ class AbstractRating(ABC):
         """
         return self._specification.template.name
 
-    def to_xml(self, indent: str = "  ", prepend: Optional[str] = None) -> str:
+    def to_xml(self, indent: str = "  ", prepend: str = "") -> str:
         """
         Returns a formatted xml representation of the rating.
 
@@ -1153,7 +1168,13 @@ class AbstractRating(ABC):
         Returns:
             str: The formatted xml
         """
-        xml: str = etree.tostring(self.xml_element, pretty_print=True).decode()
+        elem = self.xml_element
+        for e in elem.iter():
+            if e.text and e.text.strip() == "":
+                e.text = None
+            if e.tail and e.tail.strip() == "":
+                e.tail = None
+        xml: str = etree.tostring(elem, pretty_print=True).decode()
         if indent != "  ":
             xml = replace_indent(xml, indent)
         if prepend:

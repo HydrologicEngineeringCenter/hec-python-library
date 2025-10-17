@@ -1,5 +1,6 @@
 import os
 import random
+import traceback
 from typing import Any
 
 scriptdir: str = os.path.dirname(__file__)
@@ -12,7 +13,7 @@ slow_test_coverage: int = int(os.getenv("SLOW_TEST_COVERAGE", "100"))
 def random_subset(dataset: list[Any]) -> list[Any]:
     indices: set[int] = set()
     total = len(dataset)
-    count = round(total * max(min(slow_test_coverage, 100), 0) / 100)
+    count = max(round(total * max(min(slow_test_coverage, 100), 0) / 100), 1)
     while len(indices) < count:
         indices.add(random.randrange(total))
     return [dataset[i] for i in sorted(indices)]

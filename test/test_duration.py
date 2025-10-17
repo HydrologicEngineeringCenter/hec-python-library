@@ -24,7 +24,3 @@ def test_durations() -> None:
                 assert dur.is_bop == bop
                 assert dur.is_eop == (not bop)
             assert dur.minutes == intvl.minutes
-
-
-if __name__ == "__main__":
-    test_durations()

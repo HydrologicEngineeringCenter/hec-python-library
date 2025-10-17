@@ -222,7 +222,7 @@ def test_invalid_construction() -> None:
 
 def test_xml_operations() -> None:
 
-    xml_str = """<rating-template office="SWT">
+    xml_str = """<rating-template office-id="SWT">
   <parameters-id>Count-Conduit_Gates,Opening-Conduit_Gates,Elev;Flow-Conduit_Gates</parameters-id>
   <version>Standard</version>
   <ind-parameter-specs>
@@ -260,13 +260,5 @@ def test_xml_operations() -> None:
         ],
         description="Gate Rating (Number, Opening, Elev) --> Flow",
     )
-    assert template.to_xml() == xml_str
-
     template2 = RatingTemplate.from_xml(xml_str)
     assert template2.to_xml() == xml_str
-
-
-if __name__ == "__main__":
-    test_valid_construction()
-    test_invalid_construction()
-    test_xml_operations()

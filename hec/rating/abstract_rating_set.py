@@ -5,6 +5,10 @@ from typing import Any, Optional, Sequence, Union, cast
 import numpy as np
 
 import hec
+from hec.rating.rating_specification import RatingSpecification
+from hec.rating.rating_template import RatingTemplate
+from hec.shared import RatingException
+from hec.timeseries import TimeSeries
 
 from ..parameter import (
     _NAVD88,
@@ -16,10 +20,6 @@ from ..parameter import (
     _ngvd29_pattern,
     _other_datum_pattern,
 )
-from ..shared import RatingException
-from ..timeseries import TimeSeries
-from .rating_specification import RatingSpecification
-from .rating_template import RatingTemplate
 
 
 class AbstractRatingSetException(RatingException):
@@ -66,6 +66,183 @@ class AbstractRatingSet(ABC):
             or self.specification.template.dep_param.split("-")[0] == "Elev"
         )
 
+    def _rate_time_series(
+        self,
+        ts: Union[TimeSeries, Sequence[TimeSeries]],
+        unit: Optional[str] = None,
+        vertical_datum: Optional[str] = None,
+        rating_time: Optional[datetime] = None,
+        round: bool = False,
+    ) -> TimeSeries:
+        ts_list: list[TimeSeries]
+        if isinstance(ts, (tuple, list)):
+            for i in range(len(ts)):
+                if not isinstance(ts[i], TimeSeries):
+                    raise TypeError(
+                        f"Expected TimeSeries for ts[{i}], got {ts[i].__class__.__name__}"
+                    )
+            ts_list = list(ts)
+        elif isinstance(ts, TimeSeries):
+            ts_list = [ts]
+        else:
+            raise TypeError(
+                f"Expected TimeSeries or list/tuple of TimeSeries for parameter ts, got {ts.__class__.__name__}"
+            )
+        ts_count = len(ts_list)
+        for i in range(ts_count):
+            if (
+                ts_list[i].parameter.base_parameter == "Elev"
+                and ts_list[i].vertical_datum_info is not None
+            ):
+                if (
+                    cast(
+                        hec.parameter.ElevParameter._VerticalDatumInfo,
+                        ts_list[i].vertical_datum_info,
+                    ).native_datum
+                    is None
+                ):
+                    raise AbstractRatingSetException(
+                        f"Time series {ts_list[i].name} must have native vertical datum info since vertical "
+                        f"datum of {vertical_datum} is specified to rate() method"
+                    )
+                ts_list[i] = ts_list[i].to(
+                    cast(
+                        str,
+                        cast(
+                            hec.parameter.ElevParameter._VerticalDatumInfo,
+                            ts[i].vertical_datum_info,
+                        ).native_datum,
+                    )
+                    if vertical_datum is None
+                    else vertical_datum
+                )
+        expected_ts_count = self._specification.template.ind_param_count
+        if ts_count != expected_ts_count:
+            raise ValueError(
+                f"Expected {expected_ts_count} time series in ts, got {ts_count}"
+            )
+        time_strs = ts_list[0].times
+        for i in range(1, ts_count):
+            if ts_list[i].times != time_strs:
+                raise ValueError(
+                    f"Times for {ts[i].name} aren't the same as for {ts[0].name}"
+                )
+        values = [t.values for t in ts_list]
+        times = [datetime.fromisoformat(t) for t in time_strs]
+        dep_unit = (
+            unit
+            if unit
+            else (
+                self._default_data_units[-1]
+                if self._default_data_units is not None
+                else Parameter(self.template.dep_param).unit_name
+            )
+        )
+        if len(ts_list[0]) > 0:
+            units = f"{','.join([t.unit for t in ts_list])};{dep_unit}"
+            rated_values = self._rate_values(
+                ind_values=values,
+                value_times=times,
+                units=units,
+                vertical_datum=vertical_datum,
+                rating_time=rating_time,
+                round=round,
+            )
+        else:
+            rated_values = []
+        rated_ts = ts_list[0].copy()
+        if self.template.dep_param.startswith("Elev") and self._vertical_datum_info:
+            vdi = self._vertical_datum_info.copy()
+            vdi.unit_name = dep_unit
+            elev_param = hec.parameter.ElevParameter(
+                self.template.ind_params[0], str(vdi)
+            )
+            if vertical_datum:
+                elev_param.current_datum = vertical_datum
+            rated_ts.iset_parameter(elev_param)
+        else:
+            rated_ts.iset_parameter(Parameter(self.template.dep_param, dep_unit))
+        if rated_ts.data is not None:
+            rated_ts.data["value"] = rated_values
+            rated_ts.data["quality"] = [5 if np.isnan(v) else 0 for v in rated_values]
+        return rated_ts
+
+    @abstractmethod
+    def _rate_values(
+        self,
+        ind_values: list[list[float]],
+        value_times: Optional[list[datetime]] = None,
+        units: Optional[str] = None,
+        vertical_datum: Optional[str] = None,
+        rating_time: Optional[datetime] = None,
+        round: bool = False,
+    ) -> list[float]:
+        raise AbstractRatingSetException(
+            f"Method cannot be called on {self.__class__.__name__} object"
+        )
+
+    def _reverse_rate_time_series(
+        self,
+        ts: TimeSeries,
+        unit: Optional[str] = None,
+        vertical_datum: Optional[str] = None,
+        rating_time: Optional[datetime] = None,
+        round: bool = False,
+    ) -> TimeSeries:
+        if not isinstance(ts, TimeSeries):
+            raise TypeError(f"Expected TimeSeries for ts, got {ts.__class__.__name__}")
+        ind_unit = (
+            unit
+            if unit
+            else (
+                self._default_data_units[0]
+                if self._default_data_units
+                else Parameter(self.template.ind_params[0]).unit_name
+            )
+        )
+        if len(ts) > 0:
+            units = f"{ind_unit};{ts.unit}"
+            rated_values = self._reverse_rate_values(
+                dep_values=ts.values,
+                value_times=[datetime.fromisoformat(s) for s in ts.times],
+                units=units,
+                vertical_datum=vertical_datum,
+                rating_time=rating_time,
+                round=round,
+            )
+        else:
+            rated_values = []
+        rated_ts = ts.copy()
+        if self.template.ind_params[0].startswith("Elev") and self._vertical_datum_info:
+            vdi = self._vertical_datum_info.copy()
+            vdi.unit_name = ind_unit
+            elev_param = hec.parameter.ElevParameter(
+                self.template.ind_params[0], str(vdi)
+            )
+            if vertical_datum:
+                elev_param.current_datum = vertical_datum
+            rated_ts.iset_parameter(elev_param)
+        else:
+            rated_ts.iset_parameter(Parameter(self.template.ind_params[0], ind_unit))
+        if rated_ts.data is not None:
+            rated_ts.data["value"] = rated_values
+            rated_ts.data["quality"] = [5 if np.isnan(v) else 0 for v in rated_values]
+        return rated_ts
+
+    @abstractmethod
+    def _reverse_rate_values(
+        self,
+        dep_values: list[float],
+        value_times: Optional[list[datetime]] = None,
+        units: Optional[str] = None,
+        vertical_datum: Optional[str] = None,
+        rating_time: Optional[datetime] = None,
+        round: bool = False,
+    ) -> list[float]:
+        raise AbstractRatingSetException(
+            f"Method cannot be called on {self.__class__.__name__} object"
+        )
+
     @property
     def default_data_time(self) -> Optional[datetime]:
         """
@@ -92,9 +269,9 @@ class AbstractRatingSet(ABC):
     def default_data_units(self) -> Optional[list[str]]:
         """
         The units to use for independent and dependent parameter values when no units are specified for
-        [rate_values](#AbstractRatingSet.rate_values) or [reverse_rate_values](#AbstractRatingSet.reverse_rate_values).
+        [rate](#AbstractRatingSet.rate).
 
-        If None and no data units are specified, the rating methods will raise an exception.
+        If `None` and no data units are specified, the rating methods will raise an exception.
 
         Operations:
             Read/Write
@@ -113,7 +290,7 @@ class AbstractRatingSet(ABC):
         for i in range(ind_param_count):
             parameter = Parameter(self.template.ind_params[i], units[i])
             _units.append(parameter.unit_name)
-        parameter = Parameter(self.template.ind_params[-1], units[-1])
+        parameter = Parameter(self.template.dep_param, units[-1])
         _units.append(parameter.unit_name)
         self._default_data_units = _units
 
@@ -157,89 +334,130 @@ class AbstractRatingSet(ABC):
 
     def rate(
         self,
-        input: Union[list[list[float]], TimeSeries, Sequence[TimeSeries]],
+        input: Union[list[float], list[list[float]], TimeSeries, Sequence[TimeSeries]],
         *,
-        times: Optional[list[datetime]] = None,
+        times: Optional[Union[datetime, list[datetime]]] = None,
         units: Optional[str] = None,
         vertical_datum: Optional[str] = None,
         rating_time: Optional[datetime] = None,
         round: bool = False,
-    ) -> Union[list[float], TimeSeries]:
+    ) -> Any:
         """
         Rates independent parameter values and returns dependent parameter values.
 
+        The times of the values are used in conjuction with the effective times of the individual ratings and rating set specification lookup methods
+        to determine which ratings in the rating set are used - and the manner in which they are used - to compute the rated values.
+
         Args:
-            input (Union[list[list[float]], TimeSeries, Sequence[TimeSeries]]): The input parameter values.
-                * If specified as a list of lists of floats:
+            input (Union[list[float], list[list[float]]): The input (independnent parameter(s)) values.
+                * <b>If specified as a float or a list of floats</b> (for rating a single input value set using a single- or multi-independent-parameter rating set):
+                    * The list must be of the same length as the number of independent parameters of the rating set.
+                    * The `times` parameter is used, if specified
+                    * The `units`, if specified, is the unit of each independent and dependent parameter.
+                    * A single float is returned
+                * <b>If specified as a list of lists of floats</b> (for rating a list of input value sets using a single- or multi-independent-parameter rating set):
                     * The list must be of the same length as the number of independent parameters of the rating set.
                     * Each list of values must have the same times and be of the same length
                     * The `times` parameter is used, if specified
                     * The `units`, if specified, is the unit of each independent and dependent parameter.
                     * A list of floats is returned
-                * If specified as a TimeSeries:
+                * <b>If specified as a TimeSeries</b> (for rating a single time series using a single-independent-parameter rating set):
                     * The rating set must have a single independent parameter
                     * The `times` parameter is not used and will cause an exception if specified
                     * The `units` parameter, if specified, is the unit of the rated time series
                     * A time series is returned
-                * If specified as a list of TimeSeries:
+                * <b>If specified as a list of TimeSeries</b> (for rating a list of time series using a multi-independent-parameter rating set):
                     * The list must be of the same length as the number of independent parameters of the rating set.
                     * The `times` parameter is not used and will cause an exception if specified
                     * The `units` parameter, if specified, is the unit of the rated time series
                     * A time series is returned
-            times (Optional[list[datetime]], must be passed by name): The date/times of the independent parameter values. Defaults to None.
+            times (Optional[Union[datetime, list[datetime]]], must be passed by name): The date/times of the independent parameter values. Defaults to None.
                 * If specified and not None:
+                  * Specifying a datetime object is the same as specifying that datetime object in a list of length 1.
                   * If shorter than the independent parameter value list(s), the last time will be used for the remainging values.
                   * If longer than the independent parameter values list(s), the beginning portion of the list will be used.
-                * If None or not specified:
+                * If `None` or not specified:
                   * If the rating set's default data time is not None, that time is used for each value
                   * If the rating set's default data time is None, the current time is used for each value
             units (Optional[str], must be passed by name): Defaults to None.
-                * If `input` is a list of list of floats, this specifies units of the independent parameter values and the rated values. A comma-delimited string of
-                  independent value units concatendated with a semicolon and the dependent parameter unit. Defaults to None. If not specified or None, the rating's
-                  default data units are used, if specified. If the rating has no default data units, the rating units are used.
-                * If specified as a TimeSeries or list of TimeSeries, this specifies the unit of the rated time series. If not specified or None, rating set's default
-                  data unit for the dependent parameter, if any, is used. Otherwise, the dependent parameter's default unit will be used.
+                * If `input` is a list of floats or a list of list of floats:
+                    * Specifies units of the independent parameter values and the rated values as comma-delimited string of
+                      independent value units concatendated with a semicolon and the dependent parameter unit (e.g., "ft;ac-ft", "unit,ft,ft;cfs").
+                    * If not specified or None:
+                        * The rating's default data units, if any, are used
+                        * If the rating has no default data units, an exception is raised.
+                * If `input` is a TimeSeries or list of TimeSeries:
+                    * Specifies the unit of the rated (dependent parameter) time series.
+                    * If not specified or None:
+                        * The rating's default data units, if any, are used
+                        * If the rating has no default data units, an exception is raised.
             vertical_datum (Optional[str], must be passed by name): Defaults to None.
-                * If `input` is a list of list of floats, this specifies the vertical datum of any input elevation value and the desired vertical datum of any
-                  output elevation values. If None, or not specified, the location's native vertical datum is used.
-                * If specified as a TimeSeries or list of TimeSeries, this specifies the desired vertical datum for any output elevation values. Any input elevation
-                  values will be in the vertical datum of the input time series.
-            rating_time (Optional[datetime], must be passed by name): The maximum create date for the rating set to use to perform the rating. Defaults to None.
-                Causes the rating to be performed as if the current date/time were the specified date (no ratings with create dates
+                * If `input` is a list of floats or a list of list of floats, this specifies:
+                    * Specifies:
+                        * The vertical datum of any input (independent parameter) elevation values
+                        * The desired vertical datum of any rated (dependent parameter) elevation values.
+                    * If None, or not specified, the location's native vertical datum is used.
+                * If `input` is a TimeSeries or list of TimeSeries:
+                    * Specifies only the desired vertical datum for any rated (dependent parameter) elevation values.
+                    * Any input (independent parameter) elevation values will be in the vertical datum of the input time series.
+                    * If None, or not specified, the location's native vertical datum is used.
+            rating_time (Optional[datetime], must be passed by name): The maximum effective time and creation time for the rating set to use to perform the rating. Defaults to None.
+                Causes the rating to be performed as if the current date/time were the specified time (no ratings with effective times or creation times
                 later than this time will be used).
             round (bool, optional, must be passed by name): Whether to use the rating set's specification's dependent rounding specification . Defaults to False.
 
         Returns:
-            Union[list[float], TimeSeries]: The dependent parameter values as described in `input` above
+            Any: The dependent parameter value(s) as described in `input` above
         """
         if isinstance(input, TimeSeries):
+            # ------------------ #
+            # single time series #
+            # ------------------ #
             if times:
                 raise AbstractRatingSetException(
                     "May not specify times parameter when rating TimeSeires objects"
                 )
-            return self.rate_time_series(
+            return self._rate_time_series(
                 ts=input, unit=units, rating_time=rating_time, round=round
             )
         elif isinstance(input, list) and isinstance(input[0], TimeSeries):
+            # -------------------- #
+            # multiple time series #
+            # -------------------- #
             if times:
                 raise AbstractRatingSetException(
                     "May not specify times parameter when rating TimeSeires objects"
                 )
-            return self.rate_time_series(
+            return self._rate_time_series(
                 ts=cast(list[TimeSeries], input),
                 unit=units,
                 vertical_datum=vertical_datum,
                 rating_time=rating_time,
                 round=round,
             )
+        elif isinstance(input, list) and isinstance(input[0], (int, float)):
+            # ---------------- #
+            # single value set #
+            # ---------------- #
+            return self._rate_values(
+                ind_values=cast(list[list[float]], [[v] for v in input]),
+                value_times=times if isinstance(times, (type(None), list)) else [times],
+                units=units,
+                vertical_datum=vertical_datum,
+                rating_time=rating_time,
+                round=round,
+            )[0]
         elif (
             isinstance(input, list)
             and isinstance(input[0], list)
-            and isinstance(input[0][0], float)
+            and isinstance(input[0][0], (int, float))
         ):
-            return self.rate_values(
+            # ------------------- #
+            # multiple value sets #
+            # ------------------- #
+            return self._rate_values(
                 ind_values=cast(list[list[float]], input),
-                value_times=times,
+                value_times=times if isinstance(times, (type(None), list)) else [times],
                 units=units,
                 vertical_datum=vertical_datum,
                 rating_time=rating_time,
@@ -248,218 +466,88 @@ class AbstractRatingSet(ABC):
         else:
             raise TypeError(f"Unexpected type for input: {input.__class__.__name__}")
 
-    def rate_time_series(
-        self,
-        ts: Union[TimeSeries, Sequence[TimeSeries]],
-        unit: Optional[str] = None,
-        vertical_datum: Optional[str] = None,
-        rating_time: Optional[datetime] = None,
-        round: bool = False,
-    ) -> TimeSeries:
-        """
-        Rates an independent parameter time series (or list of such) and returns a dependent parameter time series
-
-        Args:
-            ts (Union[TimeSeries, Sequence[TimeSeries]]): If a list/tuple of TimeSeries:
-                * Must be the same number as the number of independent parameters of the rating set.
-                * Each time series must have the same times.
-            unit (Optional[str]): The unit of the rated time series. If not specified or None, rating set's default data unit for the dependent
-                parameter, if any, is used. Otherwise, the dependent parameter's default unit will be used.
-            vertical_datum (Optional[str]): The desired vertical datum for any output elevation time series. Any input elevation time series are expected
-                to specify their own vertical datums. Defaults to None, in which case the location's native vertical datum is used.
-            rating_time (Optional[datetime]): The maximum create date for the rating set to use to perform the rating. Defaults to None.
-                Causes the rating to be performed as if the current date/time were the specified date (no ratings with create dates
-                later than this time will be used).
-            round (bool, optional): Whether to use the rating set's specification's dependent rounding specification . Defaults to False.
-
-        Returns:
-            TimeSeries: The rated (dependent value) time series
-        """
-        ts_list: list[TimeSeries]
-        if isinstance(ts, (tuple, list)):
-            for i in range(len(ts)):
-                if not isinstance(ts[i], TimeSeries):
-                    raise TypeError(
-                        f"Expected TimeSeries for ts[{i}], got {ts[i].__class__.__name__}"
-                    )
-            ts_list = list(ts)
-        elif isinstance(ts, TimeSeries):
-            ts_list = [ts]
-        else:
-            raise TypeError(
-                f"Expected TimeSeries or list/tuple of TimeSeries for parameter ts, got {ts.__class__.__name__}"
-            )
-        ts_count = len(ts_list)
-        for i in range(ts_count):
-            if (
-                ts_list[i].parameter.base_parameter == "Elev"
-                and ts_list[i].vertical_datum_info is not None
-            ):
-                if (
-                    cast(
-                        hec.parameter.ElevParameter._VerticalDatumInfo,
-                        ts_list[i].vertical_datum_info,
-                    ).native_datum
-                    is None
-                ):
-                    raise AbstractRatingSetException(
-                        f"Time series {ts_list[i].name} must have native vertical datum info since vertical "
-                        f"datum of {vertical_datum} is specified to rate_time_series() method"
-                    )
-                ts_list[i] = ts_list[i].to(
-                    cast(
-                        str,
-                        cast(
-                            hec.parameter.ElevParameter._VerticalDatumInfo,
-                            ts[i].vertical_datum_info,
-                        ).native_datum,
-                    )
-                    if vertical_datum is None
-                    else vertical_datum
-                )
-        expected_ts_count = self._specification.template.ind_param_count
-        if ts_count != expected_ts_count:
-            raise ValueError(
-                f"Expected {expected_ts_count} time series in ts, got {ts_count}"
-            )
-        time_strs = ts_list[0].times
-        for i in range(1, ts_count):
-            if ts_list[i].times != time_strs:
-                raise ValueError(
-                    f"Times for {ts[i].name} aren't the same as for {ts[0].name}"
-                )
-        values = [t.values for t in ts_list]
-        times = [datetime.fromisoformat(t) for t in time_strs]
-        dep_unit = (
-            unit
-            if unit
-            else (
-                self._default_data_units[-1]
-                if self._default_data_units is not None
-                else Parameter(self.template.dep_param).unit_name
-            )
-        )
-        if len(ts_list[0]) > 0:
-            units = f"{','.join([t.unit for t in ts_list])};{dep_unit}"
-            rated_values = self.rate_values(
-                ind_values=values,
-                value_times=times,
-                units=units,
-                vertical_datum=vertical_datum,
-                rating_time=rating_time,
-                round=round,
-            )
-        else:
-            rated_values = []
-        rated_ts = ts_list[0].copy()
-        if self.template.dep_param.startswith("Elev") and self._vertical_datum_info:
-            vdi = self._vertical_datum_info.copy()
-            vdi.unit_name = dep_unit
-            elev_param = hec.parameter.ElevParameter(
-                self.template.ind_params[0], str(vdi)
-            )
-            if vertical_datum:
-                elev_param.current_datum = vertical_datum
-            rated_ts.iset_parameter(elev_param)
-        else:
-            rated_ts.iset_parameter(Parameter(self.template.dep_param, dep_unit))
-        if rated_ts.data is not None:
-            rated_ts.data["value"] = rated_values
-            rated_ts.data["quality"] = [5 if np.isnan(v) else 0 for v in rated_values]
-        return rated_ts
-
-    @abstractmethod
-    def rate_values(
-        self,
-        ind_values: list[list[float]],
-        value_times: Optional[list[datetime]] = None,
-        units: Optional[str] = None,
-        vertical_datum: Optional[str] = None,
-        rating_time: Optional[datetime] = None,
-        round: bool = False,
-    ) -> list[float]:
-        """
-        Rates list(s) of independent parameter values
-
-        Args:
-            ind_values (list[list[float]]): The independent parameter values. Values for each parameter are in its own list
-                in the same order as the rating independent parameters. All parameter lists must be of the same length.
-            value_times (Optional[list[datetime]]): The date/times of the independent parameter values. Defaults to None.
-                * If specified and not None:
-                  * If shorter than the independent parameter value list(s), the last time will be used for the remainging values.
-                  * If longer than the independent parameter values list(s), the beginning portion of the list will be used.
-                * If None or not specified:
-                  * If the rating set's default data time is not None, that time is used for each value
-                  * If the rating set's default data time is None, the current time is used for each value
-            units (Optional[str]): The units of the independent parameter values and the rated values. A comma-delimited string of
-                independent value units concatendated with a semicolon and the dependent parameter unit. Defaults to None.
-                * If not specified, the rating's default data units are used, if specified. If the rating has no default data units,
-                    the rating units are used.
-            vertical_datum (Optional[str]): The vertical datum of any input elevation values and the desired vertical datum of any
-                output elevation values. Defaults to None, in which case the location's native datum is assumed.
-            rating_time (Optional[datetime]): The maximum create date for the rating set to use to perform the rating. Defaults to None.
-                Causes the rating to be performed as if the current date/time were the specified date (no ratings with create dates
-                later than this time will be used).
-            round (bool, optional): Whether to use the rating set's specification's dependent rounding specification . Defaults to False.
-
-        Returns:
-            list[float]: The rated (dependent parameter) values
-        """
-        raise AbstractRatingSetException(
-            f"Method cannot be called on {self.__class__.__name__} object"
-        )
-
     def reverse_rate(
         self,
-        input: Union[list[float], TimeSeries],
+        input: Union[float, list[float], TimeSeries],
         *,
-        times: Optional[list[datetime]] = None,
+        times: Optional[Union[datetime, list[datetime]]] = None,
         units: Optional[str] = None,
         vertical_datum: Optional[str] = None,
         rating_time: Optional[datetime] = None,
         round: bool = False,
-    ) -> Union[list[float], TimeSeries]:
+    ) -> Any:
         """
         Rates dependent parameter values and returns independent parameter values.
 
+        May only be used on rating sets with a single independent parameter.
+
+        <table border="1">
+        <tr><th>Important Note</th></tr>
+        <tr><td>
+        Unlike single-independent-parameter ratings, two-dimensional (time and parameter value) rating sets are not
+        generally invertible. That is, if you rate value <code>x</code> at time <code>t</code> using a rating set to generate value <code>y</code>, using
+        the same rating set to reverse rate value <code>y</code> at time <code>t</code> will generally not result in <code>x</code>.
+        </td></tr>
+        </table>
+
         Args:
-            input (Union[list[float], TimeSeries]): The input parameter values.
-                * If specified as a lists of floats:
+            input (Union[float, list[float], TimeSeries]): The input (dependent parameter) value(s).
+                * <b>If specified as a float</b> (for reverse rating a single dependent parameter value using a single-independent-parameter rating set):
                     * The `times` parameter is used, if specified
                     * The `units`, if specified, is the unit of each independent and dependent parameter.
+                    * A float is returned
+                * <b>If specified as a lists of floats</b> (for reverse rating a multiple dependent parameter values using a single-independent-parameter rating set):
+                    * The `times` parameter is used, if specified
+                    * The `units`, if specified, is the unit of the independent and dependent parameters as shown below.
                     * A list of floats is returned
-                * If specified as a TimeSeries:
-                    * The rating set must have a single independent parameter
+                * <b>If specified as a TimeSeries</b> (for reverse rating a dependent parameter time series using a single-independent-parameter rating set):
                     * The `times` parameter is not used and will cause an exception if specified
-                    * The `units` parameter, if specified, is the unit of the rated time series
+                    * The `units` parameter, if specified, is the unit of the reverse rated time series
                     * A time series is returned
-            times (Optional[list[datetime]], must be passed by name): The date/times of the independent parameter values. Defaults to None.
+            times (Optional[list[datetime]], must be passed by name): The date/times of the independent parameter value(s). Defaults to None.
                 * If specified and not None:
+                  * Specifying a datetime object is the same as specifying that datetime object in a list of length 1.
                   * If shorter than the independent parameter value list(s), the last time will be used for the remainging values.
                   * If longer than the independent parameter values list(s), the beginning portion of the list will be used.
-                * If None or not specified:
+                * If `None` or not specified:
                   * If the rating set's default data time is not None, that time is used for each value
                   * If the rating set's default data time is None, the current time is used for each value
-            units (Optional[str], optional, must be passed by name): Defaults to None.
-                * If `input` is a list of list of floats, this specifies units of the independent parameter values and the rated values. A comma-delimited string of
-                  independent value units concatendated with a semicolon and the dependent parameter unit. Defaults to None. If not specified or None, the rating's
-                  default data units are used, if specified. If the rating has no default data units, the rating units are used.
-                * If specified as a TimeSeries or list of TimeSeries, this specifies the unit of the rated time series. If not specified or None, rating set's default
-                  data unit for the dependent parameter, if any, is used. Otherwise, the dependent parameter's default unit will be used.
-            rating_time (Optional[datetime], must be passed by name): The maximum create date for the rating set to use to perform the rating. Defaults to None.
-                Causes the rating to be performed as if the current date/time were the specified date (no ratings with create dates
+            units (Optional[str], must be passed by name): Defaults to None.
+                * If `input` is a list of floats:
+                    * Specifies units of the independent parameter value and the dependent parameter values as the
+                    independent value units concatendated with a semicolon and the dependent parameter unit (e.g., "ft;ac-ft").
+                    * If not specified or None:
+                        * The rating's default data units, if any, are used
+                        * If the rating has no default data units, an exception is raised.
+                * If `input` is a TimeSeries:
+                    * Specifies the unit of the reverse rated (independent parameter) time series.
+                    * If not specified or None:
+                        * The rating's default data units, if any, are used
+                        * If the rating has no default data units, an exception is raised.
+            vertical_datum (Optional[str], must be passed by name): Defaults to None.
+                * If `input` is a list of list of floats, this specifies:
+                    * Specifies:
+                        * The vertical datum of any input (dependent parameter) elevation value
+                        * The desired vertical datum of any reverse rated (independent parameter) elevation values.
+                    * If None, or not specified, the location's native vertical datum is used.
+                * If `input` is a TimeSeries:
+                    * Specifies only the desired vertical datum for any reverse rated (independent parameter) elevation values.
+                    * Any input (dependent parameter) elevation values will be in the vertical datum of the input time series.
+                    * If None, or not specified, the location's native vertical datum is used.
+            rating_time (Optional[datetime], must be passed by name): The maximum effective time and creation time for the rating set to use to perform the reverse rating. Defaults to None.
+                Causes the reverse rating to be performed as if the current date/time were the specified time (no ratings with effective times or creation times
                 later than this time will be used).
             round (bool, optional, must be passed by name): Whether to use the rating set's specification's dependent rounding specification . Defaults to False.
 
         Returns:
-            Union[list[float], TimeSeries]: The dependent parameter values as described in `input` above
+            Any: The dependent parameter value(s) as described in `input` above
         """
         if isinstance(input, TimeSeries):
             if times:
                 raise AbstractRatingSetException(
                     "May not specify times parameter when rating TimeSeires objects"
                 )
-            return self.reverse_rate_time_series(
+            return self._reverse_rate_time_series(
                 ts=input,
                 unit=units,
                 vertical_datum=vertical_datum,
@@ -467,123 +555,25 @@ class AbstractRatingSet(ABC):
                 round=round,
             )
         elif isinstance(input, list) and isinstance(input[0], float):
-            return self.reverse_rate_values(
+            return self._reverse_rate_values(
                 dep_values=input,
-                value_times=times,
+                value_times=times if isinstance(times, (type(None), list)) else [times],
                 units=units,
                 vertical_datum=vertical_datum,
                 rating_time=rating_time,
                 round=round,
             )
+        elif isinstance(input, float):
+            return self._reverse_rate_values(
+                dep_values=[input],
+                value_times=times if isinstance(times, (type(None), list)) else [times],
+                units=units,
+                vertical_datum=vertical_datum,
+                rating_time=rating_time,
+                round=round,
+            )[0]
         else:
             raise TypeError(f"Unexpected type for input: {input.__class__.__name__}")
-
-    def reverse_rate_time_series(
-        self,
-        ts: TimeSeries,
-        unit: Optional[str] = None,
-        vertical_datum: Optional[str] = None,
-        rating_time: Optional[datetime] = None,
-        round: bool = False,
-    ) -> TimeSeries:
-        """
-        Reverse rates a dependent parameter time series and returns an independent parameter time series
-
-        Args:
-            ts (TimeSeries): The dependent value time series to reverse-rate
-            unit (Optional[str]): The unit of the rated time series. If not specified or None, rating set's default data unit for the independent
-                parameter, if any, is used. Otherwise, the independent parameter's default unit will be used.
-            vertical_datum (Optional[str]): The desired vertical datum of any output elevation time series. Any input elevation time series is
-                expected to specify its own vertical datum. Defaults to None, in which case the location's native vertical datum will be used.
-            rating_time (Optional[datetime]): The maximum create date for the rating set to use to perform the rating. Defaults to None.
-                Causes the rating to be performed as if the current date/time were the specified date (no ratings with create dates
-                later than this time will be used).
-            round (bool, optional): Whether to use the rating set's specification's independent rounding specification . Defaults to False.
-
-        Returns:
-            TimeSeries: The rated (independent value) time series
-        """
-        if not isinstance(ts, TimeSeries):
-            raise TypeError(f"Expected TimeSeries for ts, got {ts.__class__.__name__}")
-        ind_unit = (
-            unit
-            if unit
-            else (
-                self._default_data_units[0]
-                if self._default_data_units
-                else Parameter(self.template.ind_params[0]).unit_name
-            )
-        )
-        if len(ts) > 0:
-            units = f"{ind_unit};{ts.unit}"
-            rated_values = self.reverse_rate_values(
-                dep_values=ts.values,
-                value_times=[datetime.fromisoformat(s) for s in ts.times],
-                units=units,
-                vertical_datum=vertical_datum,
-                rating_time=rating_time,
-                round=round,
-            )
-        else:
-            rated_values = []
-        rated_ts = ts.copy()
-        if self.template.ind_params[0].startswith("Elev") and self._vertical_datum_info:
-            vdi = self._vertical_datum_info.copy()
-            vdi.unit_name = ind_unit
-            elev_param = hec.parameter.ElevParameter(
-                self.template.ind_params[0], str(vdi)
-            )
-            if vertical_datum:
-                elev_param.current_datum = vertical_datum
-            rated_ts.iset_parameter(elev_param)
-        else:
-            rated_ts.iset_parameter(Parameter(self.template.ind_params[0], ind_unit))
-        if rated_ts.data is not None:
-            rated_ts.data["value"] = rated_values
-            rated_ts.data["quality"] = [5 if np.isnan(v) else 0 for v in rated_values]
-        return rated_ts
-
-    @abstractmethod
-    def reverse_rate_values(
-        self,
-        dep_values: list[float],
-        value_times: Optional[list[datetime]] = None,
-        units: Optional[str] = None,
-        vertical_datum: Optional[str] = None,
-        rating_time: Optional[datetime] = None,
-        round: bool = False,
-    ) -> list[float]:
-        """
-        Rates a list of dependent parameter values.
-
-        May only be used on rating sets with a single independent parameter.
-
-        Args:
-            dep_values (list[float]): The dependent parameter values.
-            value_times (Optional[list[datetime]]): The date/times of the independent parameter values. Defaults to None.
-                * If specified and not None:
-                  * If shorter than the independent parameter value list(s), the last time will be used for the remainging values.
-                  * If longer than the independent parameter values list(s), the beginning portion of the list will be used.
-                * If None or not specified:
-                  * If the rating set's default data time is not None, that time is used for each value
-                  * If the rating set's default data time is None, the current time is used for each value
-            units (Optional[str]): The units of the independent parameter values and the rated values.A comma-delimited string of
-                independent value units concatendated with a semicolon and the dependent parameter unit. Defaults to None.
-                * If not specified, the rating's default data units are used, if specified. If the rating has no default data units,
-                    the rating units are used.
-            vertical_datum (Optional[str]): The vertical datum of any input elevation values and the desired vertical datum of any
-                output elevation values. Defaults to None, in which case the location's native vertical datum will be used.
-            rating_time (Optional[datetime]): The maximum create date for the rating set to use to perform the rating. Defaults to None.
-                Causes the rating to be performed as if the current date/time were the specified date (no ratings with create dates
-                later than this time will be used).
-            round (bool, optional): Whether to use the rating set's specification's independent rounding specification . Defaults to False.
-
-        Returns:
-            list[float]: The rated (independent parameter) values
-        """
-        raise AbstractRatingSetException(
-            f"Method cannot be called on {self.__class__.__name__} object"
-        )
 
     @property
     def specification(self) -> RatingSpecification:

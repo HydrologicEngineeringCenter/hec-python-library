@@ -3,6 +3,7 @@ from datetime import datetime
 from typing import Any, Optional, Union, cast
 
 import numpy as np
+from lxml import etree
 
 import hec
 
@@ -10,6 +11,10 @@ from .abstract_rating_set import AbstractRatingSet, AbstractRatingSetException
 
 
 class ReferenceRatingSetException(AbstractRatingSetException):
+    """
+    Exception class for `ReferenceRatingSet` objects
+    """
+
     pass
 
 
@@ -62,7 +67,41 @@ class ReferenceRatingSet(AbstractRatingSet):
                 else None
             )
 
-    def rate_values(
+    @staticmethod
+    def from_xml(
+        xml: str, datastore: hec.datastore.AbstractDataStore
+    ) -> "ReferenceRatingSet":
+        """
+        Creates a ReferenceRatingSet object from an XML instance
+
+        Args:
+            xml_str (str): The XML instance
+            datastore (Optional[AbstractDataStore]): The AbstractDataStore object for the database where the ratings are performed.
+
+        Returns:
+            ReferenceRatingSet: The ReferenceRatingSet object
+        """
+        if xml.startswith("<?xml"):
+            xml = xml.split("?>")[1].strip()
+        root = etree.fromstring(xml)
+        rating_spec_elem = root.find("rating-spec")
+        if rating_spec_elem is None:
+            raise ReferenceRatingSetException("No <rating-spec> element in xml")
+        rating_spec = hec.rating.RatingSpecification.from_xml(
+            etree.tostring(rating_spec_elem).decode()
+        )
+        rating_template_elem = root.find("rating-template")
+        if rating_template_elem is None:
+            raise ReferenceRatingSetException("No <rating-template> element in xml")
+        rating_spec.template = hec.rating.RatingTemplate.from_xml(
+            etree.tostring(rating_template_elem).decode()
+        )
+        rating_set = hec.rating.ReferenceRatingSet(
+            specification=rating_spec, datastore=datastore
+        )
+        return rating_set
+
+    def _rate_values(
         self,
         ind_values: list[list[float]],
         value_times: Optional[list[datetime]] = None,
@@ -163,7 +202,7 @@ class ReferenceRatingSet(AbstractRatingSet):
             for i in range(len(response_values))
         ]
 
-    def reverse_rate_values(
+    def _reverse_rate_values(
         self,
         dep_values: list[float],
         value_times: Optional[list[datetime]] = None,

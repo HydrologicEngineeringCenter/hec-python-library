@@ -1,10 +1,65 @@
 """
 Sub-module to provide rating capabilities to hec module
+
+**Quick links to Constants:**
+
+* [LookupMethod](#LookupMethod)
+* [RatingSetRetrievalMethod](../hec/shared.html#RatingSetRetrievalMethod)
+
+**Quick links to Classes:**
+
+<table/>
+    <table>
+    <tr style="background-color: #f0f0f0;"><th colspan="3">Ratings - Individual Rating Objects</th></tr>
+    <tr style="background-color: #f0f0f0;"><th>Class</th><th>Exception</th><th>Description</th></tr>
+    <tr><td><a href="rating/abstract_rating.html#AbstractRating">AbstractRating</a></td>
+        <td><a href="rating/abstract_rating.html#AbstractRatingException">AbstractRatingException</a></td>
+        <td>Abstract base class for all rating types</td>
+    </tr>
+    <tr><td><a href="rating/simple_rating.html#SimpleRating">SimpleRating</a></td>
+        <td><a href="rating/simple_rating.html#SimpleRatingException">SimpleRatingException</a></td>
+        <td>Abstract base class for <code>ExpressionRating</code> and <code>TableRating</code> objects, which both use the <code>&lt;simple-rating&gt;</code> xml element
+    </tr>
+    <tr><td><a href="rating/table_rating.html#TableRating">TableRating</a></td>
+        <td><a href="rating/table_rating.html#TableRatingException">TableRatingException</a></td>
+        <td>Ratings that use tables of lookup values</td>
+    </tr>
+    <tr style="background-color: #f0f0f0;"><th colspan="3">Rating Sets - Time Series of Rating Objects</th></tr>
+    <tr style="background-color: #f0f0f0;"><th>Class</th><th>Exception</th><th>Description</th></tr>
+    <tr><td><a href="rating/abstract_rating_set.html#AbstractRatingSet">AbstractRatingSet</a></td>
+        <td><a href="rating/abstract_rating_set.html#AbstractRatingSetException">AbstractRatingSetException</a></td>
+        <td>Abstract base class for all rating set types</td>
+    </tr>
+    <tr><td><a href="rating/local_rating_set.html#LocalRatingSet">LocalRatingSet</a></td>
+        <td><a href="rating/local_rating_set.html#LocaltRatingSetException">LocalRatingSetException</a></td>
+        <td>Rating sets that perform all operations in local code</td>
+    </tr>
+    <tr><td><a href="rating/reference_rating_set.html#ReferenceRatingSet">ReferenceRatingSet</a></td>
+        <td><a href="rating/reference_rating_set.html#ReferenceRatingSetException">ReferenceRatingSetException</a></td>
+        <td>Rating sets that perform all operations in the CWMS database by sending/receiving data on each operation</td>
+    </tr>
+    <tr style="background-color: #f0f0f0;"><th colspan="3">Other Rating Info</th></tr>
+    <tr style="background-color: #f0f0f0;"><th>Class</th><th>Exception</th><th>Description</th></tr>
+    <tr><td><a href="rating/paired_data.html#PairedData">PairedData</a></td>
+        <td><a href="rating/paired_data.html#PairedDataException">PairedDataException</a></td>
+        <td>HEC-DSS-style paired data objects</td>
+    </tr>
+    <tr><td><a href="rating/rating_specification.html#RatingSpecification">RatingSpecification</a></td>
+        <td><a href="rating/rating_specification.html#RatingSpecificationException">RatingSpecificationException</a></td>
+        <td>Location ID, template ID, time-based lookup methods and rounding parameter specifications for rating sets</td>
+    </tr>
+    <tr><td><a href="rating/rating_template.html#RatingTemplate">RatingTemplate</a></td>
+        <td><a href="rating/rating_template.html#RatingTemplateException">RatingTemplateException</a></td>
+        <td>Parameter names, parameter lookup behaviors for ratings</td>
+    </tr>
+    </table>
 """
 
 __all__ = [
     "AbstractRating",
     "AbstractRatingSet",
+    "LocalRatingSet",
+    "LocalRatingSetException",
     "LookupMethod",
     "PairedData",
     "PairedDataException",
@@ -18,22 +73,30 @@ __all__ = [
     "SimpleRating",
     "abstract_rating",
     "abstract_rating_set",
+    "local_rating_set",
+    "paired_data",
     "rating_shared",
+    "rating_template",
+    "rating_specification",
     "reference_rating_set",
     "simple_rating",
     "table_rating",
 ]
 
-from . import rating_shared, rating_specification
-from .abstract_rating import AbstractRating
-from .abstract_rating_set import AbstractRatingSet
-from .paired_data import PairedData, PairedDataException
-from .rating_shared import LookupMethod
-from .rating_specification import RatingSpecification, RatingSpecificationException
-from .rating_template import RatingTemplate, RatingTemplateException
-from .reference_rating_set import ReferenceRatingSet
-from .simple_rating import SimpleRating
-from .table_rating import TableRating, TableRatingException
+from hec.rating import rating_shared, rating_specification
+from hec.rating.abstract_rating import AbstractRating
+from hec.rating.abstract_rating_set import AbstractRatingSet
+from hec.rating.local_rating_set import LocalRatingSet, LocalRatingSetException
+from hec.rating.paired_data import PairedData, PairedDataException
+from hec.rating.rating_shared import LookupMethod
+from hec.rating.rating_specification import (
+    RatingSpecification,
+    RatingSpecificationException,
+)
+from hec.rating.rating_template import RatingTemplate, RatingTemplateException
+from hec.rating.reference_rating_set import ReferenceRatingSet
+from hec.rating.simple_rating import SimpleRating
+from hec.rating.table_rating import TableRating, TableRatingException
 
 RatingSpecification.__init__.__doc__ = f"""
     Initializer for RatingSpecification objects

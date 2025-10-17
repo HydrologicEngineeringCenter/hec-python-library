@@ -91,6 +91,12 @@
                                 <a class="function" href="#DssDataStore.delete">delete</a>
                         </li>
                         <li>
+                                <a class="function" href="#DssDataStore.decode_ints">decode_ints</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#DssDataStore.encode_str">encode_str</a>
+                        </li>
+                        <li>
                                 <a class="function" href="#DssDataStore.get_extents">get_extents</a>
                         </li>
                         <li>
@@ -265,7 +271,7 @@
 <li>The value of environment variable "cda_api_root" is used, if it exists.</li>
 <li>If the environment variable "cda_api_root" is not set, the default, the default value used in <code>cwms.api.init_session(api_root=None)</code> is used.</li>
 </ul></li>
-<li><strong>office (Optional[str], must be passed by name):</strong>  The default CWMS office for the data store. If None or not specified, each access method will have to have an office specified.</li>
+<li><strong>office (Optional[str], must be passed by name):</strong>  The default CWMS office for the data store. If <code>None</code> or not specified, each access method will have to have an office specified.</li>
 <li><strong>read_only (Optional[bool], must be passed by name):</strong>  Specifies whether to open the data store in read-only mode. Defaults to True</li>
 <li><strong>start_time (Optional[Any], must be passed by name):</strong>  Specifies the start time of the data store's time window. Must be an <a href="hectime.html#HecTime"><code>HecTime</code></a> object or a valid input to the <code>HecTime</code> constructor. Defaults to None</li>
 <li><strong>store_rule (Optional[str], must be passed by name):</strong>  Specifies the default behavior to use when storing data. If specified, it must be one of the following (case insensitive). Defaults to 'REPLACE_ALL'.
@@ -296,20 +302,20 @@ Defaults to True.</li>
     </div>
     <a class="headerlink" href="#CwmsDataStore.catalog"></a>
     
-            <div class="docstring"><p>Retrieves CWMS identifiers for the specified data type, optionally with extents for specific data types.</p>
+            <div class="docstring"><p>Retrieves CWMS Identifiers for the specified data type, optionally with extents for specific data types.</p>
 
 <h6 id="arguments">Arguments:</h6>
 
 <ul>
 <li><strong>data_type (str):</strong>  Must be one of the following (case insensitive):
 <ul>
-<li><strong>'LOCATION'</strong>: specfies catalog CWMS locations in the data store</li>
-<li><strong>'RATING'</strong>: specifies cataloging CWMSs in the database</li>
-<li><strong>'RATING_SPECIFICATION'</strong>: specifies cataloging CWMS rating specifications in the database</li>
-<li><strong>'RATING_TEMPLATE'</strong>: specifies cataloging CWMS rating templates in the database</li>
-<li><strong>'TIMESERIES'</strong>: specifies cataloging CWMS time series in the data store</li>
+<li><strong>'LOCATION'</strong></li>
+<li><strong>'RATING'</strong></li>
+<li><strong>'RATING_SPECIFICATION'</strong></li>
+<li><strong>'RATING_TEMPLATE'</strong></li>
+<li><strong>'TIMESERIES'</strong></li>
 </ul></li>
-<li><p><strong>pattern (Optional[str], must be passed by name):</strong>  An extended wildcard pattern to use for matching identifiers. <code>regex</code> takes precedence if both are specified. Defaults to None.</p>
+<li><p><strong>pattern (Optional[str], must be passed by name):</strong>  An extended wildcard pattern to use for matching Identifiers. <code>regex</code> takes precedence if both are specified. Defaults to None.</p>
 
 <table>
 <pre>
@@ -326,8 +332,8 @@ Defaults to True.</li>
 <tr><td><code>(abc|def)</code></td><td>either "abc" or "def"</td></tr>
 </pre>
 </table></li>
-<li><p><strong>regex (Optional[str], must be passed by name):</strong>  Regular expression to use for matching identifiers. Takes precedence over <code>pattern</code> if both are specified. Defaults to None.</p></li>
-<li><strong>bounding_office (Optional[str]), must be passed by name, LOCATION and TIMESERIES only):</strong>  Specifies cataloging only identifiers that are physically located within the boundaries of the specified office.
+<li><p><strong>regex (Optional[str], must be passed by name):</strong>  Regular expression to use for matching Identifiers. Takes precedence over <code>pattern</code> if both are specified. Defaults to None.</p></li>
+<li><strong>bounding_office (Optional[str]), must be passed by name, LOCATION and TIMESERIES only):</strong>  Specifies cataloging only Identifiers that are physically located within the boundaries of the specified office.
 Can be a wildcard pattern. Matching is affected by <code>case_sensitive</code>.</li>
 <li><strong>case_sensitive (Optional[bool], must be passed by name):</strong>  Specifies whether and pattern or regular expression matching is case-sensitive.</li>
 <li><strong>category (Optional[str], must be passed by name, LOCATION only):</strong>  Specifies cataloging only locations in a location group belonging to the specified catgory(ies). Can be a wildcard pattern.
@@ -442,7 +448,7 @@ Matching is affected by <code>case_sensitive</code>. Note that specifying <code>
 <li><strong>header (Optional[bool], must be passed by name):</strong>  Specifies whether to include a header line in the catalog that identifies the fields</li>
 <li><strong>kind (Optional[str], must be passed by name, LOCATION only):</strong>  Specifies cataloging only locations of the specified location kind. Can be a wildcard pattern.
 Matching is affected by <code>case_sensitive</code>.</li>
-<li><strong>limit (Optional[int], must be passed by name, LOCATION and TIMESERIES only):</strong>  The maximum number of identifiers to return. If None, no limit is imposed. Defaults to None.</li>
+<li><strong>limit (Optional[int], must be passed by name, LOCATION and TIMESERIES only):</strong>  The maximum number of Identifiers to return. If None, no limit is imposed. Defaults to None.</li>
 <li><strong>office (Optional[str], must be passed by name):</strong>  The CWMS office to generate the catalog for. Defaults to None, which uses the data store's default office.</li>
 <li><strong>units (Optional[str], must be passed by name, LOCATION and TIMESERIES only):</strong>  The unit system ("EN" or "SI") to return the elevation values in. Defaults to None.</li>
 <li><strong>vertical_datum (Optional[str], must be passed by name, LOCATION and TIMESERIES only):</strong>  The vertical datum ("NGVD29", "NAVD88", or "LOCAL") to return the elevation values in. Defaults to None (Native datum).</li>
@@ -457,7 +463,7 @@ Matching is affected by <code>case_sensitive</code>.</li>
 <h6 id="returns">Returns:</h6>
 
 <blockquote>
-  <p>List[str]: The CWMS identifiers that match the specified parameters, up to the specified limit, if any</p>
+  <p>List[str]: The CWMS Identifiers that match the specified parameters, up to the specified limit, if any</p>
 </blockquote>
 </div>
 
@@ -644,7 +650,7 @@ Defaults to the None, meaning non-versioned data.</li>
 </ul></li>
 <li><strong>description (Optional[str], must be passed by name):</strong>  The description assocaited with the data store. Defaults to None</li>
 <li><strong>end_time (Optional[Any], must be passed by name):</strong>  Specifies the end time of the data store's time window. Must be an <a href="hectime.html#HecTime"><code>HecTime</code></a> object or a valid input to the <code>HecTime</code> constructor. Defaults to None</li>
-<li><strong>office (Optional[str], must be passed by name):</strong>  The default CWMS office for the data store. If None or not specified, each access method will have to have an office specified.</li>
+<li><strong>office (Optional[str], must be passed by name):</strong>  The default CWMS office for the data store. If <code>None</code> or not specified, each access method will have to have an office specified.</li>
 <li><strong>read_only (Optional[bool], must be passed by name):</strong>  Specifies whether to open the data store in read-only mode. Defaults to True</li>
 <li><strong>start_time (Optional[Any], must be passed by name):</strong>  Specifies the start time of the data store's time window. Must be an <a href="hectime.html#HecTime"><code>HecTime</code></a> object or a valid input to the <code>HecTime</code> constructor. Defaults to None</li>
 <li><strong>store_rule (Optional[str], must be passed by name):</strong>  Specifies the default behavior to use when storing data. If specified, it must be one of the following (case insensitive). Defaults to 'REPLACE_ALL'.
@@ -675,48 +681,64 @@ Defaults to True.</li>
     </div>
     <a class="headerlink" href="#CwmsDataStore.retrieve"></a>
     
-            <div class="docstring"><p>Retrieves a data set from the data store.</p>
+            <div class="docstring"><p>Retrieves a data set from the CWMS database.</p>
 
-<p>Currently only locations, rating sets and time series may be retrieved. To retrieve all data for a time series, specifiy <code>start_time=None</code> and <code>end_time=None</code></p>
+<p>Currently only <a href="location.html#Location"><code>Location</code></a>, <a href="rating/abstract_rating_set.html#AbstractRatingSet"><code>AbstractRatingSet</code></a> <a href="timeseries.html#TimeSeries"><code>TimeSeries</code></a> objects may be retrieved.</p>
+
+<p>To retrieve all data for a <a href="timeseries.html#TimeSeries"><code>TimeSeries</code></a>, specifiy <code>start_time=None</code> and <code>end_time=None</code></p>
 
 <h6 id="arguments">Arguments:</h6>
 
 <ul>
-<li><strong>office (Optional[str], must be passed by name):</strong>  The CWMS office to retrieve data for. Defaults to None, which uses the data store's default office.</li>
-<li><strong>identifier (str):</strong>  The name of the data set to retrieve:</li>
-<li><strong>Location Arguments:</strong> <br>
+<li><strong>Positional Arguments:</strong> <br>
 <ul>
-<li><b>units (Optional[str], must be passed by name):</b> "EN" or "SI", specifying to retrieve data in English or metric units. Defaults to None, which uses the default unit system for the data store</li>
-<li><b>vertical_datum (Optional[str], must be passed by name):</b> "NGVD29", "NAVD88", or "NATIVE", specifying the vertical datum to retrieve elevation data for. Defaults to None, which uses the data store's default vertical datum</li>
+<li><strong>identifier (str)</strong>: The name of the data set to retrieve. Must be a valid identifier for one of the retrievable data set types.</li>
 </ul></li>
-<li><strong>Rating Set Arguments:</strong> <br>
+<li><strong>Keyword Arguments (Optional, must be passed by name):</strong> <br>
 <ul>
-<li><b>reference (Optional[bool], must be passed by name):</b> Whether to retrieve a reference or concrete rating set. Defaults to True.
+<li><strong>All Identifiers:</strong><br>
 <ul>
-<li>If <code>True</code>,  a <a href="rating.html#ReferenceRatingSet">ReferenceRatingSet</a> is retrieved, where all values are sent to the database to be rated.</li>
-<li>If <code>False</code>, a <a href="rating.html#ConcreteRatingSet">ConcreteRatingSet</a> is retrieved, where all ratings are performed in python code. Individual ratings in the rating set are retrieved from
-the database on first use, preventing the loading of unneeded ratings.</li>
+<li><strong>office (str):</strong> The CWMS office to retrieve data for. Defaults to None, which uses the data store's default office.</li>
+</ul></li>
+<li><strong>Location Identifiers:</strong><br>
+<ul>
+<li><strong>units (str):</strong> <code>"EN"</code> or <code>"SI"</code>, specifying to retrieve data in English or metric units. Defaults to None, which uses the default unit system for the data store</li>
+<li><strong>vertical_datum (str):</strong> <code>"NGVD29"</code>, <code>"NAVD88"</code>, or <code>"NATIVE"</code>, specifying the vertical datum to retrieve elevation data for. Defaults to None, which uses the data store's default vertical datum</li>
+</ul></li>
+<li><strong>Rating Set Identifiers:</strong><br>
+<ul>
+<li><strong>effective_time (datetime):</strong> Retrieves a <a href="rating/local_rating_set.html#LocalRatingSet">LocalRatingSet</a> object with only one rating (at the specified effective_time). Causes the <code>method</code> argument
+to be ignored, with <code>"EAGER"</code> retrieval implied. Used by the library to populate the rating points of individual <a href="rating/table_rating.html#TableRating">TableRating</a> objects that were previously
+retrieved with the <code>"LAZY"</code> method.</li>
+<li><strong>method (str):</strong> The method used to retrieve the rating set from the database. Restricted to <code>"EAGER"</code>, <code>"LAZY"</code>, and <code>"REFERENCE"</code>. Defaults to <code>"LAZY"</code>.
+<ul>
+<li>If <code>"REFERENCE"</code>,  a <a href="rating/reference_rating_set.html#ReferenceRatingSet">ReferenceRatingSet</a> is retrieved, where all values are sent to the database to be rated.</li>
+<li>If <code>"EAGER"</code>, a <a href="rating/local_rating_set.html#LocalRatingSet">LocalRatingSet</a> is retrieved, where all ratings are performed in python code. Rating points for all included
+<a href="rating/table_rating.html#TableRating">TableRating</a> objects are retrieved when the rating set is retrieved.</li>
+<li>If <code>"LAZY"</code>, a <a href="rating/local_rating_set.html#LocalRatingSet">LocalRatingSet</a> is retrieved, where all ratings are performed in python code. Rating points for all included
+<a href="rating/table_rating.html#TableRating">TableRating</a> objects are not retrieved until when the individual <a href="rating/table_rating.html#TableRating">TableRating</a> objects are first used.</li>
 </ul></li>
 </ul></li>
-<li><strong>Time Series Arguments:</strong> <br>
+<li><strong>Time Series Identifiers:</strong><br>
 <ul>
-<li><b>start_time (Optional[Any], must be passed by name):</b> Specifies the start of the time window to retrieve data. Must be an <a href="hectime.html#HecTime"><code>HecTime</code></a> object or a valid input to the <code>HecTime</code> constructor.
-Defaults to the start of the data store's time window. If None or not specified and the data store's time window doesn't have a start time, the current time minus 24 hours is used</li>
-<li><b>end_time (Optional[Any], must be passed by name):</b> Specifies the end of the time window to retrieve data. Must be an <a href="hectime.html#HecTime"><code>HecTime</code></a> object or a valid input to the <code>HecTime</code> constructor.
-Defaults to the end of the data store's time window. If None or not specified and the data store's time window doesn't have an end time, the current time is used</li>
-<li><b>trim (Optional[bool], must be passed by name):</b> Specifies whether to trim missing values from the beginning and end of any regular time series data set retrieved.
+<li><strong>start_time (Any):</strong> Specifies the start of the time window to retrieve data. Must be an <a href="hectime.html#HecTime"><code>HecTime</code></a> object or a valid input to the <code>HecTime</code> constructor.
+Defaults to the start of the data store's time window. If <code>None</code> or not specified and the data store's time window doesn't have a start time, the current time minus 24 hours is used</li>
+<li><strong>end_time (Any):</strong> Specifies the end of the time window to retrieve data. Must be an <a href="hectime.html#HecTime"><code>HecTime</code></a> object or a valid input to the <code>HecTime</code> constructor.
+Defaults to the end of the data store's time window. If <code>None</code> or not specified and the data store's time window doesn't have an end time, the current time is used</li>
+<li><strong>trim (bool):</strong> Specifies whether to trim missing values from the beginning and end of any regular time series data set retrieved.
 Defaults to the data store's trim setting.</li>
-<li><b>units (Optional[str], must be passed by name):</b> "EN" or "SI", specifying to retrieve data in English or metric units. Defaults to None, which uses the default unit system for the data store</li>
-<li><b>version_time (Optional[Any], must be passed by name):</b> Specifies the version date/time of the data to retrieve (time series types only). Must be an <a href="hectime.html#HecTime"><code>HecTime</code></a> object or a valid input to the <code>HecTime</code> constructor.
+<li><strong>units (str):</strong> <code>"EN"</code> or <code>"SI"</code>, specifying to retrieve data in English or metric units. Defaults to None, which uses the default unit system for the data store</li>
+<li><strong>version_time (Any)):</strong> Specifies the version date/time of the data to retrieve (time series types only). Must be an <a href="hectime.html#HecTime"><code>HecTime</code></a> object or a valid input to the <code>HecTime</code> constructor.
 Defaults to the None, which uses the data store's default vertical datum.</li>
-<li><b>vertical_datum (Optional[str], must be passed by name):</b> "NGVD29", "NAVD88", or "NATIVE", specifying the vertical datum to retrieve elevation data for. Defaults to None, which uses the data store's default vertical datum</li>
+<li><strong>vertical_datum (str):</strong> <code>"NGVD29"</code>, <code>"NAVD88"</code>, or <code>"NATIVE"</code>, specifying the vertical datum to retrieve elevation data for. Defaults to None, which uses the data store's default vertical datum</li>
+</ul></li>
 </ul></li>
 </ul>
 
 <h6 id="returns">Returns:</h6>
 
 <blockquote>
-  <p>Any: The <a href="location.html#Location"><code>Location</code></a> or <a href="timeseries.html#TimeSeries"><code>TimeSeries</code></a> object</p>
+  <p>Any: The <a href="location.html#Location"><code>Location</code></a>, <a href="rating/abstract_rating_set.html#AbstractRatingSet"><code>AbstractRatingSet</code></a> <a href="timeseries.html#TimeSeries"><code>TimeSeries</code></a> object</p>
 </blockquote>
 </div>
 
@@ -847,7 +869,159 @@ Defaults to the None, which uses the data store's default vertical datum.</li>
     
             <div class="docstring"><p>Class to facilitate cataloging, storing, retrieving, and deleting data in HEC-DSS files.</p>
 
-<p>Requires installation of the 'hecdss' package &gt;= '0.1.24'.</p>
+<p>Requires installation of the 'hecdss' package &gt;= '0.1.26'.</p>
+
+<p><a name="rating_note"/></p>
+
+<fieldset style="border: 2px solid #999; padding: 1em;"><legend>Note on using DssDataStore objects with rating objects</legend><code><a href="#DssDataStore">DssDataStore</a></code> objects can be used to store and retrieve
+<a href="rating/local_rating_set.html#LocalRatingSet"><code>LocalRatingSet</code></a> objects. Since <em>these objects are not
+identifiable with a single pathname</em>, rating specification identifiers (which are mapped to multiple pathnames) are used
+to retrieve <a href="rating/local_rating_set.html#LocalRatingSet"><code>LocalRatingSet</code></a> objects from the data store. The portions
+of rating sets (i.e., rating templates, rating specifications, and individual ratings) may be cataloged with the appropiate
+identifiers mathched by the <code>pattern</code> or <code>regex</code> keyword arguments to the <a href="#DssDataStore.catalog"><code>catalog()</code></a> method:
+<ul>
+<li>rating template identifiers are matched for <a href="rating/rating_template#RatingTemplate.html"><code>RatingTemplate</code></a> objects</li>
+<li>rating specification identifiers are matched for <a href="rating/rating_specification.html/RatingSpecification"><code>RatingSpecification</code></a> and
+   <a href="rating/abstract_rating.html/AbstractRating"><code>AbstractRating</code></a> objects</li>
+</ul>
+For cataloging purposes, the <code>data_type</code> parameter must be specified (i.e., <code>"RATING_TEMPLATE"</code>,
+<code>"RATING_SPECIFICATION"</code> or <code>"RATING"</code>). The <a href="#DssDataStore.catalog"><code>catalog()</code></a> method normally returns
+identifiers for these data types, but specifying <code>pathnames=True</code> causes pathnames to be returned instead, as shown
+in the command-line session below.
+
+All rating related pathnames have D pathname parts that start with "Rating-". The mapping of the CWMS-style
+identifiers onto HEC-DSS pathnames is:
+<p>
+<table>
+<tr style="background-color: #f0f0f0;">
+    <th>Object Type</th>
+    <th>A&nbsp;Part</th>
+    <th>B&nbsp;Part</th>
+    <th>C&nbsp;Part</th>
+    <th>D&nbsp;Part</th>
+    <th>E&nbsp;Part</th>
+    <th>F&nbsp;Part</th>
+    <th>Record&nbsp;Body</td>
+</tr>
+<tr>
+    <td>Rating Template</td>
+    <td>Office ID</td>
+    <td></td>
+    <td>Parameters ID</td>
+    <td>"Rating&#8209;Template"</td>
+    <td>Template Version</td>
+    <td></td>
+    <td>Rating Template XML</td>
+</tr>
+<tr>
+    <td>Rating Specification</td>
+    <td>Office ID</td>
+    <td>Location ID</td>
+    <td>Parameters ID</td>
+    <td>"Rating&#8209;Specification"</td>
+    <td>Template Version</td>
+    <td>Specification Version</td>
+    <td>Rating Specification XML</td>
+</tr>
+<tr>
+    <td>Rating</td>
+    <td>Office ID</td>
+    <td>Location ID</td>
+    <td>Parameters ID</td>
+    <td>"Rating&#8209;Body&#8209;<em>Effective&#8209;Time</em>"</td>
+    <td>Template Version</td>
+    <td>Specification Version</td>
+    <td>Rating XML minus any TableRating points (for lazy loading)</td>
+</tr>
+<tr>
+    <td>Table Rating Points</td>
+    <td>Office ID</td>
+    <td>Location ID</td>
+    <td>Parameters ID</td>
+    <td>"Rating&#8209;Points&#8209;<em>Effective&#8209;Time</em>"</td>
+    <td>Template Version</td>
+    <td>Specification Version</td>
+    <td>Rating XML including any TableRating points (for populating after lazy loading)</td>
+</tr>
+</table>
+For example, in the image below, <a href="rating/local_rating_set.html#LocalRatingSet"><code>LocalRatingSet</code></a> with the following rating 
+specification identifiers have been stored to an empty HEC-DSS file. Both rating sets were for office SWT.
+<ul>
+<li>COUN.Count-Conduit_Gates,Opening-Conduit_Gates,Elev;Flow-Conduit_Gates.Standard.Production/</li>
+<li>KEYS.Elev;Stor.Linear.Production/</li>
+</ul>
+
+<style>
+.expandable {
+width: 725px;
+transition: width 0.3s ease;
+cursor: zoom-in;
+}
+.expandable:active {
+width: 1200px;
+cursor: zoom-out;
+}
+</style>
+<img src="images/Rating_Pathnames.png" alt="Expandalbe image of HEC-DSSVue showing a catalog of rating set pathnames" class="expandable" title="Rating Pathnames">
+<p>
+<p>
+The following command line session demonstrates cataloging the file and retrieving one of the rating sets:
+<style>
+pre { font-family: monospace; }
+.typed { color: darkred;}
+.response { color: blue; }
+</style>
+<pre>
+>>> <span class="typed">from hec import DssDataStore</span>
+>>> <span class="typed">dss = <a href="#DssDataStore.open">DssDataStore.open</a>(r"U:\Devl\git\hec-python-library\test\resources\rating\local_rating_set.dss")</span>
+<span class="response">16:50:45.507      -----DSS---zopen   Existing file opened,  File: U:\Devl\git\hec-python-library\test\resources\rating\local_rating_set.dss
+16:50:45.507                         Handle 3;  Process: 18724;  DSS Versions - Software: 7-IU, File:  7-IU
+16:50:45.508                         Single-user advisory access mode</span>
+>>>
+>>> <span class="typed">for item in dss.catalog("RATING_TEMPLATE"): print(item)</span>
+...
+<span class="response">Count-Conduit_Gates,Opening-Conduit_Gates,Elev;Flow-Conduit_Gates.Standard
+Elev;Stor.Linear</span>
+>>>
+>>> <span class="typed">for item in dss.catalog("RATING_TEMPLATE", pathnames=True): print(item)</span>
+...
+<span class="response">/SWT//Count-Conduit_Gates,Opening-Conduit_Gates,Elev;Flow-Conduit_Gates/Rating-Template/Standard//
+/SWT//Elev;Stor/Rating-Template/Linear//</span>
+>>>
+>>> <span class="typed">for item in dss.catalog("RATING_SPECIFICATION"): print(item)</span>
+...
+<span class="response">COUN.Count-Conduit_Gates,Opening-Conduit_Gates,Elev;Flow-Conduit_Gates.Standard.Production
+KEYS.Elev;Stor.Linear.Production</span>
+>>>
+>>> <span class="typed">for item in dss.catalog("RATING_SPECIFICATION", pathnames=True): print(item)</span>
+...
+<span class="response">/SWT/COUN/Count-Conduit_Gates,Opening-Conduit_Gates,Elev;Flow-Conduit_Gates/Rating-Specification/Standard/Production/
+/SWT/KEYS/Elev;Stor/Rating-Specification/Linear/Production/</span>
+>>>
+>>> <span class="typed">for item in dss.catalog("RATING"): print(item)</span>
+...
+<span class="response">COUN.Count-Conduit_Gates,Opening-Conduit_Gates,Elev;Flow-Conduit_Gates.Standard.Production
+KEYS.Elev;Stor.Linear.Production</span>
+>>>
+>>> <span class="typed">for item in dss.catalog("RATING", pathnames=True): print(item)</span>
+...
+<span class="response">/SWT/COUN/Count-Conduit_Gates,Opening-Conduit_Gates,Elev;Flow-Conduit_Gates/Rating-Body-2012-04-26T05:00:00Z/Standard/Production/
+/SWT/COUN/Count-Conduit_Gates,Opening-Conduit_Gates,Elev;Flow-Conduit_Gates/Rating-Body-2012-04-27T05:00:00Z/Standard/Production/
+/SWT/KEYS/Elev;Stor/Rating-Body-2009-01-14T06:00:00Z/Linear/Production/
+/SWT/KEYS/Elev;Stor/Rating-Body-2011-10-19T05:00:00Z/Linear/Production/
+/SWT/KEYS/Elev;Stor/Rating-Body-2020-08-01T05:00:00Z/Linear/Production/</span>
+>>>
+>>> <span class="typed">rs = dss.retrieve("KEYS.Elev;Stor.Linear.Production", office="SWT")</span>
+>>> <span class="typed">print(type(rs))</span>
+<span class="response"><class '<a href="rating.html#LocalRatingSet">hec.rating.local_rating_set.LocalRatingSet</a>'></span>
+>>>
+>>> <span class="typed">for effective_time in rs.ratings: print(effective_time.isoformat(), rs.ratings[effective_time])</span>
+...
+<span class="response">2009-01-14T06:00:00+00:00 <<a href="rating.html#TableRating">hec.rating.table_rating.TableRating</a> object at 0x0000019CBC556EB0>
+2011-10-19T05:00:00+00:00 <<a href="rating.html#TableRating">hec.rating.table_rating.TableRating</a> object at 0x0000019CBC59C220>
+2020-08-01T05:00:00+00:00 <<a href="rating.html#TableRating">hec.rating.table_rating.TableRating</a> object at 0x0000019CBC600880></span>
+</pre>
+</fieldset>
 </div>
 
 
@@ -897,7 +1071,10 @@ Defaults to True.</li>
     </div>
     <a class="headerlink" href="#DssDataStore.catalog"></a>
     
-            <div class="docstring"><p>Retrieves pathnames that match specified conditions</p>
+            <div class="docstring"><p>Retrieves pathnames that match specified conditions.</p>
+
+<p>If data_type is <code>"RATING"</code>, <code>"RATING-SPECIFICATION"</code>, or <code>"RATING-TEMPLATE"</code>, CWMS-style identifiers are returned instead of pathnames
+unless the <code>pathnames</code> parameter is specifed as <code>True</code>. (See <a href="#rating_note">Note on use with rating objects</a>)</p>
 
 <h6 id="arguments">Arguments:</h6>
 
@@ -905,19 +1082,43 @@ Defaults to True.</li>
 <li><strong>data_type (Optional[str]):</strong>  The type of data to retrieve pathnames for. Defaults to None, which specifies all data types.
 If specified, must be one of (case insensitive):
 <ul>
-<li>'ARRAY'</li>
-<li>'GRID'</li>
-<li>'LOCATION'</li>
-<li>'PAIRED_DATA'</li>
-<li>'TEXT'</li>
-<li>'TIMESERIES'</li>
-<li>'TIMESERIES_PROFILE'</li>
-<li>'TIN'</li>
+<li><strong>'ARRAY'</strong></li>
+<li><strong>'GRID'</strong></li>
+<li><strong>'LOCATION'</strong></li>
+<li><strong>'PAIRED_DATA'</strong></li>
+<li><strong>'RATING'</strong></li>
+<li><strong>'RATING_SPECIFICATION'</strong></li>
+<li><strong>'RATING_TEMPLATE'</strong></li>
+<li><strong>'TEXT'</strong></li>
+<li><strong>'TIMESERIES'</strong></li>
+<li><strong>'TIMESERIES_PROFILE'</strong></li>
+<li><strong>'TIN'</strong></li>
 </ul></li>
-<li><strong>pattern (Optional[str], must be passed by name):</strong>  Wildcard pattern (using <code>*</code> and <code>?</code>) to use for matching pathnames. <code>regex</code> takes precedence if both are specified. Defaults to None.</li>
-<li><strong>regex (Optional[str], must be passed by name):</strong>  Regular expression to use for matching pathnames. Takes precedence over <code>pattern</code> if both are specified. Defaults to None.</li>
-<li><strong>case_sensitive (Optional[bool], must be passed by name):</strong>  Specifies whether <code>pattern</code> or <code>regex</code> matching is case-sensitive.</li>
+<li><p><strong>pattern (Optional[str], must be passed by name):</strong>  Wildcard pattern (using <code>*</code> and <code>?</code>) to use for matching pathnames. <code>regex</code> takes precedence if both are specified. Defaults to None (all pathnames are returned).</p>
+
+<p>If data_type is <code>"RATING"</code>, <code>"RATING-SPECIFICATION"</code>, or <code>"RATING-TEMPLATE"</code>, the pattern matches the CWMS-style identifiers instead of pathnames.</p>
+
+<table>
+<pre>
+<tr><th colspan="2">Pattern Examples</th></tr>
+<tr><th>pattern</th><th>matches</th></tr>
+<tr><td><code>abc</code></td><td>the literal string "abc"</td></tr>
+<tr><td><code>ab{2,3}c{2}</code></td><td>1 "a" followed by 2 or 3 "b" followed by 2 "c"</td></tr>
+<tr><td><code>a*b?c</code></td><td>1 "a" followed by zero or more characters followed by "b" followed by 1 character followed by 1 "c"</td></tr>
+<tr><td><code>[abc]</code></td><td>1 "a" or "b" or "c"</td></tr>
+<tr><td><code>^[abc]$</code></td><td>beginning of string followed by 1 "a" or "b" or "c" followed by end of string</td></tr>
+<tr><td><code>[!abc]</code></td><td>1 character other than "a" or "b" or "c"</td></tr>
+<tr><td><code>[_a-z0-9]*</code></td><td>zero or more of characters "_" or "a" through "z" or "0" through "9"</td></tr>
+<tr><td><code style="white-space: nowrap;">[!a-z0-9]{1,5}</code></td><td>1..5 characters other than "a" through "z" or "0" through "9"</td></tr>
+<tr><td><code>(abc|def)</code></td><td>either "abc" or "def"</td></tr>
+</pre>
+</table></li>
+<li><p><strong>regex (Optional[str], must be passed by name):</strong>  Regular expression to use for matching pathnames. Takes precedence over <code>pattern</code> if both are specified. Defaults to None (all pathnames are retuned).
+If data_type is <code>"RATING"</code>, <code>"RATING-SPECIFICATION"</code>, or <code>"RATING-TEMPLATE"</code>, the regex matches the CWMS-style identifiers instead of pathnames.</p></li>
+<li><strong>case_sensitive (Optional[bool], must be passed by name):</strong>  Specifies whether <code>pattern</code> or <code>regex</code> matching is case-sensitive. Defaults to False.</li>
 <li><strong>condensed (Optional[bool], must be passed by name):</strong>  Specifies whether to return a condensed catalog (D-part = time range for time series). Defaults to True</li>
+<li><strong>office (Optional[str], must be passed by name):</strong>  Specifies the office if <code>data_type</code> is <code>"RATING"</code>, <code>"RATING-SPECIFICATION"</code>, or <code>"RATING-TEMPLATE"</code>. Defaults to None (all offices are matched).</li>
+<li><strong>pathnames (Optional[bool]), must be passed by name:</strong>  Specifies whether to return pathnames instead of identifiers if <code>data_type</code> is <code>"RATING"</code>, <code>"RATING-SPECIFICATION"</code>, or <code>"RATING-TEMPLATE"</code>. Defaults to False.</li>
 </ul>
 
 <h6 id="raises">Raises:</h6>
@@ -974,12 +1175,40 @@ If specified, must be one of (case insensitive):
 <li><strong>TIMESERIES</strong>: A pathname in the dataset. The D part (block start date) is ignored.</li>
 </ul></li>
 <li><strong>end_time (Optional[Any], must be passed by name):</strong>  Specifies the end of the time window to delete data. Must be an <a href="hectime.html#HecTime"><code>HecTime</code></a> object or a valid input to the <code>HecTime</code> constructor.
-Defaults to the end of the data store's time window. If None or not specified and the data store's time window doesn't have an end time, all data on or after the start time will be deleted.</li>
+Defaults to the end of the data store's time window. If <code>None</code> or not specified and the data store's time window doesn't have an end time, all data on or after the start time will be deleted.</li>
 <li><strong>start_time (Optional[Any], must be passed by name):</strong>  Specifies the start of the time window to delete data. Must be an <a href="hectime.html#HecTime"><code>HecTime</code></a> object or a valid input to the <code>HecTime</code> constructor.
-Defaults to the start of the data store's time window. If None or not specified and the data store's time window doesn't have a start time, all data up to and on the end time will be deleted.</li>
+Defaults to the start of the data store's time window. If <code>None</code> or not specified and the data store's time window doesn't have a start time, all data up to and on the end time will be deleted.</li>
 </ul>
 </div>
 
+
+                            </div>
+                            <div id="DssDataStore.decode_ints" class="classattr">
+                                <div class="attr function">
+                    <div class="decorator decorator-staticmethod">@staticmethod</div>
+
+        <span class="def">def</span>
+        <span class="name">decode_ints</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">ints</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span></span><span class="return-annotation">) -> <span class="nb">str</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#DssDataStore.decode_ints"></a>
+    
+    
+
+                            </div>
+                            <div id="DssDataStore.encode_str" class="classattr">
+                                <div class="attr function">
+                    <div class="decorator decorator-staticmethod">@staticmethod</div>
+
+        <span class="def">def</span>
+        <span class="name">encode_str</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">s</span><span class="p">:</span> <span class="nb">str</span></span><span class="return-annotation">) -> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#DssDataStore.encode_str"></a>
+    
+    
 
                             </div>
                             <div id="DssDataStore.get_extents" class="classattr">
@@ -1099,22 +1328,58 @@ Defaults to True.</li>
     
             <div class="docstring"><p>Retrieves a data set from the data store.</p>
 
-<p>Currently only time series data may be retrieved. To retrieve all data for a time series, specifiy <code>start_time=None</code> and <code>end_time=None</code></p>
+<p>Currently only <a href="rating/local_rating_set.html#LocalRatingSet">LocalRatingSet</a>, <a href="rating/paired_data.html#PairedData">PairedData</a> and <a href="timeseries.html#TimeSeries">TimeSeires</a> objects can be retrieved.
+(See <a href="#rating_note">Note on use with rating objects</a>)</p>
+
+<p>To retrieve all data for a <a href="timeseries.html#TimeSeries">TimeSeires</a>, specifiy <code>start_time=None</code> and <code>end_time=None</code></p>
 
 <h6 id="arguments">Arguments:</h6>
 
 <ul>
-<li><strong>identifier (str):</strong>  The name of the data set to retrieve:
+<li><strong>Positional Arguments:</strong> <br>
 <ul>
-<li><strong>TIMESERIES</strong>: A pathname in the dataset. The D part (block start date) is ignored.</li>
+<li><strong>identifier (str)</strong>: The name of the data set to retrieve:<br>
+<ul>
+<li><strong>LocalRatingSet:</strong> A valid rating specification identifier. <strong><em>NOTE:</strong> LocalRatingSet objects cannot be retrieved by pathname.</em></li>
+<li><strong>PairedData:</strong> A valid paired-data pathname</li>
+<li><strong>TimeSeries</strong>: A valid time series pathname. <strong><em>NOTE:</strong> Unlike the Java HEC-DSS library, the D part (block start date) is always ignored.
+Set the datastore time window or use <code><a href="#DssDataStore.start_time">start_time</a></code> and <code><a href="#DssDataStore.end_time">end_time</a></code> keyword arguments to retrieve data for a time window.</em></li>
 </ul></li>
-<li><strong>end_time (Optional[Any], must be passed by name):</strong>  Specifies the end of the time window to retrieve data. Must be an <a href="hectime.html#HecTime"><code>HecTime</code></a> object or a valid input to the <code>HecTime</code> constructor.
-Defaults to the end of the data store's time window. If None or not specified and the data store's time window doesn't have an end time, all data on or after the start time will be retrieved.</li>
-<li><strong>start_time (Optional[Any], must be passed by name):</strong>  Specifies the start of the time window to retrieve data. Must be an <a href="hectime.html#HecTime"><code>HecTime</code></a> object or a valid input to the <code>HecTime</code> constructor.
-Defaults to the start of the data store's time window. If None or not specified and the data store's time window doesn't have a start time, all data up to and on the end time will be retrieved.</li>
-<li><strong>trim (Optional[bool], must be passed by name):</strong>  Specifies whether to trim missing values from the beginning and end of any regular time series data set retrieved.
+</ul></li>
+<li><strong>Keyword Arguments (Optional, must be passed by name):</strong> <br>
+<ul>
+<li><strong>LocalRatingSet Identifiers:</strong><br>
+<ul>
+<li><strong>effective_time (datetime):</strong> Retrieves a <a href="rating/local_rating_set.html#LocalRatingSet">LocalRatingSet</a> object with only one rating (at the specified effective_time).
+Causes the <code>method</code> argument to be ignored, with <code>"EAGER"</code> retrieval implied. Used by the library to populate the rating points of individual
+<a href="rating/table_rating_set.html#TableRatingSet">TableRatingSet</a> objects that were previously retrieved with the <code>"LAZY"</code> method.</li>
+<li><strong>method (str):</strong> The method used to retrieve the rating set from the HEC-DSS file. Restricted to <code>"EAGER"</code> and <code>"LAZY"</code>.
+<ul>
+<li>If <code>"EAGER"</code>, a <a href="rating/local_rating_set.html#LocalRatingSet">LocalRatingSet</a> is retrieved with rating points for all included
+<a href="rating/table_rating.html#TableRating">TableRating</a> objects are retrieved fully populated.</li>
+<li>If <code>"LAZY"</code>, a <a href="rating/local_rating_set.html#LocalRatingSet">LocalRatingSet</a> is retrieved omitting the rating points for all included
+<a href="rating/table_rating.html#TableRating">TableRating</a> objects until they are first needed.</li>
+</ul></li>
+</ul></li>
+<li><strong>PairedData Identifiers:</strong><br>
+<ul>
+<li><strong>dep_rounding (<a href="rounding.html#UsgsRounder">UsgsRounder</a>|str):</strong> Rounds all of the dependent parameter values using the specified rounder or rounding spec after retrieval from the HEC-DSS file.</li>
+<li><strong>ind_rounding (<a href="rounding.html#UsgsRounder">UsgsRounder</a>|str):</strong> Rounds all of the independent parameter values using the specified rounder or rounding spec after retrieval from the HEC-DSS file.</li>
+<li><strong>rounding (<a href="rounding.html#UsgsRounder">UsgsRounder</a>|str):</strong> Rounds all of the independent and dependent parameter values using the specified rounder or rounding spec after retrieval from the HEC-DSS file.</li>
+</ul></li>
+<li><strong>TimeSeires Identifiers:</strong><br>
+<ul>
+<li><strong>end_time (Any)</strong>: Specifies the end of the time window to retrieve data. Must be an <a href="hectime.html#HecTime"><code>HecTime</code></a> object or a valid input to the <code>HecTime</code> constructor.
+Defaults to the end of the data store's time window. If <code>None</code> or not specified and the data store's time window doesn't have an end time, all data on or after the start time will be retrieved.</li>
+<li><strong>start_time (Any):</strong> Specifies the start of the time window to retrieve data. Must be an <a href="hectime.html#HecTime"><code>HecTime</code></a> object or a valid input to the <code>HecTime</code> constructor.
+Defaults to the start of the data store's time window. If <code>None</code> or not specified and the data store's time window doesn't have a start time, all data up to and on the end time will be retrieved.</li>
+<li><strong>trim (bool):</strong> Specifies whether to trim missing values from the beginning and end of any regular time series data set retrieved.
 Defaults to the data store's trim setting.</li>
+</ul></li>
+</ul></li>
 </ul>
+
+<p>Returns (Any): The retrieved <a href="rating/local_rating_set.html#LocalRatingSet">LocalRatingSet</a>, <a href="rating/paired_data.html#PairedData">PairedData</a> or <a href="timeseries.html#TimeSeries">TimeSeires</a> object.</p>
 </div>
 
 
@@ -1162,7 +1427,7 @@ Defaults to the data store's trim setting.</li>
     
             <div class="docstring"><p>Stores a data set to the data store.</p>
 
-<p>Currently only time series data may be stored.</p>
+<p>Currently only time series and rating sets may be stored.</p>
 
 <h6 id="arguments">Arguments:</h6>
 
