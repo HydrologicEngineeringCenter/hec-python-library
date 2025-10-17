@@ -3,6 +3,7 @@ import re
 import warnings
 from datetime import datetime
 from typing import Any, Optional, cast
+from zoneinfo import ZoneInfo
 
 import numpy as np
 import pytest
@@ -638,7 +639,6 @@ def test_load_methods_with_dss(
     assert np.allclose(expected_flows, rated_flows_lazy.values, equal_nan=True)
 
 
-
 @pytest.mark.parametrize(
     "rating_set_file_name",
     [
@@ -676,7 +676,7 @@ def test_dss_store_retrieve(rating_set_file_name: str) -> None:
     xml1 = etree.tostring(etree.fromstring(xml1), pretty_print=True).decode()
     # change indentations for comparison
     lines = xml1[:1000].split("\n")
-    indention = lines[1][:lines[1].find("<")]
+    indention = lines[1][: lines[1].find("<")]
     xml1 = replace_indent(xml1, indention, "  ")
     # ------------------------- #
     # finally do the comparison #
@@ -729,7 +729,7 @@ def test_dss_catalog() -> None:
     ) in catalog
     assert "KEYS.Elev;Stor.Linear.Production" in catalog
     assert "BARN.Stage;Flow.Linear.Step" in catalog
-    
+
     # ------------------------------------- #
     # catalog rating templates as pathnames #
     # ------------------------------------- #
@@ -755,7 +755,7 @@ def test_dss_catalog() -> None:
     # ---------------------------- #
     catalog = _dss.catalog("RATING", office="SWT", pathnames=True)
     assert len(catalog) == 73
-    for effective_time in ["2012-04-26T05:00:00Z", "2012-04-27T05:00:00Z"] :
+    for effective_time in ["2012-04-26T05:00:00Z", "2012-04-27T05:00:00Z"]:
         assert (
             f"/SWT/COUN/Count-Conduit_Gates,Opening-Conduit_Gates,Elev;Flow-Conduit_Gates/Rating-Body-{effective_time}/Standard/Production/"
         ) in catalog
@@ -839,10 +839,86 @@ def test_dss_catalog() -> None:
         "2025-07-25T21:20:00Z",
     ]:
         assert (
-            f"/SWT/BARN/Stage;Flow/Rating-Body-{effective_time}/Linear/Step/"
-            in catalog
+            f"/SWT/BARN/Stage;Flow/Rating-Body-{effective_time}/Linear/Step/" in catalog
         )
 
 
+def test_transition_start_time() -> None:
+
+    def time_between(t1: datetime, t2: datetime, fraction: float) -> datetime:
+        ts1 = t1.timestamp()
+        ts2 = t2.timestamp()
+        return datetime.fromtimestamp(ts1 + fraction * (ts2 - ts1), tz=ZoneInfo("UTC"))
+
+    def value_between(v1: float, v2: float, fraction: float) -> float:
+        return v1 + fraction * (v2 - v1)
+
+    with open(rating_set_large_file_name) as f:
+        rs = LocalRatingSet.from_xml(f.read())
+    rs.default_data_units = ["ft", "cfs"]
+    effective_times = sorted(rs.ratings)
+    # ----------------------------------------------- #
+    # generate rated values at the effective times    #
+    # and make sure we have no transition start times #
+    # ----------------------------------------------- #
+    value_to_rate = 15.0
+    rated_values = {}
+    for effective_time in effective_times:
+        assert (
+            rs.ratings[effective_time].transition_start_time is None
+        ), f"Unexpected transition start time at {effective_time}"
+        rated_values[effective_time] = rs.rate(
+            [value_to_rate],
+            times=effective_time,
+        )
+    # -------------------------------------------------------------------------------- #
+    # verify that halfway between effective times we rate halfway between rated values #
+    # -------------------------------------------------------------------------------- #
+    for i in range(1, len(effective_times)):
+        fraction = 0.5
+        value_time = time_between(effective_times[i - 1], effective_times[i], fraction)
+        expected_value = value_between(
+            rated_values[effective_times[i - 1]],
+            rated_values[effective_times[i]],
+            fraction,
+        )
+        rated_value = rs.rate(
+            [value_to_rate],
+            times=value_time,
+        )
+        assert np.isclose(
+            expected_value, rated_value
+        ), f"Test 1: Expected {expected_value} at {value_time}, got {rated_value}"
+    # --------------------------------------------------------------------- #
+    # now set the transition start times halfway between effective times    #
+    # and verify rated values at those times are the same as the at the     #
+    # previous effective time and that 3/4 between effective times (halfway #
+    # between transition start time and next effecitve time) we rate        #
+    # halfway between rated values                                          #
+    # --------------------------------------------------------------------- #
+    for i in range(1, len(effective_times)):
+        value_time = time_between(effective_times[i - 1], effective_times[i], 0.5)
+        rs.ratings[effective_times[i]].transition_start_time = value_time
+        expected_value = rated_values[effective_times[i - 1]]
+        rated_value = rs.rate(
+            [value_to_rate],
+            times=value_time,
+        )
+        assert np.isclose(
+            expected_value, rated_value
+        ), f"Test 2: Expected {expected_value} at {value_time}, got {rated_value}"
+        value_time = time_between(effective_times[i - 1], effective_times[i], 0.75)
+        expected_value = value_between(
+            rated_values[effective_times[i - 1]], rated_values[effective_times[i]], 0.5
+        )
+        rated_value = rs.rate(
+            [value_to_rate],
+            times=value_time,
+        )
+        assert np.isclose(
+            expected_value, rated_value
+        ), f"Test 3: Expected {expected_value} at {value_time}, got {rated_value}"
+
+
 if __name__ == "__main__":
-    test_dss_catalog()
+    test_transition_start_time()

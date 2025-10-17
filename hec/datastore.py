@@ -892,7 +892,10 @@ class DssDataStore(AbstractDataStore):
             # we are lazy loading a specific effective time #
             # --------------------------------------------- #
             effective_time_str = (
-                effective_time.replace(microsecond=0).astimezone(ZoneInfo("UTC")).isoformat() + "Z"
+                effective_time.replace(microsecond=0)
+                .astimezone(ZoneInfo("UTC"))
+                .isoformat()
+                .replace("+00:00", "Z")
             )
             rating_pathnames = [
                 spec_pathname.replace("Specification", f"Points-{effective_time_str}")

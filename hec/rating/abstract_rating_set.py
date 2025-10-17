@@ -290,7 +290,7 @@ class AbstractRatingSet(ABC):
         for i in range(ind_param_count):
             parameter = Parameter(self.template.ind_params[i], units[i])
             _units.append(parameter.unit_name)
-        parameter = Parameter(self.template.ind_params[-1], units[-1])
+        parameter = Parameter(self.template.dep_param, units[-1])
         _units.append(parameter.unit_name)
         self._default_data_units = _units
 

@@ -101,16 +101,17 @@ class LocalRatingSet(AbstractRatingSet):
                 value_times = value_count * [cast(datetime, self._default_data_time)]
             else:
                 value_times = value_count * [datetime.now()]
-        _units = units if units else self._default_data_units
-        if not _units:
+        unit_list = re.split(r"[;,]", units) if units else self._default_data_units
+        if not unit_list:
             raise LocalRatingSetException(
                 "Cannot perform rating. No data units are specified and rating set has no defaults"
             )
-        unit_list = re.split(r"[;,]", cast(str, _units))
         if len(unit_list) != ind_param_count + 1:
             raise LocalRatingSetException(
                 f"Expected {ind_param_count+1} units, got {len(unit_list)}"
             )
+        if not units:
+            units = f"{','.join(unit_list[:-1])};{unit_list[-1]}"
         rated_values: list[float] = []
         effective_times = sorted(et for et in ratings)
         effective_times_count = len(effective_times)
@@ -217,19 +218,44 @@ class LocalRatingSet(AbstractRatingSet):
             lo_val = ratings[effective_times[lo]]._rate_values(
                 ind_value, units, vertical_datum, round
             )[0]
+            transition_start_time = ratings[effective_times[hi]].transition_start_time
+            if (
+                transition_start_time is not None
+                and value_times[i] < transition_start_time
+            ):
+                rated_values.append(lo_val)
+                continue
             hi_val = ratings[effective_times[hi]]._rate_values(
                 ind_value, units, vertical_datum, round
             )[0]
-            rated_values.append(
-                TableRating.interpolate_or_select(
-                    value_times[i].timestamp(),
-                    effective_times[lo].timestamp(),
-                    effective_times[hi].timestamp(),
-                    lo_val,
-                    hi_val,
-                    in_range,
+            if transition_start_time is None:
+                # ----------------------------------- #
+                # interpolate between effective times #
+                # ----------------------------------- #
+                rated_values.append(
+                    TableRating.interpolate_or_select(
+                        value_times[i].timestamp(),
+                        effective_times[lo].timestamp(),
+                        effective_times[hi].timestamp(),
+                        lo_val,
+                        hi_val,
+                        in_range,
+                    )
                 )
-            )
+            else:
+                # ------------------------------------------------------------------ #
+                # interpolate between transition start time and later effective time #
+                # ------------------------------------------------------------------ #
+                rated_values.append(
+                    TableRating.interpolate_or_select(
+                        value_times[i].timestamp(),
+                        transition_start_time.timestamp(),
+                        effective_times[hi].timestamp(),
+                        lo_val,
+                        hi_val,
+                        in_range,
+                    )
+                )
         return rated_values
 
     def _reverse_rate_values(
@@ -582,10 +608,3 @@ class LocalRatingSet(AbstractRatingSet):
         if prepend:
             xml = "".join([prepend + line for line in xml.splitlines(keepends=True)])
         return xml
-
-
-if __name__ == "__main__":
-    with open("test/resources/rating/table_rating_set_1.xml") as f:
-        xml_str = f.read()
-    rs = LocalRatingSet.from_xml(xml_str)
-    print(rs)
