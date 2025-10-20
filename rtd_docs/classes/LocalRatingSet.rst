@@ -25,10 +25,10 @@ Notes
 .. include:: _rating_set_desc.rst
 
 All TableRating objects in LocalRatingSet objects retrieved with ``method="EAGER"`` have their ratings points populated on retrieval. This may load ratings points for effective times that
-will not be used in subsequent calls to ``rate()`` or ``reverse_rate()``.
+will not be used in subsequent calls to ``rate(...)`` or ``reverse_rate(...)``.
 
 All TableRatings objects in LocalRatingSet objects retrieved with ``method="LAZY"`` (or no method specified) do not have their rating points populated on retrieval. The ratings points
-for an effective time will be populated only when the specific rating is first used in a call to ``rate()`` or ``reverse_rate()``. Depending on the use case, this may substantially
+for an effective time will be populated only when the specific rating is first used in a call to ``rate(...)`` or ``reverse_rate(...)``. Depending on the use case, this may substantially
 speed up the overall retrieval and use of the rating set.
 
 .. [1] See `this note <https://hydrologicengineeringcenter.github.io/hec-python-library/hec/rating.html#rating_note>`_ for using :doc:`DssDataStore </classes/DssDataStore>` objects to store LocalRatingSet objects.
