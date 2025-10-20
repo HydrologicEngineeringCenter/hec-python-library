@@ -36,5 +36,6 @@ The following object types may be cataloged:
 The following object types may be stored or retrieved:
 
  - :doc:`locations </classes/Location>`
+ - :doc:`ratings </classes/ReferenceRatingSet>` (currently retrieve-only)
  - :doc:`time series </classes/TimeSeries>`
 

@@ -3,7 +3,7 @@ ReferenceRatingSet Class
 
 `Detailed Documentation <https://hydrologicengineeringcenter.github.io/hec-python-library/hec/rating.html#ReferenceRatingSet>`_
 
-`Example Usage <https://github.com/HydrologicEngineeringCenter/hec-python-library/blob/main/examples/datastore_examples.ipynb>`_
+`Example Usage <https://github.com/HydrologicEngineeringCenter/hec-python-library/blob/main/examples/rating_set_examples.ipynb>`_
 
 ReferenceRatingSet
 ------------------
@@ -15,11 +15,9 @@ Required Information
 
  - **name**: str (the rating specification identifier)
  - **office**: str (the CWMS office that owns the ratings)
+ - **method**: str (must be ``"REFERENCE"`` to retrieve a ReferenceRatingSet object - otherwise a :doc:`LocalRatingSet </classes/LocalRatingSet>` object is retrieved")
   
 Notes
 -----
 
-Rating sets are collections of ratings for the same location and parameters. A rating set may have one or more ratings, each with its own effective date, and can
-be thought of as an irregluar time series of ratings.
-
-Ratings (and thus rating sets) may have one or more independent parameters and one dependent parameter. Reverse rating is possible only with ratings with a single independent parameter.
+.. include:: _rating_set_desc.rst
