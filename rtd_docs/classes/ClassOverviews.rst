@@ -48,15 +48,15 @@ Ratings:
 --------
  
 **Object Types**
- +---------------------------------------------+------------+---------------+---------------+------------------+--------------------+
- | Object Type                                 | CWMS Store | CWMS Retrieve | HEC-DSS Store | HEC-DSS Retrieve | XML Store/Retrieve |
- +=============================================+============+===============+===============+==================+====================+
- | `Individual Ratings <AbstractRating.html>`_ | No         | No            | No            | No               | **Yes**            |
- +---------------------------------------------+------------+---------------+---------------+------------------+--------------------+
- | `Rating Sets <AbstractRatingSet.html>`_     | No         | **Yes**       | **Yes**       | **Yes**          | **Yes**            |
- +---------------------------------------------+------------+---------------+---------------+------------------+--------------------+
- | `Paired Data <PairedData.html>`_            | No         | No            | **Yes**       | **Yes**          | No                 | 
- +---------------------------------------------+------------+---------------+---------------+------------------+--------------------+
+ +---------------------------------------------+------------+---------------+------------------------+--------------------+
+ | Object Type                                 | CWMS Store | CWMS Retrieve | HEC-DSS Store/Retrieve | XML Store/Retrieve |
+ +=============================================+============+===============+========================+====================+
+ | `Individual Ratings <AbstractRating.html>`_ | No         | No            | No                     | **Yes**            |
+ +---------------------------------------------+------------+---------------+------------------------+--------------------+
+ | `Rating Sets <AbstractRatingSet.html>`_     | No         | **Yes**       | **Yes**                | **Yes**            |
+ +---------------------------------------------+------------+---------------+------------------------+--------------------+
+ | `Paired Data <PairedData.html>`_            | No         | No            | **Yes**                | No                 | 
+ +---------------------------------------------+------------+---------------+------------------------+--------------------+
 
 **Naming**
  Individual ratings and ratings sets (but not paired data) share a naming convention that references metadata objects for the ratings/sets [2]_. There are four parts (separated by dot (``.``) characters) to this naming convention:
@@ -81,7 +81,7 @@ Ratings:
 **Methods**
  All ratings objects (including paired data objects) have the following methods:
   - ``rate(...)`` for transforming independent parameter values to dependent parameter values
-  - ``reverse_rate(...)`` for transforming dependent parameter values to independent parameter values. All classes, but not all instances, support ``reverse_rate(...)``
+  - ``reverse_rate(...)`` for transforming dependent parameter values to independent parameter values. Not all classes support ``reverse_rate(...)``
  
 **Classes**
  All classes directly related to ratings objects are:

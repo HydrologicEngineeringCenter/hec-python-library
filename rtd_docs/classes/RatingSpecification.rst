@@ -9,7 +9,7 @@ General
 RatingSpecification objects are named objects that specify the following information about `RatingSet <abstract_rating_set.html#AbstractRatingSet>`_ objects:
  - lookup methods for the effective times of ratings withing the rating set
  - the agency responsible for generating ratings in the rating set
- - rounding specifications for all independent parameter values and dependent parameter values output from calling ``rate()`` or ``reverse_rate()`` on the rating set (see `UsgsRounder <https://hydrologicengineeringcenter.github.io/hec-python-library/hec/rounding.html#UsgsRounder>`_)
+ - rounding specifications for all independent parameter values and dependent parameter values output from calling ``rate(...)`` or ``reverse_rate(...)`` on the rating set (see `UsgsRounder <https://hydrologicengineeringcenter.github.io/hec-python-library/hec/rounding.html#UsgsRounder>`_)
  - whether rating sets with this specification are active (should be used)
  - whether ratings with this specification should be automatically updated from the source agency
  - whether ratings with this specification that are automatically updated from the source agency should automatically be marked as active
