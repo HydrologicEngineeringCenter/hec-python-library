@@ -106,4 +106,4 @@ Data Stores:
 - DssDataStore: :doc:`/classes/DssDataStore`
 
 .. [1] For ``TimeSpan``, ``Interval``, and ``Duration``, the months position may also be a `Fraction <https://docs.python.org/3/library/fractions.html>`_ with denominator of 2 or 3 to support the ``Semi-Month`` and ``Tri-Month`` intervals in HEC-DSS
-.. [2] Even when using HEC-DSS files to store rating sets. See `this note <https://hydrologicengineeringcenter.github.io/hec-python-library/hec/rating.html#rating_note>`_.
+.. [2] Even when using HEC-DSS files to store rating sets. See `this note <https://hydrologicengineeringcenter.github.io/hec-python-library/hec/datastore.html#rating_note>`_.
