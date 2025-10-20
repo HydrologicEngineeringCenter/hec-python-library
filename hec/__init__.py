@@ -325,13 +325,13 @@ datastore.DssDataStore.__doc__ = f"""
     >>>
     >>> <span class="typed">rs = dss.retrieve("KEYS.Elev;Stor.Linear.Production", office="SWT")</span>
     >>> <span class="typed">print(type(rs))</span>
-    <span class="response"><class 'hec.rating.local_rating_set.LocalRatingSet'></span>
+    <span class="response">&lt;class 'hec.rating.local_rating_set.LocalRatingSet'&gt;</span>
     >>>
     >>> <span class="typed">for effective_time in rs.ratings: print(effective_time.isoformat(), rs.ratings[effective_time])</span>
     ...
-    <span class="response">2009-01-14T06:00:00+00:00 <hec.rating.table_rating.TableRating object at 0x0000019CBC556EB0>
-    2011-10-19T05:00:00+00:00 <hec.rating.table_rating.TableRating object at 0x0000019CBC59C220>
-    2020-08-01T05:00:00+00:00 <hec.rating.table_rating.TableRating object at 0x0000019CBC600880></span>
+    <span class="response">2009-01-14T06:00:00+00:00 &lt;hec.rating.table_rating.TableRating object at 0x0000019CBC556EB0&gt;
+    2011-10-19T05:00:00+00:00 &lt;hec.rating.table_rating.TableRating object at 0x0000019CBC59C220&gt;
+    2020-08-01T05:00:00+00:00 &lt;hec.rating.table_rating.TableRating object at 0x0000019CBC600880&gt;</span>
     </pre>
     </fieldset>
     """
