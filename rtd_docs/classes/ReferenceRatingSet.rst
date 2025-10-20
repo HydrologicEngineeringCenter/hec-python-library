@@ -15,7 +15,7 @@ Required Information
 
  - **name**: str (the rating specification identifier)
  - **office**: str (the CWMS office that owns the ratings)
- - **method**: str (must be ``"REFERENCE"`` to retrieve a ReferenceRatingSet object - otherwise a :doc:`LocalRatingSet </classes/LocalRatingSet>` object is retrieved")
+ - **method**: str (must be ``"REFERENCE"`` to retrieve a ReferenceRatingSet object - otherwise a :doc:`LocalRatingSet </classes/LocalRatingSet>` object is retrieved)
   
 Notes
 -----

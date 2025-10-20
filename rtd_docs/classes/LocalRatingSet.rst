@@ -17,7 +17,7 @@ Required Information
 
  - **name**: str (the rating specification identifier - even when retrieving from :doc:`DssDataStore </classes/DssDataStore>` objects [1_])
  - **office**: str (the CWMS office that owns the ratings)
- - **method**: str (must be ``"LAZY"`` (default) or ``"EAGER"`` - if ``"REFERENCE"`` is used with a :doc:`CwmsDataStore </classes/CwmsDataStore>` object a :doc:`LocalRatingSet </classes/ReferenceRatingSet>` object is retrieved")
+ - **method**: str (must be ``"LAZY"`` (default) or ``"EAGER"`` - if ``"REFERENCE"`` is used with a :doc:`CwmsDataStore </classes/CwmsDataStore>` object a :doc:`LocalRatingSet </classes/ReferenceRatingSet>` object is retrieved)
   
 Notes
 -----
@@ -31,4 +31,4 @@ All TableRatings objects in LocalRatingSet objects retrieved with ``method="LAZY
 for an effective time will be populated only when the specific rating is first used in a call to ``rate(...)`` or ``reverse_rate(...)``. Depending on the use case, this may substantially
 speed up the overall retrieval and use of the rating set.
 
-.. [1] See `this note <https://hydrologicengineeringcenter.github.io/hec-python-library/hec/rating.html#rating_note>`_ for using :doc:`DssDataStore </classes/DssDataStore>` objects to store LocalRatingSet objects.
+.. [1] See `this note <https://hydrologicengineeringcenter.github.io/hec-python-library/hec/datastore.html#rating_note>`_ for using :doc:`DssDataStore </classes/DssDataStore>` objects to store LocalRatingSet objects.
