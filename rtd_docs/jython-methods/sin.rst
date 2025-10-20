@@ -9,7 +9,7 @@ The following example performs the equivalent:
 
 .. code-block:: python
 
-    # ts is a TimeSeires object
+    # ts is a TimeSeries object
     import numpy as np
 
     ts.data["value"] = np.sin(ts.data["value"])

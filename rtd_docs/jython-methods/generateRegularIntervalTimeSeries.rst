@@ -23,7 +23,7 @@ The hec-python-library equivalent of Jython method **generateRegularIntervalTime
 Generates and returns a new regular (possibly local regular) interval time series with the
 specified times, values, and qualities.
 
-This is a static method and must be called on the ``TimeSeires`` class instead of a instance.
+This is a static method and must be called on the ``TimeSeries`` class instead of a instance.
 
 **Example:**
 
