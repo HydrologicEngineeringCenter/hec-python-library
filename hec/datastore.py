@@ -1356,10 +1356,10 @@ class DssDataStore(AbstractDataStore):
         """
         Retrieves a data set from the data store.
 
-        Currently only [LocalRatingSet](rating/local_rating_set.html#LocalRatingSet), [PairedData](rating/paired_data.html#PairedData) and [TimeSeires](timeseries.html#TimeSeries) objects can be retrieved.
+        Currently only [LocalRatingSet](rating/local_rating_set.html#LocalRatingSet), [PairedData](rating/paired_data.html#PairedData) and [TimeSeries](timeseries.html#TimeSeries) objects can be retrieved.
         (See <a href="#rating_note">Note on use with rating objects</a>)
 
-        To retrieve all data for a [TimeSeires](timeseries.html#TimeSeries), specifiy `start_time=None` and `end_time=None`
+        To retrieve all data for a [TimeSeries](timeseries.html#TimeSeries), specifiy `start_time=None` and `end_time=None`
 
         Args:
             Positional Arguments:<br>
@@ -1382,7 +1382,7 @@ class DssDataStore(AbstractDataStore):
                     * **dep_rounding ([UsgsRounder](rounding.html#UsgsRounder)|str):** Rounds all of the dependent parameter values using the specified rounder or rounding spec after retrieval from the HEC-DSS file.
                     * **ind_rounding ([UsgsRounder](rounding.html#UsgsRounder)|str):** Rounds all of the independent parameter values using the specified rounder or rounding spec after retrieval from the HEC-DSS file.
                     * **rounding ([UsgsRounder](rounding.html#UsgsRounder)|str):** Rounds all of the independent and dependent parameter values using the specified rounder or rounding spec after retrieval from the HEC-DSS file.
-                * **TimeSeires Identifiers:**<br>
+                * **TimeSeries Identifiers:**<br>
                     * **end_time (Any)**: Specifies the end of the time window to retrieve data. Must be an [`HecTime`](hectime.html#HecTime) object or a valid input to the `HecTime` constructor.
                         Defaults to the end of the data store's time window. If `None` or not specified and the data store's time window doesn't have an end time, all data on or after the start time will be retrieved.
                     * **start_time (Any):** Specifies the start of the time window to retrieve data. Must be an [`HecTime`](hectime.html#HecTime) object or a valid input to the `HecTime` constructor.
@@ -1390,7 +1390,7 @@ class DssDataStore(AbstractDataStore):
                     * **trim (bool):** Specifies whether to trim missing values from the beginning and end of any regular time series data set retrieved.
                         Defaults to the data store's trim setting.
 
-        Returns (Any): The retrieved [LocalRatingSet](rating/local_rating_set.html#LocalRatingSet), [PairedData](rating/paired_data.html#PairedData) or [TimeSeires](timeseries.html#TimeSeries) object.
+        Returns (Any): The retrieved [LocalRatingSet](rating/local_rating_set.html#LocalRatingSet), [PairedData](rating/paired_data.html#PairedData) or [TimeSeries](timeseries.html#TimeSeries) object.
         """
         self._assert_open()
         if hec.rating.rating_specification._is_rating_specification(identifier):
@@ -2397,7 +2397,7 @@ class CwmsDataStore(AbstractDataStore):
                 index=pd.DatetimeIndex([now.datetime()], name="time"),
             )
             # ----------------------------------- #
-            # 1. store the elevation time seires  #
+            # 1. store the elevation time series  #
             # 2. delete the elevation time series #
             # ----------------------------------- #
             try:
@@ -2574,7 +2574,7 @@ class CwmsDataStore(AbstractDataStore):
                     * `interval`: The interval of the time series
                     * `offset`:  The offset into each interval of regular time series (in minutes), or <N/A> if interval is irregular
                     * `earliest-time`: The earliest time in the database for this time series, or <None> if no data
-                    * `latest-time`: The latest time in the database for this time seires of <None> if no data
+                    * `latest-time`: The latest time in the database for this time series of <None> if no data
                     * `last-update`: The most recent time this time series has been updated, or <None> of no data
                 * **`RATING`**:
                     * `identifier`: The rating specification
@@ -3753,7 +3753,7 @@ class CwmsDataStore(AbstractDataStore):
                 index=pd.DatetimeIndex([now.datetime()], name="time"),
             )
             # ------------------------------------------------------ #
-            # 1. store the elevation time seires                     #
+            # 1. store the elevation time series                     #
             # 2. retrieve it and extract the the vertical datum info #
             # 3. delete the elevation time series                    #
             # ------------------------------------------------------ #

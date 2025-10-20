@@ -8,7 +8,7 @@ ParameterType Class
 General
 -------
 ParameterType objects are named objects that indicate how the values in a :doc:`time series </classes/TimeSeries>` are to be interpreted with respect to the
-:doc:`duration </classes/Duration>` [1]_ of the time seires values.
+:doc:`duration </classes/Duration>` [1]_ of the time series values.
 
 ParameterTypes have three contexts:
 

@@ -415,7 +415,7 @@ class AbstractRatingSet(ABC):
             # ------------------ #
             if times:
                 raise AbstractRatingSetException(
-                    "May not specify times parameter when rating TimeSeires objects"
+                    "May not specify times parameter when rating TimeSeries objects"
                 )
             return self._rate_time_series(
                 ts=input, unit=units, rating_time=rating_time, round=round
@@ -426,7 +426,7 @@ class AbstractRatingSet(ABC):
             # -------------------- #
             if times:
                 raise AbstractRatingSetException(
-                    "May not specify times parameter when rating TimeSeires objects"
+                    "May not specify times parameter when rating TimeSeries objects"
                 )
             return self._rate_time_series(
                 ts=cast(list[TimeSeries], input),
@@ -545,7 +545,7 @@ class AbstractRatingSet(ABC):
         if isinstance(input, TimeSeries):
             if times:
                 raise AbstractRatingSetException(
-                    "May not specify times parameter when rating TimeSeires objects"
+                    "May not specify times parameter when rating TimeSeries objects"
                 )
             return self._reverse_rate_time_series(
                 ts=input,
