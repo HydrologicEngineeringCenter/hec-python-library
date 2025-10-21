@@ -136,6 +136,9 @@
                                 <a class="function" href="#TimeSeries.forward_moving_average">forward_moving_average</a>
                         </li>
                         <li>
+                                <a class="function" href="#TimeSeries.from_native">from_native</a>
+                        </li>
+                        <li>
                                 <a class="function" href="#TimeSeries.get_differentiation_parameter">get_differentiation_parameter</a>
                         </li>
                         <li>
@@ -479,6 +482,9 @@
                         </li>
                         <li>
                                 <a class="function" href="#TimeSeries.to_irregular">to_irregular</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#TimeSeries.to_native">to_native</a>
                         </li>
                         <li>
                                 <a class="function" href="#TimeSeries.trim">trim</a>
@@ -1807,6 +1813,39 @@ Otherwise this time series is not modified. Defaults to False.</li>
 
 <blockquote>
   <p>TimeSeries: The averaged time series</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="TimeSeries.from_native" class="classattr">
+                                <div class="attr function">
+                    <div class="decorator decorator-staticmethod">@staticmethod</div>
+
+        <span class="def">def</span>
+        <span class="name">from_native</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">datastore</span><span class="p">:</span> <span class="n">Any</span>, </span><span class="param"><span class="n">native_ts</span><span class="p">:</span> <span class="n">Any</span></span><span class="return-annotation">) -> <span class="n"><a href="#TimeSeries">TimeSeries</a></span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#TimeSeries.from_native"></a>
+    
+            <div class="docstring"><p>Returns a <code><a href="#TimeSeries">TimeSeries</a></code> object generated from native format of the specified data store.</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>datastore (Any):</strong>  The datastore that specifies the native format<br>
+<ul>
+<li>If an instance of <a href="datastore.html#CwmsDataStore"><code>CwmsDataStore</code></a>, <code>native_ts</code> must be a <code>cwms.cwms_types.Data</code> object suitable for use with the <code>cwms-python</code> package</li>
+<li>If an instance of <a href="datastore.html#DssDataStore"><code>DssDataStore</code></a>, <code>native_ts</code> must be an <code>hecdss.RegularTimeSeries</code> or <code>hecdss.IrregularTimeSeries</code> object suitable work use wth the <code>hecdss</code> package</li>
+</ul></li>
+<li><strong>native_ts (Any):</strong>  The native-format time series. Much match the format of the specified data store</li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>TimeSeries: The generated <code><a href="#TimeSeries">TimeSeries</a></code> object</p>
 </blockquote>
 </div>
 
@@ -4982,6 +5021,44 @@ for a CWMS time series)</li>
 
 <blockquote>
   <p>TimeSeries: The modified time series</p>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="TimeSeries.to_native" class="classattr">
+                                <div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">to_native</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">datastore</span><span class="p">:</span> <span class="n">Any</span></span><span class="return-annotation">) -> <span class="n">Any</span>:</span></span>
+
+        
+    </div>
+    <a class="headerlink" href="#TimeSeries.to_native"></a>
+    
+            <div class="docstring"><p>Returns a copy of this time series in the native format of the specified data store.</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>datastore (Any):</strong>  The datastore that specifies the native format
+<ul>
+<li>If an instance of <a href="datastore.html#CwmsDataStore"><code>CwmsDataStore</code></a>, a <code>cwms.cwms_types.Data</code> object suitable for use with the <code>cwms-python</code> package is returned</li>
+<li>If an instance of <a href="datastore.html#DssDataStore"><code>DssDataStore</code></a>, an <code>hecdss.RegularTimeSeries</code> or <code>hecdss.IrregularTimeSeries</code> object suitable work use wth the <code>hecdss</code> package is returned</li>
+</ul></li>
+</ul>
+
+<h6 id="raises">Raises:</h6>
+
+<ul>
+<li><strong>TypeError:</strong>  If <code>datastore</code> is not a valid data store type.</li>
+<li><strong>ValueError:</strong>  If this time series is empty</li>
+</ul>
+
+<h6 id="returns">Returns:</h6>
+
+<blockquote>
+  <p>Any: The native time series.</p>
 </blockquote>
 </div>
 

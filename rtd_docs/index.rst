@@ -38,7 +38,7 @@ on these modules, but they must be installed in order to utilize the data stores
 +-----------------+----------------+-----------------+---------------------+
 | Data Store Type | Module in PyPI | Minimum Version | Notes               |
 +=================+================+=================+=====================+
-| HEC-DSS Files   | hecdss         | 0.1.26          | HEC-DSS v7 only     |
+| HEC-DSS Files   | hecdss         | 0.1.28          | HEC-DSS v7 only     |
 +-----------------+----------------+-----------------+---------------------+
 | CWMS Database   | cwms-python    | 0.8.2           | Access via CDA only | 
 +-----------------+----------------+-----------------+---------------------+
