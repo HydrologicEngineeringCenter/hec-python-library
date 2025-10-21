@@ -15,6 +15,15 @@ RatingSpecification objects are named objects that specify the following informa
  - whether ratings with this specification that are automatically updated from the source agency should automatically be marked as active
  - whether ratings with this specification that are automatically updated from the source agency should automatically have any rating extensions from the previous effective time applied
 
+Required Information
+--------------------
+
+ - **name**: str (RatingSpecification ID)
+ - **office**: str
+
+Notes
+-----
+
 The name (RatingSpecification ID) consists of:
  1. the location ID
  2. a dot (``.``)

@@ -31,6 +31,8 @@ The following object types may be cataloged:
 
  - locations
  - ratings
+ - rating specifications
+ - rating templates
  - time series
 
 The following object types may be stored or retrieved:

@@ -6,7 +6,7 @@ TableRating Class
 General
 -------
 
-TableRating objects use lookup tables of independent and dependent parameter values. The lookup values are used in conjuction with lookup behaviors specified in the `RatingTemplate <RatingTemplate.html>`_ referenced in the object's identifier
+TableRating objects named objects that use lookup tables of independent and dependent parameter values. The lookup values are used in conjuction with lookup behaviors specified in the `RatingTemplate <RatingTemplate.html>`_ referenced in the object's identifier
 to perform the transformation.
 
 TableRating objects support the ``reverse_rate(...)`` method, but only on ratings with a single independent parameter.
