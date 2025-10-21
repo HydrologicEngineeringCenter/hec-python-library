@@ -75,6 +75,7 @@ class Location:
         time_zone: Optional[str] = None,
         kind: Optional[str] = None,
         vertical_datum_info: Optional[Union[str, dict[str, Any]]] = None,
+        **other_info,
     ):
         """
         Initializes a Location object
@@ -89,6 +90,7 @@ class Location:
             elevation_unit (Optional[str]): The unit of elevation of the location. Defaults to None.
             vertical_datum (Optional[str]): The native vertical datum of the specified elevation. Defaults to None.
             vertical_datum_info (Optional[Union[str, dict[str,Any]]]): The vertical datum info for the location. Overrides `elevation`, `elevation_unit`, and `vertical_datum` parameters, if also specified. Defaults to None.
+            other_info (Optional[dict[str,Any]]): Optional dictionary of other location info. Is accessible via `other_info` property
         """
         if not isinstance(name, str):
             raise TypeError(f"Expected str for 'name', got {name.__class__.__name__}")
@@ -106,6 +108,7 @@ class Location:
         self._vertical_datum_info: Optional[
             hec.parameter.ElevParameter._VerticalDatumInfo
         ] = None
+        self._other_info = other_info
         if elevation and elevation_unit:
             self._elevation = UnitQuantity(elevation, elevation_unit)
         if vertical_datum is not None:
@@ -393,6 +396,16 @@ class Location:
                     )
             self._office = v
 
+    @property
+    def other_info(self) -> Optional[dict[str,Any]]:
+        """
+        Dictionary of information provided to initializer.
+
+        Operations:
+            Read-Only
+        """
+        return self._other_info
+    
     @property
     def subname(self) -> Optional[str]:
         """
