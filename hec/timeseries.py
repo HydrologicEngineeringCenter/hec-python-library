@@ -1974,7 +1974,7 @@ class TimeSeries:
             self._context = ctx
             if self._watershed is not None:
                 self._watershed = self._watershed.title()
-            self._location.name = self._location.name.title().replace(" ", "_")
+            self._location.name = self._location.name.title()
             bn = self.parameter.basename
             sn = self.parameter.subname
             bpnu = bn.upper()
