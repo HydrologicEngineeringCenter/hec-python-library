@@ -11,6 +11,7 @@ from copy import deepcopy
 from datetime import datetime, timedelta
 from functools import total_ordering
 from itertools import cycle, islice
+from types import ModuleType
 from typing import Any, Callable, Dict, List, Optional, Union, cast
 from zoneinfo import ZoneInfo
 
@@ -22,7 +23,15 @@ from pint import Unit
 import hec.hectime
 import hec.parameter
 import hec.unit
-from hec.const import CWMS, DSS, Combine, PercentileMethods, Select, SelectionState
+from hec.const import (
+    CWMS,
+    DSS,
+    UNDEFINED,
+    Combine,
+    PercentileMethods,
+    Select,
+    SelectionState,
+)
 from hec.duration import Duration
 from hec.hectime import HecTime
 from hec.interval import Interval, IntervalException
@@ -31,9 +40,6 @@ from hec.parameter import ElevParameter, Parameter, ParameterType
 from hec.quality import Quality
 from hec.timespan import TimeSpan
 from hec.unit import UnitQuantity
-
-# from pytz.exceptions import AmbiguousTimeError
-
 
 try:
     import cwms.cwms_types  # type: ignore
@@ -4551,6 +4557,119 @@ class TimeSeries:
             "FORWARD", window, only_valid, use_reduced, in_place
         )
 
+    @staticmethod
+    def from_native(datastore: Any, native_ts: Any) -> "TimeSeries":
+        """
+        Returns a `TimeSeries` object generated from native format of the specified data store.
+
+        Args:
+            datastore (Any): The datastore that specifies the native format<br>
+                - If an instance of [`CwmsDataStore`](datastore.html#CwmsDataStore), `native_ts` must be a `cwms.cwms_types.Data` object suitable for use with the `cwms-python` package
+                - If an instance of [`DssDataStore`](datastore.html#DssDataStore), `native_ts` must be an `hecdss.RegularTimeSeries` or `hecdss.IrregularTimeSeries` object suitable for use wth the `hecdss` package
+            native_ts (Any): The native-format time series. Much match the format of the specified data store
+
+        Returns:
+            TimeSeries: The generated `TimeSeries` object
+        """
+        from hec.datastore import CwmsDataStore, DssDataStore
+
+        if isinstance(datastore, CwmsDataStore):
+            # ----------------------- #
+            # CWMS native time series #
+            # ----------------------- #
+            try:
+                props = native_ts.json
+                df = native_ts.df
+                name = props["name"]
+                timeseries = TimeSeries(name)
+                timeseries.location.office = props["office-id"]
+                timeseries._timezone = "UTC"
+            except Exception:
+                raise TypeError(
+                    "Parameter native_ts is not a valid cwms-python time series"
+                )
+            if "version-date" in props and props["version-date"] is not None:
+                timeseries.version_time = HecTime(props["version-date"])
+            if (
+                timeseries.parameter.base_parameter == "Elev"
+                and "vertical-datum-info" in props
+            ):
+                elev_param = ElevParameter(
+                    timeseries.parameter.name, props["vertical-datum-info"]
+                )
+                if elev_param.elevation:
+                    timeseries.location.elevation = elev_param.elevation
+                timeseries.location.vertical_datum = elev_param.native_datum
+                timeseries.iset_parameter(elev_param)
+            else:
+                timeseries.iset_parameter(
+                    Parameter(timeseries.parameter.name, props["units"])
+                )
+            if df is not None and len(df):
+                timeseries._data = df.rename(
+                    columns={"date-time": "time", "quality-code": "quality"}
+                ).set_index("time")
+                timeseries._validate()
+            timeseries.expand()
+            return timeseries
+        elif isinstance(datastore, DssDataStore):
+            # ---------------------- #
+            # DSS native time series #
+            # ---------------------- #
+            hecdss = hec.shared.import_hecdss()
+            if isinstance(
+                native_ts, (hecdss.RegularTimeSeries, hecdss.IrregularTimeSeries)
+            ):
+                if len(native_ts.values) == 0:
+                    raise ValueError(f"No values in native time series")
+                mask = np.isclose(native_ts.values, UNDEFINED)
+                if native_ts.quality:
+                    quality = np.array(native_ts.quality)
+                    quality[mask] = 5
+                    native_ts.quality = quality.tolist()
+                values = np.array(native_ts.values)
+                values[mask] = np.nan
+                native_ts.values = values.tolist()
+                ts = TimeSeries(native_ts.id)
+                ts.iset_parameter_type(native_ts.data_type)
+                try:
+                    ts.iset_unit(native_ts.units)
+                except:
+                    ts.iset_unit(ts.parameter.unit_name)
+                    warnings.warn(
+                        f"HEC-DSS record unit '{native_ts.units}' is invalid for base parameter '{ts.parameter.basename}', used '{ts.unit}' instead",
+                        UserWarning,
+                    )
+                df = pd.DataFrame(
+                    {
+                        "value": list(native_ts.values),
+                        "quality": (
+                            native_ts.quality
+                            if native_ts.quality
+                            else len(native_ts.times) * [0]
+                        ),
+                    },
+                    index=pd.DatetimeIndex(native_ts.times, name="time"),
+                )
+                if isinstance(native_ts, hecdss.IrregularTimeSeries):
+                    df = df[(~df["value"].isna())]
+                else:
+                    df.loc[df["value"].isna(), "quality"] = 5
+                ts._data = df
+                if native_ts.time_zone_name:
+                    if not cast(pd.DatetimeIndex, ts._data.index).tzinfo:
+                        ts._data.tz_localize(native_ts.time_zone_name)
+                    ts._timezone = str(cast(pd.DatetimeIndex, ts._data.index).tzinfo)
+                return ts
+            else:
+                raise TypeError(
+                    f"Expected RegularTimeSeries or IrregularTimeSeries for native_ts, got {native_ts.__class__.__name__}"
+                )
+        else:
+            raise TypeError(
+                f"Expected CwmsDataStore or DssDataStore for datastore, got {datastore.__class__.__name__}"
+            )
+
     def get_differentiation_parameter(self) -> Parameter:
         """
         Returns a new Parameter object appropriate for differentiating this time series with respect to time.
@@ -8339,6 +8458,100 @@ class TimeSeries:
         assert intvl is not None, f"Unable to retrieve Interval with name '{interval}'"
         target.set_interval(intvl)
         return target
+
+    def to_native(self, datastore: Any) -> Any:
+        """
+        Returns a copy of this time series in the native format of the specified data store.
+
+
+        Args:
+            datastore (Any): The datastore that specifies the native format
+                - If an instance of [`CwmsDataStore`](datastore.html#CwmsDataStore), a `cwms.cwms_types.Data` object suitable for use with the `cwms-python` package is returned
+                - If an instance of [`DssDataStore`](datastore.html#DssDataStore), an `hecdss.RegularTimeSeries` or `hecdss.IrregularTimeSeries` object suitable work use wth the `hecdss` package is returned
+
+        Raises:
+            TypeError: If `datastore` is not a valid data store type.
+            ValueError: If this time series is empty
+
+        Returns:
+            Any: The native time series.
+        """
+        from hec.datastore import CwmsDataStore, DssDataStore
+
+        if isinstance(datastore, CwmsDataStore):
+            # ----------------------- #
+            # CWMS native time series #
+            # ----------------------- #
+            if self.data is None or self.data.empty:
+                raise ValueError("No values in time series")
+            cwms = hec.shared.import_cwms()
+            copy = self.copy()
+            copy.context = CWMS
+            df = (
+                cast(pd.DataFrame, copy.data)
+                .reset_index()
+                .rename(columns={"time": "date-time", "quality": "quality-code"})
+            )
+            df["value"] = df["value"].fillna(-3.4028234663852886e38)
+            name = copy.name
+            json = cwms.timeseries_df_to_json(
+                df,
+                name,
+                copy.unit,
+                "" if copy.location.office is None else copy.location.office,
+                None if copy._version_time is None else copy._version_time.datetime(),
+            )
+            for i in range(len(json["values"])):
+                json["values"][i][0] = int(
+                    datetime.fromisoformat(json["values"][i][0]).timestamp() * 1000
+                )
+            json["value-columns"] = [
+                {"name": "date-time", "ordinal": 1, "datatype": "java.sql.Timestamp"},
+                {"name": "value", "ordinal": 2, "datatype": "java.lang.Double"},
+                {"name": "quality-code", "ordinal": 3, "datatype": "int"},
+            ]
+            if copy.vertical_datum_info:
+                vdi = cast(dict[str,Any], copy.vertical_datum_info_dict)
+                if copy.location.office:
+                    vdi["location"] = copy.location.name
+                    vdi["office"] = copy.location.office
+                    for i in range(len(vdi["offsets"]))[::-1]:
+                        if vdi["offsets"][i]["value"] == 0.0:
+                            del vdi["offsets"][i]
+                json["vertical-datum-info"] = vdi
+            native_ts = cwms.cwms_types.Data(json)
+            native_ts._df = cwms.cwms_types.Data.to_df(json, selector="values")
+            return native_ts
+        elif isinstance(datastore, DssDataStore):
+            # ---------------------- #
+            # DSS native time series #
+            # ---------------------- #
+            hecdss = hec.shared.import_hecdss()
+            copy = self.copy()
+            copy.context = DSS
+            if copy.interval.is_regular:
+                native_ts = hecdss.RegularTimeSeries()
+            else:
+                native_ts = hecdss.IrregularTimeSeries()
+            native_ts.id = copy.name
+            data = cast(pd.DataFrame, copy.data)
+            native_ts.times = pd.to_datetime(data.index).to_pydatetime().tolist()
+            native_ts.time_zone_name = copy.time_zone if copy.time_zone else ""
+            native_ts.values = data["value"].fillna(UNDEFINED).tolist()
+            native_ts.quality = data["quality"].tolist()
+            if all([True if q == 0 else False for q in native_ts.quality]):
+                native_ts.quality = []
+            native_ts.units = copy.unit
+            native_ts.data_type = cast(
+                ParameterType, copy.parameter_type
+            ).get_dss_name()
+            native_ts.interval = copy.interval.minutes * 60
+            native_ts.start_date = native_ts.times[0].replace(tzinfo=None)
+            return native_ts
+        else:
+            raise TypeError(
+                f"Expected CwmsDataStore or DssDataStore for datastore, got {datastore.__class__.__name__}"
+            )
 
     def trim(self, in_place: bool = False) -> "TimeSeries":
         """

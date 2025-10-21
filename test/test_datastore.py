@@ -1,8 +1,9 @@
 import os
+import platform
 import time
 import warnings
 from datetime import datetime
-from typing import cast
+from typing import Optional, cast
 
 import numpy as np
 import pandas as pd
@@ -17,8 +18,12 @@ from hec import (
     StoreRule,
     TimeSeries,
     datastore,
+    shared,
 )
-from hec.shared import cwms_imported, dss_imported
+from hec.shared import import_cwms, import_hecdss
+
+import_cwms()
+import_hecdss()
 
 STORE_TIMESERIES_STORES_VDI_OFFSETS = False
 CDA_ERRORS_ON_LOCAL_DATUM_NAME = True
@@ -52,7 +57,7 @@ else:
 
 def test_cwms_datastore() -> None:
     global vdi
-    if not cwms_imported:
+    if not shared.cwms_imported:
         return
     api_root = os.getenv("cda_api_root")
     api_key = os.getenv("cda_api_key")
@@ -208,7 +213,7 @@ def test_cwms_datastore() -> None:
 
 def test_dss_datastore() -> None:
 
-    if not dss_imported:
+    if not shared.dss_imported:
         return
 
     def clean_block_start(pathname: str) -> str:
@@ -370,3 +375,140 @@ def test_dss_datastore() -> None:
     assert False == dss.is_open  # context manager should close it
 
     os.remove(dss_file_name)
+
+
+def test_to_from_native_timeseries() -> None:
+    ts: Optional[TimeSeries] = None
+    api_root = os.getenv("cda_api_root")
+    api_office = os.getenv("cda_api_office")
+    if shared.cwms_imported and all([api_root, api_office]):
+        with CwmsDataStore.open() as db:
+            # ------------------------------------------ #
+            # test CWMS round-trip to_native/from_native #
+            # ------------------------------------------ #
+            db.time_window = "t-1d, t"
+            ts = cast(TimeSeries, db.retrieve("KEYS.Elev.Inst.1Hour.0.Ccp-Rev"))
+            reg_ts = ts.copy()
+            native_ts = reg_ts.to_native(db)
+            reg_ts2 = TimeSeries.from_native(db, native_ts)
+            assert reg_ts2.name == reg_ts.name
+            assert reg_ts2.times == reg_ts.convert_to_time_zone("UTC").times
+            assert np.allclose(reg_ts.values, reg_ts2.values)
+            assert reg_ts2.qualities == ts.qualities
+            irreg_ts = reg_ts.set_interval("0")
+            native_ts = irreg_ts.to_native(db)
+            irreg_ts2 = TimeSeries.from_native(db, native_ts)
+            assert irreg_ts2.name == irreg_ts.name
+            assert irreg_ts2.times == irreg_ts.convert_to_time_zone("UTC").times
+            assert np.allclose(irreg_ts.values, irreg_ts2.values)
+            assert irreg_ts2.qualities == ts.qualities
+            # ------------------------------------------ #
+            # test CWMS round-trip from_native/to_native #
+            # ------------------------------------------ #
+            cwms = db.native_data_store
+            native_ts = cwms.get_timeseries(
+                ts_id="KEYS.Elev.Inst.1Hour.0.Ccp-Rev",
+                office_id=db.office,
+                unit=db._unit_system,
+                begin=cast(HecTime, db.time_window[0]).datetime(),
+                end=cast(HecTime, db.time_window[1]).datetime(),
+                trim=db.trim,
+            )
+            reg_ts = TimeSeries.from_native(db, native_ts)
+            native_ts2 = reg_ts.to_native(db)
+            for item in [
+                "name",
+                "office-id",
+                "units",
+                "value-columns",
+                "values",
+                "vertical-datum-info",
+            ]:
+                assert (item in native_ts.json) == (
+                    item in native_ts2.json
+                ), f"json.['{item}'] exists"
+                assert (
+                    native_ts.json[item] == native_ts2.json[item]
+                ), f"json.['{item}'] equals"
+            native_ts.json["interval"] = "PT0S"
+            native_ts.json["name"] = "KEYS.Elev.Inst.0.0.Ccp-Rev"
+            irreg_ts = TimeSeries.from_native(db, native_ts)
+            native_ts2 = irreg_ts.to_native(db)
+            for item in [
+                "name",
+                "office-id",
+                "units",
+                "value-columns",
+                "values",
+                "vertical-datum-info",
+            ]:
+                assert (item in native_ts.json) == (
+                    item in native_ts2.json
+                ), f"json.['{item}'] exists"
+                assert (
+                    native_ts.json[item] == native_ts2.json[item]
+                ), f"json.['{item}'] equals"
+    if ts and shared.dss_imported:
+        dss_file_name = (
+            r"C:\TEMP\test.dss"
+            if platform.platform() == "Windows"
+            else "/var/tmp/test.dss"
+        )
+        DssDataStore.set_message_level(1)
+        with DssDataStore.open(dss_file_name, read_only=False) as dss:
+            ts.context = "DSS"
+            reg_ts = ts
+            dss.store(reg_ts)
+            irreg_ts = reg_ts.set_interval("IR-Month")
+            dss.store(irreg_ts)
+            # ----------------------------------------- #
+            # test DSS round-trip to_native/from_native #
+            # ----------------------------------------- #
+            native_ts = reg_ts.to_native(dss)
+            reg_ts2 = TimeSeries.from_native(dss, native_ts)
+            assert reg_ts2.name == reg_ts.name
+            assert reg_ts2.times == reg_ts.times
+            assert np.allclose(reg_ts.values, reg_ts2.values)
+            assert reg_ts2.qualities == reg_ts.qualities
+            native_ts = irreg_ts.to_native(dss)
+            irrreg_ts2 = TimeSeries.from_native(dss, native_ts)
+            assert irrreg_ts2.name == irreg_ts.name
+            assert irrreg_ts2.times == irreg_ts.times
+            assert np.allclose(irreg_ts.values, irrreg_ts2.values)
+            assert irrreg_ts2.qualities == irreg_ts.qualities
+            # ----------------------------------------- #
+            # test DSS round-trip from_native/to_native #
+            # ----------------------------------------- #
+            hecdss = dss.native_data_store
+            native_ts = hecdss.get(reg_ts.name)
+            reg_ts = TimeSeries.from_native(dss, native_ts)
+            native_ts2 = reg_ts.to_native(dss)
+            for item in [
+                "id",
+                "data_type",
+                "interval",
+                "units",
+                "time_zone_name",
+                "times",
+                "values",
+                "quality",
+            ]:
+                assert eval(f"native_ts.{item} == native_ts2.{item}"), f"{item} equals"
+            native_ts = hecdss.get(irreg_ts.name)
+            irreg_ts = TimeSeries.from_native(dss, native_ts)
+            native_ts2 = irreg_ts.to_native(dss)
+            for item in [
+                "id",
+                "data_type",
+                "interval",
+                "units",
+                "time_zone_name",
+                "times",
+                "values",
+                "quality",
+            ]:
+                assert eval(f"native_ts.{item} == native_ts2.{item}"), f"{item} equals"
+
+
+if __name__ == "__main__":
+    test_to_from_native_timeseries()

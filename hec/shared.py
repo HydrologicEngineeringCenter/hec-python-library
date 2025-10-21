@@ -8,7 +8,7 @@ from enum import Enum
 dss_imported = False
 cwms_imported = False
 required_cwms_version = ">= '0.8.2'"
-required_dss_version = ">= '0.1.26'"
+required_dss_version = ">= '0.1.28'"
 
 
 class RatingSetRetrievalMethod(Enum):
