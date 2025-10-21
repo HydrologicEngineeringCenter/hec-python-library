@@ -8,6 +8,15 @@ General
 
 RatingTemplate objects are named objects that specify the lookup methods for each independent parameter of any `TableRating <TableRating.html>`_ objects using the template.
 
+Required Information
+--------------------
+
+ - **name**: str (RatingTemplate ID)
+ - **office**: str
+
+Notes
+-----
+
 The name (RatingTemplate ID) consists of:
  1. the parameters ID:
   a. a comma (``,``) separated ordered list of independent parameter IDs

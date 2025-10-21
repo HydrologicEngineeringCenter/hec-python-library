@@ -32,7 +32,14 @@ Cataloging may be performed on all HEC-DSS record types or restricted to one of 
  - time series profiles
  - tins
 
+In addition, the following non-record type objects may be cataloged
+
+ - rating sets
+ - rating specifications
+ - rating templates
+
 The following object types may be stored or retrieved:
 
  - :doc:`paired data </classes/PairedData>`
+ - :doc:`rating sets <classes/LocalRatingSet>`
  - :doc:`time series </classes/TimeSeries>`

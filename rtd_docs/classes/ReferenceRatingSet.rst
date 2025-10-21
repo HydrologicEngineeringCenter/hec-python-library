@@ -8,7 +8,7 @@ ReferenceRatingSet Class
 ReferenceRatingSet
 ------------------
 
-ReferenceRatingSet objects are references to rating sets within a CWMS database. They can be retrieved by using :doc:`CwmsDataStore </classes/CwmsDataStore>` objects.
+ReferenceRatingSet objects are named objects that refer to rating sets within a CWMS database. They can be retrieved by using :doc:`CwmsDataStore </classes/CwmsDataStore>` objects.
 
 Required Information
 --------------------
