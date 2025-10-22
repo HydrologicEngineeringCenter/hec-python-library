@@ -11,8 +11,8 @@ class libraries. The library is focused on working with time series objects and 
    - ratings
 
 The package interoperates with the following packages for storing and retrieving data:
-  - [CWMSpy](https://github.com/HydrologicEngineeringCenter/cwms-python/blob/main/README.md): Stores/retrieves data to/from CWMS databases using the CWMS Data API (CDA)
-  - [HECDSS Python Wrapper](https://github.com/HydrologicEngineeringCenter/hec-dss-python/blob/main/Readme.md): Store/retrieves data to/from HEC-DSS files
+  - [CWMSpy](https://github.com/HydrologicEngineeringCenter/cwms-python/blob/main/README.md): Access CWMS databases using the CWMS Data API (CDA)
+  - [HECDSS Python Wrapper](https://github.com/HydrologicEngineeringCenter/hec-dss-python/blob/main/Readme.md): Access HEC-DSS files
 
 ## Requirements.
 
