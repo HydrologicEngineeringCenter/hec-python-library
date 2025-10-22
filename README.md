@@ -25,6 +25,7 @@ Python 3.9+
 ```sh
 pip install hec-python-library
 ```
+The top-level package is `hec`
 
 ## Getting Started
 
@@ -32,14 +33,11 @@ pip install hec-python-library
 import os
 from hec import CwmsDataStore, DssDataStore
 
-assert os.getenv("cda_api_root") is not None
-assert os.getenv("cda_api_office") is not None
-
-with CwmsDataStore.open() as db:
+with CwmsDataStore.open("https://water.dev.cwbi.us/cwms-data", office="SWT") as db:
     db.time_window = "t-30h, t"
-    # ---------------------------------------------------------- #
-    # retrieve an elevation time series and rate it to a storage #
-    # ---------------------------------------------------------- #
+    # --------------------------------- #
+    # retrieve an elevation time series #
+    # --------------------------------- #
     raw_elev_ts = db.retrieve("Bluestem.Elev.Inst.1Hour.0.Raw")
     print(raw_elev_ts)
     # ----------------------- #
