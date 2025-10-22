@@ -8511,7 +8511,7 @@ class TimeSeries:
                 {"name": "quality-code", "ordinal": 3, "datatype": "int"},
             ]
             if copy.vertical_datum_info:
-                vdi = cast(dict[str,Any], copy.vertical_datum_info_dict)
+                vdi = cast(dict[str, Any], copy.vertical_datum_info_dict)
                 if copy.location.office:
                     vdi["location"] = copy.location.name
                     vdi["office"] = copy.location.office

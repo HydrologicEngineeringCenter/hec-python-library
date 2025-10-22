@@ -42,7 +42,7 @@ jobs:
         run: nbqa isort examples --profile black --check-only
 
       - name: black (check only)
-        run: black --check --diff hec test examples
+        run: black --check hec test examples
 
       - name: mypy (code)
         run: mypy hec test --strict

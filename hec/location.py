@@ -75,7 +75,7 @@ class Location:
         time_zone: Optional[str] = None,
         kind: Optional[str] = None,
         vertical_datum_info: Optional[Union[str, dict[str, Any]]] = None,
-        **other_info,
+        **other_info: Optional[Any],
     ):
         """
         Initializes a Location object
@@ -397,7 +397,7 @@ class Location:
             self._office = v
 
     @property
-    def other_info(self) -> Optional[dict[str,Any]]:
+    def other_info(self) -> Optional[dict[str, Any]]:
         """
         Dictionary of information provided to initializer.
 
@@ -405,7 +405,7 @@ class Location:
             Read-Only
         """
         return self._other_info
-    
+
     @property
     def subname(self) -> Optional[str]:
         """
