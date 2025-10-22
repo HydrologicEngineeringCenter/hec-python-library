@@ -831,7 +831,8 @@ class DssDataStore(AbstractDataStore):
         self._name = os.path.abspath(self._name)
         try:
             self._hecdss = hecdss.HecDss(self._name)
-        except:
+        except Exception as e:
+            raise Exception(f"Error opening {self._name}", e)
             raise
         self._is_open = True
 
@@ -1383,6 +1384,7 @@ class DssDataStore(AbstractDataStore):
                     * **ind_rounding ([UsgsRounder](rounding.html#UsgsRounder)|str):** Rounds all of the independent parameter values using the specified rounder or rounding spec after retrieval from the HEC-DSS file.
                     * **rounding ([UsgsRounder](rounding.html#UsgsRounder)|str):** Rounds all of the independent and dependent parameter values using the specified rounder or rounding spec after retrieval from the HEC-DSS file.
                 * **TimeSeries Identifiers:**<br>
+                    * **allow_empty (bool)**: Specifies to allow retrieval of empty time series. Defaults to True, which raises an Exception when trying to retrieve an empty time series.
                     * **end_time (Any)**: Specifies the end of the time window to retrieve data. Must be an [`HecTime`](hectime.html#HecTime) object or a valid input to the `HecTime` constructor.
                         Defaults to the end of the data store's time window. If `None` or not specified and the data store's time window doesn't have an end time, all data on or after the start time will be retrieved.
                     * **start_time (Any):** Specifies the start of the time window to retrieve data. Must be an [`HecTime`](hectime.html#HecTime) object or a valid input to the `HecTime` constructor.
@@ -1399,7 +1401,9 @@ class DssDataStore(AbstractDataStore):
         time_window = self._time_window
         ind_rounder: Optional[UsgsRounder] = None
         dep_rounder: Optional[UsgsRounder] = None
+        allow_empty: bool = True
         valid_argnames = [
+            "allow_empty",
             "start_time",
             "effective_time",
             "end_time",
@@ -1457,7 +1461,18 @@ class DssDataStore(AbstractDataStore):
                     trim = argval
                 else:
                     raise TypeError(
-                        f"Expected bool or str for trim parameter, got {type(argval).__name__}"
+                        f"Expected bool for trim parameter, got {type(argval).__name__}"
+                    )
+            # ----------- #
+            # allow_empty #
+            # ----------- #
+            if "allow_empty" in kwargs:
+                argval = kwargs["allow_empty"]
+                if isinstance(argval, bool):
+                    allow_empty = argval
+                else:
+                    raise TypeError(
+                        f"Expected bool for allow_empty parameter, got {type(argval).__name__}"
                     )
         obj = self._hecdss.get(
             pathname=identifier,
@@ -1470,7 +1485,7 @@ class DssDataStore(AbstractDataStore):
             trim=trim,
         )
         if isinstance(obj, (hecdss.RegularTimeSeries, hecdss.IrregularTimeSeries)):
-            if len(obj.values) == 0:
+            if len(obj.values) == 0 and not allow_empty:
                 raise DataStoreException(
                     f"No values in time window returned for {identifier}"
                 )

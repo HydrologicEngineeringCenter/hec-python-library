@@ -3854,7 +3854,8 @@ class TimeSeries:
             )
         dummy_ts = TimeSeries(self.name)
         df = self.data.copy()
-        df.index -= pd.Timedelta(seconds=1)  # work around 2400/0000 problem
+        # following line to work around 2400/0000 problem
+        df.index -= pd.Timedelta(seconds=1)  # type: ignore
         target_year = 2100  # non-leap year
         if self.interval.minutes == Interval.MINUTES["1Hour"]:
             # ---------------- #
@@ -8511,7 +8512,7 @@ class TimeSeries:
                 {"name": "quality-code", "ordinal": 3, "datatype": "int"},
             ]
             if copy.vertical_datum_info:
-                vdi = cast(dict[str,Any], copy.vertical_datum_info_dict)
+                vdi = cast(dict[str, Any], copy.vertical_datum_info_dict)
                 if copy.location.office:
                     vdi["location"] = copy.location.name
                     vdi["office"] = copy.location.office
