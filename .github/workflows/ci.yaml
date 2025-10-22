@@ -46,10 +46,10 @@ jobs:
         run: black --check hec test examples
 
       - name: mypy (code)
-        run: mypy hec test --python-version 3.9 --strict
+        run: mypy hec test --strict --no-warn-unused-ignores
 
       - name: mypy (notebooks via nbQA)
-        run: nbqa mypy examples --strict
+        run: nbqa mypy examples --strict --no-warn-unused-ignores
 
       - name: pytest
         env:

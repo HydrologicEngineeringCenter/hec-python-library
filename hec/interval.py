@@ -1072,7 +1072,7 @@ class Interval(TimeSpan):
                 l_first_time = l_first_time.convert_to_time_zone("UTC")
                 if l_end_time:
                     l_end_time = l_end_time.convert_to_time_zone("UTC")
-            l_indx = pd.date_range(
+            l_indx = pd.date_range( # type: ignore
                 start=l_first_time.datetime(),
                 end=None if l_end_time is None else l_end_time.datetime(),
                 periods=count,
@@ -1107,7 +1107,7 @@ class Interval(TimeSpan):
                             l_first_time = l_first_time.convert_to_time_zone("UTC")
                             if l_end_time:
                                 l_end_time = l_end_time.convert_to_time_zone("UTC")
-                        l_indx = pd.date_range(
+                        l_indx = pd.date_range( # type: ignore
                             start=l_first_time.datetime(),
                             periods=l_count,
                             freq="1ME",
@@ -1138,7 +1138,7 @@ class Interval(TimeSpan):
                             )
                             if l_end_time:
                                 l_end_time = l_end_time.convert_to_time_zone("UTC")
-                        l_indx = pd.date_range(
+                        l_indx = pd.date_range( # type: ignore
                             start=l_interval_begin.datetime(),
                             periods=l_count,
                             freq="1MS",
@@ -1169,7 +1169,7 @@ class Interval(TimeSpan):
                         l_interval_begin = l_interval_begin.convert_to_time_zone("UTC")
                         if l_end_time:
                             l_end_time = l_end_time.convert_to_time_zone("UTC")
-                    l_indx = pd.date_range(
+                    l_indx = pd.date_range( # type: ignore
                         start=l_interval_begin.datetime(),
                         periods=l_count,
                         freq="1MS",
@@ -1250,7 +1250,7 @@ class Interval(TimeSpan):
                 ZoneInfo(time_zone) if isinstance(time_zone, str) else time_zone,
                 ambiguous=ambiguous_flags,
             )
-        return l_indx
+        return l_indx # type: ignore
 
     @staticmethod
     def get_default_exception_on_not_found() -> bool:

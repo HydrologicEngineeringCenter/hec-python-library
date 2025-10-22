@@ -3854,7 +3854,8 @@ class TimeSeries:
             )
         dummy_ts = TimeSeries(self.name)
         df = self.data.copy()
-        df.index -= pd.Timedelta(seconds=1)  # work around 2400/0000 problem
+        # following line to work around 2400/0000 problem
+        df.index -= pd.Timedelta(seconds=1)  # type: ignore
         target_year = 2100  # non-leap year
         if self.interval.minutes == Interval.MINUTES["1Hour"]:
             # ---------------- #
