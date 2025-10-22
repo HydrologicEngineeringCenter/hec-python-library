@@ -33,7 +33,7 @@ The top-level package is `hec`
 import os
 from hec import CwmsDataStore, DssDataStore
 
-with CwmsDataStore.open("https://water.dev.cwbi.us/cwms-data", office="SWT") as db:
+with CwmsDataStore.open("https://cwms-data-test.cwbi.us/cwms-data", office="SWT") as db:
     db.time_window = "t-30h, t"
     # --------------------------------- #
     # retrieve an elevation time series #
@@ -53,24 +53,30 @@ with CwmsDataStore.open("https://water.dev.cwbi.us/cwms-data", office="SWT") as 
     # transform the elevations to storages #
     # ------------------------------------ #
     rating = db.retrieve("Bluestem.Elev;Stor.Linear.Production")
-    stor_ts = rating_set.rate(rev_elev_ts)
+    stor_ts = rating.rate(rev_elev_ts)
     print(stor_ts)
-    print("")
     # ---------------------------- #
     # print the time series values #
     # ---------------------------- #
-    for i in range(len(rev_elev_ts)):
-        print(f"{rev_elev_ts.times[i]}\t{round(rev_elev_ts.values[i], 2):.2f}\t{round(stor_ts.values[i], -1)}")
     print("")
+    for i in range(len(rev_elev_ts)):
+        print(
+            f"{rev_elev_ts.times[i]}"
+            f"\t{round(rev_elev_ts.values[i], 2):.2f}"
+            f"\t{round(stor_ts.values[i], -1)}"
+        )
     # ----------------------------------- #
     # store the time series to a DSS file #
     # ----------------------------------- #
+    print("")
     with DssDataStore.open("demo.dss", read_only=False) as dss:
         dss.store(raw_elev_ts)
         dss.store(rev_elev_ts)
         dss.store(stor_ts)
+        print("")
         for pathname in dss.catalog():
             print(pathname)
+        print("")
 
 ```
 ```
@@ -109,9 +115,11 @@ Bluestem.Stor.Inst.1Hour.0.Rev 24 values in ac-ft
 09:35:49.240 -----DSS--- zwrite  Handle 3;  Version 1:  //Bluestem/Elev/01Oct2025/1Hour/Raw/
 09:35:49.329 -----DSS--- zwrite  Handle 3;  Version 1:  //Bluestem/Elev/01Oct2025/1Hour/Rev/
 09:35:49.427 -----DSS--- zwrite  Handle 3;  Version 1:  //Bluestem/Stor/01Oct2025/1Hour/Rev/
+
 //Bluestem/Elev/01Oct2025/1Hour/Raw/
 //Bluestem/Elev/01Oct2025/1Hour/Rev/
 //Bluestem/Stor/01Oct2025/1Hour/Rev/
+
 09:35:49.428      -----DSS---zclose  Handle 3;  Process: 23056;  File: U:\Devl\git\hec-python-library\demo.dss
 09:35:49.428                         Number records:         3
 09:35:49.428                         File size:              15990  64-bit words
