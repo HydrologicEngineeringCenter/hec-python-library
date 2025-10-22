@@ -39,7 +39,7 @@ jobs:
         run: isort --profile black --check-only hec test
 
       - name: isort (notebooks via nbQA)
-        run: nbqa isort --quiet --profile black --check-only --nbqa-diff examples
+        run: nbqa isort --profile black --check-only examples
 
       - name: black (check only)
         run: black --check --diff hec test examples
