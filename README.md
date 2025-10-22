@@ -26,12 +26,6 @@ Python 3.9+
 pip install hec-python-library
 ```
 
-Then import the package:
-
-```python
-import hec
-```
-
 ## Getting Started
 
 ```python
