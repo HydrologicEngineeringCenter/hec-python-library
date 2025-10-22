@@ -451,7 +451,7 @@ def test_to_from_native_timeseries() -> None:
     if ts and shared.dss_imported:
         dss_file_name = (
             r"C:\TEMP\test.dss"
-            if platform.platform() == "Windows"
+            if platform.platform().startswith("Windows")
             else "/var/tmp/test.dss"
         )
         DssDataStore.set_message_level(1)
