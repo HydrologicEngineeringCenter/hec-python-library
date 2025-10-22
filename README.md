@@ -36,7 +36,7 @@ import hec
 
 ```python
 import os
-from hec import HecTime, CwmsDataStore, DssDataStore
+from hec import CwmsDataStore, DssDataStore
 
 assert os.getenv("cda_api_root") is not None
 assert os.getenv("cda_api_office") is not None
