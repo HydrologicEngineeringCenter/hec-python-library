@@ -46,7 +46,7 @@ jobs:
         run: black --check hec test examples
 
       - name: mypy (code)
-        run: mypy hec test --strict
+        run: mypy hec test --python-version 3.9 --strict
 
       - name: mypy (notebooks via nbQA)
         run: nbqa mypy examples --strict
