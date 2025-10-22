@@ -18,12 +18,12 @@ ignore_missing_imports = true
 
 [project]
 name = "hec-python-library"
-version = "0.9.9"
+version = "1.0"
 description = "Python 3 implementation of HEC Java/Jython utility classes"
 authors = [
     { name = "Michael Perryman", email = "michael.d.perryman@usace.army.mil" }
 ]
-# license = { file = "LICENSE" }
+license = { file = "LICENSE" }
 readme = "README.md"
 keywords = ["HEC", "timeseries", "time series", "DSS", "HEC-DSS", "CWMS"]
 classifiers = [
