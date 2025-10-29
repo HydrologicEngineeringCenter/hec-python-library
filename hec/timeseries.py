@@ -8354,25 +8354,28 @@ class TimeSeries:
                     f"Cannot set vertical datum on {self.parameter.name} time series"
                 )
             return target
-        param: Optional[Parameter] = None
         from_unit = target.unit
-        to_unit: Union[Unit, str]
-        if isinstance(unit_parameter_or_datum, Parameter):
-            param = unit_parameter_or_datum
-        elif isinstance(unit_parameter_or_datum, str):
-            try:
-                param = Parameter(unit_parameter_or_datum)
-            except:
-                pass
-        if param is not None:
-            # ------------ #
-            # to parameter #
-            # ------------ #
-            to_unit = param.unit_name
-            target.iset_parameter(param)
+        if unit_parameter_or_datum in target.parameter.get_compatible_units():
+            to_unit = unit_parameter_or_datum
         else:
-            to_unit = cast(Union[Unit, str], unit_parameter_or_datum)
-            target.iset_unit(to_unit)
+            param: Optional[Parameter] = None
+            to_unit: Union[Unit, str]
+            if isinstance(unit_parameter_or_datum, Parameter):
+                param = unit_parameter_or_datum
+            elif isinstance(unit_parameter_or_datum, str):
+                try:
+                    param = Parameter(unit_parameter_or_datum)
+                except:
+                    pass
+            if param is not None:
+                # ------------ #
+                # to parameter #
+                # ------------ #
+                to_unit = param.unit_name
+                target.iset_parameter(param)
+            else:
+                to_unit = cast(Union[Unit, str], unit_parameter_or_datum)
+                target.iset_unit(to_unit)
         # ------- #
         # to unit #
         # ------- #
