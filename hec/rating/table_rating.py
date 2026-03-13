@@ -829,7 +829,7 @@ class TableRating(SimpleRating):
                     ind_elem.text = str(ind_val)
                     dep_elem = etree.SubElement(point_elem, "dep")
                     dep_elem.text = str(dep_val)
-        return rating_elem
+        return cast("etree._Element", rating_elem)
 
     def xml_tag_name(self) -> str:
         return "simple-rating"

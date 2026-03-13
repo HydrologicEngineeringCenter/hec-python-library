@@ -7,7 +7,7 @@ if TYPE_CHECKING:
 
 import re
 import warnings
-from typing import Any, Optional
+from typing import Any, Optional, cast
 
 from hec._optional import require_lxml
 from hec.parameter import Parameter, ParameterException
@@ -550,4 +550,4 @@ class RatingTemplate:
         dep_param_elem.text = self.dep_param
         description_elem = etree.SubElement(template_elem, "description")
         description_elem.text = self.description
-        return template_elem
+        return cast("etree._Element", template_elem)

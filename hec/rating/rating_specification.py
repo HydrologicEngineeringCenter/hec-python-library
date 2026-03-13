@@ -7,7 +7,7 @@ if TYPE_CHECKING:
 
 import re
 import warnings
-from typing import Any, Optional, Sequence, Union
+from typing import Any, Optional, Sequence, Union, cast
 
 from hec._optional import require_lxml
 from hec.location import Location, _is_cwms_location
@@ -745,4 +745,4 @@ class RatingSpecification:
         description_elem = etree.SubElement(spec_elem, "description")
         if self._description:
             description_elem.text = self._description
-        return spec_elem
+        return cast("etree._Element", spec_elem)
