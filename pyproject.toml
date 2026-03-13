@@ -18,7 +18,7 @@ ignore_missing_imports = true
 
 [project]
 name = "hec-python-library"
-version = "1.0"
+version = "1.1"
 description = "Python 3 implementation of HEC Java/Jython utility classes"
 authors = [
     { name = "Michael Perryman", email = "michael.d.perryman@usace.army.mil" }
@@ -33,7 +33,6 @@ classifiers = [
 requires-python = ">=3.9"
 
 dependencies = [
-    "lxml>=6.0.0",
     "numpy>=1.26.4",
     "pandas>=2.2.2",
     "Pint>=0.24.3",

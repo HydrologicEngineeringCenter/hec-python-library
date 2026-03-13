@@ -1,8 +1,14 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from lxml import etree 
+
 import re
 import warnings
 from typing import Any, Optional, Sequence, Union
 
-from lxml import etree
+from hec._optional import require_lxml
 
 from hec.location import Location, _is_cwms_location
 from hec.rating.rating_shared import LookupMethod, replace_indent
@@ -412,7 +418,7 @@ class RatingSpecification:
                     f"Expected value of true or false, got {s}"
                 )
             return s == "true"
-
+        etree = require_lxml()
         spec_elem = etree.fromstring(xml)
         if spec_elem.tag != "rating-spec":
             raise RatingSpecificationException(
@@ -663,6 +669,7 @@ class RatingSpecification:
                 e.text = None
             if e.tail and e.tail.strip() == "":
                 e.tail = None
+        etree = require_lxml()
         xml: str = etree.tostring(elem, pretty_print=True).decode()
         if indent != "  ":
             xml = replace_indent(xml, indent)
@@ -696,6 +703,7 @@ class RatingSpecification:
         Operations:
             Read-Only
         """
+        etree = require_lxml()
         spec_elem = etree.Element(
             "rating-spec",
             attrib={"office-id": self.template.office if self.template.office else ""},

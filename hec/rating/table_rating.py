@@ -1,3 +1,9 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from lxml import etree 
+
 import bisect
 import math
 import re
@@ -5,7 +11,7 @@ from datetime import datetime
 from typing import TYPE_CHECKING, Any, Callable, Optional, Union, cast
 
 import numpy as np
-from lxml import etree
+from hec._optional import require_lxml
 
 if TYPE_CHECKING:
     from hec.datastore import AbstractDataStore
@@ -63,6 +69,7 @@ class TableRating(SimpleRating):
         # ----------------------------------------------------- #
         # parse the rating points into dictionaries for staging #
         # ----------------------------------------------------- #
+        etree = require_lxml()
         rating_points_elems = root.findall("./rating-points")
         if rating_points_elems is not None:
             ind_param_count = ind_param_count
@@ -777,6 +784,7 @@ class TableRating(SimpleRating):
         Operations:
             Read-Only
         """
+        etree = require_lxml()
         rating_elem = etree.Element(
             "simple-rating",
             attrib={"office-id": self.template.office if self.template.office else ""},

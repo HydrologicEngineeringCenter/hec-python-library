@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import Any, Optional, Union, cast
 
 import numpy as np
-from lxml import etree
+from hec._optional import require_lxml
 
 import hec
 
@@ -83,6 +83,7 @@ class ReferenceRatingSet(AbstractRatingSet):
         """
         if xml.startswith("<?xml"):
             xml = xml.split("?>")[1].strip()
+        etree = require_lxml()
         root = etree.fromstring(xml)
         rating_spec_elem = root.find("rating-spec")
         if rating_spec_elem is None:

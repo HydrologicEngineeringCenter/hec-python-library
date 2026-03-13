@@ -1,10 +1,16 @@
+# Top of file — add these two lines
+from __future__ import annotations
+from typing import TYPE_CHECKING
+
 import re
 from abc import ABC, abstractmethod
 from datetime import datetime
 from typing import Any, Callable, Optional, Sequence, Union, cast
 
 import numpy as np
-from lxml import etree
+if TYPE_CHECKING:
+    from lxml import etree
+from hec._optional import require_lxml
 
 import hec.shared
 import hec.unit
@@ -96,6 +102,7 @@ class AbstractRating(ABC):
         template: Optional[RatingTemplate] = None
         if xml_str.startswith("<?xml"):
             xml_str = xml_str.split("?>", 1)[1]
+        etree = require_lxml()
         root = etree.fromstring(xml_str)
         if root.tag == "ratings":
             for child in root:
@@ -148,6 +155,7 @@ class AbstractRating(ABC):
         transition_start_time: Optional[datetime] = None
         description: Optional[str] = None
         office = root.get("office-id")
+        etree = require_lxml()
         if not office:
             raise AbstractRatingException("No office specified in <simple-rating>")
         if specification and office != specification.template.office:
@@ -704,6 +712,7 @@ class AbstractRating(ABC):
         Operations:
             Read-Only
         """
+        etree = require_lxml()
         rating_spec_id_elem = etree.SubElement(rating_elem, "rating-spec-id")
         rating_spec_id_elem.text = self.specification_id
         base_params = sorted(
@@ -1168,6 +1177,7 @@ class AbstractRating(ABC):
         Returns:
             str: The formatted xml
         """
+        etree = require_lxml()
         elem = self.xml_element
         for e in elem.iter():
             if e.text and e.text.strip() == "":

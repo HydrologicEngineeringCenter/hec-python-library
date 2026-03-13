@@ -23,7 +23,7 @@ from zoneinfo import ZoneInfo
 import numpy as np
 import pandas as pd
 import tzlocal
-from lxml import etree
+from hec._optional import require_lxml
 from typing_extensions import Literal
 
 import hec
@@ -1611,6 +1611,7 @@ class DssDataStore(AbstractDataStore):
             location_id, parameters_id, template_version, specification_version = (
                 obj.specification.name.split(".")
             )
+            etree = require_lxml()
             root = etree.fromstring(obj.to_xml())
             for child in root:
                 # ---------------------------------------- #
