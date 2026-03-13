@@ -5,9 +5,9 @@ from io import StringIO
 from typing import Any, Optional, Type, TypeVar, Union, cast
 
 import numpy as np
-from hec._optional import require_lxml
 
 import hec
+from hec._optional import require_lxml
 from hec.rating.abstract_rating import AbstractRating
 from hec.rating.abstract_rating_set import AbstractRatingSet, AbstractRatingSetException
 from hec.rating.rating_shared import LookupMethod, replace_indent

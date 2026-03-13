@@ -3,9 +3,9 @@ from datetime import datetime
 from typing import Any, Optional, Union, cast
 
 import numpy as np
-from hec._optional import require_lxml
 
 import hec
+from hec._optional import require_lxml
 
 from .abstract_rating_set import AbstractRatingSet, AbstractRatingSetException
 

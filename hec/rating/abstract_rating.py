@@ -1,19 +1,19 @@
 # Top of file — add these two lines
 from __future__ import annotations
-from typing import TYPE_CHECKING
 
 import re
 from abc import ABC, abstractmethod
 from datetime import datetime
-from typing import Any, Callable, Optional, Sequence, Union, cast
+from typing import TYPE_CHECKING, Any, Callable, Optional, Sequence, Union, cast
 
 import numpy as np
+
 if TYPE_CHECKING:
     from lxml import etree
-from hec._optional import require_lxml
 
 import hec.shared
 import hec.unit
+from hec._optional import require_lxml
 from hec.hectime import HecTime
 from hec.location import LocationException
 from hec.parameter import (

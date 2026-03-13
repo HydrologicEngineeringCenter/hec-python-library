@@ -33,6 +33,7 @@ def require_lxml() -> ModuleType:
     """
     try:
         import importlib.metadata
+
         from lxml import etree
 
         version = importlib.metadata.version("lxml")

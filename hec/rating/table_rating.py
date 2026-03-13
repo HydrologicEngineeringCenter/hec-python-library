@@ -1,8 +1,9 @@
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from lxml import etree 
+    from lxml import etree
 
 import bisect
 import math
@@ -11,6 +12,7 @@ from datetime import datetime
 from typing import TYPE_CHECKING, Any, Callable, Optional, Union, cast
 
 import numpy as np
+
 from hec._optional import require_lxml
 
 if TYPE_CHECKING:

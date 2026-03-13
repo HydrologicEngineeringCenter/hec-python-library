@@ -1,15 +1,15 @@
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from lxml import etree 
+    from lxml import etree
 
 import re
 import warnings
 from typing import Any, Optional
 
 from hec._optional import require_lxml
-
 from hec.parameter import Parameter, ParameterException
 from hec.rating.rating_shared import LookupMethod, replace_indent
 from hec.shared import RatingException

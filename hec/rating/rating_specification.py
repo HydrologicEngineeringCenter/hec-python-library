@@ -1,15 +1,15 @@
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from lxml import etree 
+    from lxml import etree
 
 import re
 import warnings
 from typing import Any, Optional, Sequence, Union
 
 from hec._optional import require_lxml
-
 from hec.location import Location, _is_cwms_location
 from hec.rating.rating_shared import LookupMethod, replace_indent
 from hec.rating.rating_template import RatingTemplate
@@ -418,6 +418,7 @@ class RatingSpecification:
                     f"Expected value of true or false, got {s}"
                 )
             return s == "true"
+
         etree = require_lxml()
         spec_elem = etree.fromstring(xml)
         if spec_elem.tag != "rating-spec":

@@ -23,11 +23,11 @@ from zoneinfo import ZoneInfo
 import numpy as np
 import pandas as pd
 import tzlocal
-from hec._optional import require_lxml
 from typing_extensions import Literal
 
 import hec
 import hec.shared
+from hec._optional import require_lxml
 from hec.const import CWMS, DSS, UNDEFINED
 from hec.duration import Duration
 from hec.hectime import HecTime, get_time_window
