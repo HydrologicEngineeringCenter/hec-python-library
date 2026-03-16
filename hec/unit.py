@@ -122,7 +122,7 @@ class UnitException(Exception):
     pass
 
 
-ureg: pint.UnitRegistry[Any] = pint.UnitRegistry()
+ureg: Any = pint.UnitRegistry()
 # -------------------------------------- #
 # define additional deminsions for units #
 # -------------------------------------- #
@@ -684,7 +684,7 @@ def delete_unit_alias(unit: Union[str, pint.Unit], alias: str) -> None:
     del unit_names_by_alias[alias]
 
 
-def get_unit_registry() -> pint.UnitRegistry[Any]:
+def get_unit_registry() -> Any:
     """
     Returns the Pint unit registry. Pint doesn't share unit information between
     registries so this registry must be used for any modification to the Pint behavior.
@@ -966,8 +966,8 @@ def convert_units(
             # -------------- #
             if dst_unit == src_unit:
                 return 1
-            hz = pint.Quantity(math.sqrt(to_convert * 1000), ureg.Hz)
-            return hz.to(dst_unit).magnitude
+            hz_quantity: float = float(pint.Quantity(math.sqrt(to_convert * 1000), ureg.Hz))
+            return hz_quantity.to(dst_unit).magnitude
         elif dst_unit == ureg("B_unit"):
             # -------------- #
             # frequency -> B #

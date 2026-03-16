@@ -40,6 +40,10 @@ dependencies = [
     "tzlocal>=5.2"
 ]
 
+[tool.mypy.overrides]
+module = "hec.unit"
+disable_error_codes = ["type-arg"]
+
 [project.optional-dependencies]
 docs = [
   "sphinx",
