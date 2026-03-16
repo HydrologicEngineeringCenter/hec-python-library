@@ -15,6 +15,8 @@ ignore_missing_imports = false
 [[tool.mypy.overrides]]
 module = "pint.*"
 ignore_missing_imports = true
+module = "hec.unit"
+disable_error_codes = ["type-arg"]
 
 [project]
 name = "hec-python-library"
@@ -39,10 +41,6 @@ dependencies = [
     "Pint-pandas>=0.6.2",
     "tzlocal>=5.2"
 ]
-
-[tool.mypy.overrides]
-module = "hec.unit"
-disable_error_codes = ["type-arg"]
 
 [project.optional-dependencies]
 docs = [
