@@ -11,14 +11,12 @@ hec = ["resources/*"]
 
 [tool.mypy]
 ignore_missing_imports = false
+warn_unused_ignores = false
 
 [[tool.mypy.overrides]]
 module = "pint.*"
 ignore_missing_imports = true
 
-[[tool.mypy.overrides]]
-module = "hec.unit"
-disable_error_codes = ["type-arg"]
 
 [project]
 name = "hec-python-library"
