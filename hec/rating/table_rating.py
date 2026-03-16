@@ -66,7 +66,7 @@ class TableRating(SimpleRating):
 
     @staticmethod
     def _parse_rating_points(
-        root: etree._Element, ind_param_count: int
+        root: et._Element, ind_param_count: int
     ) -> Optional[dict[tuple[float, ...], Union[tuple[float], float]]]:
         # ----------------------------------------------------- #
         # parse the rating points into dictionaries for staging #
@@ -149,7 +149,7 @@ class TableRating(SimpleRating):
 
     @staticmethod
     def from_element(
-        root: etree._Element, specification: Optional[RatingSpecification]
+        root: et._Element, specification: Optional[RatingSpecification]
     ) -> SimpleRating:
         """
         Creates a TableRating from a <simple-rating> XML element and rating spec
