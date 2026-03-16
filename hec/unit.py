@@ -974,7 +974,9 @@ def convert_units(
             # -------------- #
             if dst_unit == src_unit:
                 return 1
-            hz: float = float(pint.Quantity(to_convert, src_unit).to(ureg("Hz")).magnitude)
+            hz: float = float(
+                pint.Quantity(to_convert, src_unit).to(ureg("Hz")).magnitude
+            )
             return hz**2 / 1000.0
         else:
             return ureg.Quantity(to_convert, src_unit).to(dst_unit, ctx).magnitude
