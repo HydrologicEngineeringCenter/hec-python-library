@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from lxml import etree
+    from lxml import etree as et
 
 import bisect
 import math
@@ -779,7 +779,7 @@ class TableRating(SimpleRating):
         return rated_values
 
     @property
-    def xml_element(self) -> etree._Element:
+    def xml_element(self) -> et._Element:
         """
         The rating as an lxml.etree.Element object
 
@@ -829,7 +829,7 @@ class TableRating(SimpleRating):
                     ind_elem.text = str(ind_val)
                     dep_elem = etree.SubElement(point_elem, "dep")
                     dep_elem.text = str(dep_val)
-        return cast("etree._Element", rating_elem)
+        return cast("et._Element", rating_elem)
 
     def xml_tag_name(self) -> str:
         return "simple-rating"

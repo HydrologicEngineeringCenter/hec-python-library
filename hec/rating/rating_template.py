@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from lxml import etree
+    from lxml import etree as et
 
 import re
 import warnings
@@ -514,7 +514,7 @@ class RatingTemplate:
         self._version = value
 
     @property
-    def xml_element(self) -> etree._Element:
+    def xml_element(self) -> et._Element:
         """
         The rating template as an lxml.etree.Element object
 
@@ -550,4 +550,4 @@ class RatingTemplate:
         dep_param_elem.text = self.dep_param
         description_elem = etree.SubElement(template_elem, "description")
         description_elem.text = self.description
-        return cast("etree._Element", template_elem)
+        return cast("et._Element", template_elem)
