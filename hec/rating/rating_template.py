@@ -1,9 +1,15 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from lxml import etree as et
+
 import re
 import warnings
-from typing import Any, Optional
+from typing import Any, Optional, cast
 
-from lxml import etree
-
+from hec._optional import require_lxml
 from hec.parameter import Parameter, ParameterException
 from hec.rating.rating_shared import LookupMethod, replace_indent
 from hec.shared import RatingException
@@ -276,6 +282,7 @@ class RatingTemplate:
         Returns:
             RatingTemplate: The generated RatingTemplate object
         """
+        etree = require_lxml()
         template_elem = etree.fromstring(xml)
         if template_elem.tag != "rating-template":
             raise RatingTemplateException(
@@ -480,6 +487,7 @@ class RatingTemplate:
         Returns:
             str: The formatted xml
         """
+        etree = require_lxml()
         xml: str = etree.tostring(self.xml_element, pretty_print=True).decode()
         if indent != "  ":
             xml = replace_indent(xml, indent)
@@ -506,13 +514,14 @@ class RatingTemplate:
         self._version = value
 
     @property
-    def xml_element(self) -> etree._Element:
+    def xml_element(self) -> et._Element:
         """
         The rating template as an lxml.etree.Element object
 
         Operations:
             Read-Only
         """
+        etree = require_lxml()
         template_elem = etree.Element(
             "rating-template", attrib={"office-id": self.office if self.office else ""}
         )
@@ -541,4 +550,4 @@ class RatingTemplate:
         dep_param_elem.text = self.dep_param
         description_elem = etree.SubElement(template_elem, "description")
         description_elem.text = self.description
-        return template_elem
+        return cast("et._Element", template_elem)

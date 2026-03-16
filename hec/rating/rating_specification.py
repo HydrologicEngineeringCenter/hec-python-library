@@ -1,9 +1,15 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from lxml import etree as et
+
 import re
 import warnings
-from typing import Any, Optional, Sequence, Union
+from typing import Any, Optional, Sequence, Union, cast
 
-from lxml import etree
-
+from hec._optional import require_lxml
 from hec.location import Location, _is_cwms_location
 from hec.rating.rating_shared import LookupMethod, replace_indent
 from hec.rating.rating_template import RatingTemplate
@@ -413,6 +419,7 @@ class RatingSpecification:
                 )
             return s == "true"
 
+        etree = require_lxml()
         spec_elem = etree.fromstring(xml)
         if spec_elem.tag != "rating-spec":
             raise RatingSpecificationException(
@@ -663,6 +670,7 @@ class RatingSpecification:
                 e.text = None
             if e.tail and e.tail.strip() == "":
                 e.tail = None
+        etree = require_lxml()
         xml: str = etree.tostring(elem, pretty_print=True).decode()
         if indent != "  ":
             xml = replace_indent(xml, indent)
@@ -689,13 +697,14 @@ class RatingSpecification:
         self._version = value
 
     @property
-    def xml_element(self) -> etree._Element:
+    def xml_element(self) -> et._Element:
         """
         The rating specification as an lxml.etree.Element object
 
         Operations:
             Read-Only
         """
+        etree = require_lxml()
         spec_elem = etree.Element(
             "rating-spec",
             attrib={"office-id": self.template.office if self.template.office else ""},
@@ -736,4 +745,4 @@ class RatingSpecification:
         description_elem = etree.SubElement(spec_elem, "description")
         if self._description:
             description_elem.text = self._description
-        return spec_elem
+        return cast("et._Element", spec_elem)

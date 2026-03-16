@@ -4294,7 +4294,7 @@ class TimeSeries:
                         start_time, end_time, None, None, self.time_zone, "times"
                     )
                     self._data = pd.DataFrame(
-                        {"value": len(index) * [math.nan], "quality": len(index * [5])},
+                        {"value": len(index) * [math.nan], "quality": len(index) * [5]},
                         index=index,
                     )
             else:

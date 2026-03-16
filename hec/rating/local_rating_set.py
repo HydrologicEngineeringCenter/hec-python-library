@@ -5,9 +5,9 @@ from io import StringIO
 from typing import Any, Optional, Type, TypeVar, Union, cast
 
 import numpy as np
-from lxml import etree
 
 import hec
+from hec._optional import require_lxml
 from hec.rating.abstract_rating import AbstractRating
 from hec.rating.abstract_rating_set import AbstractRatingSet, AbstractRatingSetException
 from hec.rating.rating_shared import LookupMethod, replace_indent
@@ -443,6 +443,7 @@ class LocalRatingSet(AbstractRatingSet):
         """
         if xml_str.startswith("<?xml"):
             xml_str = xml_str.split("?>", 1)[1]
+        etree = require_lxml()
         root = etree.fromstring(xml_str)
         if root.tag != "ratings":
             raise LocalRatingSetException(
@@ -577,6 +578,7 @@ class LocalRatingSet(AbstractRatingSet):
         # --------------------------------------------------------------------------------- #
         # reorganize for source ratings (templates, followed by specs, followed by ratings) #
         # --------------------------------------------------------------------------------- #
+        etree = require_lxml()
         root = etree.fromstring(xml)
         assert root.tag == "ratings"
         new_root = etree.fromstring(

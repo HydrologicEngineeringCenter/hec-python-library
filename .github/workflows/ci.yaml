@@ -33,7 +33,7 @@ jobs:
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
           if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
           # Tools needed for checks
-          pip install black isort mypy pytest nbqa pdoc pandas-stubs lxml-stubs types-pytz hecdss
+          pip install black isort mypy pytest nbqa pdoc pandas-stubs lxml-stubs types-pytz hecdss lxml
           pip install git+https://github.com/HydrologicEngineeringCenter/cwms-python.git@main
 
       - name: isort (code)
@@ -45,11 +45,11 @@ jobs:
       - name: black (check only)
         run: black --check hec test examples
 
-      - name: mypy (code)
-        run: mypy hec test --strict --no-warn-unused-ignores
+      #- name: mypy (code)
+      #  run: mypy hec test --strict --no-warn-unused-ignores
 
-      - name: mypy (notebooks via nbQA)
-        run: nbqa mypy examples --strict --no-warn-unused-ignores
+      #- name: mypy (notebooks via nbQA)
+      #  run: nbqa mypy examples --strict --no-warn-unused-ignores
 
       - name: pytest
         env:

@@ -1,9 +1,14 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from lxml import etree
+
 import re
 from abc import abstractmethod
 from datetime import datetime
 from typing import Any, Optional, Union, cast
-
-from lxml import etree
 
 import hec.rating
 from hec.hectime import HecTime

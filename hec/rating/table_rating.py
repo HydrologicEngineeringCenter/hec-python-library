@@ -1,3 +1,10 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from lxml import etree as et
+
 import bisect
 import math
 import re
@@ -5,7 +12,8 @@ from datetime import datetime
 from typing import TYPE_CHECKING, Any, Callable, Optional, Union, cast
 
 import numpy as np
-from lxml import etree
+
+from hec._optional import require_lxml
 
 if TYPE_CHECKING:
     from hec.datastore import AbstractDataStore
@@ -58,11 +66,12 @@ class TableRating(SimpleRating):
 
     @staticmethod
     def _parse_rating_points(
-        root: etree._Element, ind_param_count: int
+        root: et._Element, ind_param_count: int
     ) -> Optional[dict[tuple[float, ...], Union[tuple[float], float]]]:
         # ----------------------------------------------------- #
         # parse the rating points into dictionaries for staging #
         # ----------------------------------------------------- #
+        etree = require_lxml()
         rating_points_elems = root.findall("./rating-points")
         if rating_points_elems is not None:
             ind_param_count = ind_param_count
@@ -140,7 +149,7 @@ class TableRating(SimpleRating):
 
     @staticmethod
     def from_element(
-        root: etree._Element, specification: Optional[RatingSpecification]
+        root: et._Element, specification: Optional[RatingSpecification]
     ) -> SimpleRating:
         """
         Creates a TableRating from a <simple-rating> XML element and rating spec
@@ -770,13 +779,14 @@ class TableRating(SimpleRating):
         return rated_values
 
     @property
-    def xml_element(self) -> etree._Element:
+    def xml_element(self) -> et._Element:
         """
         The rating as an lxml.etree.Element object
 
         Operations:
             Read-Only
         """
+        etree = require_lxml()
         rating_elem = etree.Element(
             "simple-rating",
             attrib={"office-id": self.template.office if self.template.office else ""},
@@ -819,7 +829,7 @@ class TableRating(SimpleRating):
                     ind_elem.text = str(ind_val)
                     dep_elem = etree.SubElement(point_elem, "dep")
                     dep_elem.text = str(dep_val)
-        return rating_elem
+        return cast("et._Element", rating_elem)
 
     def xml_tag_name(self) -> str:
         return "simple-rating"
