@@ -17,6 +17,8 @@ warn_unused_ignores = false
 module = "pint.*"
 ignore_missing_imports = true
 
+[tool.black]
+extend-exclude = 'test/test_table_rating.py'
 
 [project]
 name = "hec-python-library"
