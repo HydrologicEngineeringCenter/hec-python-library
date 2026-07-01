@@ -482,9 +482,7 @@ def test_aggregate_ts() -> None:
         warnings.simplefilter(action="ignore", category=FutureWarning)
         ts = TimeSeries.aggregate_ts(max, timeseries)
         for i in range(value_count):
-            assert ts.values[i] == max(test_rows[i]) or (
-                math.isnan(ts.values[i]) and math.isnan(max(test_rows[i]))
-            )
+            assert ts.values[i] == max([v for v in test_rows[i] if not math.isnan(v)])
     # ----------- #
     # builtin min # generates warning
     # ----------- #
@@ -492,9 +490,7 @@ def test_aggregate_ts() -> None:
         warnings.simplefilter(action="ignore", category=FutureWarning)
         ts = TimeSeries.aggregate_ts(min, timeseries)
         for i in range(value_count):
-            assert ts.values[i] == min(test_rows[i]) or (
-                math.isnan(ts.values[i]) and math.isnan(min(test_rows[i]))
-            )
+            assert ts.values[i] == min([v for v in test_rows[i] if not math.isnan(v)]) 
     # ----------- #
     # builtin sum # generates warning
     # ----------- #
@@ -502,9 +498,7 @@ def test_aggregate_ts() -> None:
         warnings.simplefilter(action="ignore", category=FutureWarning)
         ts = TimeSeries.aggregate_ts(sum, timeseries)
         for i in range(value_count):
-            assert ts.values[i] == sum(test_rows[i]) or (
-                math.isnan(ts.values[i]) and math.isnan(sum(test_rows[i]))
-            )
+            assert ts.values[i] == sum([v for v in test_rows[i] if not math.isnan(v)])
     # --------- #
     # math.prod #
     # --------- #
@@ -809,9 +803,7 @@ def test_aggregate_values() -> None:
     # ----------- #
     with warnings.catch_warnings():
         warnings.simplefilter(action="ignore", category=FutureWarning)
-        assert ts.aggregate(sum) == sum(values) or (
-            math.isnan(ts.aggregate(sum)) and math.isnan(sum(values))
-        )
+        assert ts.aggregate(sum) == sum([v for v in values if not math.isnan(v)]) 
     # --------- #
     # math.prod #
     # --------- #
