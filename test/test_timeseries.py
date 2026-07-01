@@ -490,7 +490,7 @@ def test_aggregate_ts() -> None:
         warnings.simplefilter(action="ignore", category=FutureWarning)
         ts = TimeSeries.aggregate_ts(min, timeseries)
         for i in range(value_count):
-            assert ts.values[i] == min([v for v in test_rows[i] if not math.isnan(v)]) 
+            assert ts.values[i] == min([v for v in test_rows[i] if not math.isnan(v)])
     # ----------- #
     # builtin sum # generates warning
     # ----------- #
@@ -803,7 +803,7 @@ def test_aggregate_values() -> None:
     # ----------- #
     with warnings.catch_warnings():
         warnings.simplefilter(action="ignore", category=FutureWarning)
-        assert ts.aggregate(sum) == sum([v for v in values if not math.isnan(v)]) 
+        assert ts.aggregate(sum) == sum([v for v in values if not math.isnan(v)])
     # --------- #
     # math.prod #
     # --------- #
