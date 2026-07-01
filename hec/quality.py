@@ -6,7 +6,7 @@ Provides quality code info and operations
 
     1. Unless the Screened bit is set, no other bits can be set.
 
-    2. Unused bits (21, 23, and 26-30) must be reset (zero).
+    2. Unused bits (21, 23, and 26-29) must be reset (zero).
 
     3. The Okay, Missing, Questioned and Rejected bits are mutually
        exclusive.
@@ -23,22 +23,25 @@ Provides quality code info and operations
     7. The Test Failed bits are not mutually exclusive (multiple tests can be
        marked as failed).
 
+    8. The Approved bit may not be set unless the Protected bit is also set
+
 <a id="bit-mapping"></a>
 **Bit Mappings:**
 ```
-       3                   2                   1
+       3                   2                   1 0
      1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0
 
-     P - - - - - T T T T T T T T T T T M M M M C C C D R R V V V V S
-     |           <---------+---------> <--+--> <-+-> | <+> <--+--> |
-     |                     |              |      |   |  |     |    +------Screened Flag
-     |                     |              |      |   |  |     +-----------Validity Exclusive Flags
-     |                     |              |      |   |  +--------------Value Range Integer
-     |                     |              |      |   +-------------------Different Flag
-     |                     |              |      +---------------Replacement Cause Integer
-     |                     |              +---------------------Replacement Method Integer
-     |                     +-------------------------------------------Test Failed Inclusive Flags
-     +-------------------------------------------------------------------Protected Flag
+     P A - - - - T T T T T T T T T T T M M M M C C C D R R V V V V S
+     | |         <---------+---------> <--+--> <-+-> | <+> <--+--> |
+     | |                   |              |      |   |  |     |    +------Screened T/F
+     | |                   |              |      |   |  |     +-----------Validity Flags
+     | |                   |              |      |   |  +--------------Value Range Integer
+     | |                   |              |      |   +-------------------Different T/F
+     | |                   |              |      +---------------Replacement Cause Integer
+     | |                   |              +---------------------Replacement Method Integer
+     | |                   +-------------------------------------------Test Failed Flags
+     | +------------------------------------------------------------------Approved T/F
+     +-------------------------------------------------------------------Protected T/F
 ```
 """
 
@@ -53,6 +56,7 @@ class QualityException(Exception):
 from typing import Any, Union
 
 __all__ = [
+    "approval_id",
     "changed_id",
     "get_code_ids",
     "get_component_codes",
@@ -63,6 +67,7 @@ __all__ = [
     "repl_method_id",
     "screened_id",
     "set_changed_code",
+    "set_aproval_code,",
     "set_protection_code",
     "set_range_code",
     "set_repl_cause_code",
@@ -76,7 +81,7 @@ __all__ = [
     "QualityException",
 ]
 
-_NORMAL_QUALITY_MASK = 0b1000_0011_0101_1111_1111_1111_1111_1111
+_NORMAL_QUALITY_MASK = 0b1100_0011_0101_1111_1111_1111_1111_1111
 
 (
     _SCREENED,
@@ -87,7 +92,8 @@ _NORMAL_QUALITY_MASK = 0b1000_0011_0101_1111_1111_1111_1111_1111
     _REPL_METHOD,
     _TEST_FAILED,
     _PROTECTION,
-) = range(8)
+    _APPROVAL,
+) = range(9)
 
 _screened_values = {
     "UNSCREENED": 0,
@@ -140,6 +146,10 @@ _protection_values = {
     "UNPROTECTED": 0,
     "PROTECTED": 1,
 }
+_approval_values = {
+    "NOT_APPROVED": 0,
+    "APPROVED": 1,
+}
 _screened_ids = {v: k for k, v in _screened_values.items()}
 _validity_ids = {v: k for k, v in _validity_values.items()}
 _range_ids = {v: k for k, v in _range_values.items()}
@@ -148,6 +158,7 @@ _repl_cause_ids = {v: k for k, v in _repl_cause_values.items()}
 _repl_method_ids = {v: k for k, v in _repl_method_values.items()}
 _test_failed_ids = {v: k for k, v in _test_failed_values.items()}
 _protection_ids = {v: k for k, v in _protection_values.items()}
+_approval_ids = {v: k for k, v in _approval_values.items()}
 
 
 def normalize_quality_code(code: int) -> int:
@@ -348,6 +359,26 @@ def protection_id(code: int) -> str:
     return _protection_ids[code]
 
 
+def approval_id(code: int) -> str:
+    """
+    Returns the text identifier for a valid approval code.
+
+    This code is encoded in the quality code in bit 31 of 32 as diagrammed in the [bit-mapping](#bit-mapping)
+
+    Args:
+        code (int): Must be 0 or 1
+
+    Returns:
+        str: One of the following identifiers:
+            <table>
+            <tr><th>code</th><th>returns</th></tr>
+            <tr><td>0</td><td>NOT_APPROVED</td></tr>
+            <tr><td>1</td><td>APPROVED</td></tr>
+            </table>
+    """
+    return _approval_ids[code]
+
+
 def get_component_codes(code: int) -> tuple[int, ...]:
     """
     Returns a tuple of component codes in a quality code
@@ -368,6 +399,7 @@ def get_component_codes(code: int) -> tuple[int, ...]:
         * replacement method
         * test failed
         * protection
+        * approval
     """
     screened = code & 0b1
     validity = (code >> 1) & 0b1111
@@ -377,6 +409,7 @@ def get_component_codes(code: int) -> tuple[int, ...]:
     repl_method = (code >> 11) & 0b1111
     test_failed = (code >> 15) & 0b111_1111_1111
     protection = (code >> 31) & 0b1
+    approval = (code >> 30) & 0b1
 
     if code & ~_NORMAL_QUALITY_MASK:
         raise QualityException(
@@ -390,6 +423,7 @@ def get_component_codes(code: int) -> tuple[int, ...]:
         or repl_method
         or test_failed
         or protection
+        or approval
     ):
         raise QualityException(
             f"Invalid quality value: {code}: All other bits must be zero if not screened"
@@ -414,6 +448,8 @@ def get_component_codes(code: int) -> tuple[int, ...]:
         raise QualityException(
             f"Invalid replacement method value: {repl_method} in quality code {code}"
         )
+    if approval and not protection:
+        f"Invalid quality value: {code}: Protection bit must be set if approval bit is set"
     return (
         screened,
         validity,
@@ -423,6 +459,7 @@ def get_component_codes(code: int) -> tuple[int, ...]:
         repl_method,
         test_failed,
         protection,
+        approval,
     )
 
 
@@ -446,6 +483,7 @@ def get_code_ids(code: int) -> tuple[str, ...]:
         * replacement method
         * test failed
         * protection
+        * approval
     """
     ids = []
     (
@@ -457,6 +495,7 @@ def get_code_ids(code: int) -> tuple[str, ...]:
         repl_method,
         test_failed,
         protection,
+        approval,
     ) = get_component_codes(code)
     ids.append(screened_id(screened))
     ids.append(validity_id(validity))
@@ -466,6 +505,7 @@ def get_code_ids(code: int) -> tuple[str, ...]:
     ids.append(repl_method_id(repl_method))
     ids.append(test_failed_id(test_failed))
     ids.append(protection_id(protection))
+    ids.append(approval_id(approval))
     return tuple(ids)
 
 
@@ -697,9 +737,29 @@ def set_protection_code(code: int, protection: Union[bool, int]) -> int:
         int: The modified quality code
     """
     if protection:
-        code |= 0b1000_0000_0000_0000_0000_0000_0000_0000
+        code |= 0b1000_0000_0000_0000_0000_0000_0000_0001  # sets screened also
     else:
         code &= 0b0111_1111_1111_1111_1111_1111_1111_1111
+    return code
+
+
+def set_approval_code(code: int, approval: Union[bool, int]) -> int:
+    """
+    Encodes a approval code into a quality code
+
+    Args:
+        code (int): The quality code to encode the approval code into
+        approval (Union[bool, int]): The approval code
+
+    Returns:
+        int: The modified quality code
+    """
+    if approval:
+        code |= (
+            0b1100_0000_0000_0000_0000_0000_0000_0001  # sets proteced and screened also
+        )
+    else:
+        code &= 0b1011_1111_1111_1111_1111_1111_1111_1111
     return code
 
 
@@ -771,7 +831,7 @@ class Quality:
                 * **Quality**: the quality code is set to the other object's quality code
                 * **List or tuple**: the quality code is set from the list of component identifiers.<br>
                     The zero value can be set for any of the component by setting its identifier to `None`.<br>
-                    The sequence must have a mininum length of 8, in this order:
+                    The sequence must have a mininum length of 8 or 9, in this order:
                     * screened identifier
                     * validity identifier
                     * range identifier
@@ -780,6 +840,7 @@ class Quality:
                     * replacement method identifier
                     * test failed identifier (may be multiple identifiers concatenated with `+` character)
                     * protected identifier
+                    * appoval identifier (optional, for backward compatibility)
         """
         self._code: int = 0
         self._screened: int
@@ -790,6 +851,7 @@ class Quality:
         self._repl_method: int
         self._test_failed: int
         self._protection: int
+        self._approval: int
         self._validated: bool = False
         if isinstance(init_from, int):
             self._code = normalize_quality_code(init_from)
@@ -853,6 +915,10 @@ class Quality:
                 self._code |= set_protection_code(
                     self._code, _protection_values[init_from[_PROTECTION].upper()]
                 )
+            if len(init_from) > _APPROVAL and init_from[_APPROVAL]:
+                self._code |= set_approval_code(
+                    self._code, _approval_values[init_from[_APPROVAL].upper()]
+                )
         (
             self._screened,
             self._validity,
@@ -862,6 +928,7 @@ class Quality:
             self._repl_method,
             self._test_failed,
             self._protection,
+            self._approval,
         ) = get_component_codes(self._code)
 
     def _validate(self) -> None:
@@ -874,6 +941,7 @@ class Quality:
             self._repl_method,
             self._test_failed,
             self._protection,
+            self._approval,
         ) = get_component_codes(self._code)
         self._validated = True
 
@@ -977,6 +1045,40 @@ class Quality:
     @protection_id.setter
     def protection_id(self, id: str) -> None:
         self._code = set_protection_code(self._code, _protection_values[id.upper()])
+        self._validated = False
+
+    @property
+    def approval(self) -> int:
+        """
+        The approval component code of the quality code
+
+        Operations:
+            Read-Write
+        """
+        if not self._validated:
+            self._validate()
+        return self._approval
+
+    @approval.setter
+    def approval(self, value: int) -> None:
+        self._code = set_approval_code(self._code, value)
+        self._validated = False
+
+    @property
+    def approval_id(self) -> str:
+        """
+        The approval component identifier of the quality code
+
+        Operations:
+            Read-Write
+        """
+        if not self._validated:
+            self._validate()
+        return approval_id(self._approval)
+
+    @approval_id.setter
+    def approval_id(self, id: str) -> None:
+        self._code = set_approval_code(self._code, _approval_values[id.upper()])
         self._validated = False
 
     @property
@@ -1197,6 +1299,22 @@ class Quality:
         self._code = set_protection_code(self._code, val)
         return self
 
+    def set_approval(self, value: Union[int, str]) -> "Quality":
+        """
+        Sets the approval component of this object from a code or identifier and returns the modified object.
+
+        Using this method instead of setting the `approval` or `approval_id` properties allows chained operations.
+
+        Args:
+            value (Union[int, str]): The approval component code or identifier
+
+        Returns:
+            Quality: The modified object
+        """
+        val = value if isinstance(value, int) else _approval_values[value.upper()]
+        self._code = set_approval_code(self._code, val)
+        return self
+
     def set_range(self, value: Union[int, str]) -> "Quality":
         """
         Sets the range component of this object from a code or identifier and returns the modified object.
@@ -1359,6 +1477,7 @@ class Quality:
         * value replacement cause and method
         * test(s) failed
 
+
         This property is used when the quality is used in a string context (e.g., `print(q)`)
 
         Operations:
@@ -1436,6 +1555,7 @@ class Quality:
             * "User_Defined"
             * "Distribution"
         * Protection: ("Unprotected" or "Protected")
+        * Approval: ("Not_Approved" or "Approved")
 
         Operations:
             Read Only
@@ -1449,8 +1569,9 @@ class Quality:
             _repl_method,
             _test_failed,
             _protection,
+            _approval,
         ) = get_code_ids(self._code)
-        return f"{_screened} {_validity} {_range} {_changed} {_repl_cause} {_repl_method} {_test_failed} {_protection}".title()
+        return f"{_screened} {_validity} {_range} {_changed} {_repl_cause} {_repl_method} {_test_failed} {_protection} {_approval}".title()
 
     @property
     def unsigned(self) -> int:

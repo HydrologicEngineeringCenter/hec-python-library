@@ -8,14 +8,14 @@ from hec import Quality, quality
 # ------------------------------------------------ #
 # test quality operations                          #
 #                                                  #
-# runs routine 348,161 times, each with 9 or 10    #
+# runs routine 522,241 times, each with several    #
 # assertions, skip with pytest -m "not slow"       #
 # or set SLOW_TEST_COVERAGE env var to < 100 to    #
 # run a random subset of the specified percentage  #
 # ------------------------------------------------ #
 @pytest.mark.slow
 @pytest.mark.parametrize(
-    "qual, screened, validity, value_range, changed, repl_cause, repl_method, test_failed, protection",
+    "qual, screened, validity, value_range, changed, repl_cause, repl_method, test_failed, protection, approval",
     dataset_from_file("resources/quality/cwms_db_quality_codes.txt", slow=True),
 )
 def test_cwms_db_compatibility(
@@ -28,6 +28,7 @@ def test_cwms_db_compatibility(
     repl_method: str,
     test_failed: str,
     protection: str,
+    approval: str,
 ) -> None:
     quality_code = int(qual)
     messages = quality.get_code_ids(quality_code)
@@ -39,6 +40,7 @@ def test_cwms_db_compatibility(
     assert messages[5] == repl_method
     assert messages[6] == test_failed
     assert messages[7] == protection
+    assert messages[8] == approval
 
     q = Quality(
         [
@@ -50,6 +52,7 @@ def test_cwms_db_compatibility(
             repl_method,
             test_failed,
             protection,
+            approval,
         ]
     )
     assert q.unsigned == quality_code
@@ -68,6 +71,7 @@ def test_misc() -> None:
     assert q.repl_method_id == "NONE"
     assert q.test_failed_id == "NONE"
     assert q.protection_id == "UNPROTECTED"
+    assert q.approval_id == "NOT_APPROVED"
 
     q.screened_id = "screened"
     q.validity_id = "questionable"
@@ -77,6 +81,7 @@ def test_misc() -> None:
     q.repl_method_id = "lin_interp"
     q.test_failed_id = "distribution user_defined"
     q.protection_id = "protected"
+    q.approval_id = "approved"
 
     assert q.screened_id == "SCREENED"
     assert q.validity_id == "QUESTIONABLE"
@@ -86,6 +91,7 @@ def test_misc() -> None:
     assert q.repl_method_id == "LIN_INTERP"
     assert q.test_failed_id == "USER_DEFINED+DISTRIBUTION"
     assert q.protection_id == "PROTECTED"
+    assert q.approval_id == "APPROVED"
 
     q.add_test_failed("RATE_OF_CHANGE")
     assert q.test_failed_id == "RATE_OF_CHANGE+USER_DEFINED+DISTRIBUTION"
@@ -103,6 +109,7 @@ def test_misc() -> None:
         .set_repl_method("lin_interp")
         .set_test_failed("distribution user_defined")
         .set_protection("protected")
+        .set_approval("approved")
         .add_test_failed("rate_of_change")
         .remove_test_failed("user_defined")
     )
@@ -115,3 +122,4 @@ def test_misc() -> None:
     assert q.repl_method_id == "LIN_INTERP"
     assert q.test_failed_id == "RATE_OF_CHANGE+DISTRIBUTION"
     assert q.protection_id == "PROTECTED"
+    assert q.approval_id == "APPROVED"

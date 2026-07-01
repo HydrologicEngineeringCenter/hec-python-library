@@ -55,7 +55,7 @@ def test_time_series_value() -> None:
     # --------------------------------- #
     assert (
         tsv.quality.text
-        == "Unscreened Unknown No_Range Original None None None Unprotected"
+        == "Unscreened Unknown No_Range Original None None None Unprotected Not_Approved"
     )
     tsv = TimeSeriesValue("14Oct2024 10:55", UQ(12.3, "ft"), Qual("okay"))
     assert (
@@ -66,7 +66,8 @@ def test_time_series_value() -> None:
     assert tsv.time == HecTime("2024-10-14T10:55:00")
     assert tsv.value == UQ(12.3, "ft")
     assert (
-        tsv.quality.text == "Screened Okay No_Range Original None None None Unprotected"
+        tsv.quality.text
+        == "Screened Okay No_Range Original None None None Unprotected Not_Approved"
     )
     # -------------------------------------- #
     # modify TSV (modify value without unit) #
@@ -83,7 +84,7 @@ def test_time_series_value() -> None:
     assert tsv.value == UQ(13, "ft")
     assert (
         tsv.quality.text
-        == "Screened Missing No_Range Original None None None Protected"
+        == "Screened Missing No_Range Original None None None Protected Not_Approved"
     )
     # ----------------------------------- #
     # modify TSV (modify value with unit) #
@@ -98,7 +99,7 @@ def test_time_series_value() -> None:
     assert tsv.value == UQ(3.96, "m")
     assert (
         tsv.quality.text
-        == "Screened Missing No_Range Original None None None Protected"
+        == "Screened Missing No_Range Original None None None Protected Not_Approved"
     )
 
 
